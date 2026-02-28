@@ -1778,18 +1778,38 @@ select[data-campaign-stage]:focus {
 .campaign-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0;
+  border-spacing: 0 10px;
   table-layout: auto;
 }
 
 .campaign-table th,
 .campaign-table td {
   text-align: left;
-  padding: 8px 6px;
+  padding: 12px 10px;
   border-bottom: none;
-  font-size: 11.5px;
+  font-size: 13px;
   vertical-align: middle;
   white-space: nowrap;
+}
+
+.campaign-table tbody tr {
+  position: relative;
+}
+
+.campaign-table tbody td {
+  background: linear-gradient(180deg, rgba(11, 20, 34, 0.82), rgba(8, 17, 29, 0.72));
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.campaign-table tbody td:first-child {
+  border-left: 1px solid rgba(148, 163, 184, 0.08);
+  border-radius: 18px 0 0 18px;
+}
+
+.campaign-table tbody td:last-child {
+  border-right: 1px solid rgba(148, 163, 184, 0.08);
+  border-radius: 0 18px 18px 0;
 }
 
 @media (min-width: 721px) {
@@ -1826,12 +1846,93 @@ select[data-campaign-stage]:focus {
 .campaign-table th {
   color: var(--muted);
   font-size: 11px;
-  letter-spacing: 0.02em;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding-top: 2px;
+  padding-bottom: 8px;
 }
 
 .campaign-table tr:hover td {
-  background: rgba(255, 255, 255, 0.03);
+  background: linear-gradient(180deg, rgba(13, 25, 41, 0.92), rgba(9, 20, 34, 0.84));
+}
+
+.campaign-table td {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: rgba(234, 244, 255, 0.96);
+}
+
+.campaign-table td::before {
+  font-family: var(--font-heading);
+}
+
+.campaign-table td[data-label="Marca"] {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.campaign-table td[data-label="Marca"] .chip-pill {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.campaign-table td[data-label="Prazo"],
+.campaign-table td[data-label="Status"],
+.campaign-table td[data-label="Etapa"] {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.campaign-table td[data-label="Preço"] {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.campaign-table td[data-label="Status"] .select,
+.campaign-table td[data-label="Etapa"] .select {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.campaign-table td[data-label="Marca"] > div {
+  gap: 8px !important;
+}
+
+.campaign-table .campaign-ind {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.campaign-insight {
+  display: inline-flex;
+  margin-top: 8px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.campaign-table-wrap {
+  padding-bottom: 4px;
+}
+
+.filter-row .filter-btn,
+.campaign-filter-controls .select {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 @media (max-width: 720px) {
@@ -1887,6 +1988,8 @@ select[data-campaign-stage]:focus {
     min-width: 0;
     padding: 10px 0;
     border: none;
+    border-radius: 0;
+    background: transparent;
   }
 
   .campaign-table td + td {
@@ -3143,19 +3246,73 @@ button[data-action="bonus-xp"] {
   white-space: nowrap;
 }
 
+.btn-next-step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(103, 232, 249, 0.22);
+  background: linear-gradient(145deg, rgba(15, 34, 54, 0.94), rgba(8, 20, 34, 0.92));
+  color: var(--text);
+  text-align: left;
+  box-shadow: 0 14px 28px rgba(2, 8, 18, 0.22);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-next-step:hover {
+  transform: translateY(-1px);
+  border-color: rgba(103, 232, 249, 0.4);
+  background: linear-gradient(145deg, rgba(18, 42, 66, 0.98), rgba(10, 26, 43, 0.95));
+  box-shadow: 0 18px 34px rgba(2, 8, 18, 0.26);
+}
+
+.btn-next-step.is-complete {
+  border-color: rgba(52, 211, 153, 0.24);
+  background: linear-gradient(145deg, rgba(12, 37, 34, 0.94), rgba(8, 24, 22, 0.92));
+}
+
+.btn-next-step-eyebrow {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.btn-next-step-title {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.btn-next-step-meta {
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
 .btn-action {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
   border-radius: 6px;
-  font-size: 10.5px;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
   cursor: pointer;
   transition: all .2s ease;
   border: 1px solid;
   white-space: nowrap;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
 }
 .btn-action svg {
   flex-shrink: 0;
@@ -3235,31 +3392,33 @@ button[data-action="bonus-xp"] {
 
 /* ── Priority Campaign Row ── */
 .campaign-priority {
-  box-shadow: 0 0 0 1.5px rgba(245, 158, 11, 0.95), 0 10px 24px rgba(245, 158, 11, 0.2);
+  box-shadow: none;
 }
 .campaign-priority td {
-  border-top-color: rgba(255, 255, 255, 0.08) !important;
-  border-bottom: none !important;
+  background: linear-gradient(180deg, rgba(32, 24, 8, 0.92), rgba(16, 14, 8, 0.84)) !important;
+  border-top: 1.5px solid rgba(245, 158, 11, 0.95) !important;
+  border-bottom: 1.5px solid rgba(245, 158, 11, 0.95) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 215, 140, 0.08);
 }
 
 @media (min-width: 721px) {
   .campaign-priority {
-    box-shadow: 0 0 10px rgba(245, 158, 11, 0.22);
+    box-shadow: none;
   }
 
   .campaign-priority td {
-    border-top: 1.5px solid rgba(245, 158, 11, 0.95) !important;
-    border-bottom: 1.5px solid rgba(245, 158, 11, 0.95) !important;
+    border-left: none !important;
+    border-right: none !important;
   }
 
   .campaign-priority td:first-child {
-    border-left: 1.5px solid rgba(245, 158, 11, 0.95);
-    border-radius: 12px 0 0 12px;
+    border-left: 1.5px solid rgba(245, 158, 11, 0.95) !important;
+    border-radius: 18px 0 0 18px;
   }
 
   .campaign-priority td:last-child {
-    border-right: 1.5px solid rgba(245, 158, 11, 0.95);
-    border-radius: 0 12px 12px 0;
+    border-right: 1.5px solid rgba(245, 158, 11, 0.95) !important;
+    border-radius: 0 18px 18px 0;
   }
 }
 
