@@ -1001,58 +1001,61 @@ const renderBrands = () => {
   const selectedBrand = selectedSummary.brand;
 
   listContainer.innerHTML = `
-    <div class="brand-table-head">
-      <span>Marca</span>
-      <span>Status</span>
-      <span>Total faturado</span>
-      <span>Campanhas</span>
-      <span>Último contato</span>
-      <span>Próximo follow-up</span>
-      <span>Ação pendente</span>
-      <span>Ações</span>
-    </div>
-    ${brandSummaries
-      .map((item) => {
-        const isActive = item.brand.id === selectedBrand.id;
-        const isDormant = ['inativa', 'perdida'].includes(item.brand.status);
-        const actionChip = item.pendingAction
-          ? `<span class="chip chip-pill chip-brand-pending">${escapeHtml(item.nextActionLabel || 'Pendente')}</span>`
-          : '<span class="chip chip-pill">Sem pendência</span>';
-        return `
-          <div class="brand-table-row ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
-            <div class="brand-table-cell brand-table-cell--primary" data-label="Marca">
-              <strong>${escapeHtml(item.brand.name || 'Marca')}</strong>
-              <span class="muted">${escapeHtml(item.brand.contact || item.brand.instagram || item.brand.email || 'Sem contato principal')}</span>
-            </div>
-            <div class="brand-table-cell" data-label="Status">
-              <span class="chip chip-pill chip-brand-status chip-brand-status--${escapeHtml(item.brand.status)}">${escapeHtml(brandStatuses[item.brand.status] || item.brand.status)}</span>
-            </div>
-            <div class="brand-table-cell" data-label="Total faturado">
-              <strong>${formatCurrency(item.totalFaturado)}</strong>
-            </div>
-            <div class="brand-table-cell" data-label="Campanhas">
-              <strong>${item.campaignCount}</strong>
-            </div>
-            <div class="brand-table-cell" data-label="Último contato">
-              <span>${item.lastContact ? formatDateShort(item.lastContact) : '—'}</span>
-            </div>
-            <div class="brand-table-cell" data-label="Próximo follow-up">
-              <span>${formatRelativeAction(item.nextFollowup)}</span>
-            </div>
-            <div class="brand-table-cell" data-label="Ação pendente">
-              ${actionChip}
-            </div>
-            <div class="brand-table-cell brand-table-cell--actions" data-label="Ações">
-              <div class="brand-row-actions">
-                <button class="btn btn-ghost btn-small brand-row-btn brand-row-btn--edit" data-action="edit-brand" data-brand-id="${item.brand.id}" type="button">Editar</button>
-                <button class="btn btn-ghost btn-small brand-row-btn ${isDormant ? 'brand-row-btn--reactivate' : 'brand-row-btn--deactivate'}" data-action="toggle-brand-active" data-brand-id="${item.brand.id}" type="button">${isDormant ? 'Reativar' : 'Desativar'}</button>
-                <button class="btn btn-ghost btn-small brand-row-btn brand-row-btn--campaign" data-action="new-campaign-for-brand" data-brand-id="${item.brand.id}" type="button">Campanha</button>
+    <div class="brand-list-table">
+      <div class="brand-table-head">
+        <span>Marca</span>
+        <span>Status</span>
+        <span>Ação pendente</span>
+        <span>Próximo follow-up</span>
+        <span>Total faturado</span>
+        <span>Campanhas</span>
+        <span>Último contato</span>
+        <span>Ações</span>
+      </div>
+      <div class="brand-table-body">
+        ${brandSummaries
+          .map((item) => {
+            const isActive = item.brand.id === selectedBrand.id;
+            const isDormant = ['inativa', 'perdida'].includes(item.brand.status);
+            const actionChip = item.pendingAction
+              ? `<span class="chip chip-pill chip-brand-pending">${escapeHtml(item.nextActionLabel || 'Pendente')}</span>`
+              : '<span class="chip chip-pill chip-brand-neutral">Sem pendência</span>';
+            return `
+              <div class="brand-table-row ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
+                <div class="brand-table-cell brand-table-cell--primary" data-label="Marca">
+                  <strong>${escapeHtml(item.brand.name || 'Marca')}</strong>
+                  <span class="muted">${escapeHtml(item.brand.contact || item.brand.instagram || item.brand.email || 'Sem contato principal')}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--status" data-label="Status">
+                  <span class="chip chip-pill chip-brand-status chip-brand-status--${escapeHtml(item.brand.status)}">${escapeHtml(brandStatuses[item.brand.status] || item.brand.status)}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--pending" data-label="Ação pendente">
+                  ${actionChip}
+                </div>
+                <div class="brand-table-cell brand-table-cell--next" data-label="Próximo follow-up">
+                  <span>${formatRelativeAction(item.nextFollowup)}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--money" data-label="Total faturado">
+                  <strong>${formatCurrency(item.totalFaturado)}</strong>
+                </div>
+                <div class="brand-table-cell brand-table-cell--count" data-label="Campanhas">
+                  <strong>${item.campaignCount}</strong>
+                </div>
+                <div class="brand-table-cell brand-table-cell--date" data-label="Último contato">
+                  <span>${item.lastContact ? formatDateShort(item.lastContact) : '—'}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--actions" data-label="Ações">
+                  <div class="brand-row-actions">
+                    <button class="btn btn-ghost btn-small brand-row-btn brand-row-btn--edit" data-action="edit-brand" data-brand-id="${item.brand.id}" type="button">Editar</button>
+                    <button class="btn btn-ghost btn-small brand-row-btn ${isDormant ? 'brand-row-btn--reactivate' : 'brand-row-btn--deactivate'}" data-action="toggle-brand-active" data-brand-id="${item.brand.id}" type="button">${isDormant ? 'Reativar' : 'Desativar'}</button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        `;
-      })
-      .join('')}
+            `;
+          })
+          .join('')}
+      </div>
+    </div>
   `;
 
   const nextActionCard = selectedSummary.pendingAction

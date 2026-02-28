@@ -215,6 +215,8 @@ ampaign-status-stage select option {
     grid-template-columns: 1fr 1fr;
     align-items: start;
     gap: 14px;
+    min-width: 0;
+    width: 100%;
   }
 
   .brand-table-cell {
@@ -239,7 +241,7 @@ ampaign-status-stage select option {
   }
 
   .brand-row-actions {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     width: 100%;
   }
 
