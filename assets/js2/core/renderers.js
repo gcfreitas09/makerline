@@ -9,7 +9,6 @@
   typeLabels,
   statusDot,
   brandStatuses,
-  brandInteractionTypes,
   formatCurrency,
   formatPercent,
   xpForLevel,
@@ -1077,10 +1076,6 @@ const renderBrands = () => {
       </div>
     `;
 
-  const interactionOptionsHtml = Object.entries(brandInteractionTypes)
-    .map(([value, label]) => `<option value="${value}">${label}</option>`)
-    .join('');
-
   detailContainer.innerHTML = `
     <div class="brand-detail-header">
       <div>
@@ -1167,40 +1162,6 @@ const renderBrands = () => {
       </div>
     </div>
 
-    <div class="brand-detail-block">
-      <div class="brand-detail-block-head">
-        <div>
-          <h3>Histórico de interações</h3>
-          <p class="muted">Registro simples de DM, email e call.</p>
-        </div>
-      </div>
-
-      <form class="brand-interaction-form" id="brand-interaction-form">
-        <input type="hidden" name="brandId" value="${selectedBrand.id}" />
-        <select class="select" name="type">
-          ${interactionOptionsHtml}
-        </select>
-        <input class="input" name="date" type="date" value="${new Date().toISOString().slice(0, 10)}" />
-        <input class="input" name="note" type="text" maxlength="140" placeholder="Ex: respondeu no email e pediu proposta" />
-        <button class="btn btn-primary btn-small" type="submit">Registrar</button>
-      </form>
-
-      <div class="brand-interaction-list">
-        ${selectedSummary.interactions.length
-          ? selectedSummary.interactions
-              .map((interaction) => `
-                <div class="brand-interaction-item">
-                  <div>
-                    <strong>${escapeHtml(brandInteractionTypes[interaction.type] || interaction.type)}</strong>
-                    <div class="muted">${formatDateShort(interaction.date)}</div>
-                  </div>
-                  <p>${escapeHtml(interaction.note || 'Sem observação.')}</p>
-                </div>
-              `)
-              .join('')
-          : '<p class="muted">Nenhuma interação registrada para essa marca.</p>'}
-      </div>
-    </div>
   `;
 };
 
