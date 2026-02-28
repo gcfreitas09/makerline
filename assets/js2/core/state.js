@@ -278,6 +278,20 @@ const brandStatuses = {
 
 const brandOptions = Object.keys(brandStatuses);
 
+const nextActionLabels = {
+  followup: 'Follow-up',
+  enviar_proposta: 'Enviar proposta',
+  cobrar_resposta: 'Cobrar resposta',
+  enviar_roteiro: 'Enviar roteiro',
+  cobrar_aprovacao: 'Cobrar aprovação',
+  entregar_conteudo: 'Entregar conteúdo',
+  revisar_ajustes: 'Revisar ajustes',
+  cobrar_pagamento: 'Cobrar pagamento',
+  outro: 'Outro'
+};
+
+const nextActionOptions = Object.keys(nextActionLabels);
+
 const deepClone = (value) => JSON.parse(JSON.stringify(value));
 
 const stripUgcPrefix = (value) => String(value || '').replace(/^UGC\s*[-–—]\s*/i, '').trim();
@@ -384,6 +398,48 @@ const normalizeBrandIds = (currentState) => {
   });
 };
 
+const normalizeNextActionFields = (item, { allowPaymentReceived = false } = {}) => {
+  if (!item || typeof item !== 'object') return;
+
+  const rawType = String(item.nextActionType || '').trim();
+  const nextActionType = nextActionOptions.includes(rawType) ? rawType : '';
+  const nextActionDate = /^\d{4}-\d{2}-\d{2}$/.test(String(item.nextActionDate || '').trim())
+    ? String(item.nextActionDate || '').trim()
+    : '';
+  const nextActionCustomType = String(item.nextActionCustomType || '').trim().slice(0, 80);
+  const nextActionNote = String(item.nextActionNote || '').trim().slice(0, 140);
+
+  if (!nextActionType || !nextActionDate || (nextActionType === 'outro' && !nextActionCustomType)) {
+    item.nextActionType = '';
+    item.nextActionCustomType = '';
+    item.nextActionDate = '';
+    item.nextActionNote = '';
+  } else {
+    item.nextActionType = nextActionType;
+    item.nextActionCustomType = nextActionType === 'outro' ? nextActionCustomType : '';
+    item.nextActionDate = nextActionDate;
+    item.nextActionNote = nextActionNote;
+  }
+
+  if (!allowPaymentReceived) return;
+
+  item.paymentReceivedAt = /^\d{4}-\d{2}-\d{2}$/.test(String(item.paymentReceivedAt || '').trim())
+    ? String(item.paymentReceivedAt || '').trim()
+    : '';
+};
+
+const normalizeCampaignActionFields = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+  const campaigns = Array.isArray(currentState.campaigns) ? currentState.campaigns : [];
+  campaigns.forEach((campaign) => normalizeNextActionFields(campaign, { allowPaymentReceived: true }));
+};
+
+const normalizeBrandActionFields = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+  const brands = Array.isArray(currentState.brands) ? currentState.brands : [];
+  brands.forEach((brand) => normalizeNextActionFields(brand));
+};
+
 const mergeState = (base, incoming) => {
   if (Array.isArray(base)) {
     return Array.isArray(incoming) ? incoming : base;
@@ -451,6 +507,8 @@ const loadState = () => {
 
   normalizeCampaignTitles(nextState);
   normalizeCampaignPipeline(nextState);
+  normalizeCampaignActionFields(nextState);
+  normalizeBrandActionFields(nextState);
   normalizeBrandIds(nextState);
   return nextState;
 };
@@ -562,6 +620,9 @@ const replaceState = (nextState) => {
   if (!nextState || typeof nextState !== 'object') return;
   const merged = mergeState(defaultState, nextState);
   normalizeCampaignTitles(merged);
+  normalizeCampaignPipeline(merged);
+  normalizeCampaignActionFields(merged);
+  normalizeBrandActionFields(merged);
   normalizeBrandIds(merged);
   state = merged;
 };
@@ -1038,6 +1099,13 @@ const badgeCatalog = [
 
 const getBadgeById = (id) => badgeCatalog.find(b => b.id === id) || null;
 
+const getNextActionLabel = (type, customType = '') => {
+  const safeType = String(type || '').trim();
+  if (!safeType) return '';
+  if (safeType === 'outro') return String(customType || '').trim() || nextActionLabels.outro;
+  return nextActionLabels[safeType] || safeType;
+};
+
 export {
   STORAGE_KEY,
   PREFS_KEY,
@@ -1052,6 +1120,9 @@ export {
   statusDot,
   brandStatuses,
   brandOptions,
+  nextActionLabels,
+  nextActionOptions,
+  getNextActionLabel,
   deepClone,
   mergeState,
   loadState,
@@ -1078,7 +1149,6 @@ export {
   badgeCatalog,
   getBadgeById
 };
-
 
 
 

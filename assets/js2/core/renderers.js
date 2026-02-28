@@ -2,9 +2,10 @@
   state,
   statusLabels,
   campaignStatusOrder,
-  campaignStagesByStatus,
   getCampaignStageOptions,
   getDefaultCampaignStage,
+  getCampaignStageLabel,
+  getNextActionLabel,
   typeLabels,
   statusDot,
   brandStatuses,
@@ -278,221 +279,302 @@ const renderChallenges = () => {
 };
 
 /* ════════════════════════════════════════════
-   DASHBOARD FINANCEIRO – Situação do Mês,
-   Ações Críticas e Rentabilidade
+   DASHBOARD – Ações, Financeiro, Pipeline e Meta
    ════════════════════════════════════════════ */
 
 const computeDashboardFinance = () => {
   const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
+  const brands = Array.isArray(state.brands) ? state.brands : [];
   const now = new Date();
-  const curMonth = now.getMonth();
-  const curYear = now.getFullYear();
+  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const todayKey = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`;
+  const plusThree = new Date(today.getTime());
+  plusThree.setUTCDate(plusThree.getUTCDate() + 3);
 
-  const isCurrentMonth = (dateStr) => {
-    if (!dateStr) return false;
-    const d = new Date(dateStr);
-    return d.getMonth() === curMonth && d.getFullYear() === curYear;
+  const parseDay = (value) => {
+    const safe = String(value || '').trim();
+    if (!safe) return null;
+    const date = new Date(`${safe}T00:00:00Z`);
+    return Number.isNaN(date.getTime()) ? null : date;
   };
 
-  const isPrevMonth = (dateStr) => {
-    if (!dateStr) return false;
-    const d = new Date(dateStr);
-    const pm = curMonth === 0 ? 11 : curMonth - 1;
-    const py = curMonth === 0 ? curYear - 1 : curYear;
-    return d.getMonth() === pm && d.getFullYear() === py;
+  const dayDiff = (value) => {
+    const date = parseDay(value);
+    if (!date) return null;
+    return Math.floor((date.getTime() - today.getTime()) / 86400000);
   };
 
-  const todayStr = `${curYear}-${String(curMonth + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const sumValues = (items) => items.reduce((total, item) => total + (Number(item?.value) || 0), 0);
 
-  const monthCampaigns = campaigns.filter((c) =>
-    isCurrentMonth(c.createdAt) || isCurrentMonth(c.updatedAt) || isCurrentMonth(c.dueDate) || isCurrentMonth(c.paymentDate)
-  );
-  const receitaPrevista = monthCampaigns.reduce((s, c) => s + (c.value || 0), 0);
-  const receitaConfirmada = monthCampaigns
-    .filter((c) => c.status === 'concluida' || (c.paymentPercent && c.paymentPercent >= 100))
-    .reduce((s, c) => s + (c.value || 0), 0);
+  const isCurrentMonthDay = (value) => {
+    const date = parseDay(value);
+    return Boolean(date && date.getUTCMonth() === today.getUTCMonth() && date.getUTCFullYear() === today.getUTCFullYear());
+  };
 
-  const meta = state.settings?.monthlyGoal || receitaPrevista || 0;
-  const diffValor = receitaConfirmada - meta;
-  const diffPercent = meta ? ((receitaConfirmada / meta) * 100) : 0;
-  const metaOk = diffValor >= 0;
+  const isLegacyReceivedThisMonth = (campaign) => {
+    if (campaign.paymentReceivedAt) return false;
+    const paymentPercent = Number.isFinite(campaign.paymentPercent) ? campaign.paymentPercent : parseInt(String(campaign.paymentPercent || ''), 10) || 0;
+    if (!(campaign.status === 'concluida' || paymentPercent >= 100)) return false;
+    const date = campaign.updatedAt ? new Date(campaign.updatedAt) : campaign.createdAt ? new Date(campaign.createdAt) : null;
+    return Boolean(date && !Number.isNaN(date.getTime()) && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear());
+  };
 
-  const hoje = todayStr;
-  const vencendoHoje = campaigns.filter((c) => c.dueDate === hoje && c.status !== 'concluida');
-  const pagamentosAtrasados = campaigns.filter((c) => {
-    if (!c.paymentDate || c.status === 'concluida') return false;
-    const pp = Number.isFinite(c.paymentPercent) ? c.paymentPercent : 0;
-    return c.paymentDate < hoje && pp < 100;
+  const pendingPayments = campaigns.filter((campaign) => {
+    if (!campaign || campaign.archived) return false;
+    const paymentPercent = Number.isFinite(campaign.paymentPercent) ? campaign.paymentPercent : parseInt(String(campaign.paymentPercent || ''), 10) || 0;
+    return campaign.stage === 'aguardando_pagamento' && paymentPercent < 100;
   });
-  const metaEmRisco = !metaOk && receitaPrevista > 0;
 
-  const brandMap = {};
-  campaigns.forEach((c) => {
-    const brand = c.brand || 'Sem marca';
-    if (!brandMap[brand]) brandMap[brand] = { total: 0, count: 0 };
-    brandMap[brand].total += c.value || 0;
-    brandMap[brand].count += 1;
+  const overduePayments = pendingPayments.filter((campaign) => campaign.paymentDate && campaign.paymentDate < todayKey);
+  const receivedThisMonth = campaigns.filter((campaign) => isCurrentMonthDay(campaign.paymentReceivedAt) || isLegacyReceivedThisMonth(campaign));
+  const scheduledThisMonth = campaigns.filter((campaign) => campaign && !campaign.archived && isCurrentMonthDay(campaign.paymentDate));
+
+  const followups = [];
+
+  campaigns.forEach((campaign) => {
+    if (!campaign || campaign.archived || !campaign.nextActionType || !campaign.nextActionDate) return;
+    const sortDays = dayDiff(campaign.nextActionDate);
+    if (sortDays === null) return;
+    followups.push({
+      source: 'campaign',
+      id: campaign.id,
+      title: campaign.brand || campaign.title || 'Campanha',
+      subtitle: campaign.title && campaign.title !== campaign.brand ? campaign.title : 'Campanha',
+      actionLabel: getNextActionLabel(campaign.nextActionType, campaign.nextActionCustomType),
+      date: campaign.nextActionDate,
+      note: campaign.nextActionNote || '',
+      sortDays
+    });
   });
-  const brandEntries = Object.entries(brandMap).filter(([, v]) => v.count > 0);
-  brandEntries.sort((a, b) => (b[1].total / b[1].count) - (a[1].total / a[1].count));
 
-  const maisLucrativa = brandEntries.length > 0 ? { name: brandEntries[0][0], avg: Math.round(brandEntries[0][1].total / brandEntries[0][1].count) } : null;
-  const menosLucrativa = brandEntries.length > 1 ? { name: brandEntries[brandEntries.length - 1][0], avg: Math.round(brandEntries[brandEntries.length - 1][1].total / brandEntries[brandEntries.length - 1][1].count) } : null;
+  brands.forEach((brand) => {
+    if (!brand || !brand.nextActionType || !brand.nextActionDate) return;
+    const sortDays = dayDiff(brand.nextActionDate);
+    if (sortDays === null) return;
+    followups.push({
+      source: 'brand',
+      id: brand.id,
+      title: brand.name || 'Marca',
+      subtitle: brand.contact ? `Contato: ${brand.contact}` : 'Marca',
+      actionLabel: getNextActionLabel(brand.nextActionType, brand.nextActionCustomType),
+      date: brand.nextActionDate,
+      note: brand.nextActionNote || '',
+      sortDays
+    });
+  });
 
-  const doneCampaigns = campaigns.filter((c) => c.status === 'concluida');
-  const ticketMedio = doneCampaigns.length ? Math.round(doneCampaigns.reduce((s, c) => s + (c.value || 0), 0) / doneCampaigns.length) : 0;
+  followups.sort((a, b) => {
+    if ((a.sortDays < 0) !== (b.sortDays < 0)) return a.sortDays < 0 ? -1 : 1;
+    if (a.sortDays !== b.sortDays) return a.sortDays - b.sortDays;
+    return a.title.localeCompare(b.title, 'pt-BR');
+  });
 
-  const prevMonthCampaigns = campaigns.filter((c) =>
-    isPrevMonth(c.createdAt) || isPrevMonth(c.updatedAt) || isPrevMonth(c.dueDate)
-  );
-  const prevReceita = prevMonthCampaigns
-    .filter((c) => c.status === 'concluida' || (c.paymentPercent && c.paymentPercent >= 100))
-    .reduce((s, c) => s + (c.value || 0), 0);
-  const crescimento = prevReceita ? (((receitaConfirmada - prevReceita) / prevReceita) * 100) : 0;
+  const deadlines = campaigns
+    .filter((campaign) => {
+      if (!campaign || campaign.archived || campaign.status === 'concluida' || !campaign.dueDate) return false;
+      const due = parseDay(campaign.dueDate);
+      return Boolean(due && due.getTime() <= plusThree.getTime());
+    })
+    .map((campaign) => ({
+      id: campaign.id,
+      title: campaign.title || campaign.brand || 'Campanha',
+      brand: campaign.brand || 'Sem marca',
+      dueDate: campaign.dueDate,
+      sortDays: dayDiff(campaign.dueDate),
+      statusLabel: [statusLabels[campaign.status] || campaign.status, getCampaignStageLabel(campaign.status, campaign.stage)]
+        .filter(Boolean)
+        .join(' · ')
+    }))
+    .sort((a, b) => {
+      if ((a.sortDays < 0) !== (b.sortDays < 0)) return a.sortDays < 0 ? -1 : 1;
+      if (a.sortDays !== b.sortDays) return a.sortDays - b.sortDays;
+      return a.title.localeCompare(b.title, 'pt-BR');
+    });
+
+  const payments = pendingPayments
+    .map((campaign) => ({
+      id: campaign.id,
+      brand: campaign.brand || 'Sem marca',
+      title: campaign.title || campaign.brand || 'Campanha',
+      value: Number(campaign.value) || 0,
+      paymentDate: campaign.paymentDate || '',
+      overdue: Boolean(campaign.paymentDate && campaign.paymentDate < todayKey),
+      statusLabel: campaign.paymentDate && campaign.paymentDate < todayKey ? 'Atrasado' : 'A receber'
+    }))
+    .sort((a, b) => {
+      if (a.overdue !== b.overdue) return a.overdue ? -1 : 1;
+      if ((a.paymentDate || '9999-12-31') !== (b.paymentDate || '9999-12-31')) return (a.paymentDate || '9999-12-31').localeCompare(b.paymentDate || '9999-12-31');
+      return a.brand.localeCompare(b.brand, 'pt-BR');
+    });
+
+  const financeiro = {
+    aReceber: sumValues(pendingPayments),
+    atrasado: sumValues(overduePayments),
+    recebidoNoMes: sumValues(receivedThisMonth)
+  };
+
+  const pipeline = {
+    negociacao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'prospeccao' && campaign.stage === 'negociacao').length,
+    producao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'producao').length,
+    aprovacao: campaigns.filter((campaign) => campaign && !campaign.archived && ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage)).length,
+    pagamento: pendingPayments.length
+  };
 
   return {
-    receitaPrevista, receitaConfirmada, meta, diffValor, diffPercent, metaOk,
-    vencendoHoje, pagamentosAtrasados, metaEmRisco,
-    maisLucrativa, menosLucrativa, ticketMedio, crescimento
+    todayKey,
+    followups,
+    deadlines,
+    payments,
+    financeiro,
+    pipeline,
+    meta: {
+      metaMensal: Number(state.settings?.monthlyGoal) || 0,
+      receitaConfirmada: financeiro.recebidoNoMes,
+      receitaPrevista: sumValues(scheduledThisMonth)
+    }
   };
 };
 
 const renderDashboardFinancials = () => {
-  const financeContainer = document.querySelector('[data-finance-month]');
-  const alertsContainer = document.querySelector('[data-critical-actions]');
-  const profitContainer = document.querySelector('[data-profitability]');
-  if (!financeContainer) return;
+  const financialContainer = document.querySelector('[data-dashboard-financial]');
+  const pipelineContainer = document.querySelector('[data-dashboard-pipeline]');
+  const goalContainer = document.querySelector('[data-dashboard-goal]');
+  const followupsContainer = document.querySelector('[data-dashboard-followups]');
+  const deadlinesContainer = document.querySelector('[data-dashboard-deadlines]');
+  const paymentsContainer = document.querySelector('[data-dashboard-payments]');
+  if (!financialContainer || !pipelineContainer || !goalContainer || !followupsContainer || !deadlinesContainer || !paymentsContainer) return;
 
   const d = computeDashboardFinance();
 
-  const progressPct = Math.min(Math.round(d.diffPercent), 100);
-  const progressBarClass = d.metaOk ? '' : 'finance-progress-fill--red';
+  const formatDateShort = (value) => {
+    const safe = String(value || '').trim();
+    if (!safe) return 'Sem data';
+    const parts = safe.split('-');
+    if (parts.length !== 3) return safe;
+    return `${parts[2]}/${parts[1]}`;
+  };
 
-  const indicatorClass = d.metaOk ? 'finance-indicator--green' : 'finance-indicator--red';
-  const indicatorIcon = d.metaOk
-    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
-    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-  const indicatorLabel = d.metaOk
-    ? 'Meta atingida'
-    : `Voc\u00ea est\u00e1 ${formatCurrency(Math.abs(d.diffValor))} abaixo da meta.`;
+  const renderEmpty = (label) => `<p class="muted">${label}</p>`;
 
-  financeContainer.innerHTML = `
-    <div class="card finance-card finance-card--hero">
-      <div class="finance-hero-top">
-        <div class="finance-card-block finance-card-block--main">
-          <div class="finance-label">Receita confirmada</div>
-          <div class="finance-value finance-value--xl finance-value--accent">${formatCurrency(d.receitaConfirmada)}</div>
-        </div>
-        <div class="finance-indicator ${indicatorClass}">
-          <span class="finance-indicator-icon">${indicatorIcon}</span>
-          <span>${d.metaOk ? 'No caminho' : 'Abaixo'}</span>
-        </div>
-      </div>
-
-      <div class="finance-progress">
-        <div class="finance-progress-track">
-          <div class="finance-progress-fill ${progressBarClass}" style="width: ${progressPct}%"></div>
-        </div>
-        <div class="finance-progress-labels">
-          <span class="muted">${Math.round(d.diffPercent)}% da meta</span>
-          <span class="muted">${formatCurrency(d.meta)}</span>
-        </div>
-      </div>
-
-      <div class="finance-card-row">
-        <div class="finance-card-block">
-          <div class="finance-label">Receita prevista</div>
-          <div class="finance-value">${formatCurrency(d.receitaPrevista)}</div>
-        </div>
-        <div class="finance-card-block">
-          <div class="finance-label" style="display:flex;align-items:center;gap:6px">Meta do m\u00eas
-            <button type="button" data-action="edit-monthly-goal" class="btn-edit-meta" title="Definir meta do m\u00eas" style="background:none;border:1px solid rgba(255,255,255,.15);border-radius:6px;cursor:pointer;padding:2px 6px;display:inline-flex;align-items:center;gap:4px;color:var(--accent,#2dd4a8);font-size:11px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              Editar
-            </button>
+  followupsContainer.innerHTML = d.followups.length
+    ? d.followups.map((item) => `
+        <article class="dashboard-item dashboard-item--followup">
+          <div class="dashboard-item-main">
+            <div class="dashboard-item-topline">
+              <div>
+                <strong>${escapeHtml(item.title)}</strong>
+                <div class="dashboard-item-sub">${escapeHtml(item.subtitle)}</div>
+              </div>
+              ${item.sortDays < 0 ? `<span class="dashboard-badge dashboard-badge--danger">Atrasado ${Math.abs(item.sortDays)} dia(s)</span>` : ''}
+            </div>
+            <div class="dashboard-item-meta">
+              <span>${escapeHtml(item.actionLabel)}</span>
+              <span>${escapeHtml(formatDateShort(item.date))}</span>
+            </div>
+            ${item.note ? `<p class="dashboard-item-note">${escapeHtml(item.note)}</p>` : ''}
           </div>
-          <div class="finance-value">${formatCurrency(d.meta)}</div>
-        </div>
-        <div class="finance-card-block">
-          <div class="finance-label">Diferen\u00e7a</div>
-          <div class="finance-value ${d.metaOk ? 'finance-value--green' : 'finance-value--red'}">
-            ${d.diffValor >= 0 ? '+' : ''}${formatCurrency(d.diffValor)}
+          <div class="dashboard-item-actions">
+            <button class="btn btn-ghost btn-small" data-action="${item.source === 'brand' ? 'edit-brand-action' : 'open-campaign'}" ${item.source === 'brand' ? `data-brand-id="${item.id}"` : `data-campaign-id="${item.id}"`} type="button">Editar</button>
+            <button class="btn btn-primary btn-small" data-action="complete-next-action" data-source="${item.source}" data-id="${item.id}" type="button">Marcar como feito</button>
           </div>
-        </div>
-      </div>
+        </article>
+      `).join('')
+    : renderEmpty('Nenhum follow-up pendente.');
 
-      ${!d.metaOk ? `
-        <div class="finance-alert-banner">
-          <span class="finance-alert-icon">${indicatorIcon}</span>
-          <span>${indicatorLabel}</span>
-        </div>
-      ` : ''}
+  deadlinesContainer.innerHTML = d.deadlines.length
+    ? d.deadlines.map((item) => `
+        <article class="dashboard-item">
+          <div class="dashboard-item-main">
+            <div class="dashboard-item-topline">
+              <div>
+                <strong>${escapeHtml(item.title)}</strong>
+                <div class="dashboard-item-sub">${escapeHtml(item.brand)}</div>
+              </div>
+              ${item.sortDays < 0 ? '<span class="dashboard-badge dashboard-badge--danger">Atrasada</span>' : ''}
+            </div>
+            <div class="dashboard-item-meta">
+              <span>${escapeHtml(formatDateShort(item.dueDate))}</span>
+              <span>${escapeHtml(item.statusLabel)}</span>
+            </div>
+          </div>
+          <div class="dashboard-item-actions">
+            <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${item.id}" type="button">Abrir campanha</button>
+          </div>
+        </article>
+      `).join('')
+    : renderEmpty('Nenhum prazo próximo.');
+
+  paymentsContainer.innerHTML = d.payments.length
+    ? d.payments.map((item) => `
+        <article class="dashboard-item">
+          <div class="dashboard-item-main">
+            <div class="dashboard-item-topline">
+              <div>
+                <strong>${escapeHtml(item.brand)}</strong>
+                <div class="dashboard-item-sub">${escapeHtml(item.title)}</div>
+              </div>
+              <span class="dashboard-badge ${item.overdue ? 'dashboard-badge--danger' : 'dashboard-badge--neutral'}">${item.statusLabel}</span>
+            </div>
+            <div class="dashboard-item-meta">
+              <span>${formatCurrency(item.value)}</span>
+              <span>${escapeHtml(item.paymentDate ? formatDateShort(item.paymentDate) : 'Sem data prevista')}</span>
+            </div>
+          </div>
+          <div class="dashboard-item-actions">
+            <button class="btn btn-primary btn-small" data-action="mark-payment-received" data-campaign-id="${item.id}" type="button">Marcar como recebido</button>
+          </div>
+        </article>
+      `).join('')
+    : renderEmpty('Nenhum pagamento pendente.');
+
+  financialContainer.innerHTML = `
+    <div class="dashboard-metric">
+      <span class="dashboard-metric-label">A receber</span>
+      <strong class="dashboard-metric-value">${formatCurrency(d.financeiro.aReceber)}</strong>
+    </div>
+    <div class="dashboard-metric">
+      <span class="dashboard-metric-label">Atrasado</span>
+      <strong class="dashboard-metric-value dashboard-metric-value--danger">${formatCurrency(d.financeiro.atrasado)}</strong>
+    </div>
+    <div class="dashboard-metric">
+      <span class="dashboard-metric-label">Recebido no mês</span>
+      <strong class="dashboard-metric-value dashboard-metric-value--accent">${formatCurrency(d.financeiro.recebidoNoMes)}</strong>
     </div>
   `;
 
-  // A\u00e7\u00f5es Cr\u00edticas
-  if (alertsContainer) {
-    const items = [];
+  pipelineContainer.innerHTML = `
+    <div class="dashboard-pipeline-item">
+      <span class="dashboard-pipeline-label">Leads em negociação</span>
+      <strong class="dashboard-pipeline-value">${d.pipeline.negociacao}</strong>
+    </div>
+    <div class="dashboard-pipeline-item">
+      <span class="dashboard-pipeline-label">Campanhas em produção</span>
+      <strong class="dashboard-pipeline-value">${d.pipeline.producao}</strong>
+    </div>
+    <div class="dashboard-pipeline-item">
+      <span class="dashboard-pipeline-label">Aguardando aprovação</span>
+      <strong class="dashboard-pipeline-value">${d.pipeline.aprovacao}</strong>
+    </div>
+    <div class="dashboard-pipeline-item">
+      <span class="dashboard-pipeline-label">Aguardando pagamento</span>
+      <strong class="dashboard-pipeline-value">${d.pipeline.pagamento}</strong>
+    </div>
+  `;
 
-    d.vencendoHoje.forEach((c) => {
-      items.push(`
-        <button class="alert-item alert-item--warning" data-action="open-campaign" data-campaign-id="${c.id}" type="button">
-          <span class="alert-icon alert-icon--warning">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </span>
-          <span class="alert-text"><strong>Vence hoje:</strong> ${c.brand || c.title || 'Campanha'}</span>
-          <span class="alert-arrow">\u2192</span>
-        </button>
-      `);
-    });
-
-    d.pagamentosAtrasados.forEach((c) => {
-      items.push(`
-        <button class="alert-item alert-item--danger" data-action="open-campaign" data-campaign-id="${c.id}" type="button">
-          <span class="alert-icon alert-icon--danger">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>
-          </span>
-          <span class="alert-text"><strong>Pagamento atrasado:</strong> ${c.brand || c.title || 'Campanha'} \u2014 ${formatCurrency(c.value || 0)}</span>
-          <span class="alert-arrow">\u2192</span>
-        </button>
-      `);
-    });
-
-    alertsContainer.innerHTML = items.length ? items.join('') : '<p class="muted">Nenhuma ação pendente agora.</p>';
-  }
-
-  // Rentabilidade
-  if (profitContainer) {
-    const crescLabel = d.crescimento >= 0 ? `+${Math.round(d.crescimento)}%` : `${Math.round(d.crescimento)}%`;
-    const crescClass = d.crescimento >= 0 ? 'finance-value--green' : 'finance-value--red';
-
-    profitContainer.innerHTML = `
-      <div class="card profit-card">
-        <div class="profit-icon">${iconSvg('trend')}</div>
-        <div class="profit-label">Marca mais lucrativa</div>
-        <div class="profit-value">${d.maisLucrativa ? d.maisLucrativa.name : '\u2014'}</div>
-        <div class="profit-sub">${d.maisLucrativa ? formatCurrency(d.maisLucrativa.avg) + '/campanha' : 'Sem dados'}</div>
-      </div>
-      <div class="card profit-card">
-        <div class="profit-icon">${iconSvg('bars')}</div>
-        <div class="profit-label">Marca menos lucrativa</div>
-        <div class="profit-value">${d.menosLucrativa ? d.menosLucrativa.name : '\u2014'}</div>
-        <div class="profit-sub">${d.menosLucrativa ? formatCurrency(d.menosLucrativa.avg) + '/campanha' : 'Sem dados'}</div>
-      </div>
-      <div class="card profit-card">
-        <div class="profit-icon">${iconSvg('ticket')}</div>
-        <div class="profit-label">Ticket m\u00e9dio</div>
-        <div class="profit-value">${formatCurrency(d.ticketMedio)}</div>
-        <div class="profit-sub">Campanhas conclu\u00eddas</div>
-      </div>
-      <div class="card profit-card">
-        <div class="profit-icon">${iconSvg('cash')}</div>
-        <div class="profit-label">Crescimento vs m\u00eas anterior</div>
-        <div class="profit-value ${crescClass}">${crescLabel}</div>
-        <div class="profit-sub">${d.crescimento >= 0 ? 'Acima do m\u00eas passado' : 'Abaixo do m\u00eas passado'}</div>
-      </div>
-    `;
-  }
+  goalContainer.innerHTML = `
+    <div class="dashboard-metric">
+      <span class="dashboard-metric-label">Meta mensal</span>
+      <strong class="dashboard-metric-value">${formatCurrency(d.meta.metaMensal)}</strong>
+    </div>
+    <div class="dashboard-metric">
+      <span class="dashboard-metric-label">Receita confirmada</span>
+      <strong class="dashboard-metric-value dashboard-metric-value--accent">${formatCurrency(d.meta.receitaConfirmada)}</strong>
+    </div>
+    <div class="dashboard-metric">
+      <span class="dashboard-metric-label">Receita prevista</span>
+      <strong class="dashboard-metric-value">${formatCurrency(d.meta.receitaPrevista)}</strong>
+    </div>
+  `;
 };
 
 /* ── Model campaign rendering helpers ──────────────────────── */

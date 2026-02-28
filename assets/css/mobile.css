@@ -124,3 +124,48 @@ ampaign-status-stage select option {
   color: #a78bfa;
   border-radius: 0;
 }
+
+@media (max-width: 1024px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-auto-rows: auto;
+  }
+
+  .dashboard-sidebar {
+    order: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-card {
+    padding: 18px;
+    gap: 16px;
+  }
+
+  .dashboard-group-header,
+  .dashboard-card-header,
+  .dashboard-item,
+  .dashboard-item-topline {
+    flex-direction: column;
+  }
+
+  .dashboard-card-header,
+  .dashboard-group-header,
+  .dashboard-item-actions {
+    align-items: stretch;
+  }
+
+  .dashboard-item-actions .btn,
+  .dashboard-group-header .btn {
+    width: 100%;
+  }
+
+  .dashboard-pipeline-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-metric-value {
+    font-size: 28px;
+  }
+}

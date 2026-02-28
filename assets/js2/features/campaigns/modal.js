@@ -1,4 +1,4 @@
-import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
+import { state, saveState, getDefaultCampaignStage, nextActionOptions } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js';
 import { showToast } from '../../core/ui.js';
 import { trackEvent } from '../../core/gamification.js';
@@ -22,6 +22,19 @@ const formatMoneyBRL = (raw) => {
 const parseMoneyBRL = (raw) => {
   const digits = String(raw || '').replace(/\D/g, '');
   return digits ? parseInt(digits, 10) : 0;
+};
+
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
+const toggleNextActionCustomRow = (form, value) => {
+  const customRow = document.getElementById('campaign-next-action-custom-row');
+  const customInput = form?.querySelector('input[name="nextActionCustomType"]');
+  const show = value === 'outro';
+  if (customRow) customRow.style.display = show ? '' : 'none';
+  if (customInput) {
+    customInput.required = show;
+    if (!show) customInput.value = '';
+  }
 };
 
 const setModalMode = ({ mode, campaign }) => {
@@ -50,6 +63,8 @@ const openCampaignModal = (campaignId) => {
   if (paymentPresetSelect) paymentPresetSelect.value = '0';
   const paymentDateInput = form.querySelector('input[name="paymentDate"]');
   if (paymentDateInput) paymentDateInput.value = '';
+  const paymentReceivedInput = form.querySelector('input[name="paymentReceivedAt"]');
+  if (paymentReceivedInput) paymentReceivedInput.value = '';
 
   const startMethodSelect = form.querySelector('select[name="startMethod"]');
   if (startMethodSelect) startMethodSelect.value = '';
@@ -61,9 +76,18 @@ const openCampaignModal = (campaignId) => {
   const contactNameInput = form.querySelector('input[name="contactName"]');
   const contactEmailInput = form.querySelector('input[name="contactEmail"]');
   const mailtoBtn = document.getElementById('campaign-mailto-btn');
+  const nextActionTypeSelect = form.querySelector('select[name="nextActionType"]');
+  const nextActionDateInput = form.querySelector('input[name="nextActionDate"]');
+  const nextActionNoteInput = form.querySelector('input[name="nextActionNote"]');
+  const nextActionCustomInput = form.querySelector('input[name="nextActionCustomType"]');
   if (contactNameInput) contactNameInput.value = '';
   if (contactEmailInput) contactEmailInput.value = '';
   if (mailtoBtn) mailtoBtn.style.display = 'none';
+  if (nextActionTypeSelect) nextActionTypeSelect.value = '';
+  if (nextActionDateInput) nextActionDateInput.value = '';
+  if (nextActionNoteInput) nextActionNoteInput.value = '';
+  if (nextActionCustomInput) nextActionCustomInput.value = '';
+  toggleNextActionCustomRow(form, '');
 
   if (msg) msg.textContent = '';
 
@@ -102,6 +126,7 @@ const openCampaignModal = (campaignId) => {
         paymentPresetSelect.value = clamped >= 100 ? '100' : clamped > 0 ? '50' : '0';
       }
       if (paymentDateInput) paymentDateInput.value = campaign.paymentDate || '';
+      if (paymentReceivedInput) paymentReceivedInput.value = campaign.paymentReceivedAt || '';
 
       // Contato
       if (contactNameInput) contactNameInput.value = campaign.contactName || '';
@@ -110,6 +135,11 @@ const openCampaignModal = (campaignId) => {
         mailtoBtn.href = `mailto:${encodeURIComponent(campaign.contactEmail)}`;
         mailtoBtn.style.display = '';
       }
+      if (nextActionTypeSelect) nextActionTypeSelect.value = campaign.nextActionType || '';
+      if (nextActionDateInput) nextActionDateInput.value = campaign.nextActionDate || '';
+      if (nextActionNoteInput) nextActionNoteInput.value = campaign.nextActionNote || '';
+      if (nextActionCustomInput) nextActionCustomInput.value = campaign.nextActionCustomType || '';
+      toggleNextActionCustomRow(form, campaign.nextActionType || '');
 
       const lifeSelect = form.querySelector('select[name="lifecycle"]');
       if (lifeSelect) {
@@ -190,11 +220,29 @@ const handleCampaignSubmit = (event) => {
   const paymentPresetParsed = parseInt(paymentPresetRaw, 10);
   const paymentPercent = [0, 50, 100].includes(paymentPresetParsed) ? paymentPresetParsed : 0;
   const paymentDate = String(data.get('paymentDate') || '').trim();
+  const paymentReceivedAtRaw = String(data.get('paymentReceivedAt') || '').trim();
   const contactName = String(data.get('contactName') || '').trim();
   const contactEmail = String(data.get('contactEmail') || '').trim();
+  const nextActionTypeRaw = String(data.get('nextActionType') || '').trim();
+  const nextActionType = nextActionOptions.includes(nextActionTypeRaw) ? nextActionTypeRaw : '';
+  const nextActionCustomType = String(data.get('nextActionCustomType') || '').trim().slice(0, 80);
+  const nextActionDate = String(data.get('nextActionDate') || '').trim();
+  const nextActionNote = String(data.get('nextActionNote') || '').trim().slice(0, 140);
+  const paymentReceivedAt =
+    paymentPercent >= 100
+      ? (paymentReceivedAtRaw || todayIso())
+      : '';
 
   if (!brand) {
     if (msg) msg.textContent = 'Coloca a marca pra salvar.';
+    return;
+  }
+  if (nextActionType && !nextActionDate) {
+    if (msg) msg.textContent = 'Defina a data da próxima ação.';
+    return;
+  }
+  if (nextActionType === 'outro' && !nextActionCustomType) {
+    if (msg) msg.textContent = 'Descreva o tipo personalizado da próxima ação.';
     return;
   }
 
@@ -225,8 +273,13 @@ const handleCampaignSubmit = (event) => {
     campaign.startMethodOther = startMethodSafe === 'other' ? startMethodOther : '';
     campaign.paymentPercent = paymentPercent;
     campaign.paymentDate = paymentDate;
+    campaign.paymentReceivedAt = paymentReceivedAt;
     campaign.contactName = contactName;
     campaign.contactEmail = contactEmail;
+    campaign.nextActionType = nextActionType;
+    campaign.nextActionCustomType = nextActionType === 'outro' ? nextActionCustomType : '';
+    campaign.nextActionDate = nextActionType ? nextActionDate : '';
+    campaign.nextActionNote = nextActionType ? nextActionNote : '';
     applyLifecycle(campaign, lifecycle);
     campaign.updatedAt = nowIso;
 
@@ -271,8 +324,13 @@ const handleCampaignSubmit = (event) => {
     startMethodOther: startMethodSafe === 'other' ? startMethodOther : '',
     paymentPercent,
     paymentDate,
+    paymentReceivedAt,
     contactName,
     contactEmail,
+    nextActionType,
+    nextActionCustomType: nextActionType === 'outro' ? nextActionCustomType : '',
+    nextActionDate: nextActionType ? nextActionDate : '',
+    nextActionNote: nextActionType ? nextActionNote : '',
     paused: false,
     archived: false,
     createdAt: nowIso,
@@ -310,11 +368,17 @@ const initCampaignForm = () => {
   const startMethodSelect = campaignForm.querySelector('select[name="startMethod"]');
   const startOtherRow = document.getElementById('campaign-start-other-row');
   const startOtherInput = campaignForm.querySelector('input[name="startMethodOther"]');
+  const nextActionTypeSelect = campaignForm.querySelector('select[name="nextActionType"]');
   if (startMethodSelect) {
     startMethodSelect.addEventListener('change', () => {
       const show = startMethodSelect.value === 'other';
       if (startOtherRow) startOtherRow.style.display = show ? '' : 'none';
       if (!show && startOtherInput) startOtherInput.value = '';
+    });
+  }
+  if (nextActionTypeSelect) {
+    nextActionTypeSelect.addEventListener('change', () => {
+      toggleNextActionCustomRow(campaignForm, nextActionTypeSelect.value);
     });
   }
 

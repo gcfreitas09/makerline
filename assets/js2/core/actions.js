@@ -1,4 +1,4 @@
-import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels } from './state.js';
+import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions } from './state.js';
 import { setActivePage, showToast } from './ui.js';
 import { trackEvent, awardXp } from './gamification.js';
 import { renderAll } from './renderers.js';
@@ -39,6 +39,122 @@ const formatMoneyInput = (raw) => {
 
 const applyMoneyMask = (input) => {
   input.value = formatMoneyInput(input.value);
+};
+
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
+const getBrandActionModal = () => ({
+  modal: document.getElementById('brand-action-modal'),
+  form: document.getElementById('brand-action-form'),
+  msg: document.getElementById('brand-action-msg'),
+  title: document.querySelector('[data-brand-action-title]')
+});
+
+const setBrandActionCustomVisibility = (value) => {
+  const row = document.getElementById('brand-action-custom-row');
+  const input = document.querySelector('#brand-action-form input[name="nextActionCustomType"]');
+  const show = value === 'outro';
+  if (row) row.style.display = show ? '' : 'none';
+  if (input) {
+    input.required = show;
+    if (!show) input.value = '';
+  }
+};
+
+const populateBrandActionSelect = (selectedId = '') => {
+  const { form } = getBrandActionModal();
+  if (!form) return;
+  const select = form.querySelector('select[name="brandIdSelect"]');
+  if (!select) return;
+  const brands = (Array.isArray(state.brands) ? state.brands : []).slice().sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || ''), 'pt-BR'));
+  select.innerHTML = ['<option value="">Escolher...</option>']
+    .concat(brands.map((brand) => `<option value="${brand.id}">${String(brand.name || 'Marca')}</option>`))
+    .join('');
+  select.value = brands.some((brand) => brand.id === selectedId) ? selectedId : '';
+};
+
+const openBrandActionModal = (brandId = '') => {
+  const { modal, form, msg, title } = getBrandActionModal();
+  if (!modal || !form) return;
+  const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
+
+  form.reset();
+  if (msg) msg.textContent = '';
+  populateBrandActionSelect(brand?.id || '');
+
+  const hiddenIdInput = form.querySelector('input[name="brandId"]');
+  const select = form.querySelector('select[name="brandIdSelect"]');
+  const typeSelect = form.querySelector('select[name="nextActionType"]');
+  const customInput = form.querySelector('input[name="nextActionCustomType"]');
+  const dateInput = form.querySelector('input[name="nextActionDate"]');
+  const noteInput = form.querySelector('input[name="nextActionNote"]');
+
+  if (hiddenIdInput) hiddenIdInput.value = brand?.id || '';
+  if (select) select.value = brand?.id || '';
+  if (typeSelect) typeSelect.value = brand?.nextActionType || '';
+  if (customInput) customInput.value = brand?.nextActionCustomType || '';
+  if (dateInput) dateInput.value = brand?.nextActionDate || '';
+  if (noteInput) noteInput.value = brand?.nextActionNote || '';
+  setBrandActionCustomVisibility(brand?.nextActionType || '');
+
+  if (title) title.textContent = brand?.nextActionType ? 'Editar ação de marca' : 'Nova ação de marca';
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  if (select) select.focus();
+};
+
+const closeBrandActionModal = () => {
+  const { modal, form, msg, title } = getBrandActionModal();
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (form) form.reset();
+  if (msg) msg.textContent = '';
+  if (title) title.textContent = 'Nova ação de marca';
+  setBrandActionCustomVisibility('');
+};
+
+const handleBrandActionSubmit = (event) => {
+  event.preventDefault();
+  const { form, msg } = getBrandActionModal();
+  if (!form) return;
+
+  const data = new FormData(form);
+  const brandId = String(data.get('brandIdSelect') || data.get('brandId') || '').trim();
+  const nextActionTypeRaw = String(data.get('nextActionType') || '').trim();
+  const nextActionType = nextActionOptions.includes(nextActionTypeRaw) ? nextActionTypeRaw : '';
+  const nextActionCustomType = String(data.get('nextActionCustomType') || '').trim().slice(0, 80);
+  const nextActionDate = String(data.get('nextActionDate') || '').trim();
+  const nextActionNote = String(data.get('nextActionNote') || '').trim().slice(0, 140);
+  const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
+
+  if (msg) msg.textContent = '';
+  if (!brand) {
+    if (msg) msg.textContent = 'Escolha uma marca válida.';
+    return;
+  }
+  if (!nextActionType) {
+    if (msg) msg.textContent = 'Escolha a próxima ação.';
+    return;
+  }
+  if (!nextActionDate) {
+    if (msg) msg.textContent = 'Defina a data da ação.';
+    return;
+  }
+  if (nextActionType === 'outro' && !nextActionCustomType) {
+    if (msg) msg.textContent = 'Descreva o tipo personalizado.';
+    return;
+  }
+
+  brand.nextActionType = nextActionType;
+  brand.nextActionCustomType = nextActionType === 'outro' ? nextActionCustomType : '';
+  brand.nextActionDate = nextActionDate;
+  brand.nextActionNote = nextActionNote;
+
+  saveState();
+  renderAll();
+  closeBrandActionModal();
+  showToast('Ação da marca salva.');
 };
 
 /* Posi\u00e7\u00e3o global de (status, stage) no pipeline.
@@ -123,12 +239,75 @@ const handleActionClick = (event) => {
     return;
   }
 
+  if (action === 'goto-performance-financial') {
+    state.ui.performanceTab = 'financial';
+    saveState();
+    setActivePage('performance');
+    renderAll();
+    return;
+  }
+
+  if (action === 'goto-campaigns') {
+    setActivePage('campaigns');
+    return;
+  }
+
+  if (action === 'open-brand-action-modal') {
+    openBrandActionModal();
+    return;
+  }
+
+  if (action === 'edit-brand-action') {
+    const brandId = actionEl.dataset.brandId;
+    if (brandId) openBrandActionModal(brandId);
+    return;
+  }
+
+  if (action === 'close-brand-action-modal') {
+    closeBrandActionModal();
+    return;
+  }
+
   if (action === 'open-campaign') {
     const id = actionEl.dataset.campaignId;
     if (id) {
       setActivePage('campaigns');
       setTimeout(() => { if (window.__ugcModals?.openCampaignModal) window.__ugcModals.openCampaignModal(id); }, 120);
     }
+    return;
+  }
+
+  if (action === 'complete-next-action') {
+    const itemId = String(actionEl.dataset.id || '').trim();
+    const source = String(actionEl.dataset.source || '').trim();
+    const collection = source === 'brand' ? state.brands : state.campaigns;
+    const item = (Array.isArray(collection) ? collection : []).find((entry) => entry.id === itemId);
+    if (!item) return;
+    item.nextActionType = '';
+    item.nextActionCustomType = '';
+    item.nextActionDate = '';
+    item.nextActionNote = '';
+    if (source !== 'brand') item.updatedAt = new Date().toISOString();
+    saveState();
+    renderAll();
+    showToast('Ação concluída.');
+    return;
+  }
+
+  if (action === 'mark-payment-received') {
+    const campaignId = actionEl.dataset.campaignId;
+    const campaign = (Array.isArray(state.campaigns) ? state.campaigns : []).find((item) => item.id === campaignId);
+    if (!campaign || campaign.stage !== 'aguardando_pagamento') return;
+    const today = todayIso();
+    campaign.paymentPercent = 100;
+    campaign.paymentReceivedAt = today;
+    campaign.paymentDate = campaign.paymentDate || today;
+    campaign.status = 'concluida';
+    campaign.stage = 'pago';
+    campaign.updatedAt = new Date().toISOString();
+    saveState();
+    renderAll();
+    showToast('Pagamento marcado como recebido.');
     return;
   }
 
@@ -698,6 +877,27 @@ const initActions = () => {
   initAccountForm();
   initAdminTrackerCard();
 
+  const brandActionForm = document.getElementById('brand-action-form');
+  if (brandActionForm && brandActionForm.dataset.bound !== '1') {
+    brandActionForm.dataset.bound = '1';
+    brandActionForm.addEventListener('submit', handleBrandActionSubmit);
+
+    const brandActionTypeSelect = brandActionForm.querySelector('select[name="nextActionType"]');
+    if (brandActionTypeSelect) {
+      brandActionTypeSelect.addEventListener('change', () => {
+        setBrandActionCustomVisibility(brandActionTypeSelect.value);
+      });
+    }
+
+    const brandSelect = brandActionForm.querySelector('select[name="brandIdSelect"]');
+    const hiddenBrandId = brandActionForm.querySelector('input[name="brandId"]');
+    if (brandSelect && hiddenBrandId) {
+      brandSelect.addEventListener('change', () => {
+        hiddenBrandId.value = brandSelect.value || '';
+      });
+    }
+  }
+
   // Expose modal functions for quiz convert-to-real flow
   window.__ugcModals = { openCampaignModal };
 
@@ -705,6 +905,13 @@ const initActions = () => {
   document.body.addEventListener('click', handleNavClick);
   document.body.addEventListener('click', handleFilterClick);
   document.body.addEventListener('change', handleChange);
+  document.body.addEventListener('keydown', (event) => {
+    const actionCard = event.target.closest('[data-dashboard-card-link]');
+    if (!actionCard) return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    actionCard.click();
+  });
 
   /* Money mask for meta modal input */
   const metaInput = document.getElementById('meta-modal-input');
