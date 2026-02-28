@@ -1,7 +1,7 @@
   import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-  import { renderAll } from './core/renderers.js';
+  import { renderAll } from './core/renderers.js?v=20260228d';
   import { setActivePage, requestNotificationPermission } from './core/ui.js';
-  import { initActions } from './core/actions.js';
+  import { initActions } from './core/actions.js?v=20260228d';
   import {
     ensureDailyMissions,
     ensureWeeklyChallenges,
