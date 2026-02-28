@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "url": "https://SEU-PROJETO.supabase.co",
+  "service_key": "COLE_AQUI_A_SERVICE_ROLE_KEY",
+  "table_users": "ugc_users",
+  "table_states": "ugc_user_states",
+  "timeout": 12
+}

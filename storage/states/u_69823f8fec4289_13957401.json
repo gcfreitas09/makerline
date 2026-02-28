@@ -1,0 +1,161 @@
+{
+    "userId": "u_69823f8fec4289.13957401",
+    "updatedAt": "2026-02-03T15:33:58-03:00",
+    "state": {
+        "meta": {
+            "updatedAt": "2026-02-03T18:33:57.027Z"
+        },
+        "profile": {
+            "name": "creator",
+            "email": "lorenzo.ritter13@gmail.com",
+            "level": 1,
+            "xp": 0,
+            "streak": 1
+        },
+        "focus": {
+            "id": "f-short-videos",
+            "week": "2026-W06",
+            "roll": 0,
+            "label": "Postar 3 vídeos curtos",
+            "current": 0,
+            "target": 3,
+            "xp": 120
+        },
+        "missions": [
+            {
+                "id": "d-create-scripts",
+                "label": "Criar 2 roteiros",
+                "total": 2,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            },
+            {
+                "id": "d-brand-contacts",
+                "label": "Registrar contato com 3 marcas",
+                "total": 3,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            },
+            {
+                "id": "d-create-campaign",
+                "label": "Criar 1 nova campanha",
+                "total": 1,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            }
+        ],
+        "challenges": [
+            {
+                "id": "w-consistent",
+                "label": "Criador consistente: completar missões em 5 dias",
+                "total": 5,
+                "xp": 250,
+                "type": "semanal",
+                "progress": 0
+            }
+        ],
+        "campaigns": [],
+        "brands": [],
+        "scripts": [],
+        "metrics": {
+            "avgTime": 12,
+            "proposals": 24,
+            "responseRate": 0.419999999999999984456877655247808434069156646728515625,
+            "steps": [
+                {
+                    "label": "Contato enviado",
+                    "value": 1
+                },
+                {
+                    "label": "Marca respondeu",
+                    "value": 1
+                },
+                {
+                    "label": "Negociacao",
+                    "value": 0
+                },
+                {
+                    "label": "Roteiro pronto",
+                    "value": 1
+                },
+                {
+                    "label": "Gravacao",
+                    "value": 0
+                },
+                {
+                    "label": "Edicao",
+                    "value": 1
+                }
+            ]
+        },
+        "settings": {
+            "weekly": false,
+            "alerts": true,
+            "backup": true
+        },
+        "progress": {
+            "daily": {
+                "date": "2026-02-03",
+                "bonusDate": null,
+                "lastCompleteDate": null,
+                "unique": []
+            },
+            "weekly": {
+                "date": "2026-W06",
+                "challengeId": "w-consistent",
+                "dailyCompleteDays": [],
+                "campaignUpdateDays": [],
+                "organizedCampaignIds": [],
+                "finishedCampaignIds": []
+            },
+            "streak": {
+                "lastSeenDate": "2026-02-03"
+            },
+            "achievements": {
+                "version": 2,
+                "unlocked": [],
+                "active": [
+                    "ach-first-contact",
+                    "ach-first-close",
+                    "ach-2-closes",
+                    "ach-production",
+                    "ach-level5",
+                    "ach-negotiations-3",
+                    "ach-finalizer",
+                    "ach-scripts-15",
+                    "ach-clean-pipeline",
+                    "ach-level10"
+                ]
+            }
+        },
+        "avatar": {
+            "premium": false,
+            "unlocked": [
+                "hair-classic",
+                "outfit-basic",
+                "shoe-default"
+            ],
+            "selected": {
+                "hair": "hair-classic",
+                "outfit": "outfit-basic",
+                "shoes": "shoe-default"
+            }
+        },
+        "ui": {
+            "activePage": "settings",
+            "campaignFilter": "all",
+            "campaignPaymentFilter": "all",
+            "openScript": null,
+            "brandComposer": {
+                "brandId": null,
+                "type": "first",
+                "text": ""
+            },
+            "missionDate": "2026-02-03",
+            "weeklyDate": "2026-W06"
+        }
+    }
+}

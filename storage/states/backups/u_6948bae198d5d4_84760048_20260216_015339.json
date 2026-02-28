@@ -1,0 +1,399 @@
+{
+    "userId": "u_6948bae198d5d4.84760048",
+    "updatedAt": "2026-02-12T16:31:36+01:00",
+    "state": {
+        "meta": {
+            "updatedAt": "2026-02-12T15:31:31.555Z"
+        },
+        "profile": {
+            "name": "GUILHERME FREITAS",
+            "email": "fgui3662@gmail.com",
+            "level": 10,
+            "xp": 853,
+            "streak": 1
+        },
+        "focus": {
+            "id": "f-contacts",
+            "week": "2026-W07",
+            "roll": 0,
+            "label": "Fazer contato com 5 marcas",
+            "current": 0,
+            "target": 5,
+            "xp": 150
+        },
+        "missions": [
+            {
+                "id": "d-production",
+                "label": "Mover 1 campanha para Produção",
+                "total": 1,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            },
+            {
+                "id": "d-organize-pipeline",
+                "label": "Organizar 2 campanhas (status\/valor\/prazo)",
+                "total": 2,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            },
+            {
+                "id": "d-linked-script",
+                "label": "Criar 1 roteiro vinculado a uma campanha",
+                "total": 1,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            }
+        ],
+        "challenges": [
+            {
+                "id": "w-finish-campaigns",
+                "label": "Entregador confiável: finalizar 2 campanhas",
+                "total": 2,
+                "xp": 300,
+                "type": "semanal",
+                "progress": 2
+            }
+        ],
+        "campaigns": [
+            {
+                "id": "c-1770514696428",
+                "brand": "big wolf",
+                "stage": "abordagem",
+                "title": "big wolf",
+                "value": 10000,
+                "barter": false,
+                "paused": false,
+                "status": "prospeccao",
+                "dueDate": "2026-05-01",
+                "archived": false,
+                "priority": false,
+                "createdAt": "2026-02-08T01:38:16.428Z",
+                "updatedAt": "2026-02-10T20:16:52.987Z",
+                "contactName": "dyeison",
+                "paymentDate": "2026-05-01",
+                "startMethod": "ugc_platform",
+                "contactEmail": "bigwolf@gmail.com",
+                "fieldsComplete": true,
+                "paymentPercent": 0,
+                "startMethodOther": ""
+            },
+            {
+                "id": "c-1770251665441",
+                "brand": "puma",
+                "stage": "pago",
+                "title": "puma",
+                "value": 500,
+                "barter": true,
+                "paused": false,
+                "status": "concluida",
+                "dueDate": "2026-05-01",
+                "archived": false,
+                "priority": false,
+                "createdAt": "2026-02-05T00:34:25.441Z",
+                "updatedAt": "2026-02-10T20:01:16.433Z",
+                "contactName": "pedro",
+                "paymentDate": "2026-04-01",
+                "startMethod": "",
+                "contactEmail": "nike@gmail.com.br",
+                "fieldsComplete": true,
+                "paymentPercent": 0,
+                "startMethodOther": ""
+            },
+            {
+                "id": "c-1770245883731",
+                "brand": "principia",
+                "stage": "aguardando_pagamento",
+                "title": "principia",
+                "value": 450,
+                "barter": false,
+                "paused": false,
+                "status": "finalizacao",
+                "dueDate": "2026-08-25",
+                "archived": false,
+                "priority": false,
+                "createdAt": "2026-02-04T22:58:03.731Z",
+                "updatedAt": "2026-02-10T20:17:03.069Z",
+                "paymentDate": "2026-08-25",
+                "startMethod": "outreach",
+                "fieldsComplete": true,
+                "paymentPercent": 0,
+                "startMethodOther": ""
+            },
+            {
+                "id": "c1",
+                "brand": "Nike",
+                "stage": "aguardando_produto",
+                "title": "Review Nike Air Max",
+                "value": 800,
+                "status": "producao",
+                "priority": false,
+                "updatedAt": "2026-02-10T20:01:11.268Z"
+            }
+        ],
+        "brands": [
+            {
+                "id": "b-1766544349853",
+                "name": "nike",
+                "email": "aknoanjosano",
+                "status": "fechado",
+                "contact": "akdokakcaoncoiacnioa"
+            },
+            {
+                "id": "b1",
+                "name": "Nike",
+                "email": "joao@nike.com",
+                "status": "enviado",
+                "contact": "Joao Silva"
+            },
+            {
+                "id": "b2",
+                "name": "Glossier",
+                "email": "maria@glossier.com",
+                "status": "enviado",
+                "contact": "Maria Santos"
+            },
+            {
+                "id": "b3",
+                "name": "Notion",
+                "email": "pedro@notion.so",
+                "status": "fechado",
+                "contact": "Pedro Alves"
+            }
+        ],
+        "scripts": [
+            {
+                "id": "s-1768913243131",
+                "text": "ROTEIRO REVIEW - adidas\nDuração: 15s | Tom: Leve e direto\nPúblico: público geral\nObjetivo: gerar vendas\n\nHOOK (0-3s)\n- Dor direta: \"público geral cansou de gerar vendas? Olha isso aqui.\"\nDESENVOLVIMENTO\n- Prova social + um dado simples.\n- Mantém o ritmo de 15s (cortes rápidos e sem enrolar).\nPROVA\n- Frase de review real (pode ser print).\nCTA\n- \"Me manda DM com 'ROTEIRO' que eu te passo o passo a passo.\"\nFINAL\n- Mostra o produto + lembrete visual do link\/benefício.",
+                "type": "review",
+                "brand": "adidas",
+                "title": "Review - adidas",
+                "finalized": false,
+                "campaignId": null
+            }
+        ],
+        "metrics": {
+            "rangeDays": 7,
+            "avgTime": 12,
+            "proposals": 24,
+            "responseRate": 0.42,
+            "steps": [
+                {
+                    "label": "Contato enviado",
+                    "value": 1
+                },
+                {
+                    "label": "Marca respondeu",
+                    "value": 1
+                },
+                {
+                    "label": "Negociacao",
+                    "value": 0
+                },
+                {
+                    "label": "Roteiro pronto",
+                    "value": 1
+                },
+                {
+                    "label": "Gravacao",
+                    "value": 0
+                },
+                {
+                    "label": "Edicao",
+                    "value": 1
+                }
+            ]
+        },
+        "settings": {
+            "weekly": true,
+            "alerts": true,
+            "backup": true,
+            "focus": false
+        },
+        "progress": {
+            "daily": {
+                "date": "2026-02-12",
+                "bonusDate": null,
+                "lastCompleteDate": null,
+                "unique": []
+            },
+            "weekly": {
+                "date": "2026-W07",
+                "challengeId": "w-finish-campaigns",
+                "dailyCompleteDays": [],
+                "campaignUpdateDays": [
+                    "2026-02-09",
+                    "2026-02-10"
+                ],
+                "organizedCampaignIds": [],
+                "finishedCampaignIds": [
+                    "c-1770245883731",
+                    "c-1770251665441",
+                    "c1"
+                ]
+            },
+            "streak": {
+                "lastSeenDate": "2026-02-12"
+            },
+            "achievements": {
+                "version": 2,
+                "unlocked": [
+                    "ach-first-campaign",
+                    "ach-level5",
+                    "ach-production",
+                    "ach-finalizer",
+                    "ach-first-script",
+                    "ach-clean-pipeline",
+                    "ach-streak7",
+                    "ach-level10"
+                ],
+                "active": [
+                    "ach-first-script",
+                    "ach-streak7",
+                    "ach-writer",
+                    "ach-production",
+                    "ach-level5",
+                    "ach-contact",
+                    "ach-finalizer",
+                    "ach-organizer",
+                    "ach-clean-pipeline",
+                    "ach-level10"
+                ]
+            },
+            "onboarding": {
+                "tourXp": 30,
+                "welcomeAt": "2026-02-05T00:33:36.116Z",
+                "welcomeXp": 30,
+                "welcomeAwarded": false,
+                "welcomeGranted": true,
+                "tourRewardGranted": false
+            },
+            "xp": 0
+        },
+        "avatar": {
+            "premium": false,
+            "unlocked": [
+                "hair-classic",
+                "outfit-basic",
+                "shoe-default",
+                "hair-fade",
+                "outfit-tech",
+                "shoe-run",
+                "hair-wave",
+                "outfit-run",
+                "shoe-high"
+            ],
+            "selected": {
+                "hair": "hair-classic",
+                "outfit": "outfit-basic",
+                "shoes": "shoe-default"
+            }
+        },
+        "ui": {
+            "activePage": "dashboard",
+            "campaignFilter": "all",
+            "campaignPaymentFilter": "all",
+            "openMetric": "table",
+            "openScript": "s-1768913243131",
+            "brandComposer": {
+                "brandId": "b-1766544349853",
+                "type": "first",
+                "text": "Oi akdokakcaoncoiacnioa! Tudo certo?\n\nAqui é o GUILHERME FREITAS. Eu curti a nike e pensei em umas ideias de UGC que combinam com vocês.\n\nPosso te mandar 3 ideias rapidinhas e valores?",
+                "lastType": "first",
+                "lastBrandId": "b-1766544349853"
+            },
+            "missionDate": "2026-02-12",
+            "weeklyDate": "2026-W07",
+            "metricsTimeFilter": 30,
+            "platformCollapsed": {
+                "tiktok": true,
+                "youtube": true,
+                "instagram": true
+            },
+            "campaignLabelFilter": "all"
+        },
+        "organizer": {
+            "tiktok": [
+                {
+                    "id": "tt-1",
+                    "name": "Campanhas ativas",
+                    "open": true,
+                    "items": [
+                        {
+                            "id": "tt-1-1",
+                            "name": "hook-tiktok.mp4",
+                            "type": "video"
+                        }
+                    ]
+                }
+            ],
+            "youtube": [
+                {
+                    "id": "yt-1",
+                    "name": "Shorts prontos",
+                    "open": true,
+                    "items": []
+                }
+            ],
+            "instagram": [
+                {
+                    "id": "f-1766246080489",
+                    "name": "teste",
+                    "open": false,
+                    "items": [
+                        {
+                            "id": "i-1766246104323",
+                            "name": "aa",
+                            "type": "video"
+                        }
+                    ]
+                },
+                {
+                    "id": "ig-1",
+                    "name": "Conteudos aprovados",
+                    "open": false,
+                    "items": [
+                        {
+                            "id": "ig-1-1",
+                            "name": "review-produto.mp4",
+                            "type": "video"
+                        },
+                        {
+                            "id": "ig-1-2",
+                            "name": "thumb-campanha.jpg",
+                            "type": "foto"
+                        }
+                    ]
+                },
+                {
+                    "id": "ig-2",
+                    "name": "Conteudos em revisao",
+                    "open": false,
+                    "items": []
+                }
+            ]
+        },
+        "platforms": [
+            {
+                "key": "instagram",
+                "label": "Instagram Reels",
+                "theme": "platform-instagram"
+            },
+            {
+                "key": "tiktok",
+                "label": "TikTok Videos",
+                "theme": "platform-tiktok"
+            },
+            {
+                "key": "youtube",
+                "label": "YouTube Shorts",
+                "theme": "platform-youtube"
+            }
+        ],
+        "campaignMeta": {
+            "classifications": []
+        }
+    }
+}

@@ -1,0 +1,426 @@
+[
+    {
+        "type": "reset",
+        "email": "fgui3662@gmail.com",
+        "link": "https:\/\/ugcquest.local\/reset?email=fgui3662%40gmail.com",
+        "timestamp": "2025-12-24T04:22:05+01:00"
+    },
+    {
+        "type": "reset",
+        "email": "fgui3662@gmail.com",
+        "link": "http:\/\/localhost\/saas-ugc\/reset.html?token=cd342d583401361fc4209ab5577cb599",
+        "sent": false,
+        "timestamp": "2025-12-24T04:34:00+01:00"
+    },
+    {
+        "type": "reset",
+        "email": "fgui3662@gmail.com",
+        "link": "http:\/\/localhost\/saas-ugc\/reset.html?token=502a4419a7454b314fb18ce4561ea782",
+        "sent": false,
+        "timestamp": "2025-12-24T04:37:56+01:00"
+    },
+    {
+        "type": "reset",
+        "email": "kaka@gmail.com",
+        "link": "http:\/\/localhost\/saas-ugc\/reset.html?token=bb7652b0bda588911e33bf34d257e8a4",
+        "sent": false,
+        "timestamp": "2025-12-24T04:38:54+01:00"
+    },
+    {
+        "type": "reset",
+        "email": "fgui3662@gmail.com",
+        "link": "http:\/\/localhost\/saas-ugc\/reset.html?token=8b5d96ab1cd31fbfc38fa949c8a84f42",
+        "sent": false,
+        "timestamp": "2025-12-24T04:45:16+01:00"
+    },
+    {
+        "type": "reset",
+        "email": "fgui3662@gmail.com",
+        "link": "http:\/\/localhost\/saas-ugc\/reset.html?token=202b86ff82555d21e264868d5c2b385e",
+        "sent": false,
+        "timestamp": "2025-12-24T04:45:27+01:00"
+    },
+    {
+        "type": "reset",
+        "email": "fgui3662@gmail.com",
+        "link": "http:\/\/localhost\/saas-ugc\/reset.html?token=4c6f06128dea6ef6cb6767e02b567ed4",
+        "sent": false,
+        "timestamp": "2025-12-24T04:53:39+01:00"
+    },
+    {
+        "type": "reset",
+        "email": "fgui3662@gmail.com",
+        "link": "http:\/\/localhost\/saas-ugc\/reset.html?token=81a437c86268bb2644fe1d7ec0585b82",
+        "sent": false,
+        "timestamp": "2025-12-24T04:53:52+01:00"
+    },
+    {
+        "type": "reset",
+        "email": "fgui3662@gmail.com",
+        "link": "http:\/\/localhost\/saas-ugc\/reset.html?token=2b5e57c70ef2d74638fb7edddd37c04b",
+        "sent": false,
+        "timestamp": "2025-12-24T05:35:57+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=fgui3662%40gmail.com",
+        "sent": false,
+        "timestamp": "2025-12-24T05:49:52+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=fgui3662%40gmail.com",
+        "sent": false,
+        "timestamp": "2025-12-24T05:50:00+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/127.0.0.1:8099\\\/verify.html?email=fgui3662%40gmail.com",
+        "sent": false,
+        "timestamp": "2025-12-24T23:27:15+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/127.0.0.1:8099\\\/verify.html?email=fgui3662%40gmail.com",
+        "sent": false,
+        "timestamp": "2025-12-24T23:27:34+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=fgui3662%40gmail.com",
+        "code": "225513",
+        "sent": false,
+        "timestamp": "2025-12-24T23:58:14+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=fgui3662%40gmail.com",
+        "code": "796412",
+        "sent": false,
+        "timestamp": "2025-12-24T23:58:50+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=fgui3662%40gmail.com",
+        "code": "107634",
+        "sent": false,
+        "timestamp": "2025-12-24T23:58:55+01:00"
+    },
+    {
+        "email": "fgui3662@gmail.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "timestamp": "2025-12-26T04:17:44+01:00"
+    },
+    {
+        "email": "fgui3662@gmail.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "subject": "Seu resumo semanal UGC Quest",
+        "message": "Oi GUILHERME FREITAS!\n\nResumo da semana (teste):\n- Campanhas: 2 feitas, 1 negociando, 3 pendentes\n- Total recebido: R$ 2.000\n- Roteiros criados: 0\n- Streak: 5 dias\n- Nivel: 4 (450 XP)\n\nFoco: Postar 3 videos curtos (3\/3)\n\nBora pra proxima!\nEquipe Makerline",
+        "mailer": {
+            "smtpConfigured": false,
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "mailAvailable": true
+        },
+        "timestamp": "2025-12-26T04:26:27+01:00"
+    },
+    {
+        "email": "fgui3662@gmail.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "subject": "Seu resumo semanal UGC Quest",
+        "message": "Oi GUILHERME FREITAS!\n\nResumo da semana (teste):\n- Campanhas: 2 feitas, 1 negociando, 3 pendentes\n- Total recebido: R$ 2.000\n- Roteiros criados: 0\n- Streak: 5 dias\n- Nivel: 4 (450 XP)\n\nFoco: Postar 3 videos curtos (3\/3)\n\nBora pra proxima!\nEquipe Makerline",
+        "mailer": {
+            "smtpConfigured": false,
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "mailAvailable": true
+        },
+        "timestamp": "2025-12-26T04:30:40+01:00"
+    },
+    {
+        "email": "fgui3662@gmail.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "subject": "Seu resumo semanal UGC Quest",
+        "message": "Oi GUILHERME FREITAS!\n\nResumo da semana (teste):\n- Campanhas: 2 feitas, 1 negociando, 3 pendentes\n- Total recebido: R$ 2.000\n- Roteiros criados: 0\n- Streak: 5 dias\n- Nivel: 4 (450 XP)\n\nFoco: Postar 3 videos curtos (3\/3)\n\nBora pra proxima!\nEquipe Makerline",
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou nao esta configurado",
+            "sent": false
+        },
+        "timestamp": "2025-12-26T04:50:13+01:00"
+    },
+    {
+        "email": "fgui3662@gmail.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "subject": "Seu resumo semanal UGC Quest",
+        "message": "Oi GUILHERME FREITAS!\n\nResumo da semana (teste):\n- Campanhas: 2 feitas, 1 negociando, 3 pendentes\n- Total recebido: R$ 2.000\n- Roteiros criados: 0\n- Streak: 5 dias\n- Nivel: 4 (450 XP)\n\nFoco: Postar 3 videos curtos (3\/3)\n\nBora pra proxima!\nEquipe Makerline",
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou nao esta configurado",
+            "sent": false
+        },
+        "timestamp": "2025-12-26T04:50:53+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=fgui3662%40gmail.com",
+        "code": "735046",
+        "sent": false,
+        "timestamp": "2025-12-28T04:50:10+01:00"
+    },
+    {
+        "email": "fgui3662@gmail.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "subject": "Seu resumo semanal UGC Quest",
+        "message": "Oi GUILHERME FREITAS!\n\nResumo da semana (teste):\n- Campanhas: 2 feitas, 1 negociando, 3 pendentes\n- Total recebido: R$ 2.000\n- Roteiros criados: 0\n- Streak: 0 dias\n- Nivel: 5 (400 XP)\n\nFoco: Postar 3 videos curtos (3\/3)\n\nBora pra proxima!\nEquipe Makerline",
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou nao esta configurado",
+            "sent": false
+        },
+        "timestamp": "2025-12-28T04:58:25+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=fgui3662%40gmail.com",
+        "code": "782935",
+        "sent": false,
+        "timestamp": "2026-01-06T14:45:58+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=fgui3662%40gmail.com",
+        "code": "225607",
+        "sent": false,
+        "timestamp": "2026-01-20T12:47:50+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "test_ugcquest_639047189642410328@example.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=test_ugcquest_639047189642410328%40example.com",
+        "code": "271948",
+        "sent": false,
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-01-22T23:49:27+01:00"
+    },
+    {
+        "email": "test_ugcquest_639047189642410328@example.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "subject": "Seu resumo semanal UGC Quest",
+        "message": "Oi Teste UGC!\n\nResumo da semana (teste):\n- Campanhas: 0 feitas, 0 negociando, 1 pendentes\n- Total recebido: R$ 0\n- Roteiros criados: 0\n- Streak: 0 dias\n- Nível: 1 (0 XP)\n\nFoco: Seu foco (0\/0)\n\nBora pra próxima!\nEquipe Makerline",
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-01-22T23:59:34+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "test_ugcquest_639047189642410328@example.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=test_ugcquest_639047189642410328%40example.com",
+        "code": "959739",
+        "sent": false,
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-01-23T00:00:14+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "codex_test_@example.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=codex_test_%40example.com",
+        "code": "934908",
+        "sent": false,
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-01-23T02:20:29+01:00"
+    },
+    {
+        "email": "codex_test2@example.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "subject": "Seu resumo semanal Makerline",
+        "message": "Oi Codex Test!\n\nAqui vai um resumão rapidinho:\n- Propostas enviadas: 24\n- Campanhas em andamento: 3\n- Novos roteiros: 2\n- Streak atual: 5 dias\n\nContinue evoluindo seu conteúdo!\nEquipe Makerline",
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-01-23T02:38:32+01:00"
+    },
+    {
+        "email": "codex_test2@example.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "subject": "Seu resumo semanal Makerline",
+        "message": "Oi Codex Test!\n\nAqui vai um resumão rapidinho:\n- Propostas enviadas: 24\n- Campanhas em andamento: 3\n- Novos roteiros: 2\n- Streak atual: 5 dias\n\nContinue evoluindo seu conteúdo!\nEquipe Makerline",
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-01-23T02:43:29+01:00"
+    },
+    {
+        "email": "codex_test2@example.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "subject": "Seu resumo semanal Makerline",
+        "message": "Oi Codex Test!\n\nAqui vai um resumão rapidinho:\n- Propostas enviadas: 24\n- Campanhas em andamento: 3\n- Novos roteiros: 2\n- Streak atual: 5 dias\n\nContinue evoluindo seu conteúdo!\nEquipe Makerline",
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-01-23T02:46:09+01:00"
+    },
+    {
+        "email": "codex_test2@example.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "subject": "Seu resumo semanal Makerline",
+        "message": "Oi Codex Test!\n\nAqui vai um resumão rapidinho:\n- Propostas enviadas: 24\n- Campanhas em andamento: 3\n- Novos roteiros: 2\n- Streak atual: 5 dias\n\nContinue evoluindo seu conteúdo!\nEquipe Makerline",
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-01-23T02:46:50+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "alexwebdb@gmail.com",
+        "verifyLink": "http:\/\/127.0.0.1:8010\\\/verify.html?email=alexwebdb%40gmail.com",
+        "code": "470659",
+        "sent": false,
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-01-23T15:12:01+01:00"
+    },
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=fgui3662%40gmail.com",
+        "code": "820776",
+        "sent": false,
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-01-26T23:24:12+01:00"
+    },
+    {
+        "email": "fgui3662@gmail.com",
+        "sent": false,
+        "kind": "weekly_summary",
+        "subject": "Seu resumo semanal Makerline",
+        "message": "Oi GUILHERME FREITAS!\n\nResumo da semana:\n- Campanhas: 2 pagas, 0 em negociação, 2 em prospecção\n- Total recebido: R$ 10.500\n- Roteiros criados: 2\n- Streak: 2 dias\n- Nível: 10 (651 XP)\n\nFoco: Fazer contato com 5 marcas (1\/5)\n\nBora pra próxima!\nEquipe Makerline",
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-02-14T03:03:12+01:00"
+    }
+]

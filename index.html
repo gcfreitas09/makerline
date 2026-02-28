@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Makerline - UGC Quest</title>
+  <meta
+    name="description"
+    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+  />
+  <meta property="og:title" content="Makerline - UGC Quest" />
+  <meta
+    property="og:description"
+    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/img/share.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Makerline - UGC Quest" />
+  <meta
+    name="twitter:description"
+    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+  />
+  <meta name="twitter:image" content="assets/img/share.png" />
+  <link rel="icon" type="image/png" href="assets/img/logo.png" />
+  <link rel="apple-touch-icon" href="assets/img/logo.png" />
+  <link rel="stylesheet" href="assets/css/app.css" />
+</head>
+<body class="auth-body">
+  <div class="auth-card">
+    <div class="brand">
+      <div class="brand-icon">
+        <img src="assets/img/logo.png" alt="Makerline" />
+      </div>
+      <div>
+        <div class="brand-name">Makerline</div>
+        <div class="brand-tag">Level up your content</div>
+      </div>
+    </div>
+
+    <div>
+      <h2>UGC Quest</h2>
+      <p>Gerencie campanhas e evolua seu conteúdo com uma pegada gamificada.</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login" type="button">Entrar</button>
+      <button class="auth-tab" data-tab="signup" type="button">Criar conta</button>
+    </div>
+
+    <form class="auth-form active" id="login-form">
+      <div class="form-row">
+        <label>Email</label>
+        <input class="input" name="email" type="email" placeholder="seu@email.com" list="email-domains" autocomplete="email" required />
+      </div>
+      <div class="form-row">
+        <label>Senha</label>
+        <input class="input" name="password" type="password" placeholder="Sua senha" required />
+      </div>
+      <button class="btn btn-primary" type="submit" id="login-btn">Entrar</button>
+      <div class="auth-links">
+        <button type="button" class="auth-link" id="forgot-btn">Esqueci minha senha?</button>
+      </div>
+      <div class="muted" id="login-msg"></div>
+    </form>
+
+    <form class="auth-form" id="signup-form">
+      <div class="form-row">
+        <label>Nome</label>
+        <input class="input" name="name" type="text" placeholder="Seu nome" required />
+      </div>
+      <div class="form-row">
+        <label>Email</label>
+        <input class="input" name="email" type="email" placeholder="seu@email.com" list="email-domains" autocomplete="email" required />
+      </div>
+      <div class="form-row">
+        <label>Senha</label>
+        <input class="input" name="password" type="password" placeholder="Crie uma senha" required />
+      </div>
+      <button class="btn btn-primary" type="submit" id="signup-btn">Criar conta</button>
+      <div class="muted" id="signup-msg"></div>
+    </form>
+
+    <div class="auth-footer">
+      <span>Ao continuar, você inicia sua jornada no UGC Quest.</span>
+    </div>
+  </div>
+
+  <datalist id="email-domains"></datalist>
+
+  <script>
+    const tabs = document.querySelectorAll('[data-tab]');
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const loginMsg = document.getElementById('login-msg');
+    const signupMsg = document.getElementById('signup-msg');
+
+    const EMAIL_DOMAINS = [
+      'gmail.com',
+      'hotmail.com',
+      'outlook.com',
+      'live.com',
+      'icloud.com',
+      'yahoo.com',
+      'yahoo.com.br',
+      'proton.me',
+      'protonmail.com',
+      'uol.com.br',
+      'bol.com.br',
+      'terra.com.br',
+      'globo.com'
+    ];
+
+    const emailDatalist = document.getElementById('email-domains');
+
+    const updateEmailSuggestions = (input) => {
+      if (!emailDatalist || !input) return;
+      const raw = String(input.value || '').trim();
+      const at = raw.indexOf('@');
+      if (at < 1) {
+        emailDatalist.replaceChildren();
+        return;
+      }
+
+      const local = raw.slice(0, at);
+      const typedDomain = raw.slice(at + 1).toLowerCase();
+      if (!local) {
+        emailDatalist.replaceChildren();
+        return;
+      }
+
+      const matches = EMAIL_DOMAINS.filter((domain) => domain.startsWith(typedDomain)).slice(0, 10);
+      const list = matches.length ? matches : EMAIL_DOMAINS.slice(0, 10);
+
+      const fragment = document.createDocumentFragment();
+      list.forEach((domain) => {
+        const opt = document.createElement('option');
+        opt.value = `${local}@${domain}`;
+        fragment.appendChild(opt);
+      });
+      emailDatalist.replaceChildren(fragment);
+    };
+
+    const bindEmailAutocomplete = (input) => {
+      if (!input) return;
+      input.addEventListener('input', () => updateEmailSuggestions(input));
+      input.addEventListener('focus', () => updateEmailSuggestions(input));
+      input.addEventListener('blur', () => emailDatalist && emailDatalist.replaceChildren());
+    };
+
+    bindEmailAutocomplete(loginForm.querySelector('input[name="email"]'));
+    bindEmailAutocomplete(signupForm.querySelector('input[name="email"]'));
+    if (window.location.protocol === 'file:') {
+      loginMsg.textContent =
+        'Dica: pra login funcionar, abre pelo XAMPP: http://localhost/saas-ugc/index.html';
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((btn) => btn.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.dataset.tab;
+        loginForm.classList.toggle('active', target === 'login');
+        signupForm.classList.toggle('active', target === 'signup');
+      });
+    });
+
+    const normalizeName = (value) => {
+      if (!value) return '';
+      return String(value).replace(/[<>]/g, '').replace(/\s+/g, ' ').trim();
+    };
+
+    const setSession = (user, token) => {
+      const safeName = normalizeName(user?.name || '');
+      try {
+        sessionStorage.setItem('ugcQuestLoggedIn', '1');
+        sessionStorage.setItem('ugcQuestToken', token || '');
+        sessionStorage.setItem('ugcQuestUserId', user?.id || '');
+        sessionStorage.setItem('ugcQuestUserEmail', user?.email || '');
+        sessionStorage.setItem('ugcQuestUserName', safeName);
+      } catch (e) {}
+      try {
+        localStorage.setItem('ugcQuestSessionLoggedIn', '1');
+        localStorage.setItem('ugcQuestSessionToken', token || '');
+        localStorage.setItem('ugcQuestSessionUserId', user?.id || '');
+        localStorage.setItem('ugcQuestSessionUserEmail', user?.email || '');
+        localStorage.setItem('ugcQuestSessionUserName', safeName);
+      } catch (e) {}
+      try {
+        return (
+          sessionStorage.getItem('ugcQuestLoggedIn') === '1' &&
+          Boolean(sessionStorage.getItem('ugcQuestToken')) &&
+          Boolean(sessionStorage.getItem('ugcQuestUserId'))
+        );
+      } catch (e) {
+        return false;
+      }
+    };
+
+    const goToApp = () => {
+      window.location.replace('app.html');
+    };
+
+    const setPrefs = (userId, settings) => {
+      try {
+        const key = userId ? `ugcQuestPrefs:${userId}` : 'ugcQuestPrefs';
+        const raw = localStorage.getItem(key);
+        const prefs = raw ? JSON.parse(raw) : {};
+        prefs.settings = { ...(prefs.settings || {}), ...(settings || {}) };
+        localStorage.setItem(key, JSON.stringify(prefs));
+      } catch (e) {}
+    };
+
+    try {
+      const lastEmail = localStorage.getItem('ugcQuestLastEmail') || '';
+      const loginEmailInput = loginForm.querySelector('input[name="email"]');
+      if (loginEmailInput && lastEmail && !loginEmailInput.value) {
+        loginEmailInput.value = lastEmail;
+      }
+    } catch (e) {}
+
+    const parseJsonSafe = (raw) => {
+      try {
+        return JSON.parse(raw);
+      } catch (e) {
+        return null;
+      }
+    };
+
+    const callAuth = async (payload, msgEl) => {
+      msgEl.textContent = 'Enviando...';
+
+      if (window.location.protocol === 'file:') {
+        msgEl.textContent =
+          'Pra login funcionar, abre pelo XAMPP: http://localhost/saas-ugc/index.html';
+        return null;
+      }
+
+      try {
+        const res = await fetch('api/auth.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const raw = await res.text();
+        const data = parseJsonSafe(raw);
+
+        if (!data || typeof data !== 'object') {
+          msgEl.textContent =
+            'O servidor respondeu algo estranho. Confere se o Apache do XAMPP tá ligado.';
+          return null;
+        }
+
+        if (!res.ok) {
+          const hint =
+            payload?.action === 'login' && res.status === 401
+              ? ' Se esqueceu, clica em "Esqueci minha senha?".'
+              : '';
+          msgEl.textContent = (data.error || 'Erro') + hint;
+          return { ...data, __status: res.status };
+        }
+
+        msgEl.textContent = '';
+        return data;
+      } catch (err) {
+        msgEl.textContent =
+          'Não consegui falar com o servidor. Confere o XAMPP (Apache) e tenta de novo.';
+        return null;
+      }
+    };
+
+    const requestResetCode = async (email, msgEl, opts = {}) => {
+      const safeEmail = String(email || '').trim().toLowerCase();
+      const auto = Boolean(opts.auto);
+
+      if (!msgEl) return false;
+
+      if (window.location.protocol === 'file:') {
+        msgEl.textContent =
+          'Pra isso funcionar, abre pelo XAMPP: http://localhost/saas-ugc/index.html';
+        return false;
+      }
+
+      if (!safeEmail) {
+        msgEl.textContent = 'Coloca seu email e tenta de novo.';
+        return false;
+      }
+
+      msgEl.textContent = auto ? 'Achei sua conta, mas ela tá sem senha. Vou te mandar um código…' : 'Mandando o código...';
+
+      try {
+        const res = await fetch('api/forgot.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: safeEmail })
+        });
+        const raw = await res.text();
+        const data = parseJsonSafe(raw);
+
+        if (!data || typeof data !== 'object') {
+          msgEl.textContent = 'O servidor respondeu estranho. Confere se o Apache do XAMPP tá ligado.';
+          return false;
+        }
+
+        if (!res.ok) {
+          msgEl.textContent = data.error || 'Erro ao enviar.';
+          return false;
+        }
+
+        msgEl.textContent = data.message || 'Código enviado. Olha seu email.';
+        if (data.code) {
+          msgEl.textContent += ` Código: ${data.code}`;
+        }
+
+        try {
+          sessionStorage.setItem('ugcQuestResetEmail', safeEmail);
+          if (data.code) {
+            sessionStorage.setItem('ugcQuestResetCode', String(data.code));
+          } else {
+            sessionStorage.removeItem('ugcQuestResetCode');
+          }
+        } catch (e) {}
+
+        const next = data.next || `verify.html?email=${encodeURIComponent(safeEmail)}`;
+        setTimeout(() => {
+          window.location.assign(next);
+        }, 600);
+        return true;
+      } catch (err) {
+        msgEl.textContent = 'Não deu pra enviar agora. Tenta de novo.';
+        return false;
+      }
+    };
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(loginForm);
+      const email = formData.get('email');
+      const password = formData.get('password');
+      const data = await callAuth({ action: 'login', email, password }, loginMsg);
+      if (data?.ok && data.user && data.token) {
+        if (!setSession(data.user, data.token)) {
+          loginMsg.textContent =
+            'Seu navegador bloqueou o login (storage/cookies). Libera isso e tenta de novo.';
+          return;
+        }
+        setPrefs(data.user.id, { weekly: Boolean(data.user.weeklySummary) });
+        try {
+          localStorage.setItem('ugcQuestLastEmail', data.user.email || String(email || ''));
+        } catch (e) {}
+        goToApp();
+        return;
+      }
+
+      if (data?.code === 'NO_PASSWORD') {
+        await requestResetCode(email, loginMsg, { auto: true });
+      }
+    });
+
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(signupForm);
+      const name = formData.get('name');
+      const email = formData.get('email');
+      const password = formData.get('password');
+      const data = await callAuth({ action: 'signup', name, email, password }, signupMsg);
+      if (data?.ok && data.user && data.token) {
+        if (!setSession(data.user, data.token)) {
+          signupMsg.textContent =
+            'Seu navegador bloqueou o login (storage/cookies). Libera isso e tenta de novo.';
+          return;
+        }
+        setPrefs(data.user.id, { weekly: Boolean(data.user.weeklySummary) });
+        try {
+          localStorage.setItem('ugcQuestLastEmail', data.user.email || String(email || ''));
+        } catch (e) {}
+        goToApp();
+      }
+    });
+
+    document.getElementById('forgot-btn').addEventListener('click', async () => {
+      const emailInput = loginForm.querySelector('input[name="email"]');
+      const email = emailInput ? emailInput.value : '';
+      loginMsg.textContent = '';
+      await requestResetCode(email, loginMsg, { auto: false });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1544 @@
+﻿import {
+  state,
+  statusLabels,
+  campaignStatusOrder,
+  campaignStagesByStatus,
+  getCampaignStageOptions,
+  getDefaultCampaignStage,
+  typeLabels,
+  statusDot,
+  brandStatuses,
+  brandOptions,
+  formatCurrency,
+  formatPercent,
+  xpForLevel,
+  badgeCatalog,
+  getBadgeById
+} from './state.js';
+import { setScriptOutput } from './ui.js';
+
+const ICONS = {
+  radar: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 12l6-2" />
+      <path d="M12 12l-3 5" />
+    </svg>
+  `,
+  cash: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 1v22" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6" />
+    </svg>
+  `,
+  time: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
+  `,
+  trend: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 17l6-6 4 4 8-8" />
+      <path d="M21 7v6h-6" />
+    </svg>
+  `,
+  send: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M22 2L11 13" />
+      <path d="M22 2l-7 20-4-9-9-4z" />
+    </svg>
+  `,
+  chat: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+    </svg>
+  `,
+  bars: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 19V5" />
+      <path d="M8 19V9" />
+      <path d="M12 19V12" />
+      <path d="M16 19V8" />
+      <path d="M20 19V6" />
+    </svg>
+  `,
+  ticket: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h7" />
+      <path d="M18 2h4v4" />
+      <path d="M10 14L22 2" />
+    </svg>
+  `
+};
+
+const iconSvg = (name) => ICONS[name] || '';
+
+const renderProfile = () => {
+  const greetings = document.querySelectorAll('[data-greeting]');
+  const profileName = document.querySelectorAll('[data-profile-name]');
+  const profileLevel = document.querySelectorAll('[data-profile-level]');
+  const profileXp = document.querySelectorAll('[data-profile-xp]');
+  const profileXpGoal = document.querySelectorAll('[data-profile-xp-goal]');
+  const profileXpRemaining = document.querySelectorAll('[data-profile-xp-remaining]');
+  const profileXpBar = document.querySelectorAll('[data-profile-xpbar]');
+  const profileStreak = document.querySelectorAll('[data-profile-streak]');
+  const profileStreakBar = document.querySelectorAll('[data-profile-streakbar]');
+  const dashboardNarrative = document.querySelectorAll('[data-dashboard-narrative]');
+  const streakTip = document.querySelectorAll('[data-streak-tip]');
+  const focusCurrent = document.querySelectorAll('[data-focus-current]');
+  const focusTarget = document.querySelectorAll('[data-focus-target]');
+  const focusXp = document.querySelectorAll('[data-focus-xp]');
+  const focusLabel = document.querySelectorAll('[data-focus-label]');
+  const focusBar = document.querySelectorAll('[data-focus-bar]');
+
+  const isMax = state.profile.level >= 10;
+  const goal = xpForLevel(state.profile.level);
+  const remaining = isMax ? 0 : Math.max(goal - state.profile.xp, 0);
+  const progress = isMax ? 1 : goal ? Math.min(state.profile.xp / goal, 1) : 0;
+  const streakGoal = 30;
+  const streakProgress = Math.min(Math.max(state.profile.streak / streakGoal, 0), 1);
+  const focusGoal = Number.isFinite(state.focus?.target) ? state.focus.target : 0;
+  const focusCurrentValue = Number.isFinite(state.focus?.current) ? state.focus.current : 0;
+  const focusProgress = focusGoal ? Math.min(Math.max(focusCurrentValue / focusGoal, 0), 1) : 0;
+
+  const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
+  const scripts = Array.isArray(state.scripts) ? state.scripts : [];
+  const brands = Array.isArray(state.brands) ? state.brands : [];
+
+  const hour = new Date().getHours();
+  const greeting = hour >= 5 && hour < 12 ? 'Bom dia' : hour >= 12 && hour < 18 ? 'Boa tarde' : 'Boa noite';
+
+  const actionsLeft = remaining ? Math.max(1, Math.ceil(remaining / 20)) : 0;
+  let narrative = '';
+
+  if (state.profile.level === 1 && state.profile.xp <= 40) {
+    narrative = 'Todo mundo começa do zero. Você já deu o primeiro passo.';
+  } else if (!campaigns.length) {
+    narrative = 'Cria uma campanha (mesmo de teste). Isso já destrava XP e deixa tudo mais claro.';
+  } else if (!scripts.length) {
+    narrative = 'Gera um roteiro rapidinho. É XP por esforço e já te coloca no ritmo.';
+  } else if (!brands.length) {
+    narrative = 'Salva um contato de marca. Mesmo que seja “outros”, vale o registro.';
+  } else if (remaining > 0 && remaining <= 25) {
+    narrative = `Tá na beirinha do próximo nível. Só mais ${remaining} XP.`;
+  } else if (remaining > 0) {
+    narrative = `Faltam ~${actionsLeft} ações pra subir de nível. Vai no passo a passo.`;
+  } else {
+    narrative = 'Bora manter o ritmo e desbloquear as próximas conquistas.';
+  }
+
+  let streakText = 'Sua melhor sequência do mês.';
+  if (state.profile.streak <= 1) {
+    streakText = 'É difícil começar. Amanhã você mantém a chama acesa.';
+  } else if (state.profile.streak < 4) {
+    streakText = 'Boa! Você já entrou na sequência.';
+  } else if (state.profile.streak < 7) {
+    streakText = 'Consistência tá on. Mantém mais um dia.';
+  } else {
+    streakText = 'Tá quente! Você tá virando o jogo na marra.';
+  }
+
+  greetings.forEach((el) => (el.textContent = greeting));
+  profileName.forEach((el) => (el.textContent = state.profile.name));
+  profileLevel.forEach((el) => (el.textContent = state.profile.level));
+  profileXp.forEach((el) => (el.textContent = state.profile.xp));
+  profileXpGoal.forEach((el) => (el.textContent = isMax ? 'MAX' : goal));
+  profileXpRemaining.forEach((el) => (el.textContent = remaining));
+  profileXpBar.forEach((el) => (el.style.width = `${progress * 100}%`));
+  profileStreak.forEach((el) => (el.textContent = state.profile.streak));
+  profileStreakBar.forEach((el) => (el.style.width = `${streakProgress * 100}%`));
+  dashboardNarrative.forEach((el) => (el.textContent = narrative));
+  streakTip.forEach((el) => (el.textContent = streakText));
+
+  // Cores dinâmicas do foguinho baseadas no streak
+  const streakIcons = document.querySelectorAll('[data-streak-icon]');
+  streakIcons.forEach((icon) => {
+    const streak = state.profile.streak;
+    icon.classList.remove('streak-10', 'streak-20', 'streak-30', 'streak-40', 'streak-50', 'streak-60', 'streak-70', 'streak-80', 'streak-90', 'streak-100');
+    
+    if (streak >= 100) icon.classList.add('streak-100');
+    else if (streak >= 90) icon.classList.add('streak-90');
+    else if (streak >= 80) icon.classList.add('streak-80');
+    else if (streak >= 70) icon.classList.add('streak-70');
+    else if (streak >= 60) icon.classList.add('streak-60');
+    else if (streak >= 50) icon.classList.add('streak-50');
+    else if (streak >= 40) icon.classList.add('streak-40');
+    else if (streak >= 30) icon.classList.add('streak-30');
+    else if (streak >= 20) icon.classList.add('streak-20');
+    else if (streak >= 10) icon.classList.add('streak-10');
+  });
+
+  focusLabel.forEach((el) => (el.textContent = state.focus?.label || 'Foco'));
+  focusCurrent.forEach((el) => (el.textContent = String(state.focus?.current ?? 0)));
+  focusTarget.forEach((el) => (el.textContent = String(state.focus?.target ?? 0)));
+  focusXp.forEach((el) => (el.textContent = String(state.focus?.xp ?? 0)));
+  focusBar.forEach((el) => (el.style.width = `${focusProgress * 100}%`));
+};
+
+const renderMissions = () => {
+  const container = document.querySelector('[data-missions]');
+  if (!container) return;
+
+  const onboarding = state.progress?.onboarding && typeof state.progress.onboarding === 'object' ? state.progress.onboarding : null;
+  const welcomeCard =
+    onboarding?.welcomeAwarded === true
+      ? `
+        <div class="card mission-card mission-card--welcome">
+          <div class="badge">boas-vindas</div>
+          <div>
+            <h4>Conta criada</h4>
+            <p class="muted">1/1</p>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: 100%"></div>
+          </div>
+          <div class="mission-footer">
+            <span class="chip">+${onboarding?.welcomeXp ?? 30} XP</span>
+            <span class="muted">Feito</span>
+          </div>
+        </div>
+      `
+      : '';
+
+  const tourDone = onboarding?.tourRewardGranted === true;
+  const tourCard =
+    onboarding?.welcomeAwarded === true
+      ? `
+        <div class="card mission-card mission-card--welcome">
+          <div class="badge">boas-vindas</div>
+          <div>
+            <h4>Tutorial completo</h4>
+            <p class="muted">${tourDone ? '1/1' : '0/1'}</p>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: ${tourDone ? 100 : 0}%"></div>
+          </div>
+          <div class="mission-footer">
+            <span class="chip">+${onboarding?.tourXp ?? 30} XP</span>
+            <span class="muted">${tourDone ? 'Feito' : 'Automático'}</span>
+          </div>
+        </div>
+      `
+      : '';
+
+  container.innerHTML =
+    welcomeCard +
+    tourCard +
+    state.missions
+    .map((mission) => {
+      const progress = Math.round((mission.progress / mission.total) * 100);
+      const isDone = mission.progress >= mission.total;
+      return `
+        <div class="card mission-card" data-mission-id="${mission.id}">
+          <div class="badge">${mission.type}</div>
+          <div>
+            <h4>${mission.label}</h4>
+            <p class="muted">${mission.progress}/${mission.total}</p>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: ${progress}%"></div>
+          </div>
+          <div class="mission-footer">
+            <span class="chip">+${mission.xp} XP</span>
+            <span class="muted">${isDone ? 'Feito' : 'Automático'}</span>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+};
+
+const renderChallenges = () => {
+  const container = document.querySelector('[data-challenges]');
+  if (!container) return;
+
+  container.innerHTML = state.challenges
+    .map((challenge) => {
+      const progress = Math.round((challenge.progress / challenge.total) * 100);
+      const isDone = challenge.progress >= challenge.total;
+      return `
+        <div class="card mission-card" data-challenge-id="${challenge.id}">
+          <div class="badge">${challenge.type}</div>
+          <div>
+            <h4>${challenge.label}</h4>
+            <p class="muted">${challenge.progress}/${challenge.total}</p>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: ${progress}%"></div>
+          </div>
+          <div class="mission-footer">
+            <span class="chip">+${challenge.xp} XP</span>
+            <span class="muted">${isDone ? 'Feito' : 'Automático'}</span>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+};
+
+/* ════════════════════════════════════════════
+   DASHBOARD FINANCEIRO – Situação do Mês,
+   Ações Críticas e Rentabilidade
+   ════════════════════════════════════════════ */
+
+const computeDashboardFinance = () => {
+  const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
+  const now = new Date();
+  const curMonth = now.getMonth();
+  const curYear = now.getFullYear();
+
+  const isCurrentMonth = (dateStr) => {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    return d.getMonth() === curMonth && d.getFullYear() === curYear;
+  };
+
+  const isPrevMonth = (dateStr) => {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    const pm = curMonth === 0 ? 11 : curMonth - 1;
+    const py = curMonth === 0 ? curYear - 1 : curYear;
+    return d.getMonth() === pm && d.getFullYear() === py;
+  };
+
+  const todayStr = `${curYear}-${String(curMonth + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+  const monthCampaigns = campaigns.filter((c) =>
+    isCurrentMonth(c.createdAt) || isCurrentMonth(c.updatedAt) || isCurrentMonth(c.dueDate) || isCurrentMonth(c.paymentDate)
+  );
+  const receitaPrevista = monthCampaigns.reduce((s, c) => s + (c.value || 0), 0);
+  const receitaConfirmada = monthCampaigns
+    .filter((c) => c.status === 'concluida' || (c.paymentPercent && c.paymentPercent >= 100))
+    .reduce((s, c) => s + (c.value || 0), 0);
+
+  const meta = state.settings?.monthlyGoal || receitaPrevista || 0;
+  const diffValor = receitaConfirmada - meta;
+  const diffPercent = meta ? ((receitaConfirmada / meta) * 100) : 0;
+  const metaOk = diffValor >= 0;
+
+  const hoje = todayStr;
+  const vencendoHoje = campaigns.filter((c) => c.dueDate === hoje && c.status !== 'concluida');
+  const pagamentosAtrasados = campaigns.filter((c) => {
+    if (!c.paymentDate || c.status === 'concluida') return false;
+    const pp = Number.isFinite(c.paymentPercent) ? c.paymentPercent : 0;
+    return c.paymentDate < hoje && pp < 100;
+  });
+  const metaEmRisco = !metaOk && receitaPrevista > 0;
+
+  const brandMap = {};
+  campaigns.forEach((c) => {
+    const brand = c.brand || 'Sem marca';
+    if (!brandMap[brand]) brandMap[brand] = { total: 0, count: 0 };
+    brandMap[brand].total += c.value || 0;
+    brandMap[brand].count += 1;
+  });
+  const brandEntries = Object.entries(brandMap).filter(([, v]) => v.count > 0);
+  brandEntries.sort((a, b) => (b[1].total / b[1].count) - (a[1].total / a[1].count));
+
+  const maisLucrativa = brandEntries.length > 0 ? { name: brandEntries[0][0], avg: Math.round(brandEntries[0][1].total / brandEntries[0][1].count) } : null;
+  const menosLucrativa = brandEntries.length > 1 ? { name: brandEntries[brandEntries.length - 1][0], avg: Math.round(brandEntries[brandEntries.length - 1][1].total / brandEntries[brandEntries.length - 1][1].count) } : null;
+
+  const doneCampaigns = campaigns.filter((c) => c.status === 'concluida');
+  const ticketMedio = doneCampaigns.length ? Math.round(doneCampaigns.reduce((s, c) => s + (c.value || 0), 0) / doneCampaigns.length) : 0;
+
+  const prevMonthCampaigns = campaigns.filter((c) =>
+    isPrevMonth(c.createdAt) || isPrevMonth(c.updatedAt) || isPrevMonth(c.dueDate)
+  );
+  const prevReceita = prevMonthCampaigns
+    .filter((c) => c.status === 'concluida' || (c.paymentPercent && c.paymentPercent >= 100))
+    .reduce((s, c) => s + (c.value || 0), 0);
+  const crescimento = prevReceita ? (((receitaConfirmada - prevReceita) / prevReceita) * 100) : 0;
+
+  return {
+    receitaPrevista, receitaConfirmada, meta, diffValor, diffPercent, metaOk,
+    vencendoHoje, pagamentosAtrasados, metaEmRisco,
+    maisLucrativa, menosLucrativa, ticketMedio, crescimento
+  };
+};
+
+const renderDashboardFinancials = () => {
+  const financeContainer = document.querySelector('[data-finance-month]');
+  const alertsContainer = document.querySelector('[data-critical-actions]');
+  const profitContainer = document.querySelector('[data-profitability]');
+  if (!financeContainer) return;
+
+  const d = computeDashboardFinance();
+
+  const progressPct = Math.min(Math.round(d.diffPercent), 100);
+  const progressBarClass = d.metaOk ? '' : 'finance-progress-fill--red';
+
+  const indicatorClass = d.metaOk ? 'finance-indicator--green' : 'finance-indicator--red';
+  const indicatorIcon = d.metaOk
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  const indicatorLabel = d.metaOk
+    ? 'Meta atingida'
+    : `Voc\u00ea est\u00e1 ${formatCurrency(Math.abs(d.diffValor))} abaixo da meta.`;
+
+  financeContainer.innerHTML = `
+    <div class="card finance-card finance-card--hero">
+      <div class="finance-hero-top">
+        <div class="finance-card-block finance-card-block--main">
+          <div class="finance-label">Receita confirmada</div>
+          <div class="finance-value finance-value--xl finance-value--accent">${formatCurrency(d.receitaConfirmada)}</div>
+        </div>
+        <div class="finance-indicator ${indicatorClass}">
+          <span class="finance-indicator-icon">${indicatorIcon}</span>
+          <span>${d.metaOk ? 'No caminho' : 'Abaixo'}</span>
+        </div>
+      </div>
+
+      <div class="finance-progress">
+        <div class="finance-progress-track">
+          <div class="finance-progress-fill ${progressBarClass}" style="width: ${progressPct}%"></div>
+        </div>
+        <div class="finance-progress-labels">
+          <span class="muted">${Math.round(d.diffPercent)}% da meta</span>
+          <span class="muted">${formatCurrency(d.meta)}</span>
+        </div>
+      </div>
+
+      <div class="finance-card-row">
+        <div class="finance-card-block">
+          <div class="finance-label">Receita prevista</div>
+          <div class="finance-value">${formatCurrency(d.receitaPrevista)}</div>
+        </div>
+        <div class="finance-card-block">
+          <div class="finance-label" style="display:flex;align-items:center;gap:6px">Meta do m\u00eas
+            <button type="button" data-action="edit-monthly-goal" class="btn-edit-meta" title="Definir meta do m\u00eas" style="background:none;border:1px solid rgba(255,255,255,.15);border-radius:6px;cursor:pointer;padding:2px 6px;display:inline-flex;align-items:center;gap:4px;color:var(--accent,#2dd4a8);font-size:11px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Editar
+            </button>
+          </div>
+          <div class="finance-value">${formatCurrency(d.meta)}</div>
+        </div>
+        <div class="finance-card-block">
+          <div class="finance-label">Diferen\u00e7a</div>
+          <div class="finance-value ${d.metaOk ? 'finance-value--green' : 'finance-value--red'}">
+            ${d.diffValor >= 0 ? '+' : ''}${formatCurrency(d.diffValor)}
+          </div>
+        </div>
+      </div>
+
+      ${!d.metaOk ? `
+        <div class="finance-alert-banner">
+          <span class="finance-alert-icon">${indicatorIcon}</span>
+          <span>${indicatorLabel}</span>
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  // A\u00e7\u00f5es Cr\u00edticas
+  if (alertsContainer) {
+    const items = [];
+
+    d.vencendoHoje.forEach((c) => {
+      items.push(`
+        <button class="alert-item alert-item--warning" data-action="open-campaign" data-campaign-id="${c.id}" type="button">
+          <span class="alert-icon alert-icon--warning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          <span class="alert-text"><strong>Vence hoje:</strong> ${c.brand || c.title || 'Campanha'}</span>
+          <span class="alert-arrow">\u2192</span>
+        </button>
+      `);
+    });
+
+    d.pagamentosAtrasados.forEach((c) => {
+      items.push(`
+        <button class="alert-item alert-item--danger" data-action="open-campaign" data-campaign-id="${c.id}" type="button">
+          <span class="alert-icon alert-icon--danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </span>
+          <span class="alert-text"><strong>Pagamento atrasado:</strong> ${c.brand || c.title || 'Campanha'} \u2014 ${formatCurrency(c.value || 0)}</span>
+          <span class="alert-arrow">\u2192</span>
+        </button>
+      `);
+    });
+
+    alertsContainer.innerHTML = items.length ? items.join('') : '<p class="muted">Nenhuma ação pendente agora.</p>';
+  }
+
+  // Rentabilidade
+  if (profitContainer) {
+    const crescLabel = d.crescimento >= 0 ? `+${Math.round(d.crescimento)}%` : `${Math.round(d.crescimento)}%`;
+    const crescClass = d.crescimento >= 0 ? 'finance-value--green' : 'finance-value--red';
+
+    profitContainer.innerHTML = `
+      <div class="card profit-card">
+        <div class="profit-icon">${iconSvg('trend')}</div>
+        <div class="profit-label">Marca mais lucrativa</div>
+        <div class="profit-value">${d.maisLucrativa ? d.maisLucrativa.name : '\u2014'}</div>
+        <div class="profit-sub">${d.maisLucrativa ? formatCurrency(d.maisLucrativa.avg) + '/campanha' : 'Sem dados'}</div>
+      </div>
+      <div class="card profit-card">
+        <div class="profit-icon">${iconSvg('bars')}</div>
+        <div class="profit-label">Marca menos lucrativa</div>
+        <div class="profit-value">${d.menosLucrativa ? d.menosLucrativa.name : '\u2014'}</div>
+        <div class="profit-sub">${d.menosLucrativa ? formatCurrency(d.menosLucrativa.avg) + '/campanha' : 'Sem dados'}</div>
+      </div>
+      <div class="card profit-card">
+        <div class="profit-icon">${iconSvg('ticket')}</div>
+        <div class="profit-label">Ticket m\u00e9dio</div>
+        <div class="profit-value">${formatCurrency(d.ticketMedio)}</div>
+        <div class="profit-sub">Campanhas conclu\u00eddas</div>
+      </div>
+      <div class="card profit-card">
+        <div class="profit-icon">${iconSvg('cash')}</div>
+        <div class="profit-label">Crescimento vs m\u00eas anterior</div>
+        <div class="profit-value ${crescClass}">${crescLabel}</div>
+        <div class="profit-sub">${d.crescimento >= 0 ? 'Acima do m\u00eas passado' : 'Abaixo do m\u00eas passado'}</div>
+      </div>
+    `;
+  }
+};
+
+/* ── Model campaign rendering helpers ──────────────────────── */
+
+const renderModelOutreachBar = (campaign) => {
+  if (!campaign.isModel || !campaign.modelMeta) return '';
+  const meta = campaign.modelMeta;
+  const sent = meta.outreachSent || 0;
+  const goal = meta.weeklyGoal || 5;
+  const pct = Math.min(100, Math.round((sent / goal) * 100));
+  return `
+    <div class="model-outreach-bar">
+      <div class="model-outreach-info">
+        <span>Propostas: <strong>${sent}/${goal}</strong></span>
+        <button class="btn-outreach-add" data-action="outreach-add" data-campaign-id="${campaign.id}" type="button" title="Registrar proposta enviada">+ Enviei 1</button>
+      </div>
+      <div class="model-outreach-track">
+        <div class="model-outreach-fill" style="width:${pct}%"></div>
+      </div>
+    </div>
+  `;
+};
+
+const renderModelAdvanceBtn = (campaign) => {
+  if (!campaign.isModel) return null;
+  return `
+    <button class="btn-convert-inline" data-action="convert-to-real" data-campaign-id="${campaign.id}" type="button">
+      Trocar para campanha real
+    </button>
+  `;
+};
+
+const renderCampaigns = () => {
+  const container = document.querySelector('[data-campaigns]');
+  if (!container) return;
+
+  const filter = state.ui.campaignFilter || 'all';
+  const sortBy = state.ui.campaignSort || 'updatedAt';
+
+  const escapeHtml = (value) =>
+    String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
+  const formatDateShortBR = (raw) => {
+    const value = String(raw || '').trim();
+    if (!value) return 'indefinido';
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) return value;
+    const day = match[3];
+    const month = match[2];
+    const year = match[1];
+    const currentYear = String(new Date().getFullYear());
+    return year === currentYear ? `${day}/${month}` : `${day}/${month}/${year}`;
+  };
+
+  const getValueLabel = (campaign) => {
+    const value = Number.isFinite(campaign?.value) ? campaign.value : parseInt(String(campaign?.value || ''), 10) || 0;
+    const hasMoney = value > 0;
+    if (!hasMoney && !campaign?.barter) return 'indefinido';
+    if (!hasMoney && campaign?.barter) return 'permuta';
+    return formatCurrency(value);
+  };
+
+  /* R$/hora */
+  const getHourlyRate = (c) => {
+    const v = Number.isFinite(c.value) ? c.value : 0;
+    const h = Number.isFinite(c.estimatedHours) && c.estimatedHours > 0 ? c.estimatedHours : 0;
+    return h > 0 ? Math.round(v / h) : null;
+  };
+  const allCampaignsAll = Array.isArray(state.campaigns) ? state.campaigns : [];
+  const allRates = allCampaignsAll.map(getHourlyRate).filter(r => r !== null);
+  const avgHourlyRate = allRates.length ? Math.round(allRates.reduce((a, b) => a + b, 0) / allRates.length) : 0;
+  const hourlyGoal = state.settings?.hourlyGoal || 0;
+  const getHourlyClass = (rate) => {
+    if (rate === null) return '';
+    const ref = hourlyGoal || avgHourlyRate || 100;
+    if (rate >= ref * 1.1) return 'rate-good';
+    if (rate >= ref * 0.8) return 'rate-warn';
+    return 'rate-bad';
+  };
+
+  /* Smart indicators */
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const getIndicators = (c) => {
+    const tags = [];
+    if (c.status === 'concluida') return tags;
+    if (c.dueDate) {
+      const diff = Math.ceil((new Date(c.dueDate) - new Date()) / 86400000);
+      if (diff < 0) tags.push({ label: 'Atrasada', cls: 'ind-danger' });
+      else if (diff <= 3) tags.push({ label: `Vence em ${diff}d`, cls: 'ind-warning' });
+    }
+    if (c.paymentDate && c.paymentDate < todayStr) {
+      const pp = Number.isFinite(c.paymentPercent) ? c.paymentPercent : 0;
+      if (pp < 100) tags.push({ label: 'Pgto atrasado', cls: 'ind-danger' });
+    }
+    const minTicket = state.settings?.minTicket || 0;
+    if (minTicket > 0 && Number.isFinite(c.value) && c.value > 0 && c.value < minTicket) {
+      tags.push({ label: 'Ticket baixo', cls: 'ind-warning' });
+    }
+    return tags;
+  };
+
+  /* Brand insight */
+  const getBrandInsight = (campaign) => {
+    const brand = campaign.brand;
+    if (!brand) return '';
+    const brandDone = allCampaignsAll.filter(c => c.brand === brand && c.status === 'concluida');
+    if (brandDone.length < 2) return '';
+    const brandAvg = Math.round(brandDone.reduce((s, c) => s + (c.value || 0), 0) / brandDone.length);
+    const allDone = allCampaignsAll.filter(c => c.status === 'concluida' && c.value > 0);
+    const userAvg = allDone.length ? Math.round(allDone.reduce((s, c) => s + c.value, 0) / allDone.length) : 0;
+    if (userAvg <= 0) return '';
+    const pctDiff = Math.round(((brandAvg - userAvg) / userAvg) * 100);
+    if (pctDiff > 5) return `<span class="campaign-insight campaign-insight--good">${escapeHtml(brand)} paga ${pctDiff}% acima da sua m\u00e9dia</span>`;
+    if (pctDiff < -5) return `<span class="campaign-insight campaign-insight--bad">${escapeHtml(brand)} paga ${Math.abs(pctDiff)}% abaixo da sua m\u00e9dia</span>`;
+    return '';
+  };
+
+  document.querySelectorAll('.filter-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.filter === filter);
+  });
+
+  const sortSelect = document.querySelector('[data-campaign-sort]');
+  if (sortSelect && sortSelect.value !== sortBy) sortSelect.value = sortBy;
+
+  const allCampaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
+  const list = allCampaigns
+    .filter((campaign) => {
+      if (filter !== 'all' && campaign.status !== filter) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (a.priority && !b.priority) return -1;
+      if (!a.priority && b.priority) return 1;
+      let va, vb;
+      switch (sortBy) {
+        case 'value': va = a.value||0; vb = b.value||0; return vb - va;
+        case 'hourlyRate': va = getHourlyRate(a)||0; vb = getHourlyRate(b)||0; return vb - va;
+        case 'dueDate': va = a.dueDate||'9999'; vb = b.dueDate||'9999'; return va < vb ? -1 : va > vb ? 1 : 0;
+        case 'daysUntilDue': va = a.dueDate ? Math.ceil((new Date(a.dueDate)-new Date())/86400000) : 9999; vb = b.dueDate ? Math.ceil((new Date(b.dueDate)-new Date())/86400000) : 9999; return va - vb;
+        case 'brand': va = (a.brand||'').toLowerCase(); vb = (b.brand||'').toLowerCase(); return va < vb ? -1 : va > vb ? 1 : 0;
+        case 'status': va = campaignStatusOrder.indexOf(a.status); vb = campaignStatusOrder.indexOf(b.status); return va - vb;
+        default: va = a.updatedAt||a.createdAt||''; vb = b.updatedAt||b.createdAt||''; return vb > va ? 1 : vb < va ? -1 : 0;
+      }
+    });
+
+  if (!list.length) {
+    container.innerHTML = '<div class="card">Nenhuma campanha por aqui.</div>';
+    return;
+  }
+
+  const renderStatusOptions = (current) => {
+    return campaignStatusOrder
+      .map((key) => {
+        return `<option value="${key}" ${key === current ? 'selected' : ''}>${statusLabels[key]}</option>`;
+      })
+      .join('');
+  };
+
+  container.innerHTML = `
+    <div class="table-wrap campaign-table-wrap">
+      <table class="campaign-table">
+        <thead>
+          <tr>
+            <th>Marca</th>
+            <th>Prazo</th>
+            <th>Pre\u00e7o</th>
+            <th>Status</th>
+            <th>Etapa</th>
+            <th>Avan\u00e7ar</th>
+            <th>A\u00e7\u00f5es</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${list
+            .map((campaign) => {
+              const statusSafe = Object.prototype.hasOwnProperty.call(statusLabels, campaign.status) ? campaign.status : 'prospeccao';
+              const stageOptions = getCampaignStageOptions(statusSafe);
+              const stageSafe = stageOptions.some((opt) => opt.id === campaign.stage) ? campaign.stage : stageOptions[0]?.id || '';
+              const stageDisabled = stageOptions.length ? '' : 'disabled';
+
+              const stageOptionsHtml = stageOptions.length
+                ? stageOptions
+                    .map((opt) => {
+                      return `<option value="${opt.id}" ${opt.id === stageSafe ? 'selected' : ''}>${opt.label}</option>`;
+                    })
+                    .join('')
+                : '<option value="">-</option>';
+
+              // Calcular próxima etapa para botão de avanço
+              const currentStageIndex = stageOptions.findIndex((opt) => opt.id === stageSafe);
+              const isLastStage = currentStageIndex >= stageOptions.length - 1;
+              const currentStatusIndex = campaignStatusOrder.indexOf(statusSafe);
+              const isLastStatus = currentStatusIndex >= campaignStatusOrder.length - 1;
+
+              let advanceBtnHtml = '';
+              if (!isLastStatus || !isLastStage) {
+                if (!isLastStage) {
+                  const nextStage = stageOptions[currentStageIndex + 1];
+                  advanceBtnHtml = `
+                    <button class="btn-advance" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
+                      <span class="btn-advance-label">Avançar: ${escapeHtml(nextStage.label)}</span>
+                      <span class="btn-advance-xp">+5 XP</span>
+                    </button>`;
+                } else if (!isLastStatus) {
+                  const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
+                  const nextStatusLabel = statusLabels[nextStatus] || nextStatus;
+                  advanceBtnHtml = `
+                    <button class="btn-advance btn-advance-status" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
+                      <span class="btn-advance-label">Avançar: ${escapeHtml(nextStatusLabel)}</span>
+                      <span class="btn-advance-xp">+5 XP</span>
+                    </button>`;
+                }
+              }
+
+
+              const isPriority = campaign.priority === true;
+              const isModel = campaign.isModel === true;
+              const priorityIcon = isPriority
+                ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+
+              const modelConvertBtn = isModel ? renderModelAdvanceBtn(campaign) : null;
+              const modelOutreach = isModel ? renderModelOutreachBar(campaign) : '';
+
+              const rate = getHourlyRate(campaign);
+              const rateLabel = rate !== null ? formatCurrency(rate) : '\u2014';
+              const rateCls = getHourlyClass(rate);
+              const indicators = getIndicators(campaign);
+              const indicatorHtml = indicators.map(i => `<span class="campaign-ind ${i.cls}">${i.label}</span>`).join('');
+              const insightHtml = getBrandInsight(campaign);
+
+              return `
+                <tr data-campaign-id="${campaign.id}" class="${isPriority ? 'campaign-priority' : ''}${isModel ? ' campaign-model' : ''}">
+                  <td data-label="Marca">
+                    <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+                      <button class="btn-priority ${isPriority ? 'active' : ''}" data-action="toggle-priority" data-campaign-id="${campaign.id}" type="button" title="${isPriority ? 'Remover prioridade' : 'Marcar como prioridade'}">
+                        ${priorityIcon}
+                      </button>
+                      <span class="chip chip-pill brand-status-${statusSafe}">${escapeHtml(campaign.brand || 'Marca')}</span>
+                      ${isModel ? '<span class="badge-model">MODELO</span>' : ''}
+                      ${indicatorHtml}
+                    </div>
+                    ${insightHtml}
+                  </td>
+                  <td data-label="Prazo">${isModel ? '<span class="model-locked">—</span>' : escapeHtml(formatDateShortBR(campaign.dueDate))}</td>
+                  <td data-label="Preço">${isModel ? '<span class="model-locked">—</span>' : escapeHtml(getValueLabel(campaign))}</td>
+                  <td data-label="Status">
+                    ${isModel
+                      ? `<span class="select select-compact status-${statusSafe} model-select-locked">${statusLabels[statusSafe] || statusSafe}</span>`
+                      : `<select class="select select-compact status-${statusSafe}" data-campaign-status data-campaign-id="${campaign.id}">${renderStatusOptions(statusSafe)}</select>`
+                    }
+                  </td>
+                  <td data-label="Etapa">
+                    ${isModel
+                      ? `<span class="select select-compact stage-${statusSafe} model-select-locked">${stageOptions.find(o => o.id === stageSafe)?.label || '—'}</span>`
+                      : `<select class="select select-compact stage-${statusSafe}" ${stageDisabled} data-campaign-stage data-campaign-id="${campaign.id}">${stageOptionsHtml}</select>`
+                    }
+                  </td>
+                  <td data-label="Avançar" ${isModel ? 'colspan="1"' : ''}>
+                    <div class="stage-btns">
+                      ${isModel ? (modelConvertBtn || '') : advanceBtnHtml}
+                    </div>
+                  </td>
+                  <td data-label="Ações">
+                    ${isModel
+                      ? modelOutreach
+                      : `<div class="campaign-action-btns">
+                          <button class="btn-action btn-action--duplicate" data-action="duplicate-campaign" data-campaign-id="${campaign.id}" type="button">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            Duplicar
+                          </button>
+                          <button class="btn-action btn-action--edit" data-action="edit-campaign" data-campaign-id="${campaign.id}" type="button">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Editar
+                          </button>
+                        </div>`
+                    }
+                  </td>
+                </tr>
+              `;
+            })
+            .join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  if (typeof window !== 'undefined' && typeof window.enableCustomSelects === 'function') {
+    window.enableCustomSelects();
+  }
+};
+
+const renderBrands = () => {
+  const container = document.querySelector('[data-brands]');
+  if (!container) return;
+
+  const hero = document.querySelector('[data-brand-hero]');
+  const insightsContainer = document.querySelector('[data-brand-insights]');
+  const brandsSection = container.closest('section');
+
+  const composerBrandSelect = document.querySelector('[data-brand-composer="brand"]');
+  const composerTypeSelect = document.querySelector('[data-brand-composer="type"]');
+  const composerTextArea = document.querySelector('[data-brand-composer="text"]');
+  const composerHint = document.querySelector('[data-brand-composer="hint"]');
+
+  if (insightsContainer && brandsSection) {
+    const insightsCard = insightsContainer.closest('.card');
+    const spacer = insightsCard?.previousElementSibling;
+    const shouldMoveSpacer = spacer?.tagName === 'DIV' && String(spacer.getAttribute('style') || '').includes('margin-top');
+    if (shouldMoveSpacer) brandsSection.appendChild(spacer);
+    if (insightsCard) brandsSection.appendChild(insightsCard);
+  }
+
+  const brands = Array.isArray(state.brands) ? state.brands : [];
+  const total = brands.length;
+  const sentCount = brands.filter((brand) => brand.status === 'enviado').length;
+  const negotiatingCount = brands.filter((brand) => brand.status === 'negociando').length;
+  const closedCount = brands.filter((brand) => brand.status === 'fechado').length;
+  const respondedCount = brands.filter((brand) => ['negociando', 'fechado'].includes(brand.status)).length;
+  const responseRate = total ? respondedCount / total : 0;
+
+  if (hero) {
+    if (!total) {
+      hero.innerHTML = `
+        <div class="metric-hero">
+          <div class="metric-hero-title">
+            <h3>Suas conversas com marcas</h3>
+            <p class="muted">Adiciona uma marca e começa a registrar tudo por aqui.</p>
+          </div>
+          <div class="metric-hero-badges">
+            <span class="chip">0 marcas</span>
+          </div>
+        </div>
+      `;
+    } else {
+      hero.innerHTML = `
+        <div class="metric-hero">
+          <div class="metric-hero-title">
+            <h3>Suas conversas com marcas</h3>
+            <p class="muted">
+              <strong>${total}</strong> marcas no radar • ${respondedCount} responderam (${formatPercent(responseRate)}).
+            </p>
+          </div>
+          <div class="metric-hero-badges">
+            <span class="chip chip-pendente">Mandei msg: ${sentCount}</span>
+            <span class="chip chip-negociando">Negociando: ${negotiatingCount}</span>
+            <span class="chip chip-realizado">Fechou: ${closedCount}</span>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  if (insightsContainer) {
+    const insights = [];
+
+    if (!total) {
+      insights.push({
+        icon: 'send',
+        title: 'Bora começar',
+        text: 'Clica em “+ Marca nova” e adiciona seu primeiro contato.'
+      });
+    }
+
+    if (sentCount > 0) {
+      insights.push({
+        icon: 'send',
+        title: 'Follow-up rápido',
+        text: `Você tem ${sentCount} contato(s) esperando resposta. Faz 1 follow-up hoje e pronto.`
+      });
+    }
+
+    if (negotiatingCount > 0) {
+      insights.push({
+        icon: 'chat',
+        title: 'Negociação quente',
+        text: `Tem ${negotiatingCount} em negociação. Simplifica: 2 vídeos + 3 cortes e fecha.`
+      });
+    }
+
+    if (closedCount > 0) {
+      insights.push({
+        icon: 'trend',
+        title: 'Repetir a dose',
+        text: 'Fechou uma? Já puxa a próxima com a mesma marca. É o jeito mais fácil de crescer.'
+      });
+    }
+
+    while (insights.length < 3) {
+      insights.push({
+        icon: 'radar',
+        title: 'Ritmo constante',
+        text: 'Todo dia um passo: abordagem, follow-up, proposta. Sem pressão, só constância.'
+      });
+    }
+
+    insightsContainer.innerHTML = `
+      <div class="insight-list">
+        ${insights
+          .slice(0, 3)
+          .map(
+            (item) => `
+              <div class="insight-item">
+                <div class="metric-icon">${iconSvg(item.icon)}</div>
+                <div>
+                  <div style="font-weight: 600; margin-bottom: 4px;">${item.title}</div>
+                  <div class="muted">${item.text}</div>
+                </div>
+              </div>
+            `
+          )
+          .join('')}
+      </div>
+    `;
+  }
+
+  const buildBrandMessage = (brand, type) => {
+    const creator = state.profile.name || 'eu';
+    const contact = brand?.contact || 'pessoal';
+    const brandName = brand?.name || 'a marca';
+
+    const templates = {
+      first: `Oi ${contact}! Tudo certo?\n\nAqui é o ${creator}. Eu curti a ${brandName} e pensei em umas ideias de UGC que combinam com vocês.\n\nPosso te mandar 3 ideias rapidinhas e valores?`,
+      followup: `Oi ${contact}! Passando só pra dar um toque.\n\nSe fizer sentido, eu já consigo te mandar 2 opções de roteiro + um plano de entrega bem simples.`,
+      deliver: `Oi ${contact}! Tá tudo pronto por aqui.\n\nSegue o link/arquivos dos entregáveis: [colar link aqui]\n\nSe quiser algum ajuste, me fala que eu deixo redondo.`,
+      review: `Oi ${contact}! Vi seus feedbacks.\n\nJá tô com a revisão encaminhada — tem algo que você quer que eu priorize primeiro?`,
+      approve: `Oi ${contact}! Última checagem: posso considerar aprovado?\n\nSe estiver tudo ok, eu já sigo com a publicação/entrega final.`
+    };
+
+    return templates[type] || templates.first;
+  };
+
+  if (composerBrandSelect && composerTypeSelect && composerTextArea) {
+    state.ui.brandComposer = state.ui.brandComposer || { brandId: null, type: 'first', text: '' };
+
+    if (!brands.length) {
+      composerBrandSelect.innerHTML = '<option value="">Adicione uma marca primeiro</option>';
+      composerBrandSelect.disabled = true;
+      composerTypeSelect.disabled = true;
+      composerTextArea.disabled = true;
+      if (composerHint) composerHint.textContent = 'Crie uma marca acima para continuar.';
+    } else {
+      composerBrandSelect.disabled = false;
+      composerTypeSelect.disabled = false;
+      composerTextArea.disabled = false;
+      if (composerHint) composerHint.textContent = 'Dica: troca o texto e deixa com a sua cara.';
+
+      const storedBrandId = state.ui.brandComposer.brandId;
+      const fallbackBrandId = brands[0]?.id;
+      const selectedBrandId = brands.some((b) => b.id === storedBrandId)
+        ? storedBrandId
+        : fallbackBrandId;
+
+      const storedType = state.ui.brandComposer.type || 'first';
+      const hasType = Boolean(composerTypeSelect.querySelector(`option[value="${storedType}"]`));
+      const selectedType = hasType ? storedType : 'first';
+
+      state.ui.brandComposer.brandId = selectedBrandId;
+      state.ui.brandComposer.type = selectedType;
+
+      composerBrandSelect.innerHTML = brands
+        .map((brand) => `<option value="${brand.id}">${brand.name}</option>`)
+        .join('');
+      composerBrandSelect.value = selectedBrandId;
+      composerTypeSelect.value = selectedType;
+
+      const selectedBrand = brands.find((b) => b.id === selectedBrandId);
+      const shouldRegen =
+        !state.ui.brandComposer.text ||
+        state.ui.brandComposer.lastBrandId !== selectedBrandId ||
+        state.ui.brandComposer.lastType !== selectedType;
+
+      if (shouldRegen) {
+        state.ui.brandComposer.text = buildBrandMessage(selectedBrand, selectedType);
+        state.ui.brandComposer.lastBrandId = selectedBrandId;
+        state.ui.brandComposer.lastType = selectedType;
+      }
+
+      if (document.activeElement !== composerTextArea) {
+        composerTextArea.value = state.ui.brandComposer.text || '';
+      }
+    }
+  }
+
+  container.innerHTML = brands
+    .map((brand) => {
+      return `
+        <div class="card brand-card" data-brand-id="${brand.id}">
+          <div class="brand-info">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <strong>${brand.name}</strong>
+              <span class="chip chip-pill">${brandStatuses[brand.status]}</span>
+            </div>
+            <div class="muted">${brand.contact} • ${brand.email}</div>
+          </div>
+          <div class="brand-controls">
+            <button class="btn btn-ghost btn-small" data-action="copy-brand-email" data-brand-id="${brand.id}" type="button">
+              Copiar email
+            </button>
+            <button class="btn btn-danger btn-small" data-action="delete-brand" data-brand-id="${brand.id}" type="button">
+              Excluir
+            </button>
+            <select class="select" data-brand-status data-brand-id="${brand.id}">
+              ${brandOptions
+                .map(
+                  (status) =>
+                    `<option value="${status}" ${status === brand.status ? 'selected' : ''}>${brandStatuses[status]}</option>`
+                )
+                .join('')}
+            </select>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+};
+
+/* ──────────────────── PERFORMANCE ──────────────────── */
+
+const PERF_RANGE_OPTIONS = [7, 15, 30, 45, 90];
+const METRIC_COLORS = ['#34d399','#38bdf8','#f59e0b','#a78bfa','#fb7185','#22d3ee','#818cf8','#f97316'];
+
+const escapeHtml = (v) =>
+  String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+const getCampaignName = (c) => String(c?.title || c?.brand || 'Campanha sem nome').trim() || 'Campanha sem nome';
+
+const toSafe = (v) => { if (Number.isFinite(v)) return v; const p = Number.parseFloat(String(v||'').replace(',','.')); return Number.isFinite(p) ? p : 0; };
+
+const parseDate = (v) => { if (!v) return null; const d = new Date(v); return Number.isNaN(d.getTime()) ? null : d; };
+
+const toDayStart = (v) => { const d = parseDate(v); if (!d) return null; return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); };
+
+const addDays = (d, n) => { const x = new Date(d.getTime()); x.setUTCDate(x.getUTCDate() + n); return x; };
+
+const dateKey = (d) => `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+
+const fmtDateBR = (v) => { const d = parseDate(v); if (!d) return '-'; return `${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${d.getUTCFullYear()}`; };
+
+const inWindow = (d, s, e) => Boolean(d && d >= s && d < e);
+
+const daysBetweenD = (a, b) => { const s = toDayStart(a), e = toDayStart(b); if (!s||!e) return 0; return Math.max(0, Math.floor((e-s)/86400000)); };
+
+const getPaidAt = (c) => parseDate(c?.paymentDate || c?.paidAt || c?.paidDate);
+
+const getDaysStalled = (c, now) => { const r = parseDate(c?.updatedAt) || parseDate(c?.createdAt); if (!r) return 0; const d = daysBetweenD(r, now); return Number.isFinite(d) ? d : 0; };
+
+const buildDateRange = (start, days) => Array.from({ length: days }, (_, i) => addDays(start, i));
+
+/* ── SVG Charts ── */
+
+const renderLineChartSvg = (series, labels, unit) => {
+  if (!series.length) return '<div class="perf-empty">Sem dados.</div>';
+  const mx = Math.max(...series, 1);
+  const w = 400, h = 160, pad = 30;
+  const stepX = series.length > 1 ? (w - pad*2) / (series.length - 1) : 0;
+  const pts = series.map((v, i) => { const x = pad + i*stepX; const y = h - pad - ((v/mx)*(h-pad*2)); return `${x.toFixed(1)},${y.toFixed(1)}`; });
+  const lStep = Math.max(1, Math.floor(labels.length / 5));
+  const ticks = labels.map((l, i) => {
+    if (i % lStep !== 0 && i !== labels.length - 1) return '';
+    return `<text x="${(pad + i*stepX).toFixed(1)}" y="${h-5}" text-anchor="middle" fill="var(--muted)" font-size="10">${l.slice(0,5)}</text>`;
+  }).join('');
+  const dots = series.map((v, i) => {
+    const x = pad + i*stepX, y = h - pad - ((v/mx)*(h-pad*2));
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="var(--accent)"><title>${labels[i]}: ${v}${unit||''}</title></circle>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" class="perf-line-svg" preserveAspectRatio="xMidYMid meet">
+    <polyline points="${pts.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}${ticks}
+  </svg>`;
+};
+
+const renderBarChartHtml = (items) => {
+  const mx = Math.max(...items.map(i => i.value), 1);
+  return `<div class="perf-bars">${items.map(i => {
+    const w = Math.round((i.value / mx) * 100);
+    return `<div class="perf-bar-row"><span class="perf-bar-lbl">${escapeHtml(i.label)}</span><div class="perf-bar-track"><div class="perf-bar-fill" style="width:${w}%"></div><span class="perf-bar-val">${typeof i.value === 'number' && i.format === 'currency' ? formatCurrency(i.value) : i.value}</span></div></div>`;
+  }).join('')}</div>`;
+};
+
+/* ── Performance data computation ── */
+
+const computePerformance = () => {
+  const now = new Date();
+  const rangeDays = PERF_RANGE_OPTIONS.includes(Number(state.metrics?.rangeDays)) ? Number(state.metrics.rangeDays) : 30;
+  const today = toDayStart(now) || new Date();
+  const curStart = addDays(today, -(rangeDays - 1));
+  const curEnd = addDays(today, 1);
+  const prevStart = addDays(curStart, -rangeDays);
+  const prevEnd = curStart;
+
+  const campaigns = (Array.isArray(state.campaigns) ? state.campaigns : []).map(c => {
+    const createdAt = parseDate(c.createdAt);
+    const updatedAt = parseDate(c.updatedAt) || createdAt;
+    const paidAt = getPaidAt(c);
+    return { ...c, value: Math.max(0, toSafe(c.value)), createdAt, updatedAt, paidAt };
+  });
+
+  const total = campaigns.length;
+  const done = campaigns.filter(c => c.status === 'concluida');
+  const doneCount = done.length;
+  const openC = campaigns.filter(c => c.status !== 'concluida');
+
+  /* FINANCIAL */
+  const totalReceived = done.reduce((s, c) => s + c.value, 0);
+  const totalOpen = openC.reduce((s, c) => s + c.value, 0);
+  const prevMonthCampaigns = done.filter(c => { const d = c.paidAt || c.updatedAt; return d && inWindow(d, prevStart, prevEnd); });
+  const prevReceita = prevMonthCampaigns.reduce((s, c) => s + c.value, 0);
+
+  // Receita prevista pr\u00f3ximo m\u00eas
+  const nextMonthStart = addDays(curEnd, 0);
+  const nextMonthEnd = addDays(curEnd, 30);
+  const nextMonthCampaigns = openC.filter(c => {
+    if (!c.dueDate && !c.paymentDate) return true;
+    const dd = parseDate(c.dueDate || c.paymentDate);
+    return dd && inWindow(dd, nextMonthStart, nextMonthEnd);
+  });
+  const receitaPrevista = nextMonthCampaigns.reduce((s, c) => s + c.value, 0) || totalOpen;
+
+  // R$/hora
+  const withHours = done.filter(c => c.estimatedHours > 0);
+  const avgHourlyRate = withHours.length ? Math.round(withHours.reduce((s, c) => s + c.value / c.estimatedHours, 0) / withHours.length) : 0;
+
+  // Ticket
+  const ticketMedio = doneCount ? Math.round(totalReceived / doneCount) : 0;
+  const sortedValues = done.map(c => c.value).sort((a, b) => a - b);
+  const ticketMediano = sortedValues.length ? sortedValues[Math.floor(sortedValues.length / 2)] : 0;
+
+  // Atraso
+  const todayStr = dateKey(today);
+  const emAtraso = openC.filter(c => {
+    if (!c.paymentDate) return false;
+    const pp = Number.isFinite(c.paymentPercent) ? c.paymentPercent : 0;
+    return c.paymentDate < todayStr && pp < 100;
+  });
+  const valorAtraso = emAtraso.reduce((s, c) => s + c.value, 0);
+
+  const paidOnTime = done.filter(c => {
+    if (!c.dueDate || !c.paidAt) return false;
+    return c.paidAt <= new Date(c.dueDate + 'T23:59:59');
+  });
+  const pctPagoNoPrazo = doneCount ? paidOnTime.length / doneCount : 0;
+
+  // Bars by brand
+  const brandMap = {};
+  campaigns.forEach(c => {
+    const brand = c.brand || 'Sem marca';
+    if (!brandMap[brand]) brandMap[brand] = 0;
+    brandMap[brand] += c.value;
+  });
+  const brandBars = Object.entries(brandMap).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([label, value]) => ({ label, value, format: 'currency' }));
+
+  // Timeline
+  const days = buildDateRange(curStart, rangeDays);
+  const dKeys = days.map(d => dateKey(d));
+  const dLabels = days.map(d => fmtDateBR(d));
+  const receivByDay = {};
+  done.forEach(c => {
+    const d = c.paidAt || c.updatedAt;
+    if (!d || !inWindow(d, curStart, curEnd)) return;
+    const k = dateKey(toDayStart(d));
+    receivByDay[k] = (receivByDay[k] || 0) + c.value;
+  });
+  const receivSeries = dKeys.map(k => receivByDay[k] || 0);
+
+  // Rankings
+  const rankByValue = [...done].sort((a, b) => b.value - a.value).slice(0, 5).map(c => ({ name: getCampaignName(c), value: formatCurrency(c.value) }));
+  const rankByHourly = [...withHours].sort((a, b) => (b.value/b.estimatedHours) - (a.value/a.estimatedHours)).slice(0, 5).map(c => ({ name: getCampaignName(c), value: formatCurrency(Math.round(c.value / c.estimatedHours)) + '/h' }));
+
+  // Pay time by brand
+  const brandPayTime = {};
+  done.forEach(c => {
+    const brand = c.brand || 'Sem marca';
+    const d = daysBetweenD(c.createdAt, c.paidAt || c.updatedAt);
+    if (!brandPayTime[brand]) brandPayTime[brand] = [];
+    brandPayTime[brand].push(d);
+  });
+  const brandPayAvg = Object.entries(brandPayTime).map(([label, arr]) => ({
+    label, value: Math.round(arr.reduce((s, v) => s + v, 0) / arr.length)
+  })).sort((a, b) => a.value - b.value);
+
+  /* COMMERCIAL */
+  const brands = Array.isArray(state.brands) ? state.brands : [];
+  const totalContacts = brands.length;
+  const closedInPeriod = campaigns.filter(c => {
+    const d = c.createdAt;
+    return d && inWindow(d, curStart, curEnd);
+  });
+  const closingRate = totalContacts > 0 ? doneCount / totalContacts : 0;
+
+  const brandCount = {};
+  campaigns.forEach(c => {
+    const brand = c.brand || 'Sem marca';
+    brandCount[brand] = (brandCount[brand] || 0) + 1;
+  });
+  const recurrentBrands = Object.entries(brandCount).filter(([, v]) => v >= 2).map(([k]) => k);
+  const conversionRate = totalContacts > 0 ? total / totalContacts : 0;
+
+  /* OPERATIONAL */
+  const atrasadas = openC.filter(c => c.dueDate && c.dueDate < todayStr);
+  const emRisco = openC.filter(c => {
+    if (!c.dueDate) return false;
+    const diff = Math.ceil((new Date(c.dueDate) - now) / 86400000);
+    return diff >= 0 && diff <= 3;
+  });
+
+  const productionTime = done.map(c => {
+    const d = daysBetweenD(c.createdAt, c.updatedAt);
+    return Number.isFinite(d) ? d : null;
+  }).filter(d => d !== null);
+  const avgProdTime = productionTime.length ? Math.round(productionTime.reduce((s, v) => s + v, 0) / productionTime.length) : 0;
+
+  const payTime = done.map(c => {
+    const d = daysBetweenD(c.createdAt, c.paidAt || c.updatedAt);
+    return Number.isFinite(d) ? d : null;
+  }).filter(d => d !== null);
+  const avgPayTime = payTime.length ? Math.round(payTime.reduce((s, v) => s + v, 0) / payTime.length) : 0;
+
+  const stale = openC.filter(c => getDaysStalled(c, now) >= (state.settings?.alertStaleDays || 5));
+
+  return {
+    rangeDays, total, doneCount,
+    financial: { totalReceived, totalOpen, receitaPrevista, avgHourlyRate, ticketMedio, ticketMediano, valorAtraso, pctPagoNoPrazo, brandBars, receivSeries, receivLabels: dLabels, rankByValue, rankByHourly, brandPayAvg },
+    commercial: { totalContacts, closingRate, closedCount: closedInPeriod.length, recurrentBrands, conversionRate },
+    operational: { atrasadas: atrasadas.length, emRisco: emRisco.length, avgProdTime, avgPayTime, stale: stale.length, atrasadasList: atrasadas.map(getCampaignName), emRiscoList: emRisco.map(getCampaignName) }
+  };
+};
+
+/* ── Render Performance ── */
+
+const renderPerformance = () => {
+  const container = document.querySelector('[data-perf-content]');
+  const rangeBar = document.querySelector('[data-perf-range]');
+  if (!container) return;
+
+  const tab = state.ui.performanceTab || 'financial';
+  const perf = computePerformance();
+
+  // Sync tabs
+  document.querySelectorAll('.perf-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.perfTab === tab);
+  });
+
+  // Range bar
+  if (rangeBar && tab !== 'badges') {
+    rangeBar.innerHTML = PERF_RANGE_OPTIONS.map(d => {
+      const active = d === perf.rangeDays;
+      return `<button class="perf-range-btn ${active ? 'is-active' : ''}" data-action="perf-range" data-range-days="${d}" type="button">${d}d</button>`;
+    }).join('');
+    rangeBar.style.display = '';
+  } else if (rangeBar) {
+    rangeBar.style.display = 'none';
+  }
+
+  if (tab === 'financial') {
+    const f = perf.financial;
+    container.innerHTML = `
+      <div class="perf-cards-grid">
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('cash')}</div>
+          <div class="perf-card-label">Receita total</div>
+          <div class="perf-card-value">${formatCurrency(f.totalReceived)}</div>
+          <div class="muted">${perf.doneCount} campanha(s) paga(s)</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('trend')}</div>
+          <div class="perf-card-label">Receita prevista</div>
+          <div class="perf-card-value">${formatCurrency(f.receitaPrevista)}</div>
+          <div class="muted">Pr\u00f3ximo per\u00edodo</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('time')}</div>
+          <div class="perf-card-label">R$/hora m\u00e9dio</div>
+          <div class="perf-card-value">${f.avgHourlyRate ? formatCurrency(f.avgHourlyRate) + '/h' : '\u2014'}</div>
+          <div class="muted">Campanhas com horas registradas</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('ticket')}</div>
+          <div class="perf-card-label">Ticket m\u00e9dio</div>
+          <div class="perf-card-value">${formatCurrency(f.ticketMedio)}</div>
+          <div class="muted">Mediano: ${formatCurrency(f.ticketMediano)}</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('bars')}</div>
+          <div class="perf-card-label">R$ em atraso</div>
+          <div class="perf-card-value ${f.valorAtraso > 0 ? 'perf-value--red' : ''}">${formatCurrency(f.valorAtraso)}</div>
+          <div class="muted">Pagamentos pendentes</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('radar')}</div>
+          <div class="perf-card-label">Pagos no prazo</div>
+          <div class="perf-card-value">${formatPercent(f.pctPagoNoPrazo)}</div>
+          <div class="muted">Das campanhas conclu\u00eddas</div>
+        </div>
+      </div>
+
+      <div class="perf-section">
+        <h3>Receita por marca</h3>
+        ${f.brandBars.length ? renderBarChartHtml(f.brandBars) : '<div class="perf-empty">Sem dados de marcas.</div>'}
+      </div>
+
+      <div class="perf-section">
+        <h3>Linha do tempo de recebimentos</h3>
+        ${renderLineChartSvg(f.receivSeries, f.receivLabels, '')}
+      </div>
+
+      <div class="perf-section perf-section--split">
+        <div>
+          <h4>Ranking por valor</h4>
+          ${f.rankByValue.length ? `<ol class="perf-ranking">${f.rankByValue.map(r => `<li><span>${escapeHtml(r.name)}</span><strong>${r.value}</strong></li>`).join('')}</ol>` : '<div class="perf-empty">Sem dados.</div>'}
+        </div>
+        <div>
+          <h4>Ranking por R$/hora</h4>
+          ${f.rankByHourly.length ? `<ol class="perf-ranking">${f.rankByHourly.map(r => `<li><span>${escapeHtml(r.name)}</span><strong>${r.value}</strong></li>`).join('')}</ol>` : '<div class="perf-empty">Registre horas nas campanhas.</div>'}
+        </div>
+      </div>
+
+      <div class="perf-section">
+        <h4>Tempo m\u00e9dio de pagamento por marca</h4>
+        ${f.brandPayAvg.length ? renderBarChartHtml(f.brandPayAvg.map(b => ({ label: b.label, value: b.value }))) : '<div class="perf-empty">Sem dados.</div>'}
+      </div>
+    `;
+  } else if (tab === 'commercial') {
+    const c = perf.commercial;
+    container.innerHTML = `
+      <div class="perf-cards-grid">
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('send')}</div>
+          <div class="perf-card-label">Total de contatos</div>
+          <div class="perf-card-value">${c.totalContacts}</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('bars')}</div>
+          <div class="perf-card-label">Taxa de fechamento</div>
+          <div class="perf-card-value">${formatPercent(c.closingRate)}</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('radar')}</div>
+          <div class="perf-card-label">Fechadas no per\u00edodo</div>
+          <div class="perf-card-value">${c.closedCount}</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('chat')}</div>
+          <div class="perf-card-label">Marcas recorrentes</div>
+          <div class="perf-card-value">${c.recurrentBrands.length}</div>
+          <div class="muted">${c.recurrentBrands.slice(0, 3).join(', ') || 'Nenhuma ainda'}</div>
+        </div>
+      </div>
+
+      <div class="perf-section">
+        <div class="card perf-insight-card">
+          <h4>\ud83d\udca1 Insights comerciais</h4>
+          <ul class="perf-insights-list">
+            ${c.totalContacts === 0 ? '<li class="muted">Registre marcas para ver insights.</li>' : ''}
+            ${c.closingRate >= 0.3 ? '<li class="perf-insight--good">Sua taxa de fechamento est\u00e1 acima de 30% \u2014 excelente!</li>' : ''}
+            ${c.closingRate > 0 && c.closingRate < 0.15 ? '<li class="perf-insight--warn">Taxa de fechamento abaixo de 15%. Revise sua abordagem.</li>' : ''}
+            ${c.recurrentBrands.length >= 3 ? '<li class="perf-insight--good">Voc\u00ea tem ' + c.recurrentBrands.length + ' marcas recorrentes \u2014 base s\u00f3lida!</li>' : ''}
+            ${c.recurrentBrands.length === 0 && c.totalContacts > 5 ? '<li class="perf-insight--warn">Nenhuma marca recorrente. Tente reativar contatos antigos.</li>' : ''}
+          </ul>
+        </div>
+      </div>
+    `;
+  } else if (tab === 'operational') {
+    const o = perf.operational;
+    container.innerHTML = `
+      <div class="perf-cards-grid">
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('time')}</div>
+          <div class="perf-card-label">Atrasadas</div>
+          <div class="perf-card-value ${o.atrasadas > 0 ? 'perf-value--red' : 'perf-value--green'}">${o.atrasadas}</div>
+          <div class="muted">${o.atrasadasList.slice(0,2).join(', ') || 'Nenhuma'}</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('radar')}</div>
+          <div class="perf-card-label">Em risco (3 dias)</div>
+          <div class="perf-card-value ${o.emRisco > 0 ? 'perf-value--warn' : ''}">${o.emRisco}</div>
+          <div class="muted">${o.emRiscoList.slice(0,2).join(', ') || 'Nenhuma'}</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('trend')}</div>
+          <div class="perf-card-label">Tempo m\u00e9dio de produ\u00e7\u00e3o</div>
+          <div class="perf-card-value">${o.avgProdTime} dias</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('cash')}</div>
+          <div class="perf-card-label">Tempo at\u00e9 pagamento</div>
+          <div class="perf-card-value">${o.avgPayTime} dias</div>
+        </div>
+        <div class="card perf-card">
+          <div class="perf-card-icon">${iconSvg('bars')}</div>
+          <div class="perf-card-label">Pipeline parado</div>
+          <div class="perf-card-value ${o.stale > 0 ? 'perf-value--warn' : 'perf-value--green'}">${o.stale}</div>
+          <div class="muted">Sem atualiza\u00e7\u00e3o por ${state.settings?.alertStaleDays || 5}+ dias</div>
+        </div>
+      </div>
+    `;
+  } else if (tab === 'badges') {
+    const badges = badgeCatalog.map(b => {
+      const result = b.check(state);
+      return { ...b, ...result };
+    });
+
+    const categories = [
+      { key: 'financial', label: '\ud83d\udcb0 Financeiro', items: badges.filter(b => b.category === 'financial') },
+      { key: 'commercial', label: '\ud83d\udcc8 Comercial', items: badges.filter(b => b.category === 'commercial') },
+      { key: 'operational', label: '\ud83e\udde0 Operacional', items: badges.filter(b => b.category === 'operational') }
+    ];
+
+    const totalBadges = badges.length;
+    const doneBadges = badges.filter(b => b.done).length;
+    const pctBadges = totalBadges ? Math.round((doneBadges / totalBadges) * 100) : 0;
+
+    container.innerHTML = `
+      <div class="card" style="margin-bottom:18px">
+        <h3>Progresso de badges</h3>
+        <div class="muted" style="margin-bottom:8px">${doneBadges} de ${totalBadges} conquistadas (${pctBadges}%)</div>
+        <div class="progress-track"><div class="progress-fill" style="width:${pctBadges}%"></div></div>
+      </div>
+
+      ${categories.map(cat => `
+        <div class="perf-badge-section">
+          <h3>${cat.label}</h3>
+          <div class="perf-badge-grid">
+            ${cat.items.map(b => `
+              <div class="card perf-badge ${b.done ? 'perf-badge--done' : ''}">
+                <div class="perf-badge-header">
+                  <div class="perf-badge-icon">${iconSvg(b.icon)}</div>
+                  <div>
+                    <div class="perf-badge-title">${b.title}</div>
+                    <div class="muted">${b.desc}</div>
+                  </div>
+                  <span class="chip">${b.done ? 'Conquistada' : `+${b.xp} XP`}</span>
+                </div>
+                <div class="perf-badge-progress">
+                  <div class="progress-track"><div class="progress-fill ${b.done ? '' : 'progress-fill--accent'}" style="width:${b.target ? Math.min(100, Math.round((b.current / b.target) * 100)) : 0}%"></div></div>
+                  <div class="perf-badge-meta">
+                    <span>${b.done ? 'Completo' : `${b.current} / ${b.target}`}</span>
+                    ${b.insight ? `<span class="muted">${b.insight}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('')}
+    `;
+  }
+};
+
+const renderSettings = () => {
+  /* toggles originais */
+  const settingsInputs = document.querySelectorAll('[data-setting]');
+  settingsInputs.forEach((input) => {
+    const key = input.dataset.setting;
+    input.checked = Boolean(state.settings[key]);
+  });
+
+  const email =
+    state.profile.email ||
+    (() => {
+      try {
+        return sessionStorage.getItem('ugcQuestUserEmail') || '';
+      } catch (e) {
+        return '';
+      }
+    })() ||
+    '';
+  document.querySelectorAll('[data-account-email]').forEach((el) => {
+    el.textContent = email || '—';
+  });
+
+  const weeklyBtn = document.querySelector('[data-action="send-weekly-summary"]');
+  if (weeklyBtn) {
+    weeklyBtn.disabled = !state.settings.weekly;
+  }
+
+};
+
+const renderScriptHistory = () => {
+  const container = document.querySelector('[data-script-history]');
+  if (!container) return;
+
+  if (!state.scripts.length) {
+    container.innerHTML = '<div class="muted">Nada por aqui ainda. Gere seu primeiro roteiro.</div>';
+    return;
+  }
+
+  container.innerHTML = state.scripts
+    .slice(0, 10)
+    .map((script) => {
+      const isOpen = state.ui.openScript === script.id;
+      return `
+        <div class="script-card ${isOpen ? 'active' : ''}">
+          <div>
+            <h4>
+              <button class="script-title-btn" data-action="show-script" data-script-id="${script.id}">
+                ${script.title || script.brand}
+              </button>
+            </h4>
+            <div class="script-meta">${typeLabels[script.type] || script.type} - ${script.brand}</div>
+            <div class="script-meta">${new Date(Number(script.id.split('-')[1]) || Date.now()).toLocaleDateString()}</div>
+            ${script.finalized ? `<div class="script-meta"><span class="chip chip-realizado">Finalizado</span></div>` : ''}
+            ${isOpen ? `<div class="script-body">${script.text}</div>` : ''}
+          </div>
+          <div class="script-actions">
+            <button class="btn btn-ghost btn-small" data-action="copy-script-history" data-script-id="${script.id}">Copiar</button>
+            <button class="btn btn-danger btn-small" data-action="delete-script" data-script-id="${script.id}">Excluir</button>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+};
+
+const renderAll = () => {
+  renderProfile();
+  renderDashboardFinancials();
+  renderMissions();
+  renderChallenges();
+  renderCampaigns();
+  renderPerformance();
+  renderSettings();
+  renderScriptHistory();
+
+  if (state.ui.openScript) {
+    const selected = state.scripts.find((item) => item.id === state.ui.openScript);
+    if (selected) {
+      setScriptOutput(selected.text);
+    } else {
+      state.ui.openScript = null;
+      setScriptOutput('');
+    }
+  }
+
+  const finalizeBtn = document.querySelector('[data-action="finalize-script"]');
+  if (finalizeBtn) {
+    const selected = state.ui.openScript ? state.scripts.find((item) => item.id === state.ui.openScript) : null;
+    finalizeBtn.disabled = !selected || Boolean(selected.finalized);
+  }
+};
+
+export { renderAll, renderScriptHistory };
+
+// VERSAO_ATUALIZADA_070226_2350

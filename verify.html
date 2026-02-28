@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UGC Quest - Confirmar código</title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png" />
+  <link rel="apple-touch-icon" href="assets/img/logo.png" />
+  <link rel="stylesheet" href="assets/css/app.css" />
+</head>
+<body class="auth-body">
+  <div class="auth-card">
+    <div class="brand">
+      <div class="brand-icon">
+        <img src="assets/img/logo.png" alt="Makerline" />
+      </div>
+      <div>
+        <div class="brand-name">Makerline</div>
+        <div class="brand-tag">Level up your content</div>
+      </div>
+    </div>
+
+    <div>
+      <h2>Confirma o código</h2>
+      <p>A gente te mandou um código por e-mail. Cola ele aqui pra trocar a senha.</p>
+    </div>
+
+    <form class="auth-form active" id="verify-form">
+      <div class="form-row">
+        <label>Email</label>
+        <input class="input" name="email" type="email" placeholder="seu@email.com" required />
+      </div>
+      <div class="form-row">
+        <label>Código (6 dígitos)</label>
+        <input class="input" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="000000" maxlength="6" required />
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="btn btn-primary" type="submit">Confirmar</button>
+        <button class="btn btn-ghost" type="button" id="resend-btn">Reenviar código</button>
+      </div>
+      <div class="muted" id="verify-msg"></div>
+    </form>
+
+    <div class="auth-footer">
+      <a class="auth-link" href="index.html">Voltar pro login</a>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get('email') || '';
+    const codeParam = params.get('code') || '';
+    const form = document.getElementById('verify-form');
+    const msg = document.getElementById('verify-msg');
+    const resendBtn = document.getElementById('resend-btn');
+
+    const emailInput = form.querySelector('input[name="email"]');
+    const codeInput = form.querySelector('input[name="code"]');
+    const storedEmail = (() => {
+      try { return sessionStorage.getItem('ugcQuestResetEmail') || ''; } catch (e) { return ''; }
+    })();
+    const storedCode = (() => {
+      try { return sessionStorage.getItem('ugcQuestResetCode') || ''; } catch (e) { return ''; }
+    })();
+
+    if (emailParam) emailInput.value = emailParam;
+    if (!emailInput.value && storedEmail) emailInput.value = storedEmail;
+
+    const normalizeCode = (value) => (value || '').replace(/\D/g, '').slice(0, 6);
+
+    codeInput.addEventListener('input', () => {
+      codeInput.value = normalizeCode(codeInput.value);
+    });
+
+    const initialCode = normalizeCode(codeParam) || normalizeCode(storedCode);
+    if (initialCode) {
+      codeInput.value = initialCode;
+      msg.textContent = 'Já colei o código aqui. Só confirmar.';
+    }
+
+    const resendCode = async () => {
+      const email = (emailInput.value || '').trim().toLowerCase();
+      if (!email) {
+        msg.textContent = 'Coloca seu email pra eu mandar o código.';
+        return;
+      }
+      msg.textContent = 'Enviando código...';
+      try {
+        const res = await fetch('api/forgot.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          msg.textContent = data.error || 'Não consegui enviar.';
+          return;
+        }
+        msg.textContent = data.message || 'Código enviado.';
+        if (data.code) {
+          const clean = normalizeCode(data.code);
+          codeInput.value = clean;
+          msg.textContent += ` Código: ${clean}`;
+          try {
+            sessionStorage.setItem('ugcQuestResetCode', clean);
+            sessionStorage.setItem('ugcQuestResetEmail', email);
+          } catch (e) {}
+        }
+      } catch (err) {
+        msg.textContent = 'Não consegui enviar.';
+      }
+    };
+
+    resendBtn.addEventListener('click', resendCode);
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (emailInput.value || '').trim().toLowerCase();
+      const code = normalizeCode(codeInput.value);
+
+      if (!email) {
+        msg.textContent = 'Coloca seu email.';
+        return;
+      }
+      if (code.length !== 6) {
+        msg.textContent = 'O código tem 6 dígitos.';
+        return;
+      }
+
+      msg.textContent = 'Confirmando...';
+      try {
+        const res = await fetch('api/verify.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          msg.textContent = data.error || 'Código inválido.';
+          return;
+        }
+        if (data.resetLink) {
+          try {
+            sessionStorage.removeItem('ugcQuestResetCode');
+            sessionStorage.removeItem('ugcQuestResetEmail');
+          } catch (e) {}
+          window.location.replace(data.resetLink);
+          return;
+        }
+        msg.textContent = 'Deu certo, mas faltou o link de reset.';
+      } catch (err) {
+        msg.textContent = 'Não consegui confirmar.';
+      }
+    });
+  </script>
+</body>
+</html>

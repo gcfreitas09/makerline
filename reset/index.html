@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redirecionando...</title>
+  <meta http-equiv="refresh" content="0; url=../reset.html" />
+</head>
+<body>
+  <p>Redirecionando...</p>
+  <script>
+    const query = window.location.search || '';
+    window.location.replace(`../reset.html${query}`);
+  </script>
+</body>
+</html>

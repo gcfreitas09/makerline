@@ -1,0 +1,224 @@
+{
+    "userId": "u_6972a0c8a5c7c6.44143160",
+    "updatedAt": "2026-01-22T19:19:58-03:00",
+    "state": {
+        "meta": {
+            "updatedAt": "2026-01-22T22:19:56.213Z"
+        },
+        "profile": {
+            "name": "Vinícius De Araújo Inácio",
+            "email": "viniviews@icloud.com",
+            "level": 1,
+            "xp": 120,
+            "streak": 0
+        },
+        "focus": {
+            "id": "f-short-videos",
+            "week": "2026-W04",
+            "roll": 0,
+            "label": "Postar 3 vídeos curtos",
+            "current": 2,
+            "target": 3,
+            "xp": 120
+        },
+        "missions": [
+            {
+                "id": "d-create-scripts",
+                "label": "Criar 2 roteiros",
+                "total": 2,
+                "xp": 20,
+                "type": "diária",
+                "progress": 1
+            },
+            {
+                "id": "d-create-campaign",
+                "label": "Criar 1 nova campanha",
+                "total": 1,
+                "xp": 20,
+                "type": "diária",
+                "progress": 1
+            },
+            {
+                "id": "d-brand-contacts",
+                "label": "Registrar contato com 3 marcas",
+                "total": 3,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            }
+        ],
+        "challenges": [
+            {
+                "id": "w-clean-week",
+                "label": "Semana limpa: atualizar campanhas ativas em 5 dias",
+                "total": 5,
+                "xp": 200,
+                "type": "semanal",
+                "progress": 1
+            }
+        ],
+        "campaigns": [
+            {
+                "id": "c-1769120277256",
+                "title": "Grupo de Promoções",
+                "brand": "Grupo de Promoções",
+                "status": "negociando",
+                "value": 750,
+                "barter": false,
+                "dueDate": "2026-01-24",
+                "paused": false,
+                "archived": false,
+                "createdAt": "2026-01-22T22:17:57.256Z",
+                "updatedAt": "2026-01-22T22:17:57.256Z",
+                "fieldsComplete": true
+            },
+            {
+                "id": "c-1769120202819",
+                "title": "Wine Vinhos",
+                "brand": "Wine Vinhos",
+                "status": "pendente",
+                "value": 400,
+                "barter": false,
+                "dueDate": "2026-01-24",
+                "paused": false,
+                "archived": false,
+                "createdAt": "2026-01-22T22:16:42.819Z",
+                "updatedAt": "2026-01-22T22:16:42.819Z",
+                "fieldsComplete": true
+            },
+            {
+                "id": "c-1769120092813",
+                "title": "Eleva Calçados",
+                "brand": "Eleva Calçados",
+                "status": "negociando",
+                "value": 1850,
+                "barter": false,
+                "dueDate": "2026-01-24",
+                "paused": false,
+                "archived": false,
+                "createdAt": "2026-01-22T22:14:52.813Z",
+                "updatedAt": "2026-01-22T22:14:52.813Z",
+                "fieldsComplete": true
+            }
+        ],
+        "brands": [],
+        "scripts": [
+            {
+                "id": "s-1769120364674",
+                "text": "ROTEIRO STORYTELLING - Wine Vinhos\nDuração: 30s | Tom: Leve e direto\nPúblico: público geral\nObjetivo: gerar vendas\n\nHOOK (0-3s)\n- Intriga visual: close no produto e pergunta: \"já imaginou gerar vendas?\"\nDESENVOLVIMENTO\n- Prova social + um dado simples.\n- Mantém o ritmo de 30s (cortes rápidos e sem enrolar).\nPROVA\n- Frase de review real (pode ser print).\nCTA\n- \"Link na bio\" ou \"clica no link\" (urgência leve).\nFINAL\n- Mostra o produto + lembrete visual do link\/benefício.",
+                "brand": "Wine Vinhos",
+                "type": "storytelling",
+                "campaignId": null,
+                "finalized": false,
+                "title": "Storytelling - Wine Vinhos"
+            }
+        ],
+        "metrics": {
+            "avgTime": 12,
+            "proposals": 24,
+            "responseRate": 0.419999999999999984456877655247808434069156646728515625,
+            "steps": [
+                {
+                    "label": "Contato enviado",
+                    "value": 1
+                },
+                {
+                    "label": "Marca respondeu",
+                    "value": 1
+                },
+                {
+                    "label": "Negociacao",
+                    "value": 0
+                },
+                {
+                    "label": "Roteiro pronto",
+                    "value": 1
+                },
+                {
+                    "label": "Gravacao",
+                    "value": 0
+                },
+                {
+                    "label": "Edicao",
+                    "value": 1
+                }
+            ]
+        },
+        "settings": {
+            "weekly": false,
+            "alerts": true,
+            "backup": true
+        },
+        "progress": {
+            "daily": {
+                "date": "2026-01-22",
+                "bonusDate": null,
+                "lastCompleteDate": null,
+                "unique": {
+                    "d-complete-campaign": [
+                        "c-1769120092813",
+                        "c-1769120202819",
+                        "c-1769120277256"
+                    ],
+                    "d-deadlines": [
+                        "c-1769120092813",
+                        "c-1769120202819",
+                        "c-1769120277256"
+                    ]
+                }
+            },
+            "weekly": {
+                "date": "2026-W04",
+                "challengeId": "w-clean-week",
+                "dailyCompleteDays": [],
+                "campaignUpdateDays": [
+                    "2026-01-22"
+                ],
+                "organizedCampaignIds": [],
+                "finishedCampaignIds": []
+            },
+            "achievements": {
+                "unlocked": [
+                    "ach-first-script"
+                ],
+                "active": [
+                    "ach-first-script",
+                    "ach-streak7",
+                    "ach-2-closes",
+                    "ach-10-campaigns",
+                    "ach-level5",
+                    "ach-contact",
+                    "ach-finalizer",
+                    "ach-organizer",
+                    "ach-clean-pipeline",
+                    "ach-level10"
+                ]
+            }
+        },
+        "avatar": {
+            "premium": false,
+            "unlocked": [
+                "hair-classic",
+                "outfit-basic",
+                "shoe-default"
+            ],
+            "selected": {
+                "hair": "hair-classic",
+                "outfit": "outfit-basic",
+                "shoes": "shoe-default"
+            }
+        },
+        "ui": {
+            "activePage": "metrics",
+            "campaignFilter": "all",
+            "openScript": "s-1769120364674",
+            "brandComposer": {
+                "brandId": null,
+                "type": "first",
+                "text": ""
+            },
+            "missionDate": "2026-01-22",
+            "weeklyDate": "2026-W04"
+        }
+    }
+}

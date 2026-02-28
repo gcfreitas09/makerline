@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UGC Quest - Reset de senha</title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png" />
+  <link rel="apple-touch-icon" href="assets/img/logo.png" />
+  <link rel="stylesheet" href="assets/css/app.css" />
+</head>
+<body class="auth-body">
+  <div class="auth-card">
+    <div class="brand">
+      <div class="brand-icon">
+        <img src="assets/img/logo.png" alt="Makerline" />
+      </div>
+      <div>
+        <div class="brand-name">Makerline</div>
+        <div class="brand-tag">Level up your content</div>
+      </div>
+    </div>
+
+    <div>
+      <h2>Redefinir senha</h2>
+      <p>Escolhe uma nova senha e pronto.</p>
+    </div>
+
+    <form class="auth-form active" id="reset-form">
+      <div class="form-row">
+        <label>Nova senha</label>
+        <input class="input" name="password" type="password" placeholder="Nova senha" required />
+      </div>
+      <div class="form-row">
+        <label>Confirmar senha</label>
+        <input class="input" name="confirm" type="password" placeholder="Confirmar senha" required />
+      </div>
+      <button class="btn btn-primary" type="submit">Salvar senha</button>
+      <div class="muted" id="reset-msg"></div>
+    </form>
+
+    <div class="auth-footer">
+      <a class="auth-link" href="index.html">Voltar pro login</a>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const email = params.get('email');
+    const form = document.getElementById('reset-form');
+    const msg = document.getElementById('reset-msg');
+    const submitBtn = form.querySelector('button');
+
+    const disableForm = (message) => {
+      msg.textContent = message;
+      submitBtn.disabled = true;
+    };
+
+    if (!token && email) {
+      submitBtn.disabled = true;
+      msg.textContent = 'Link antigo. Vamos confirmar seu email...';
+      fetch('api/forgot.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.ok) {
+            const next = data.next || `verify.html?email=${encodeURIComponent(email)}`;
+            try {
+              sessionStorage.setItem('ugcQuestResetEmail', String(email).trim().toLowerCase());
+              if (data.code) {
+                sessionStorage.setItem('ugcQuestResetCode', String(data.code));
+              } else {
+                sessionStorage.removeItem('ugcQuestResetCode');
+              }
+            } catch (e) {}
+            window.location.replace(next);
+            return;
+          }
+          disableForm(data?.error || data?.message || 'Não consegui enviar o código.');
+        })
+        .catch(() => {
+          disableForm('Não consegui enviar o código.');
+        });
+    }
+
+    if (!token && !email) {
+      disableForm('Esse link não vale mais.');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const password = data.get('password');
+      const confirm = data.get('confirm');
+
+      if (password.length < 6) {
+        msg.textContent = 'Senha curta demais (min 6).';
+        return;
+      }
+      if (password !== confirm) {
+        msg.textContent = 'As senhas não batem.';
+        return;
+      }
+
+      msg.textContent = 'Salvando...';
+      try {
+        const res = await fetch('api/reset.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, password })
+        });
+        const payload = await res.json();
+        if (!res.ok) {
+          msg.textContent = payload.error || 'Erro ao salvar.';
+          return;
+        }
+        msg.textContent = 'Senha atualizada. Voltando pro login...';
+        try {
+          sessionStorage.removeItem('ugcQuestResetCode');
+          sessionStorage.removeItem('ugcQuestResetEmail');
+        } catch (e) {}
+        setTimeout(() => {
+          window.location.replace('index.html');
+        }, 1200);
+      } catch (err) {
+        msg.textContent = 'Não consegui salvar.';
+      }
+    });
+  </script>
+</body>
+</html>

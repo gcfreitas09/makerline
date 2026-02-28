@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Makerline - Painel de Inteligência</title>
+    <link rel="icon" type="image/png" href="assets/img/logo.png" />
+    <link rel="apple-touch-icon" href="assets/img/logo.png" />
+    <link rel="stylesheet" href="assets/css/app2.css?v=20260217c" />
+  </head>
+  <body>
+    <main class="main">
+      <div class="section-header">
+        <div class="section-title-block">
+          <div class="brand" style="justify-content: flex-start;">
+            <div class="brand-icon">
+              <img src="assets/img/logo.png" alt="Makerline" />
+            </div>
+            <div>
+              <div class="brand-name">Makerline</div>
+              <div class="brand-tag">Painel de Inteligência</div>
+            </div>
+          </div>
+          <p class="section-subtitle">Visão estratégica de onboarding, retenção e engajamento dos usuários.</p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;">
+          <button class="btn btn-ghost" type="button" data-admin-action="back">Voltar pro app</button>
+          <button class="btn btn-ghost" type="button" data-admin-action="migrate">Importar usuários</button>
+          <button class="btn btn-ghost" type="button" data-admin-action="migrate-states">Importar progressos</button>
+          <button class="btn btn-danger" type="button" data-admin-action="logout">Sair</button>
+        </div>
+      </div>
+
+      <!-- Intelligence cards -->
+      <div class="perf-cards-grid" id="admin-intel" style="margin-top: 18px;"></div>
+
+      <!-- Selected user detail -->
+      <div class="card card-strong" id="admin-summary" style="margin-top: 18px;">
+        <div class="metric-hero">
+          <div class="metric-hero-title">
+            <h3 id="admin-summary-title">Cadastros</h3>
+            <p class="muted" id="admin-summary-subtitle">Clique num nome pra ver o resumo do usuário.</p>
+          </div>
+          <div class="metric-hero-badges">
+            <span class="chip" id="admin-count">0 usuários</span>
+          </div>
+        </div>
+
+        <div class="admin-user-detail" id="admin-user-detail" style="display: none;">
+          <div class="admin-user-detail-grid">
+            <div class="admin-pie" id="admin-pie" aria-hidden="true"></div>
+            <div class="admin-pie-legend" id="admin-pie-legend"></div>
+            <div class="admin-user-kpi" id="admin-user-kpi"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 18px;"></div>
+      <div class="card">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+          <div>
+            <h3>Usuários</h3>
+            <p class="muted">Email, nome, engajamento e datas.</p>
+          </div>
+          <input class="input" id="admin-search" type="text" placeholder="Buscar por email/nome..." style="max-width: 320px; width: 100%;" />
+        </div>
+
+        <div class="muted" id="admin-msg" style="margin-top: 10px;"></div>
+
+        <div class="table-wrap" style="margin-top: 12px;">
+          <table class="admin-table" id="admin-table">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Nome</th>
+                <th>Criado em</th>
+                <th>Último login</th>
+                <th>Última atividade</th>
+                <th>Acessos</th>
+                <th>Tempo total</th>
+                <th>Semanal</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <div class="modal" id="admin-delete-modal" aria-hidden="true">
+      <div class="modal-scrim" data-admin-action="close-delete"></div>
+      <div class="modal-panel card">
+        <div class="modal-header">
+          <div>
+            <h3 id="admin-delete-title">Excluir conta</h3>
+            <p class="muted" id="admin-delete-subtitle">Isso apaga a conta e o progresso dela.</p>
+          </div>
+          <button class="btn btn-ghost btn-small" data-admin-action="close-delete" type="button">Fechar</button>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Confirmação</label>
+            <input class="input" id="admin-delete-confirm" type="text" placeholder="Digite EXCLUIR" autocomplete="off" />
+            <div class="muted">Dica: também funciona digitando o email da pessoa.</div>
+          </div>
+          <button class="btn btn-danger" type="button" data-admin-action="confirm-delete">Excluir conta</button>
+          <div class="muted" id="admin-delete-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/js/admin.js?v=6"></script>
+  </body>
+</html>

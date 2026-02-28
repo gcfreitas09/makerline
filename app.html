@@ -1,0 +1,855 @@
+﻿<html lang="pt-BR">
+  <!DOCTYPE html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Makerline - UGC Quest</title>
+  <meta
+    name="description"
+    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+  />
+  <meta property="og:title" content="Makerline - UGC Quest" />
+  <meta
+    property="og:description"
+    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/img/share.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Makerline - UGC Quest" />
+  <meta
+    name="twitter:description"
+    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+  />
+  <meta name="twitter:image" content="assets/img/share.png" />
+  <link rel="icon" type="image/png" href="assets/img/logo.png" />
+  <link rel="apple-touch-icon" href="assets/img/logo.png" />
+    <link rel="stylesheet" href="assets/css/app2.css?v=20260217c" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260216a">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="assets/js2/core/customSelect.js?v=20260216a"></script>
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">
+          <img src="assets/img/logo.png" alt="Makerline" />
+        </div>
+        <div>
+          <div class="brand-name">Makerline</div>
+          <div class="brand-tag">Level up your content</div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="level-badge" data-profile-level>-</div>
+        <div style="flex:1;min-width:0">
+          <div class="profile-label">Seu nível</div>
+          <div class="profile-value"><span data-profile-xp>—</span> XP</div>
+          <div class="sidebar-progress">
+            <div class="progress-track">
+              <div class="progress-fill" data-profile-xpbar style="width: 0%"></div>
+            </div>
+            <div class="progress-label">Faltam <span data-profile-xp-remaining>—</span> XP para subir</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <div class="nav-scroll">
+        <button class="nav-item active" data-target="dashboard" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12l9-9 9 9" />
+            <path d="M5 10v10h14V10" />
+          </svg>
+          Dashboard
+        </button>
+        <button class="nav-item" data-target="campaigns" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h6v6H4z" />
+            <path d="M14 4h6v6h-6z" />
+            <path d="M4 14h6v6H4z" />
+            <path d="M14 14h6v6h-6z" />
+          </svg>
+          Campanhas
+        </button>
+        <button class="nav-item" data-target="scripts" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l4 4-4 4-4-4 4-4z" />
+            <path d="M2 12l4 4-4 4-4-4 4-4z" />
+            <path d="M22 12l-4 4 4 4 4-4-4-4z" />
+          </svg>
+          Roteiros IA
+        </button>
+        <button class="nav-item" data-target="performance" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 17l6-6 4 4 8-8" />
+            <path d="M21 7v6h-6" />
+          </svg>
+          Performance
+        </button>
+        <button class="nav-item" data-target="settings" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V22a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H2a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 0 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V2a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1H22a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+          </svg>
+          Configurações
+        </button>
+        </div>
+        <button class="nav-item logout" data-action="logout" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 6h-4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4" />
+            <path d="M16 17l5-5-5-5" />
+            <path d="M21 12H9" />
+          </svg>
+          Sair
+        </button>
+      </nav>
+    </aside>
+
+    <div class="sidebar-scrim" data-action="close-menu"></div>
+
+    <main class="main">
+      <section class="page-section active" data-section="dashboard">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title"><span data-greeting>Boa tarde</span>, <span data-profile-name>criador</span>!</h1>
+            <p class="section-subtitle">Continue sua jornada e suba de nível hoje.</p>
+            <p class="section-subtitle" data-dashboard-narrative></p>
+          </div>
+          <button class="btn btn-primary" data-action="goto-scripts" type="button">Criar novo roteiro</button>
+        </div>
+
+        <!-- ════ SITUAÇÃO DO MÊS ════ -->
+        <div class="dash-section dash-section--finance">
+          <div class="dash-section-header">
+            <h2 class="dash-section-title">Situação do Mês</h2>
+          </div>
+          <div class="finance-grid" data-finance-month></div>
+        </div>
+
+        <!-- ════ AÇÕES CRÍTICAS ════ -->
+        <div class="dash-section dash-section--alerts">
+          <div class="dash-section-header">
+            <h2 class="dash-section-title">Ações Críticas</h2>
+          </div>
+          <div class="alerts-list" data-critical-actions>
+            <p class="muted">Nenhuma ação pendente agora.</p>
+          </div>
+        </div>
+
+        <!-- ════ RENTABILIDADE ════ -->
+        <div class="dash-section dash-section--profit">
+          <div class="dash-section-header">
+            <h2 class="dash-section-title">Rentabilidade</h2>
+          </div>
+          <div class="profit-grid" data-profitability></div>
+        </div>
+
+
+
+        <!-- ════ GAMIFICAÇÃO (hierarquia reduzida) ════ -->
+        <div class="dash-section dash-section--gamification">
+          <div class="dash-section-header">
+            <h2 class="dash-section-title dash-section-title--sm">Progresso & Gamificação</h2>
+          </div>
+          <div class="card-grid gamification-grid">
+            <div class="card stat-card stat-card--compact" style="--i: 1;">
+              <div class="badge">Nível <span data-profile-level>—</span></div>
+              <div class="stat-value"><span data-profile-xp>—</span> / <span data-profile-xp-goal>—</span> XP</div>
+              <div class="progress-track">
+                <div class="progress-fill" data-profile-xpbar style="width: 0%"></div>
+              </div>
+              <p class="muted">Faltam <span data-profile-xp-remaining>—</span> XP para subir</p>
+            </div>
+
+            <div class="card stat-card stat-card--compact" style="--i: 2;">
+              <div class="badge">Streak</div>
+              <div class="stat-value streak-value">
+                <svg class="streak-fire streak-fire--sm" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" data-streak-icon>
+                  <path class="fire-glow" d="M12 2c-1 2.8-4 4.7-4 8.4 0 3.1 1.9 5.6 4.8 5.6 2.8 0 4.2-2 4.2-4.1 0-2.6-1.3-4.2-2.8-5.8-.6-.7-1.1-1.4-1.4-2.1z" fill="#F59E0B" opacity="0.4" transform="scale(1.15) translate(-1.2, -0.8)"/>
+                  <path class="fire-mid" d="M12 2c-1 2.8-4 4.7-4 8.4 0 3.1 1.9 5.6 4.8 5.6 2.8 0 4.2-2 4.2-4.1 0-2.6-1.3-4.2-2.8-5.8-.6-.7-1.1-1.4-1.4-2.1z" fill="#EA580C" opacity="0.85" transform="translate(0.5,0.2)"/>
+                  <path class="fire-base" d="M12 2c-1 2.8-4 4.7-4 8.4 0 3.1 1.9 5.6 4.8 5.6 2.8 0 4.2-2 4.2-4.1 0-2.6-1.3-4.2-2.8-5.8-.6-.7-1.1-1.4-1.4-2.1z" fill="#F97316" opacity="0.95" transform="translate(-0.3,-0.1)"/>
+                  <path class="fire-core" d="M12 6c-.5 1.4-2 2.3-2 4.2 0 1.5.9 2.8 2.4 2.8 1.4 0 2.1-1 2.1-2.05 0-1.3-.65-2.1-1.4-2.9-.3-.35-.55-.7-.7-1.05z" fill="#FEF3C7" opacity="0.95"/>
+                  <path class="fire-inner" d="M12 7.5c-.3.9-1.2 1.5-1.2 2.7 0 1 .6 1.8 1.5 1.8.9 0 1.3-.6 1.3-1.3 0-.8-.4-1.3-.9-1.8-.2-.2-.35-.45-.45-.65z" fill="#FFFFFF" opacity="0.9"/>
+                </svg>
+                <span><span data-profile-streak>5</span> dias</span>
+              </div>
+              <p class="muted" data-streak-tip>Sua melhor sequência do mês.</p>
+              <div class="progress-track">
+                <div class="progress-fill" data-profile-streakbar style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 20px;"></div>
+          <h3 class="dash-section-title dash-section-title--sm">Missões diárias</h3>
+          <p class="section-subtitle" style="margin-bottom: 12px;">Pequenos passos que rendem XP.</p>
+          <div class="mission-grid" data-missions></div>
+
+          <div style="margin-top: 20px;"></div>
+          <h3 class="dash-section-title dash-section-title--sm">Desafios da semana</h3>
+          <p class="section-subtitle" style="margin-bottom: 12px;">Foque no que traz mais retorno.</p>
+          <div class="mission-grid" data-challenges></div>
+        </div>
+      </section>
+
+      <section class="page-section" data-section="campaigns">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Minhas campanhas</h1>
+            <p class="section-subtitle">Organize suas campanhas sem dor de cabeça.</p>
+          </div>
+          <button class="btn btn-primary" data-action="new-campaign" type="button">Nova campanha</button>
+        </div>
+
+        <div class="filter-row">
+          <button class="filter-btn active" data-filter="all" type="button">Todas</button>
+          <button class="filter-btn" data-filter="prospeccao" type="button">Prospecção</button>
+          <button class="filter-btn" data-filter="producao" type="button">Produção</button>
+          <button class="filter-btn" data-filter="finalizacao" type="button">Finalização</button>
+          <button class="filter-btn" data-filter="concluida" type="button">Concluída</button>
+          <select class="select select--compact" data-campaign-sort aria-label="Ordenar por">
+            <option value="updatedAt">Recente</option>
+            <option value="value">Valor</option>
+            <option value="hourlyRate">R$/hora</option>
+            <option value="dueDate">Prazo</option>
+            <option value="daysUntilDue">Dias p/ vencer</option>
+            <option value="brand">Marca</option>
+            <option value="status">Status</option>
+          </select>
+        </div>
+
+        <div class="campaign-list" data-campaigns></div>
+      </section>
+
+      <section class="page-section" data-section="scripts">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Gerador de roteiro com IA</h1>
+            <p class="section-subtitle">Briefing simples pra sair com um roteiro rápido (Reels, TikTok e Shorts).</p>
+          </div>
+          <button class="btn btn-ghost" data-action="bonus-xp" type="button">Ganhar XP rápido</button>
+        </div>
+
+        <div class="card">
+          <form class="form-grid" id="script-form">
+            <div class="form-row">
+              <label>Marca / Produto</label>
+              <input class="input" id="script-brand" type="text" placeholder="Ex: marca de skincare, app, ecommerce" />
+            </div>
+            <div class="form-row">
+              <label>Vincular em campanha (opcional)</label>
+              <select class="select" id="script-campaign">
+                <option value="">Sem campanha</option>
+              </select>
+              <div class="muted">Se esse roteiro for pra uma campanha que já existe, escolhe ela aqui.</div>
+            </div>
+            <div class="form-row">
+              <label>Tipo de vídeo</label>
+              <select class="select" id="script-type">
+                <option value="review">Review rápido</option>
+                <option value="unboxing">Unboxing</option>
+                <option value="tutorial">Tutorial</option>
+                <option value="storytelling">Storytelling</option>
+              </select>
+            </div>
+            <div class="form-row">
+            <label>Duração</label>
+            <select class="select" id="script-length">
+              <option value="15s">15s</option>
+              <option value="30s">30s</option>
+              <option value="60s">60s</option>
+              <option value="60s+">60s+</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Tom do vídeo</label>
+            <select class="select" id="script-tone">
+              <option value="leve">Leve e direto</option>
+              <option value="engra">Engraçado</option>
+              <option value="educativo">Educativo</option>
+            </select>
+          </div>
+            <div class="form-row">
+              <label>Público-alvo</label>
+              <input class="input" id="script-audience" type="text" placeholder="Ex: mulheres 25-35, fitness" />
+            </div>
+            <div class="form-row">
+              <label>Objetivo da campanha</label>
+              <textarea class="textarea" id="script-goal" placeholder="Ex: gerar vendas, awareness, teste social"></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit">Gerar roteiro com IA</button>
+          </form>
+        </div>
+
+        <div style="margin-top: 18px;"></div>
+        <div class="card">
+          <div class="section-header" style="margin-bottom: 12px;">
+            <div>
+              <h3>Roteiro gerado</h3>
+              <p class="section-subtitle">Seu texto aparece aqui (e dá pra editar).</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-ghost" data-action="finalize-script" type="button">Finalizar</button>
+              <button class="btn btn-ghost" data-action="copy-script" type="button">Copiar</button>
+            </div>
+          </div>
+          <div class="script-output" id="script-output">Preencha o briefing e gere seu primeiro roteiro.</div>
+        </div>
+
+        <div style="margin-top: 18px;"></div>
+        <div class="card">
+          <div class="section-header" style="margin-bottom: 12px;">
+            <div>
+              <h3>Histórico de roteiros</h3>
+              <p class="section-subtitle">Veja o que você já gerou e reaproveite.</p>
+            </div>
+          </div>
+          <div class="script-history" data-script-history></div>
+        </div>
+      </section>
+
+      <section class="page-section" data-section="performance">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Performance</h1>
+            <p class="section-subtitle">Visão estratégica do seu crescimento financeiro e operacional.</p>
+          </div>
+        </div>
+
+        <div class="perf-tabs">
+          <button class="perf-tab active" data-action="perf-tab" data-perf-tab="financial" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Financeira
+          </button>
+          <button class="perf-tab" data-action="perf-tab" data-perf-tab="commercial" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+            Comercial
+          </button>
+          <button class="perf-tab" data-action="perf-tab" data-perf-tab="operational" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            Operacional
+          </button>
+          <button class="perf-tab" data-action="perf-tab" data-perf-tab="badges" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v4a5 5 0 0 1-10 0V4z"/></svg>
+            Badges
+          </button>
+        </div>
+
+        <div class="perf-range-bar" data-perf-range></div>
+        <div class="perf-content" data-perf-content></div>
+      </section>
+
+      <section class="page-section" data-section="settings">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Configurações</h1>
+            <p class="section-subtitle">Deixa tudo do seu jeito.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <div class="toggle">
+            <div>
+              <div>Resumo semanal</div>
+              <p class="muted">Receba um resumão por e-mail.</p>
+            </div>
+            <input type="checkbox" data-setting="weekly" />
+          </div>
+          <div class="toggle">
+            <div>
+              <div>Alertas de campanha</div>
+              <p class="muted">Lembretes de entregas e revisões.</p>
+            </div>
+            <input type="checkbox" data-setting="alerts" />
+          </div>
+          <div class="toggle">
+            <div>
+              <div>Backup automático</div>
+              <p class="muted">Salva seu progresso aqui no navegador.</p>
+            </div>
+            <input type="checkbox" data-setting="backup" />
+          </div>
+        </div>
+
+
+
+        <div style="margin-top: 18px;"></div>
+        <div class="card">
+          <div class="section-header" style="margin-bottom: 12px;">
+            <div>
+              <h3>Resumo semanal</h3>
+              <p class="section-subtitle">Receba um resumo completo da sua semana por e-mail.</p>
+            </div>
+            <button class="btn btn-ghost" data-action="send-weekly-summary" type="button">Enviar agora</button>
+          </div>
+          <div class="muted" id="weekly-summary-msg"></div>
+          <div class="script-output" id="weekly-summary-preview" style="margin-top: 12px; display: none;"></div>
+          <div id="weekly-summary-actions" style="margin-top: 12px; display: none; align-items: center; gap: 10px;">
+            <button class="btn btn-ghost btn-small" data-action="copy-weekly-preview" type="button">Copiar texto</button>
+            <a class="auth-link" href="api/email_log.php" target="_blank" rel="noopener">Abrir log</a>
+            <a class="auth-link" href="api/smtp_example.php" target="_blank" rel="noopener">Ver exemplo SMTP</a>
+          </div>
+        </div>
+
+        <div style="margin-top: 18px;"></div>
+        <div class="card">
+          <h3>Conta</h3>
+          <p class="muted">Logado como: <strong data-account-email>seu@email.com</strong></p>
+          <p class="muted">Quer trocar email ou senha? Faz aqui embaixo.</p>
+          <form class="form-grid" id="account-form">
+            <div class="form-row">
+              <label>Novo email (opcional)</label>
+              <input class="input" name="newEmail" type="email" placeholder="novo@email.com" />
+              <div class="muted">Se não quiser mudar o email, deixa em branco.</div>
+            </div>
+            <div class="form-row">
+              <label>Nova senha (opcional)</label>
+              <input class="input" name="newPassword" type="password" placeholder="Nova senha" />
+              <div class="muted">Pra continuar seguro, tenta usar pelo menos 6 caracteres.</div>
+            </div>
+            <button class="btn btn-primary" type="submit">Salvar conta</button>
+            <div class="muted" id="account-msg"></div>
+          </form>
+        </div>
+
+        <div style="margin-top: 18px;"></div>
+        <div class="card" id="admin-tracker-card" style="display: none;">
+          <div class="section-header" style="margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="brand-icon" style="width: 38px; height: 38px; border-radius: 12px;">
+                <img src="assets/img/logo.png" alt="Makerline" />
+              </div>
+              <div>
+                <h3>Painel do time</h3>
+                <p class="section-subtitle">Tracker de cadastros (só pra vocês).</p>
+              </div>
+            </div>
+            <a class="btn btn-ghost" href="admin.html">Abrir tracker</a>
+          </div>
+          <div class="muted" id="admin-tracker-msg"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="campaign-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-campaign-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3 data-campaign-modal-title>Nova campanha</h3>
+          <p class="muted" data-campaign-modal-subtitle>Só o básico pra já entrar no jogo.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-campaign-modal" type="button">Fechar</button>
+      </div>
+
+      <form class="form-grid" id="campaign-form">
+        <input type="hidden" name="id" />
+        <div class="form-row">
+          <label>Marca</label>
+          <input class="input" name="brand" type="text" placeholder="Ex: Nike" required />
+        </div>
+        <div class="form-row">
+          <label>Como começou</label>
+          <select class="select" name="startMethod">
+            <option value="">Escolher...</option>
+            <option value="ugc_platform">Plataforma de UGC</option>
+            <option value="inbound">(Inbound)</option>
+            <option value="outbound">(Outbound)</option>
+            <option value="instagram">Instagram</option>
+            <option value="agencia">Agência</option>
+            <option value="comunidade">Grupo / Comunidade</option>
+            <option value="other">Outro</option>
+          </select>
+        </div>
+
+        <div class="form-row" id="campaign-start-other-row" style="display:none;">
+          <label>Conta mais (opcional)</label>
+          <input class="input" name="startMethodOther" type="text" placeholder="Ex: indicação, evento, agência..." />
+        </div>
+        <div class="form-row">
+          <label>Valor recebido (R$)</label>
+          <div class="form-split">
+            <input class="input" name="value" type="text" inputmode="numeric" placeholder="R$ 0" data-money />
+            <select class="select" name="paymentPreset" aria-label="Atalho de pagamento">
+              <option value="0">Pago: 0%</option>
+              <option value="50">Pago: 50%</option>
+              <option value="100">Pago: 100%</option>
+            </select>
+            <select class="select" name="barter" aria-label="Permuta">
+              <option value="0">Permuta: não</option>
+              <option value="1">Permuta: sim</option>
+            </select>
+          </div>
+          <div class="muted">Pode ser dinheiro, permuta ou os dois. Se não recebeu em dinheiro, deixa R$ 0.</div>
+        </div>
+        <div class="form-row">
+          <label>Quando irá receber? (opcional)</label>
+          <input class="input" name="paymentDate" type="date" />
+        </div>
+        <div class="form-row">
+          <label>Contato da marca</label>
+          <input class="input" name="contactName" type="text" placeholder="Ex: Ana / João" />
+        </div>
+        <div class="form-row">
+          <label>Email de contato</label>
+          <div class="form-split">
+            <input class="input" name="contactEmail" type="email" placeholder="contato@marca.com" style="flex:1" />
+            <a class="btn btn-ghost btn-small" id="campaign-mailto-btn" href="#" style="display:none" target="_blank" rel="noopener">Enviar email</a>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Prazo</label>
+          <input class="input" name="dueDate" type="date" />
+          <div class="muted">Pra não deixar nada escapar.</div>
+        </div>
+        <div class="form-row">
+          <label>Estado</label>
+          <select class="select" name="lifecycle">
+            <option value="active">Ativa</option>
+            <option value="paused">Pausada</option>
+            <option value="archived">Arquivada</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Salvar campanha</button>
+        <button class="btn btn-danger" type="button" id="campaign-delete-inline-btn" data-action="delete-campaign" style="display:none;">Excluir campanha</button>
+        <div class="muted" id="campaign-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="campaign-delete-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-campaign-delete-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Excluir campanha?</h3>
+          <p class="muted">Só pra confirmar: digita <strong>EXCLUIR</strong> aí embaixo.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-campaign-delete-modal" type="button">Fechar</button>
+      </div>
+
+      <div class="muted" id="campaign-delete-title"></div>
+
+      <form class="form-grid" id="campaign-delete-form" style="margin-top: 12px;">
+        <div class="form-row">
+          <label>Confirmação</label>
+          <input class="input" id="campaign-delete-input" type="text" placeholder="Digite EXCLUIR" autocomplete="off" />
+          <div class="muted">Isso apaga a campanha (não tem como desfazer).</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-campaign-delete-modal" type="button">Cancelar</button>
+          <button class="btn btn-danger" id="campaign-delete-confirm" type="submit" disabled>Excluir</button>
+        </div>
+        <div class="muted" id="campaign-delete-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="script-delete-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-script-delete-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Excluir roteiro?</h3>
+          <p class="muted">Só pra confirmar: digita <strong>EXCLUIR</strong> aí embaixo.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-script-delete-modal" type="button">Fechar</button>
+      </div>
+
+      <div class="muted" id="script-delete-title"></div>
+
+      <form class="form-grid" id="script-delete-form" style="margin-top: 12px;">
+        <div class="form-row">
+          <label>Confirmação</label>
+          <input class="input" id="script-delete-input" type="text" placeholder="Digite EXCLUIR" autocomplete="off" />
+          <div class="muted">Isso apaga do histórico (não tem como desfazer).</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-script-delete-modal" type="button">Cancelar</button>
+          <button class="btn btn-danger" id="script-delete-confirm" type="submit" disabled>Excluir</button>
+        </div>
+        <div class="muted" id="script-delete-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="focus-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-focus-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Confirmar foco</h3>
+          <p class="muted">Vai marcar +1 no seu foco da semana?</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-focus-modal" type="button">Fechar</button>
+      </div>
+
+      <div class="card" style="margin-top: 12px;">
+        <div style="display: flex; justify-content: space-between; gap: 12px; align-items: flex-start;">
+          <div>
+            <div class="badge">Foco atual</div>
+            <h4 style="margin-top: 8px;" data-focus-modal-label></h4>
+            <p class="muted" style="margin-top: 6px;">Progresso: <span data-focus-modal-current>0</span> / <span data-focus-modal-target>0</span></p>
+          </div>
+          <span class="chip">+<span data-focus-modal-xp>0</span> XP</span>
+        </div>
+
+        <div class="progress-track" style="margin-top: 12px;">
+          <div class="progress-fill" data-focus-modal-bar style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 14px;">
+        <button class="btn btn-ghost" data-action="close-focus-modal" type="button">Cancelar</button>
+        <button class="btn btn-primary" data-action="confirm-focus-modal" type="button">Confirmar</button>
+      </div>
+
+      <div class="muted" id="focus-modal-msg"></div>
+    </div>
+  </div>
+
+  <!-- Onboarding Quiz -->
+  <div class="quiz-overlay" id="onboarding-quiz">
+    <div class="quiz-backdrop"></div>
+
+    <!-- Screen 1: Welcome -->
+    <div class="quiz-screen active" data-screen="1">
+      <div class="quiz-card">
+        <div class="quiz-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="8" width="40" height="32" rx="6" stroke="currentColor" stroke-width="2.5"/>
+            <path d="M16 28l4 4 12-12" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2 class="quiz-title">Bem-vindo ao Makerline</h2>
+        <p class="quiz-sub">Em menos de 1 minuto você registra sua primeira campanha.</p>
+        <button class="btn btn-primary quiz-cta" data-action="quiz-start" type="button">Começar</button>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot" data-dot="2"></span>
+          <span class="quiz-dot" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: Has campaign? -->
+    <div class="quiz-screen" data-screen="2">
+      <div class="quiz-card">
+        <h2 class="quiz-title">Você tem alguma campanha ativa agora?</h2>
+        <div class="quiz-options">
+          <button class="quiz-option" data-action="quiz-has-campaigns" data-value="yes" type="button">Sim, tenho</button>
+          <button class="quiz-option" data-action="quiz-has-campaigns" data-value="no" type="button">Não no momento</button>
+        </div>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot active" data-dot="2"></span>
+          <span class="quiz-dot" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: How many? -->
+    <div class="quiz-screen" data-screen="3">
+      <div class="quiz-card">
+        <h2 class="quiz-title">Quantas campanhas estão ativas no momento?</h2>
+        <div class="quiz-options quiz-options--grid">
+          <button class="quiz-option" data-action="quiz-campaign-count" data-value="0" type="button">0</button>
+          <button class="quiz-option" data-action="quiz-campaign-count" data-value="1-2" type="button">1–2</button>
+          <button class="quiz-option" data-action="quiz-campaign-count" data-value="3-5" type="button">3–5</button>
+          <button class="quiz-option" data-action="quiz-campaign-count" data-value="6+" type="button">6+</button>
+        </div>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot active" data-dot="2"></span>
+          <span class="quiz-dot active" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: Mini-wizard Step 1 – Brand type -->
+    <div class="quiz-screen" data-screen="4">
+      <div class="quiz-card">
+        <h2 class="quiz-title">Qual tipo de marca você quer fechar primeiro?</h2>
+        <p class="quiz-sub">Isso ajuda a direcionar sua prospecção.</p>
+        <div class="quiz-options quiz-options--grid">
+          <button class="quiz-option" data-action="quiz-brand-type" data-value="beleza" type="button">Beleza</button>
+          <button class="quiz-option" data-action="quiz-brand-type" data-value="moda" type="button">Moda</button>
+          <button class="quiz-option" data-action="quiz-brand-type" data-value="tech" type="button">Tech</button>
+          <button class="quiz-option" data-action="quiz-brand-type" data-value="local" type="button">Local</button>
+          <button class="quiz-option" data-action="quiz-brand-type" data-value="outra" type="button">Outra</button>
+        </div>
+        <button class="btn btn-ghost quiz-cta-secondary" data-action="quiz-no-campaigns-skip" type="button" style="margin-top:8px">Pular</button>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot active" data-dot="2"></span>
+          <span class="quiz-dot" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: Mini-wizard Step 2 – Outreach goal -->
+    <div class="quiz-screen" data-screen="5">
+      <div class="quiz-card">
+        <h2 class="quiz-title">Quantas marcas você quer abordar essa semana?</h2>
+        <p class="quiz-sub">Defina uma meta concreta para começar.</p>
+        <div class="quiz-options quiz-options--grid">
+          <button class="quiz-option" data-action="quiz-outreach-goal" data-value="5" type="button">5</button>
+          <button class="quiz-option" data-action="quiz-outreach-goal" data-value="10" type="button">10</button>
+          <button class="quiz-option" data-action="quiz-outreach-goal" data-value="15" type="button">15</button>
+          <button class="quiz-option" data-action="quiz-outreach-goal" data-value="20" type="button">20</button>
+        </div>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot active" data-dot="2"></span>
+          <span class="quiz-dot active" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 6: Mini-wizard Step 3 – Create prospection campaign -->
+    <div class="quiz-screen" data-screen="6">
+      <div class="quiz-card">
+        <div class="quiz-icon quiz-icon--small">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13"/>
+            <path d="M22 2l-7 20-4-9-9-4z"/>
+          </svg>
+        </div>
+        <h2 class="quiz-title">Vamos transformar isso em ação.</h2>
+        <p class="quiz-sub">Vamos criar uma campanha de prospecção com sua meta semanal. Você registra cada proposta enviada e acompanha o progresso.</p>
+        <button class="btn btn-primary quiz-cta" data-action="quiz-create-prospection" type="button">Criar campanha de prospecção</button>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot active" data-dot="2"></span>
+          <span class="quiz-dot active" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 8: Final CTA (for users with campaigns / skip) -->
+    <div class="quiz-screen" data-screen="8">
+      <div class="quiz-card">
+        <div class="quiz-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="24" r="20" stroke="var(--accent)" stroke-width="2.5"/>
+            <path d="M16 24l6 6 10-12" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2 class="quiz-title">Vamos colocar isso em prática.</h2>
+        <p class="quiz-sub">O valor do Makerline começa quando você registra sua primeira campanha.</p>
+        <button class="btn btn-primary quiz-cta" data-action="quiz-go-campaigns" type="button">Ir para Campanhas</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ MODAL: META MENSAL ════ -->
+  <div class="modal" id="meta-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-meta-modal"></div>
+    <div class="modal-panel card" style="width:min(400px,90vw);max-height:none;overflow:visible;">
+      <div class="modal-header">
+        <div>
+          <h3 style="display:flex;align-items:center;gap:8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent,#2dd4a8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+            Meta do mês
+          </h3>
+          <p class="muted">Defina quanto quer faturar este mês.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-meta-modal" type="button">✕</button>
+      </div>
+      <div style="margin-top:16px;">
+        <label style="display:block;margin-bottom:6px;font-size:13px;color:var(--text-muted,#8b8fa3);">Valor da meta (R$)</label>
+        <input class="input" id="meta-modal-input" type="text" inputmode="numeric" placeholder="R$ 0" style="font-size:20px;padding:14px 16px;text-align:center;letter-spacing:.5px;" />
+      </div>
+      <div class="modal-actions" style="margin-top:20px;">
+        <button class="btn btn-ghost" data-action="close-meta-modal" type="button">Cancelar</button>
+        <button class="btn btn-primary" data-action="save-meta-modal" type="button">Salvar meta</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast toast-xp" id="xp-toast"></div>
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="assets/js2/app.js?v=20260217d"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        if (window.__ugcAppLoaded) return;
+
+        const hasSession =
+          sessionStorage.getItem('ugcQuestLoggedIn') === '1' &&
+          Boolean(sessionStorage.getItem('ugcQuestToken')) &&
+          Boolean(sessionStorage.getItem('ugcQuestUserId'));
+
+        if (!hasSession) {
+          window.location.replace('index.html');
+          return;
+        }
+
+        const navItems = document.querySelectorAll('.nav-item[data-target]');
+        const sections = document.querySelectorAll('.page-section');
+
+        const setActive = (page) => {
+          navItems.forEach((item) => {
+            item.classList.toggle('active', item.dataset.target === page);
+          });
+          sections.forEach((section) => {
+            section.classList.toggle('active', section.dataset.section === page);
+          });
+        };
+
+        navItems.forEach((item) => {
+          item.addEventListener('click', () => setActive(item.dataset.target));
+        });
+
+        const logoutBtn = document.querySelector('[data-action="logout"]');
+        if (logoutBtn) {
+           logoutBtn.addEventListener('click', () => {
+             try {
+               ['ugcQuestLoggedIn', 'ugcQuestToken', 'ugcQuestUserId', 'ugcQuestUserEmail', 'ugcQuestUserName'].forEach(
+                 (k) => sessionStorage.removeItem(k)
+               );
+             } catch (e) {}
+             try {
+               [
+                 'ugcQuestSessionLoggedIn',
+                 'ugcQuestSessionToken',
+                 'ugcQuestSessionUserId',
+                 'ugcQuestSessionUserEmail',
+                 'ugcQuestSessionUserName'
+               ].forEach((k) => localStorage.removeItem(k));
+             } catch (e) {}
+             window.location.replace('index.html');
+           });
+         }
+
+        setActive('dashboard');
+      }, 0);
+    });
+
+    window.addEventListener('pageshow', () => {
+      const hasSession =
+        sessionStorage.getItem('ugcQuestLoggedIn') === '1' &&
+        Boolean(sessionStorage.getItem('ugcQuestToken')) &&
+        Boolean(sessionStorage.getItem('ugcQuestUserId'));
+      if (!hasSession) {
+        window.location.replace('index.html');
+      }
+    });
+  </script>
+</body>
+</html>
+
+
