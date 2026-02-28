@@ -22,7 +22,7 @@ const buildAlertsMessage = () => {
   const realizadosSemValor = state.campaigns.filter(
     (c) => c.status === 'concluida' && c.stage === 'pago' && (!c.value || Number(c.value) <= 0) && !c.barter
   ).length;
-  const marcasSemResposta = state.brands.filter((b) => b.status === 'enviado').length;
+  const marcasSemResposta = state.brands.filter((b) => b.status === 'lead').length;
 
   const parts = [];
   if (pendentes) parts.push(plural(pendentes, 'pendente'));

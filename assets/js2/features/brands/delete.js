@@ -59,6 +59,19 @@ const handleBrandDeleteSubmit = (event) => {
     return;
   }
 
+  const linkedCampaigns = (Array.isArray(state.campaigns) ? state.campaigns : []).filter((campaign) => {
+    if (!campaign || typeof campaign !== 'object') return false;
+    if (String(campaign.brandId || '').trim()) return String(campaign.brandId || '').trim() === id;
+    const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === id);
+    return Boolean(brand && String(campaign.brand || '').trim().toLowerCase() === String(brand.name || '').trim().toLowerCase());
+  });
+
+  if (linkedCampaigns.length) {
+    if (msg) msg.textContent = `Essa marca ainda tem ${linkedCampaigns.length} campanha(s) vinculada(s). Reatribua ou exclua essas campanhas antes.`;
+    input.focus();
+    return;
+  }
+
   state.brands = (Array.isArray(state.brands) ? state.brands : []).filter((item) => item.id !== id);
 
   if (state.ui?.brandComposer?.brandId === id) {
@@ -66,6 +79,12 @@ const handleBrandDeleteSubmit = (event) => {
     state.ui.brandComposer.text = '';
     state.ui.brandComposer.lastBrandId = null;
     state.ui.brandComposer.lastType = null;
+  }
+  if (state.ui?.selectedBrandId === id) {
+    state.ui.selectedBrandId = null;
+  }
+  if (state.ui?.pendingCampaignBrandId === id) {
+    state.ui.pendingCampaignBrandId = null;
   }
 
   saveState();
@@ -91,4 +110,3 @@ const initBrandDeleteFeature = () => {
 };
 
 export { initBrandDeleteFeature, openBrandDeleteModal, closeBrandDeleteModal };
-

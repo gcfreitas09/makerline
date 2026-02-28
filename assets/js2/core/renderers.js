@@ -9,7 +9,7 @@
   typeLabels,
   statusDot,
   brandStatuses,
-  brandOptions,
+  brandInteractionTypes,
   formatCurrency,
   formatPercent,
   xpForLevel,
@@ -873,228 +873,335 @@ const renderCampaigns = () => {
 };
 
 const renderBrands = () => {
-  const container = document.querySelector('[data-brands]');
-  if (!container) return;
+  const listContainer = document.querySelector('[data-brands]');
+  const detailContainer = document.querySelector('[data-brand-detail]');
+  const statsContainer = document.querySelector('[data-brand-stats]');
+  if (!listContainer || !detailContainer || !statsContainer) return;
 
-  const hero = document.querySelector('[data-brand-hero]');
-  const insightsContainer = document.querySelector('[data-brand-insights]');
-  const brandsSection = container.closest('section');
+  const brands = (Array.isArray(state.brands) ? state.brands : []).slice();
+  const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
 
-  const composerBrandSelect = document.querySelector('[data-brand-composer="brand"]');
-  const composerTypeSelect = document.querySelector('[data-brand-composer="type"]');
-  const composerTextArea = document.querySelector('[data-brand-composer="text"]');
-  const composerHint = document.querySelector('[data-brand-composer="hint"]');
-
-  if (insightsContainer && brandsSection) {
-    const insightsCard = insightsContainer.closest('.card');
-    const spacer = insightsCard?.previousElementSibling;
-    const shouldMoveSpacer = spacer?.tagName === 'DIV' && String(spacer.getAttribute('style') || '').includes('margin-top');
-    if (shouldMoveSpacer) brandsSection.appendChild(spacer);
-    if (insightsCard) brandsSection.appendChild(insightsCard);
-  }
-
-  const brands = Array.isArray(state.brands) ? state.brands : [];
-  const total = brands.length;
-  const sentCount = brands.filter((brand) => brand.status === 'enviado').length;
-  const negotiatingCount = brands.filter((brand) => brand.status === 'negociando').length;
-  const closedCount = brands.filter((brand) => brand.status === 'fechado').length;
-  const respondedCount = brands.filter((brand) => ['negociando', 'fechado'].includes(brand.status)).length;
-  const responseRate = total ? respondedCount / total : 0;
-
-  if (hero) {
-    if (!total) {
-      hero.innerHTML = `
-        <div class="metric-hero">
-          <div class="metric-hero-title">
-            <h3>Suas conversas com marcas</h3>
-            <p class="muted">Adiciona uma marca e começa a registrar tudo por aqui.</p>
-          </div>
-          <div class="metric-hero-badges">
-            <span class="chip">0 marcas</span>
-          </div>
-        </div>
-      `;
-    } else {
-      hero.innerHTML = `
-        <div class="metric-hero">
-          <div class="metric-hero-title">
-            <h3>Suas conversas com marcas</h3>
-            <p class="muted">
-              <strong>${total}</strong> marcas no radar • ${respondedCount} responderam (${formatPercent(responseRate)}).
-            </p>
-          </div>
-          <div class="metric-hero-badges">
-            <span class="chip chip-pendente">Mandei msg: ${sentCount}</span>
-            <span class="chip chip-negociando">Negociando: ${negotiatingCount}</span>
-            <span class="chip chip-realizado">Fechou: ${closedCount}</span>
-          </div>
-        </div>
-      `;
-    }
-  }
-
-  if (insightsContainer) {
-    const insights = [];
-
-    if (!total) {
-      insights.push({
-        icon: 'send',
-        title: 'Bora começar',
-        text: 'Clica em “+ Marca nova” e adiciona seu primeiro contato.'
-      });
-    }
-
-    if (sentCount > 0) {
-      insights.push({
-        icon: 'send',
-        title: 'Follow-up rápido',
-        text: `Você tem ${sentCount} contato(s) esperando resposta. Faz 1 follow-up hoje e pronto.`
-      });
-    }
-
-    if (negotiatingCount > 0) {
-      insights.push({
-        icon: 'chat',
-        title: 'Negociação quente',
-        text: `Tem ${negotiatingCount} em negociação. Simplifica: 2 vídeos + 3 cortes e fecha.`
-      });
-    }
-
-    if (closedCount > 0) {
-      insights.push({
-        icon: 'trend',
-        title: 'Repetir a dose',
-        text: 'Fechou uma? Já puxa a próxima com a mesma marca. É o jeito mais fácil de crescer.'
-      });
-    }
-
-    while (insights.length < 3) {
-      insights.push({
-        icon: 'radar',
-        title: 'Ritmo constante',
-        text: 'Todo dia um passo: abordagem, follow-up, proposta. Sem pressão, só constância.'
-      });
-    }
-
-    insightsContainer.innerHTML = `
-      <div class="insight-list">
-        ${insights
-          .slice(0, 3)
-          .map(
-            (item) => `
-              <div class="insight-item">
-                <div class="metric-icon">${iconSvg(item.icon)}</div>
-                <div>
-                  <div style="font-weight: 600; margin-bottom: 4px;">${item.title}</div>
-                  <div class="muted">${item.text}</div>
-                </div>
-              </div>
-            `
-          )
-          .join('')}
-      </div>
-    `;
-  }
-
-  const buildBrandMessage = (brand, type) => {
-    const creator = state.profile.name || 'eu';
-    const contact = brand?.contact || 'pessoal';
-    const brandName = brand?.name || 'a marca';
-
-    const templates = {
-      first: `Oi ${contact}! Tudo certo?\n\nAqui é o ${creator}. Eu curti a ${brandName} e pensei em umas ideias de UGC que combinam com vocês.\n\nPosso te mandar 3 ideias rapidinhas e valores?`,
-      followup: `Oi ${contact}! Passando só pra dar um toque.\n\nSe fizer sentido, eu já consigo te mandar 2 opções de roteiro + um plano de entrega bem simples.`,
-      deliver: `Oi ${contact}! Tá tudo pronto por aqui.\n\nSegue o link/arquivos dos entregáveis: [colar link aqui]\n\nSe quiser algum ajuste, me fala que eu deixo redondo.`,
-      review: `Oi ${contact}! Vi seus feedbacks.\n\nJá tô com a revisão encaminhada — tem algo que você quer que eu priorize primeiro?`,
-      approve: `Oi ${contact}! Última checagem: posso considerar aprovado?\n\nSe estiver tudo ok, eu já sigo com a publicação/entrega final.`
-    };
-
-    return templates[type] || templates.first;
+  const toBrandKey = (value) => String(value || '').trim().toLowerCase();
+  const formatDateShort = (value) => {
+    const safe = String(value || '').trim();
+    if (!safe) return '—';
+    const date = new Date(`${safe}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString('pt-BR');
+  };
+  const isoToDateKey = (value) => {
+    const date = value ? new Date(value) : null;
+    if (!date || Number.isNaN(date.getTime())) return '';
+    return date.toISOString().slice(0, 10);
+  };
+  const formatRelativeAction = (value) => {
+    const safe = String(value || '').trim();
+    if (!safe) return 'Sem follow-up';
+    return formatDateShort(safe);
   };
 
-  if (composerBrandSelect && composerTypeSelect && composerTextArea) {
-    state.ui.brandComposer = state.ui.brandComposer || { brandId: null, type: 'first', text: '' };
+  const brandSummaries = brands.map((brand) => {
+    const linkedCampaigns = campaigns
+      .filter((campaign) => {
+        if (!campaign || typeof campaign !== 'object') return false;
+        if (String(campaign.brandId || '').trim()) return String(campaign.brandId || '').trim() === brand.id;
+        return toBrandKey(campaign.brand) === toBrandKey(brand.name);
+      })
+      .slice()
+      .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')));
 
-    if (!brands.length) {
-      composerBrandSelect.innerHTML = '<option value="">Adicione uma marca primeiro</option>';
-      composerBrandSelect.disabled = true;
-      composerTypeSelect.disabled = true;
-      composerTextArea.disabled = true;
-      if (composerHint) composerHint.textContent = 'Crie uma marca acima para continuar.';
-    } else {
-      composerBrandSelect.disabled = false;
-      composerTypeSelect.disabled = false;
-      composerTextArea.disabled = false;
-      if (composerHint) composerHint.textContent = 'Dica: troca o texto e deixa com a sua cara.';
+    const totalFaturado = linkedCampaigns.reduce((sum, campaign) => sum + (Number(campaign?.value) || 0), 0);
+    const interactions = (Array.isArray(brand.interactions) ? brand.interactions : [])
+      .slice()
+      .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+    const lastInteraction = interactions[0] || null;
+    const lastCampaignUpdate = linkedCampaigns[0] ? isoToDateKey(linkedCampaigns[0].updatedAt || linkedCampaigns[0].createdAt) : '';
+    const lastContact = lastInteraction?.date || lastCampaignUpdate || '';
+    const lastCompletedCampaign = linkedCampaigns.find((campaign) => campaign.status === 'concluida' || campaign.paymentPercent >= 100) || linkedCampaigns[0] || null;
+    const pendingAction = Boolean(brand.nextActionType && brand.nextActionDate);
 
-      const storedBrandId = state.ui.brandComposer.brandId;
-      const fallbackBrandId = brands[0]?.id;
-      const selectedBrandId = brands.some((b) => b.id === storedBrandId)
-        ? storedBrandId
-        : fallbackBrandId;
+    return {
+      brand,
+      linkedCampaigns,
+      totalFaturado,
+      campaignCount: linkedCampaigns.length,
+      ticketMedio: linkedCampaigns.length ? totalFaturado / linkedCampaigns.length : 0,
+      lastContact,
+      interactions,
+      pendingAction,
+      nextFollowup: brand.nextActionDate || '',
+      nextActionLabel: getNextActionLabel(brand.nextActionType, brand.nextActionCustomType),
+      lastWork: lastCompletedCampaign
+    };
+  });
 
-      const storedType = state.ui.brandComposer.type || 'first';
-      const hasType = Boolean(composerTypeSelect.querySelector(`option[value="${storedType}"]`));
-      const selectedType = hasType ? storedType : 'first';
-
-      state.ui.brandComposer.brandId = selectedBrandId;
-      state.ui.brandComposer.type = selectedType;
-
-      composerBrandSelect.innerHTML = brands
-        .map((brand) => `<option value="${brand.id}">${brand.name}</option>`)
-        .join('');
-      composerBrandSelect.value = selectedBrandId;
-      composerTypeSelect.value = selectedType;
-
-      const selectedBrand = brands.find((b) => b.id === selectedBrandId);
-      const shouldRegen =
-        !state.ui.brandComposer.text ||
-        state.ui.brandComposer.lastBrandId !== selectedBrandId ||
-        state.ui.brandComposer.lastType !== selectedType;
-
-      if (shouldRegen) {
-        state.ui.brandComposer.text = buildBrandMessage(selectedBrand, selectedType);
-        state.ui.brandComposer.lastBrandId = selectedBrandId;
-        state.ui.brandComposer.lastType = selectedType;
-      }
-
-      if (document.activeElement !== composerTextArea) {
-        composerTextArea.value = state.ui.brandComposer.text || '';
-      }
+  brandSummaries.sort((a, b) => {
+    if (a.pendingAction !== b.pendingAction) return a.pendingAction ? -1 : 1;
+    if ((a.nextFollowup || '9999-12-31') !== (b.nextFollowup || '9999-12-31')) {
+      return (a.nextFollowup || '9999-12-31').localeCompare(b.nextFollowup || '9999-12-31');
     }
+    return String(a.brand.name || '').localeCompare(String(b.brand.name || ''), 'pt-BR');
+  });
+
+  const brandStatusCounts = {
+    lead: brandSummaries.filter((item) => item.brand.status === 'lead').length,
+    negociando: brandSummaries.filter((item) => item.brand.status === 'negociando').length,
+    clientes: brandSummaries.filter((item) => ['cliente_ativo', 'cliente_recorrente'].includes(item.brand.status)).length,
+    pendentes: brandSummaries.filter((item) => item.pendingAction).length
+  };
+
+  statsContainer.innerHTML = `
+    <div class="brand-stat-card">
+      <span class="brand-stat-label">Marcas registradas</span>
+      <strong class="brand-stat-value">${brandSummaries.length}</strong>
+      <span class="brand-stat-note">${brandStatusCounts.lead} lead(s) em abertura</span>
+    </div>
+    <div class="brand-stat-card">
+      <span class="brand-stat-label">Negociando</span>
+      <strong class="brand-stat-value">${brandStatusCounts.negociando}</strong>
+      <span class="brand-stat-note">Conversas quentes no momento</span>
+    </div>
+    <div class="brand-stat-card">
+      <span class="brand-stat-label">Clientes</span>
+      <strong class="brand-stat-value">${brandStatusCounts.clientes}</strong>
+      <span class="brand-stat-note">Ativos e recorrentes</span>
+    </div>
+    <div class="brand-stat-card">
+      <span class="brand-stat-label">Faturado total</span>
+      <strong class="brand-stat-value">${formatCurrency(brandSummaries.reduce((sum, item) => sum + item.totalFaturado, 0))}</strong>
+      <span class="brand-stat-note">${brandStatusCounts.pendentes} com ação pendente</span>
+    </div>
+  `;
+
+  if (!brandSummaries.length) {
+    listContainer.innerHTML = `
+      <div class="brand-empty-state">
+        <div class="metric-icon">${iconSvg('radar')}</div>
+        <div>
+          <h3>Nenhuma marca registrada</h3>
+          <p class="muted">Crie sua primeira marca para organizar campanhas, follow-ups e histórico comercial no mesmo lugar.</p>
+        </div>
+      </div>
+    `;
+    detailContainer.innerHTML = `
+      <div class="brand-detail-empty">
+        <h3>Quando você adicionar uma marca, o detalhe aparece aqui.</h3>
+        <p class="muted">Você vai conseguir ver resumo, próxima ação, campanhas vinculadas e interações.</p>
+        <button class="btn btn-primary" data-action="open-brand-modal" type="button">Criar primeira marca</button>
+      </div>
+    `;
+    return;
   }
 
-  container.innerHTML = brands
-    .map((brand) => {
-      return `
-        <div class="card brand-card" data-brand-id="${brand.id}">
-          <div class="brand-info">
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-              <strong>${brand.name}</strong>
-              <span class="chip chip-pill">${brandStatuses[brand.status]}</span>
+  const hasSelected = brandSummaries.some((item) => item.brand.id === state.ui.selectedBrandId);
+  if (!hasSelected) {
+    state.ui.selectedBrandId = brandSummaries[0].brand.id;
+  }
+
+  const selectedSummary = brandSummaries.find((item) => item.brand.id === state.ui.selectedBrandId) || brandSummaries[0];
+  const selectedBrand = selectedSummary.brand;
+
+  listContainer.innerHTML = `
+    <div class="brand-table-head">
+      <span>Marca</span>
+      <span>Status</span>
+      <span>Total faturado</span>
+      <span>Campanhas</span>
+      <span>Último contato</span>
+      <span>Próximo follow-up</span>
+      <span>Ação pendente</span>
+      <span>Ações</span>
+    </div>
+    ${brandSummaries
+      .map((item) => {
+        const isActive = item.brand.id === selectedBrand.id;
+        const isDormant = ['inativa', 'perdida'].includes(item.brand.status);
+        const actionChip = item.pendingAction
+          ? `<span class="chip chip-pill chip-brand-pending">${escapeHtml(item.nextActionLabel || 'Pendente')}</span>`
+          : '<span class="chip chip-pill">Sem pendência</span>';
+        return `
+          <div class="brand-table-row ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
+            <div class="brand-table-cell brand-table-cell--primary" data-label="Marca">
+              <strong>${escapeHtml(item.brand.name || 'Marca')}</strong>
+              <span class="muted">${escapeHtml(item.brand.contact || item.brand.instagram || item.brand.email || 'Sem contato principal')}</span>
             </div>
-            <div class="muted">${brand.contact} • ${brand.email}</div>
+            <div class="brand-table-cell" data-label="Status">
+              <span class="chip chip-pill chip-brand-status chip-brand-status--${escapeHtml(item.brand.status)}">${escapeHtml(brandStatuses[item.brand.status] || item.brand.status)}</span>
+            </div>
+            <div class="brand-table-cell" data-label="Total faturado">
+              <strong>${formatCurrency(item.totalFaturado)}</strong>
+            </div>
+            <div class="brand-table-cell" data-label="Campanhas">
+              <strong>${item.campaignCount}</strong>
+            </div>
+            <div class="brand-table-cell" data-label="Último contato">
+              <span>${item.lastContact ? formatDateShort(item.lastContact) : '—'}</span>
+            </div>
+            <div class="brand-table-cell" data-label="Próximo follow-up">
+              <span>${formatRelativeAction(item.nextFollowup)}</span>
+            </div>
+            <div class="brand-table-cell" data-label="Ação pendente">
+              ${actionChip}
+            </div>
+            <div class="brand-table-cell brand-table-cell--actions" data-label="Ações">
+              <div class="brand-row-actions">
+                <button class="btn btn-ghost btn-small brand-row-btn brand-row-btn--edit" data-action="edit-brand" data-brand-id="${item.brand.id}" type="button">Editar</button>
+                <button class="btn btn-ghost btn-small brand-row-btn ${isDormant ? 'brand-row-btn--reactivate' : 'brand-row-btn--deactivate'}" data-action="toggle-brand-active" data-brand-id="${item.brand.id}" type="button">${isDormant ? 'Reativar' : 'Desativar'}</button>
+                <button class="btn btn-ghost btn-small brand-row-btn brand-row-btn--campaign" data-action="new-campaign-for-brand" data-brand-id="${item.brand.id}" type="button">Campanha</button>
+              </div>
+            </div>
           </div>
-          <div class="brand-controls">
-            <button class="btn btn-ghost btn-small" data-action="copy-brand-email" data-brand-id="${brand.id}" type="button">
-              Copiar email
-            </button>
-            <button class="btn btn-danger btn-small" data-action="delete-brand" data-brand-id="${brand.id}" type="button">
-              Excluir
-            </button>
-            <select class="select" data-brand-status data-brand-id="${brand.id}">
-              ${brandOptions
-                .map(
-                  (status) =>
-                    `<option value="${status}" ${status === brand.status ? 'selected' : ''}>${brandStatuses[status]}</option>`
-                )
-                .join('')}
-            </select>
+        `;
+      })
+      .join('')}
+  `;
+
+  const nextActionCard = selectedSummary.pendingAction
+    ? `
+      <div class="brand-detail-nextaction">
+        <div class="brand-detail-metric">
+          <span class="brand-detail-label">Próximo follow-up</span>
+          <strong>${formatDateShort(selectedBrand.nextActionDate)}</strong>
+        </div>
+        <div class="brand-detail-metric">
+          <span class="brand-detail-label">Tipo</span>
+          <strong>${escapeHtml(selectedSummary.nextActionLabel || '—')}</strong>
+        </div>
+        <div class="brand-detail-note">${escapeHtml(selectedBrand.nextActionNote || 'Sem observação cadastrada.')}</div>
+      </div>
+    `
+    : `
+      <div class="brand-detail-nextaction brand-detail-nextaction--empty">
+        <strong>Sem próxima ação definida</strong>
+        <p class="muted">Defina um follow-up para essa marca e deixe o dashboard comercial sempre em dia.</p>
+      </div>
+    `;
+
+  const interactionOptionsHtml = Object.entries(brandInteractionTypes)
+    .map(([value, label]) => `<option value="${value}">${label}</option>`)
+    .join('');
+
+  detailContainer.innerHTML = `
+    <div class="brand-detail-header">
+      <div>
+        <p class="dashboard-eyebrow">Marca selecionada</p>
+        <h2>${escapeHtml(selectedBrand.name || 'Marca')}</h2>
+        <p class="muted">${escapeHtml(selectedBrand.contact || 'Sem contato principal')} · ${escapeHtml(selectedBrand.email || selectedBrand.instagram || 'Sem canal principal')}</p>
+      </div>
+      <div class="brand-detail-actions">
+        <button class="btn btn-ghost btn-small" data-action="edit-brand" data-brand-id="${selectedBrand.id}" type="button">Editar marca</button>
+        <button class="btn btn-primary btn-small" data-action="new-campaign-for-brand" data-brand-id="${selectedBrand.id}" type="button">Nova campanha</button>
+      </div>
+    </div>
+
+    <div class="brand-detail-summary">
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Instagram</span>
+        <strong>${escapeHtml(selectedBrand.instagram || '—')}</strong>
+      </div>
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Status</span>
+        <strong>${escapeHtml(brandStatuses[selectedBrand.status] || selectedBrand.status)}</strong>
+      </div>
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Total faturado</span>
+        <strong>${formatCurrency(selectedSummary.totalFaturado)}</strong>
+      </div>
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Ticket médio</span>
+        <strong>${selectedSummary.campaignCount ? formatCurrency(selectedSummary.ticketMedio) : '—'}</strong>
+      </div>
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Nº campanhas</span>
+        <strong>${selectedSummary.campaignCount}</strong>
+      </div>
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Último trabalho realizado</span>
+        <strong>${escapeHtml(selectedSummary.lastWork?.title || selectedSummary.lastWork?.brand || '—')}</strong>
+      </div>
+    </div>
+
+    <div class="brand-detail-grid">
+      <div class="brand-detail-block">
+        <div class="brand-detail-block-head">
+          <div>
+            <h3>Próxima ação</h3>
+            <p class="muted">Follow-up atual dessa marca.</p>
+          </div>
+          <button class="btn btn-ghost btn-small" data-action="edit-brand-action" data-brand-id="${selectedBrand.id}" type="button">Editar ação</button>
+        </div>
+        ${nextActionCard}
+      </div>
+
+      <div class="brand-detail-block">
+        <div class="brand-detail-block-head">
+          <div>
+            <h3>Histórico de campanhas</h3>
+            <p class="muted">Campanhas vinculadas a essa marca.</p>
           </div>
         </div>
-      `;
-    })
-    .join('');
+        <div class="brand-history-list">
+          ${selectedSummary.linkedCampaigns.length
+            ? selectedSummary.linkedCampaigns
+                .map((campaign) => `
+                  <div class="brand-history-item">
+                    <div>
+                      <strong>${escapeHtml(campaign.title || campaign.brand || 'Campanha')}</strong>
+                      <div class="muted">${escapeHtml(
+                        [statusLabels[campaign.status] || campaign.status, getCampaignStageLabel(campaign.status, campaign.stage)]
+                          .filter(Boolean)
+                          .join(' · ')
+                      )}</div>
+                    </div>
+                    <div class="brand-history-meta">
+                      <span>${formatCurrency(Number(campaign.value) || 0)}</span>
+                      <span>${campaign.paymentPercent >= 100 ? 'Pago' : campaign.paymentDate ? `Pagamento ${formatDateShort(campaign.paymentDate)}` : 'Pagamento pendente'}</span>
+                      <span>Prazo ${campaign.dueDate ? formatDateShort(campaign.dueDate) : '—'}</span>
+                    </div>
+                    <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${campaign.id}" type="button">Abrir campanha</button>
+                  </div>
+                `)
+                .join('')
+            : '<p class="muted">Nenhuma campanha vinculada a essa marca ainda.</p>'}
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-detail-block">
+      <div class="brand-detail-block-head">
+        <div>
+          <h3>Histórico de interações</h3>
+          <p class="muted">Registro simples de DM, email e call.</p>
+        </div>
+      </div>
+
+      <form class="brand-interaction-form" id="brand-interaction-form">
+        <input type="hidden" name="brandId" value="${selectedBrand.id}" />
+        <select class="select" name="type">
+          ${interactionOptionsHtml}
+        </select>
+        <input class="input" name="date" type="date" value="${new Date().toISOString().slice(0, 10)}" />
+        <input class="input" name="note" type="text" maxlength="140" placeholder="Ex: respondeu no email e pediu proposta" />
+        <button class="btn btn-primary btn-small" type="submit">Registrar</button>
+      </form>
+
+      <div class="brand-interaction-list">
+        ${selectedSummary.interactions.length
+          ? selectedSummary.interactions
+              .map((interaction) => `
+                <div class="brand-interaction-item">
+                  <div>
+                    <strong>${escapeHtml(brandInteractionTypes[interaction.type] || interaction.type)}</strong>
+                    <div class="muted">${formatDateShort(interaction.date)}</div>
+                  </div>
+                  <p>${escapeHtml(interaction.note || 'Sem observação.')}</p>
+                </div>
+              `)
+              .join('')
+          : '<p class="muted">Nenhuma interação registrada para essa marca.</p>'}
+      </div>
+    </div>
+  `;
 };
 
 /* ──────────────────── PERFORMANCE ──────────────────── */
@@ -1600,6 +1707,7 @@ const renderAll = () => {
   renderMissions();
   renderChallenges();
   renderCampaigns();
+  renderBrands();
   renderPerformance();
   renderSettings();
   renderScriptHistory();

@@ -2,6 +2,7 @@ import { state, saveState, getDefaultCampaignStage, nextActionOptions } from '..
 import { renderAll } from '../../core/renderers.js';
 import { showToast } from '../../core/ui.js';
 import { trackEvent } from '../../core/gamification.js';
+import { populateCampaignBrandSelect } from '../brands/modal.js';
 
 const getCampaignModal = () => ({
   modal: document.getElementById('campaign-modal'),
@@ -25,6 +26,8 @@ const parseMoneyBRL = (raw) => {
 };
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
+
+const getBrandById = (brandId) => (Array.isArray(state.brands) ? state.brands : []).find((brand) => brand.id === brandId) || null;
 
 const toggleNextActionCustomRow = (form, value) => {
   const customRow = document.getElementById('campaign-next-action-custom-row');
@@ -75,6 +78,7 @@ const openCampaignModal = (campaignId) => {
 
   const contactNameInput = form.querySelector('input[name="contactName"]');
   const contactEmailInput = form.querySelector('input[name="contactEmail"]');
+  const brandSelect = form.querySelector('select[name="brandId"]');
   const mailtoBtn = document.getElementById('campaign-mailto-btn');
   const nextActionTypeSelect = form.querySelector('select[name="nextActionType"]');
   const nextActionDateInput = form.querySelector('input[name="nextActionDate"]');
@@ -88,6 +92,7 @@ const openCampaignModal = (campaignId) => {
   if (nextActionNoteInput) nextActionNoteInput.value = '';
   if (nextActionCustomInput) nextActionCustomInput.value = '';
   toggleNextActionCustomRow(form, '');
+  populateCampaignBrandSelect(state.ui.pendingCampaignBrandId || '');
 
   if (msg) msg.textContent = '';
 
@@ -98,8 +103,10 @@ const openCampaignModal = (campaignId) => {
       const idInput = form.querySelector('input[name="id"]');
       if (idInput) idInput.value = campaign.id;
 
-      const brandInput = form.querySelector('input[name="brand"]');
-      if (brandInput) brandInput.value = campaign.brand || '';
+      if (brandSelect) {
+        populateCampaignBrandSelect(campaign.brandId || state.ui.pendingCampaignBrandId || '');
+        brandSelect.value = campaign.brandId || state.ui.pendingCampaignBrandId || '';
+      }
 
       if (valueInput) valueInput.value = formatMoneyBRL(campaign.value) || 'R$ 0';
       if (barterSelect) barterSelect.value = campaign.barter ? '1' : '0';
@@ -151,6 +158,19 @@ const openCampaignModal = (campaignId) => {
     setModalMode({ mode: 'create', campaign: null });
     const idInput = form.querySelector('input[name="id"]');
     if (idInput) idInput.value = '';
+    if (brandSelect) {
+      populateCampaignBrandSelect(state.ui.pendingCampaignBrandId || '');
+      brandSelect.value = state.ui.pendingCampaignBrandId || '';
+      const selectedBrand = getBrandById(brandSelect.value);
+      if (selectedBrand) {
+        if (contactNameInput && !contactNameInput.value) contactNameInput.value = selectedBrand.contact || '';
+        if (contactEmailInput && !contactEmailInput.value) contactEmailInput.value = selectedBrand.email || '';
+        if (mailtoBtn && selectedBrand.email) {
+          mailtoBtn.href = `mailto:${encodeURIComponent(selectedBrand.email)}`;
+          mailtoBtn.style.display = '';
+        }
+      }
+    }
   }
 
   modal.classList.add('open');
@@ -168,8 +188,9 @@ const openCampaignModal = (campaignId) => {
     }
   }
 
-  const brandInput = form.querySelector('input[name="brand"]');
-  if (brandInput) brandInput.focus();
+  state.ui.pendingCampaignBrandId = null;
+
+  if (brandSelect) brandSelect.focus();
 };
 
 const closeCampaignModal = () => {
@@ -208,7 +229,7 @@ const handleCampaignSubmit = (event) => {
 
   const data = new FormData(form);
   const id = String(data.get('id') || '').trim();
-  const brand = String(data.get('brand') || '').trim();
+  const brandId = String(data.get('brandId') || '').trim();
   const value = Math.max(parseMoneyBRL(data.get('value')), 0);
   const barter = String(data.get('barter') || '0') === '1';
   const dueDate = String(data.get('dueDate') || '');
@@ -232,9 +253,11 @@ const handleCampaignSubmit = (event) => {
     paymentPercent >= 100
       ? (paymentReceivedAtRaw || todayIso())
       : '';
+  const brandRecord = getBrandById(brandId);
+  const brand = brandRecord?.name || '';
 
-  if (!brand) {
-    if (msg) msg.textContent = 'Coloca a marca pra salvar.';
+  if (!brandRecord) {
+    if (msg) msg.textContent = 'Escolha uma marca para salvar a campanha.';
     return;
   }
   if (nextActionType && !nextActionDate) {
@@ -254,6 +277,10 @@ const handleCampaignSubmit = (event) => {
   const allowedStartMethods = ['ugc_platform', 'inbound', 'outbound', 'instagram', 'agencia', 'comunidade', 'other'];
   const startMethodSafe = allowedStartMethods.includes(startMethodNormalized) ? startMethodNormalized : '';
 
+  if (contactName && !brandRecord.contact) brandRecord.contact = contactName;
+  if (contactEmail && !brandRecord.email) brandRecord.email = contactEmail;
+  brandRecord.updatedAt = nowIso;
+
   if (id) {
     const campaign = state.campaigns.find((item) => item.id === id);
     if (!campaign) {
@@ -264,6 +291,7 @@ const handleCampaignSubmit = (event) => {
     const previousDue = campaign.dueDate || '';
     const previousLife = campaign.archived ? 'archived' : campaign.paused ? 'paused' : 'active';
 
+    campaign.brandId = brandRecord.id;
     campaign.brand = brand;
     campaign.value = value;
     campaign.barter = barter;
@@ -307,12 +335,13 @@ const handleCampaignSubmit = (event) => {
   }
 
   const brandKey = brand.toLowerCase();
-  const existingCount = state.campaigns.filter((c) => String(c.brand || '').toLowerCase() === brandKey).length;
+  const existingCount = state.campaigns.filter((c) => String(c.brandId || '').trim() === brandRecord.id || String(c.brand || '').toLowerCase() === brandKey).length;
   const title = existingCount ? `${brand} #${existingCount + 1}` : `${brand}`;
 
   const campaign = {
     id: `c-${Date.now()}`,
     title,
+    brandId: brandRecord.id,
     brand,
     status: 'prospeccao',
     stage: getDefaultCampaignStage('prospeccao'),
@@ -369,6 +398,7 @@ const initCampaignForm = () => {
   const startOtherRow = document.getElementById('campaign-start-other-row');
   const startOtherInput = campaignForm.querySelector('input[name="startMethodOther"]');
   const nextActionTypeSelect = campaignForm.querySelector('select[name="nextActionType"]');
+  const brandSelect = campaignForm.querySelector('select[name="brandId"]');
   if (startMethodSelect) {
     startMethodSelect.addEventListener('change', () => {
       const show = startMethodSelect.value === 'other';
@@ -379,6 +409,24 @@ const initCampaignForm = () => {
   if (nextActionTypeSelect) {
     nextActionTypeSelect.addEventListener('change', () => {
       toggleNextActionCustomRow(campaignForm, nextActionTypeSelect.value);
+    });
+  }
+  if (brandSelect) {
+    brandSelect.addEventListener('change', () => {
+      const selectedBrand = getBrandById(brandSelect.value);
+      const contactNameInput = campaignForm.querySelector('input[name="contactName"]');
+      const contactEmailInput = campaignForm.querySelector('input[name="contactEmail"]');
+      const mailtoBtn = document.getElementById('campaign-mailto-btn');
+      if (!selectedBrand) {
+        if (mailtoBtn) mailtoBtn.style.display = 'none';
+        return;
+      }
+      if (contactNameInput && !contactNameInput.value.trim()) contactNameInput.value = selectedBrand.contact || '';
+      if (contactEmailInput && !contactEmailInput.value.trim()) contactEmailInput.value = selectedBrand.email || '';
+      if (mailtoBtn && (contactEmailInput?.value || selectedBrand.email)) {
+        mailtoBtn.href = `mailto:${encodeURIComponent(contactEmailInput?.value || selectedBrand.email)}`;
+        mailtoBtn.style.display = (contactEmailInput?.value || selectedBrand.email) ? '' : 'none';
+      }
     });
   }
 
@@ -417,6 +465,14 @@ const initCampaignForm = () => {
       moneyInput.setSelectionRange(moneyInput.value.length, moneyInput.value.length);
     }
   });
+
+  try {
+    document.addEventListener('ugc:brands-changed', () => {
+      const selectedId = state.ui.pendingCampaignBrandId || brandSelect?.value || '';
+      populateCampaignBrandSelect(selectedId);
+      if (brandSelect && selectedId) brandSelect.value = selectedId;
+    });
+  } catch (error) {}
 };
 
 export { openCampaignModal, closeCampaignModal, initCampaignForm };

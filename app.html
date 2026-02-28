@@ -27,8 +27,8 @@
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-    <link rel="stylesheet" href="assets/css/app2.css?v=20260217c" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260216a">
+    <link rel="stylesheet" href="assets/css/app2.css?v=20260227a" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260227a">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="assets/js2/core/customSelect.js?v=20260216a"></script>
 </head>
@@ -67,6 +67,14 @@
             <path d="M5 10v10h14V10" />
           </svg>
           Dashboard
+        </button>
+        <button class="nav-item" data-target="brands" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 19V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11" />
+            <path d="M3 19h18" />
+            <path d="M9 6V4a3 3 0 0 1 6 0v2" />
+          </svg>
+          Marcas
         </button>
         <button class="nav-item" data-target="campaigns" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -239,6 +247,49 @@
         </div>
 
         <div class="campaign-list" data-campaigns></div>
+      </section>
+
+      <section class="page-section" data-section="brands">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Marcas</h1>
+            <p class="section-subtitle">Organize seus contatos, acompanhe o follow-up e veja o histórico comercial de cada marca.</p>
+          </div>
+          <div class="section-actions">
+            <button class="btn btn-ghost" data-action="new-campaign" type="button">Nova campanha</button>
+            <button class="btn btn-primary" data-action="open-brand-modal" type="button">Nova marca</button>
+          </div>
+        </div>
+
+        <div class="brands-shell">
+          <div class="brands-main">
+            <div class="card brands-summary-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Visão geral</h3>
+                  <p class="section-subtitle">Status, valor em carteira e próximos passos de cada relacionamento.</p>
+                </div>
+              </div>
+              <div class="brands-stats" data-brand-stats></div>
+            </div>
+
+            <div class="card brands-list-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Lista de marcas</h3>
+                  <p class="section-subtitle">Tabela compacta com status, faturamento, campanhas e follow-up.</p>
+                </div>
+                <button class="btn btn-ghost btn-small" data-action="open-brand-modal" type="button">Nova marca</button>
+              </div>
+              <div class="brand-list-table" data-brands></div>
+            </div>
+          </div>
+
+          <div class="brands-detail-column">
+            <div class="card brand-detail-card" data-brand-detail></div>
+          </div>
+        </div>
       </section>
 
       <section class="page-section" data-section="scripts">
@@ -470,7 +521,13 @@
         <input type="hidden" name="id" />
         <div class="form-row">
           <label>Marca</label>
-          <input class="input" name="brand" type="text" placeholder="Ex: Nike" required />
+          <div class="form-split">
+            <select class="select" name="brandId" data-campaign-brand-select required>
+              <option value="">Escolher marca...</option>
+            </select>
+            <button class="btn btn-ghost btn-small" data-action="open-brand-modal" data-brand-modal-context="campaign" type="button">Nova marca</button>
+          </div>
+          <div class="muted">Toda campanha precisa estar vinculada a uma marca.</div>
         </div>
         <div class="form-row">
           <label>Como começou</label>
@@ -597,6 +654,111 @@
           <button class="btn btn-danger" id="campaign-delete-confirm" type="submit" disabled>Excluir</button>
         </div>
         <div class="muted" id="campaign-delete-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="brand-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-brand-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3 data-brand-modal-title>Nova marca</h3>
+          <p class="muted" data-brand-modal-subtitle>Registre o contato principal e defina o próximo passo comercial.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-brand-modal" type="button">Fechar</button>
+      </div>
+
+      <form class="form-grid" id="brand-form">
+        <input type="hidden" name="id" />
+        <div class="form-row">
+          <label>Nome da marca</label>
+          <input class="input" id="brand-name" name="name" type="text" placeholder="Ex: Nike" maxlength="80" required />
+        </div>
+        <div class="form-row">
+          <label>Instagram (opcional)</label>
+          <input class="input" name="instagram" type="text" placeholder="@marca" maxlength="120" />
+        </div>
+        <div class="form-row">
+          <label>Email (opcional)</label>
+          <input class="input" name="email" type="email" placeholder="contato@marca.com" maxlength="160" />
+        </div>
+        <div class="form-row">
+          <label>Contato principal (opcional)</label>
+          <input class="input" name="contact" type="text" placeholder="Ex: Ana / João" maxlength="80" />
+        </div>
+        <div class="form-row">
+          <label>Status inicial</label>
+          <select class="select" name="status">
+            <option value="lead">Lead</option>
+            <option value="negociando">Negociando</option>
+            <option value="cliente_ativo">Cliente ativo</option>
+            <option value="cliente_recorrente">Cliente recorrente</option>
+            <option value="inativa">Inativa</option>
+            <option value="perdida">Perdida</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Próxima ação</label>
+          <select class="select" name="nextActionType">
+            <option value="">Sem ação pendente</option>
+            <option value="followup">Follow-up</option>
+            <option value="enviar_proposta">Enviar proposta</option>
+            <option value="cobrar_resposta">Cobrar resposta</option>
+            <option value="enviar_roteiro">Enviar roteiro</option>
+            <option value="cobrar_aprovacao">Cobrar aprovação</option>
+            <option value="entregar_conteudo">Entregar conteúdo</option>
+            <option value="revisar_ajustes">Revisar ajustes</option>
+            <option value="cobrar_pagamento">Cobrar pagamento</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-row" id="brand-next-action-custom-row" style="display:none;">
+          <label>Tipo personalizado</label>
+          <input class="input" name="nextActionCustomType" type="text" maxlength="80" placeholder="Ex: reativar contato no email" />
+        </div>
+        <div class="form-row">
+          <label>Data da próxima ação</label>
+          <input class="input" name="nextActionDate" type="date" />
+        </div>
+        <div class="form-row">
+          <label>Observação curta</label>
+          <input class="input" name="nextActionNote" type="text" maxlength="140" placeholder="Ex: mandar proposta até quinta" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-brand-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar marca</button>
+        </div>
+        <button class="btn btn-danger" id="brand-delete-inline-btn" data-action="delete-brand" data-brand-id="" type="button" style="display:none;">Excluir marca</button>
+        <div class="muted" id="brand-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="brand-delete-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-brand-delete-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Excluir marca?</h3>
+          <p class="muted">Digite <strong>EXCLUIR</strong> para confirmar. Se ainda existirem campanhas vinculadas, a exclusão será bloqueada.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-brand-delete-modal" type="button">Fechar</button>
+      </div>
+
+      <div class="muted" id="brand-delete-title"></div>
+
+      <form class="form-grid" id="brand-delete-form" style="margin-top: 12px;">
+        <div class="form-row">
+          <label>Confirmação</label>
+          <input class="input" id="brand-delete-input" type="text" placeholder="Digite EXCLUIR" autocomplete="off" />
+          <div class="muted">Isso apaga a marca e o histórico de interações dela.</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-brand-delete-modal" type="button">Cancelar</button>
+          <button class="btn btn-danger" id="brand-delete-confirm" type="submit" disabled>Excluir</button>
+        </div>
+        <div class="muted" id="brand-delete-msg"></div>
       </form>
     </div>
   </div>
@@ -881,7 +1043,7 @@
   <div class="toast toast-xp" id="xp-toast"></div>
   <div class="toast" id="toast"></div>
 
-  <script type="module" src="assets/js2/app.js?v=20260217d"></script>
+  <script type="module" src="assets/js2/app.js?v=20260227a"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

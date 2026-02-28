@@ -9,6 +9,16 @@ import {
   openCampaignModal
 } from '../features/campaigns/modal.js';
 import {
+  closeBrandModal,
+  initBrandForm,
+  openBrandModal
+} from '../features/brands/modal.js';
+import {
+  closeBrandDeleteModal,
+  initBrandDeleteFeature,
+  openBrandDeleteModal
+} from '../features/brands/delete.js';
+import {
   closeCampaignDeleteModal,
   initCampaignDeleteFeature,
   openCampaignDeleteModal
@@ -191,6 +201,47 @@ const copyText = (text, doneMessage) => {
   showToast(doneMessage);
 };
 
+const handleBrandInteractionSubmit = (event) => {
+  const form = event.target;
+  if (!(form instanceof HTMLFormElement) || form.id !== 'brand-interaction-form') return;
+
+  event.preventDefault();
+
+  const data = new FormData(form);
+  const brandId = String(data.get('brandId') || '').trim();
+  const type = String(data.get('type') || 'dm').trim();
+  const date = String(data.get('date') || '').trim();
+  const note = String(data.get('note') || '').trim().slice(0, 140);
+  const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
+
+  if (!brand) {
+    showToast('Marca não encontrada.');
+    return;
+  }
+  if (!date) {
+    showToast('Defina a data da interação.');
+    return;
+  }
+  if (!['dm', 'email', 'call'].includes(type)) {
+    showToast('Escolha um tipo válido de interação.');
+    return;
+  }
+
+  if (!Array.isArray(brand.interactions)) brand.interactions = [];
+  brand.interactions.unshift({
+    id: `bi-${Date.now()}`,
+    type,
+    date,
+    note,
+    createdAt: new Date().toISOString()
+  });
+  brand.updatedAt = new Date().toISOString();
+
+  saveState();
+  renderAll();
+  showToast('Interação registrada.');
+};
+
 const handleActionClick = (event) => {
   const actionEl = event.target.closest('[data-action]');
   if (!actionEl) return;
@@ -249,6 +300,82 @@ const handleActionClick = (event) => {
 
   if (action === 'goto-campaigns') {
     setActivePage('campaigns');
+    return;
+  }
+
+  if (action === 'open-brand-modal') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    const returnTo = actionEl.dataset.brandModalContext === 'campaign' ? 'campaign' : '';
+    openBrandModal(brandId, { returnTo });
+    return;
+  }
+
+  if (action === 'edit-brand') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    if (!brandId) return;
+    openBrandModal(brandId);
+    return;
+  }
+
+  if (action === 'close-brand-modal') {
+    closeBrandModal();
+    return;
+  }
+
+  if (action === 'delete-brand') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    if (!brandId) return;
+    if (actionEl.closest('#brand-modal')) {
+      closeBrandModal();
+    }
+    openBrandDeleteModal(brandId);
+    return;
+  }
+
+  if (action === 'close-brand-delete-modal') {
+    closeBrandDeleteModal();
+    return;
+  }
+
+  if (action === 'copy-brand-email') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
+    if (!brand?.email) {
+      showToast('Essa marca não tem email cadastrado.');
+      return;
+    }
+    copyText(brand.email, 'Email copiado.');
+    return;
+  }
+
+  if (action === 'select-brand') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    if (!brandId || state.ui.selectedBrandId === brandId) return;
+    state.ui.selectedBrandId = brandId;
+    saveState();
+    renderAll();
+    return;
+  }
+
+  if (action === 'new-campaign-for-brand') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    if (!brandId) return;
+    state.ui.pendingCampaignBrandId = brandId;
+    openCampaignModal();
+    injectOnboardingHeader();
+    return;
+  }
+
+  if (action === 'toggle-brand-active') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
+    if (!brand) return;
+    const isDormant = ['inativa', 'perdida'].includes(String(brand.status || '').trim());
+    brand.status = isDormant ? 'lead' : 'inativa';
+    brand.updatedAt = new Date().toISOString();
+    saveState();
+    renderAll();
+    showToast(isDormant ? 'Marca reativada.' : 'Marca desativada.');
     return;
   }
 
@@ -364,7 +491,13 @@ const handleActionClick = (event) => {
     return;
   }
 
-    if (action === 'new-campaign') {
+  if (action === 'new-campaign') {
+    const brands = Array.isArray(state.brands) ? state.brands : [];
+    if (!brands.length) {
+      openBrandModal('', { returnTo: 'campaign' });
+      showToast('Crie uma marca antes de cadastrar a campanha.');
+      return;
+    }
     openCampaignModal();
     injectOnboardingHeader();
     return;
@@ -638,6 +771,10 @@ const handleNavClick = (event) => {
     saveState();
     renderAll();
   }
+  if (target === 'brands') {
+    saveState();
+    renderAll();
+  }
 };
 
 const handleFilterClick = (event) => {
@@ -769,7 +906,8 @@ const handleChange = (event) => {
 
     saveState();
     renderAll();
-    showToast('Etapa atualizada.');urn;
+    showToast('Etapa atualizada.');
+    return;
   }
 
   if (target.matches('[data-brand-status]')) {
@@ -777,7 +915,9 @@ const handleChange = (event) => {
     const brand = state.brands.find((item) => item.id === brandId);
     if (!brand) return;
     brand.status = target.value;
+    brand.updatedAt = new Date().toISOString();
     saveState();
+    renderAll();
     showToast('Marca atualizada.');
     return;
   }
@@ -872,6 +1012,8 @@ const handleChange = (event) => {
 const initActions = () => {
   initScriptFlow();
   initScriptDeleteFeature();
+  initBrandForm();
+  initBrandDeleteFeature();
   initCampaignForm();
   initCampaignDeleteFeature();
   initAccountForm();
@@ -905,6 +1047,7 @@ const initActions = () => {
   document.body.addEventListener('click', handleNavClick);
   document.body.addEventListener('click', handleFilterClick);
   document.body.addEventListener('change', handleChange);
+  document.body.addEventListener('submit', handleBrandInteractionSubmit);
   document.body.addEventListener('keydown', (event) => {
     const actionCard = event.target.closest('[data-dashboard-card-link]');
     if (!actionCard) return;
