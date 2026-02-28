@@ -59,14 +59,14 @@ const handleBrandDeleteSubmit = (event) => {
     return;
   }
 
-  state.brands = (Array.isArray(state.brands) ? state.brands : []).filter((item) => item.id !== id);
-
-  if (state.ui?.brandComposer?.brandId === id) {
-    state.ui.brandComposer.brandId = null;
-    state.ui.brandComposer.text = '';
-    state.ui.brandComposer.lastBrandId = null;
-    state.ui.brandComposer.lastType = null;
+  const linkedCampaigns = (Array.isArray(state.campaigns) ? state.campaigns : []).filter((campaign) => campaign.brandId === id);
+  if (linkedCampaigns.length) {
+    if (msg) msg.textContent = 'Essa marca possui campanhas vinculadas. Remova ou troque o vínculo antes de excluir.';
+    return;
   }
+
+  state.brands = (Array.isArray(state.brands) ? state.brands : []).filter((item) => item.id !== id);
+  if (state.ui?.selectedBrandId === id) state.ui.selectedBrandId = state.brands[0]?.id || null;
 
   saveState();
   renderAll();

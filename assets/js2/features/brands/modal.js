@@ -7,124 +7,132 @@ const getBrandModal = () => ({
   modal: document.getElementById('brand-modal'),
   form: document.getElementById('brand-form'),
   msg: document.getElementById('brand-msg'),
-  preset: document.getElementById('brand-preset'),
-  otherRow: document.getElementById('brand-other-row'),
-  otherInput: document.getElementById('brand-name')
+  title: document.querySelector('[data-brand-modal-title]')
 });
 
-const unique = (values) => {
-  const seen = new Set();
-  const list = [];
-  values.forEach((value) => {
-    const text = String(value || '').trim();
-    if (!text) return;
-    const key = text.toLowerCase();
-    if (seen.has(key)) return;
-    seen.add(key);
-    list.push(text);
-  });
-  return list;
+const toggleCustomActionRow = (form) => {
+  const typeSelect = form?.querySelector('[name="nextActionType"]');
+  const customRow = document.getElementById('brand-next-action-custom-row');
+  if (!typeSelect || !customRow) return;
+  customRow.style.display = typeSelect.value === 'outro' ? '' : 'none';
 };
 
-const getPresets = () => {
-  const campaignBrands = (Array.isArray(state.campaigns) ? state.campaigns : []).map((c) => c.brand);
-  return unique([...campaignBrands]);
-};
-
-const populatePresetSelect = (selectEl) => {
-  if (!selectEl) return;
-  const current = String(selectEl.value || '');
-  const presets = getPresets();
-
-  if (!presets.length) {
-    selectEl.innerHTML = ['<option value="other">Outros</option>'].join('');
-    selectEl.value = 'other';
-    return;
-  }
-
-  selectEl.innerHTML = [
-    '<option value="">Escolher...</option>',
-    ...presets.map((name) => `<option value="${name}">${name}</option>`),
-    '<option value="other">Outros</option>'
-  ].join('');
-
-  if (current && (current === 'other' || presets.includes(current))) {
-    selectEl.value = current;
-    return;
-  }
-
-  selectEl.value = '';
-};
-
-const setOtherVisibility = (isOther) => {
-  const { otherRow, otherInput } = getBrandModal();
-  if (!otherRow || !otherInput) return;
-  otherRow.style.display = isOther ? '' : 'none';
-  otherInput.required = Boolean(isOther);
-  if (!isOther) {
-    otherInput.value = '';
-  }
-};
-
-const openBrandModal = () => {
-  const { modal, form, msg, preset } = getBrandModal();
+const openBrandModal = (brandId = '') => {
+  const { modal, form, msg, title } = getBrandModal();
   if (!modal || !form) return;
-  if (msg) msg.textContent = '';
-  form.reset();
-  if (preset) populatePresetSelect(preset);
-  setOtherVisibility(preset?.value === 'other');
 
+  form.reset();
+  form.dataset.brandId = '';
+  if (msg) msg.textContent = '';
+
+  const brand = (state.brands || []).find((item) => item.id === brandId) || null;
+  if (brand) {
+    form.dataset.brandId = brand.id;
+    if (title) title.textContent = 'Editar marca';
+    form.querySelector('[name="id"]').value = brand.id;
+    form.querySelector('[name="name"]').value = brand.name || '';
+    form.querySelector('[name="instagram"]').value = brand.instagram || '';
+    form.querySelector('[name="email"]').value = brand.email || '';
+    form.querySelector('[name="contact"]').value = brand.contact || '';
+    form.querySelector('[name="status"]').value = brand.status || 'lead';
+    form.querySelector('[name="nextActionType"]').value = brand.nextActionType || '';
+    form.querySelector('[name="nextActionCustomType"]').value = brand.nextActionCustomType || '';
+    form.querySelector('[name="nextActionDate"]').value = brand.nextActionDate || '';
+    form.querySelector('[name="nextActionNote"]').value = brand.nextActionNote || '';
+  } else if (title) {
+    title.textContent = 'Nova marca';
+  }
+
+  toggleCustomActionRow(form);
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
-  if (preset) preset.focus();
+  window.setTimeout(() => form.querySelector('[name="name"]')?.focus(), 0);
 };
 
 const closeBrandModal = () => {
   const { modal, form, msg } = getBrandModal();
-  if (!modal) return;
+  if (!modal || !form) return;
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
-  if (form) form.reset();
+  form.reset();
+  form.dataset.brandId = '';
   if (msg) msg.textContent = '';
-  setOtherVisibility(false);
 };
 
 const handleBrandSubmit = (event) => {
   event.preventDefault();
-  const { form, msg, preset, otherInput } = getBrandModal();
+  const { form, msg } = getBrandModal();
   if (!form) return;
   if (msg) msg.textContent = '';
 
   const data = new FormData(form);
-  const presetValue = String(data.get('brandPreset') || '').trim();
-  const otherName = String(otherInput?.value || '').trim();
-  const name = presetValue === 'other' ? otherName : presetValue;
-  const contact = String(data.get('contact') || '').trim();
+  const id = String(data.get('id') || form.dataset.brandId || '').trim();
+  const name = String(data.get('name') || '').trim();
+  const instagram = String(data.get('instagram') || '').trim();
   const email = String(data.get('email') || '').trim();
-  const status = String(data.get('status') || 'enviado');
+  const contact = String(data.get('contact') || '').trim();
+  const status = String(data.get('status') || 'lead').trim();
+  const nextActionType = String(data.get('nextActionType') || '').trim();
+  const nextActionCustomType = String(data.get('nextActionCustomType') || '').trim();
+  const nextActionDate = String(data.get('nextActionDate') || '').trim();
+  const nextActionNote = String(data.get('nextActionNote') || '').trim().slice(0, 140);
 
   if (!name) {
-    if (msg) msg.textContent = 'Escolhe a marca ou coloca em “Outros”.';
+    if (msg) msg.textContent = 'Informe o nome da marca.';
     return;
   }
-  if (!contact) {
-    if (msg) msg.textContent = 'Coloca o nome do contato.';
+  if (nextActionType && !nextActionDate) {
+    if (msg) msg.textContent = 'Defina a data da próxima ação.';
     return;
   }
-  if (!email || !email.includes('@')) {
-    if (msg) msg.textContent = 'Coloca um e-mail válido.';
+  if (nextActionType === 'outro' && !nextActionCustomType) {
+    if (msg) msg.textContent = 'Descreva o tipo personalizado.';
+    return;
+  }
+
+  if (id) {
+    const brand = state.brands.find((item) => item.id === id);
+    if (!brand) {
+      if (msg) msg.textContent = 'Não encontrei essa marca.';
+      return;
+    }
+    brand.name = name;
+    brand.instagram = instagram;
+    brand.email = email;
+    brand.contact = contact;
+    brand.status = status;
+    brand.nextActionType = nextActionType;
+    brand.nextActionCustomType = nextActionType === 'outro' ? nextActionCustomType : '';
+    brand.nextActionDate = nextActionDate;
+    brand.nextActionNote = nextActionNote;
+
+    (state.campaigns || []).forEach((campaign) => {
+      if (campaign.brandId === brand.id) campaign.brand = brand.name;
+    });
+
+    saveState();
+    renderAll();
+    closeBrandModal();
+    showToast('Marca atualizada.');
     return;
   }
 
   const brand = {
     id: `b-${Date.now()}`,
     name,
-    contact,
+    instagram,
     email,
-    status: ['enviado', 'negociando', 'fechado'].includes(status) ? status : 'enviado'
+    contact,
+    status,
+    nextActionType,
+    nextActionCustomType: nextActionType === 'outro' ? nextActionCustomType : '',
+    nextActionDate,
+    nextActionNote,
+    interactions: []
   };
 
   state.brands.unshift(brand);
+  state.ui.selectedBrandId = brand.id;
   trackEvent('brand_created', { brandId: brand.id, brand });
   saveState();
   renderAll();
@@ -133,22 +141,11 @@ const handleBrandSubmit = (event) => {
 };
 
 const initBrandForm = () => {
-  const { form, preset } = getBrandModal();
-  if (!form || !preset) return;
-  if (form.dataset.bound === '1') return;
+  const { form } = getBrandModal();
+  if (!form || form.dataset.bound === '1') return;
   form.dataset.bound = '1';
-
-  preset.addEventListener('focus', () => populatePresetSelect(preset));
-  preset.addEventListener('mousedown', () => populatePresetSelect(preset));
-  preset.addEventListener('change', () => setOtherVisibility(preset.value === 'other'));
   form.addEventListener('submit', handleBrandSubmit);
-
-  try {
-    document.addEventListener('ugc:campaigns-changed', () => {
-      populatePresetSelect(preset);
-      setOtherVisibility(preset.value === 'other');
-    });
-  } catch (error) {}
+  form.querySelector('[name="nextActionType"]')?.addEventListener('change', () => toggleCustomActionRow(form));
 };
 
 export { openBrandModal, closeBrandModal, initBrandForm };

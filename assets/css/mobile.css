@@ -124,3 +124,43 @@ ampaign-status-stage select option {
   color: #a78bfa;
   border-radius: 0;
 }
+
+@media (max-width: 1100px) {
+  .dashboard-grid,
+  .brands-shell {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "today"
+      "financial"
+      "pipeline"
+      "goal";
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-list-item,
+  .dashboard-card-head,
+  .dashboard-panel-block-head,
+  .brands-list-head,
+  .brands-detail-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dashboard-list-actions,
+  .brands-row-actions,
+  .brands-detail-actions,
+  .modal-actions--spread {
+    justify-content: stretch;
+  }
+
+  .dashboard-mini-grid,
+  .brands-stats-grid,
+  .brands-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brands-table-wrap {
+    overflow-x: auto;
+  }
+}

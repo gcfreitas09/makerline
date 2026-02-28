@@ -27,10 +27,10 @@
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-    <link rel="stylesheet" href="assets/css/app2.css?v=20260217c" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260216a">
+    <link rel="stylesheet" href="assets/css/app2.css?v=20260228b" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260228b">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="assets/js2/core/customSelect.js?v=20260216a"></script>
+  <script src="assets/js2/core/customSelect.js?v=20260228b"></script>
 </head>
 <body>
   <div class="page-shell">
@@ -67,6 +67,14 @@
             <path d="M5 10v10h14V10" />
           </svg>
           Dashboard
+        </button>
+        <button class="nav-item" data-target="brands" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 7h12" />
+            <path d="M7 7V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2" />
+            <path d="M5 7h14l1 13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2L5 7z" />
+          </svg>
+          Marcas
         </button>
         <button class="nav-item" data-target="campaigns" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -124,78 +132,107 @@
           </div>
           <button class="btn btn-primary" data-action="goto-scripts" type="button">Criar novo roteiro</button>
         </div>
-
-        <!-- ════ SITUAÇÃO DO MÊS ════ -->
-        <div class="dash-section dash-section--finance">
-          <div class="dash-section-header">
-            <h2 class="dash-section-title">Situação do Mês</h2>
-          </div>
-          <div class="finance-grid" data-finance-month></div>
-        </div>
-
-        <!-- ════ AÇÕES CRÍTICAS ════ -->
-        <div class="dash-section dash-section--alerts">
-          <div class="dash-section-header">
-            <h2 class="dash-section-title">Ações Críticas</h2>
-          </div>
-          <div class="alerts-list" data-critical-actions>
-            <p class="muted">Nenhuma ação pendente agora.</p>
-          </div>
-        </div>
-
-        <!-- ════ RENTABILIDADE ════ -->
-        <div class="dash-section dash-section--profit">
-          <div class="dash-section-header">
-            <h2 class="dash-section-title">Rentabilidade</h2>
-          </div>
-          <div class="profit-grid" data-profitability></div>
-        </div>
-
-
-
-        <!-- ════ GAMIFICAÇÃO (hierarquia reduzida) ════ -->
-        <div class="dash-section dash-section--gamification">
-          <div class="dash-section-header">
-            <h2 class="dash-section-title dash-section-title--sm">Progresso & Gamificação</h2>
-          </div>
-          <div class="card-grid gamification-grid">
-            <div class="card stat-card stat-card--compact" style="--i: 1;">
-              <div class="badge">Nível <span data-profile-level>—</span></div>
-              <div class="stat-value"><span data-profile-xp>—</span> / <span data-profile-xp-goal>—</span> XP</div>
-              <div class="progress-track">
-                <div class="progress-fill" data-profile-xpbar style="width: 0%"></div>
-              </div>
-              <p class="muted">Faltam <span data-profile-xp-remaining>—</span> XP para subir</p>
-            </div>
-
-            <div class="card stat-card stat-card--compact" style="--i: 2;">
-              <div class="badge">Streak</div>
-              <div class="stat-value streak-value">
-                <svg class="streak-fire streak-fire--sm" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" data-streak-icon>
-                  <path class="fire-glow" d="M12 2c-1 2.8-4 4.7-4 8.4 0 3.1 1.9 5.6 4.8 5.6 2.8 0 4.2-2 4.2-4.1 0-2.6-1.3-4.2-2.8-5.8-.6-.7-1.1-1.4-1.4-2.1z" fill="#F59E0B" opacity="0.4" transform="scale(1.15) translate(-1.2, -0.8)"/>
-                  <path class="fire-mid" d="M12 2c-1 2.8-4 4.7-4 8.4 0 3.1 1.9 5.6 4.8 5.6 2.8 0 4.2-2 4.2-4.1 0-2.6-1.3-4.2-2.8-5.8-.6-.7-1.1-1.4-1.4-2.1z" fill="#EA580C" opacity="0.85" transform="translate(0.5,0.2)"/>
-                  <path class="fire-base" d="M12 2c-1 2.8-4 4.7-4 8.4 0 3.1 1.9 5.6 4.8 5.6 2.8 0 4.2-2 4.2-4.1 0-2.6-1.3-4.2-2.8-5.8-.6-.7-1.1-1.4-1.4-2.1z" fill="#F97316" opacity="0.95" transform="translate(-0.3,-0.1)"/>
-                  <path class="fire-core" d="M12 6c-.5 1.4-2 2.3-2 4.2 0 1.5.9 2.8 2.4 2.8 1.4 0 2.1-1 2.1-2.05 0-1.3-.65-2.1-1.4-2.9-.3-.35-.55-.7-.7-1.05z" fill="#FEF3C7" opacity="0.95"/>
-                  <path class="fire-inner" d="M12 7.5c-.3.9-1.2 1.5-1.2 2.7 0 1 .6 1.8 1.5 1.8.9 0 1.3-.6 1.3-1.3 0-.8-.4-1.3-.9-1.8-.2-.2-.35-.45-.45-.65z" fill="#FFFFFF" opacity="0.9"/>
-                </svg>
-                <span><span data-profile-streak>5</span> dias</span>
-              </div>
-              <p class="muted" data-streak-tip>Sua melhor sequência do mês.</p>
-              <div class="progress-track">
-                <div class="progress-fill" data-profile-streakbar style="width: 0%"></div>
+        <div class="dashboard-grid">
+          <article class="card dashboard-card dashboard-card--today">
+            <div class="dashboard-card-head">
+              <div>
+                <div class="dashboard-eyebrow">Maior prioridade</div>
+                <h2>Ações de hoje</h2>
               </div>
             </div>
+
+            <div class="dashboard-panel-block">
+              <div class="dashboard-panel-block-head">
+                <div>
+                  <h3>Follow-ups pendentes</h3>
+                  <p class="muted">Próximas ações de marcas e campanhas.</p>
+                </div>
+                <button class="btn btn-ghost btn-small" data-action="open-brand-action-modal" type="button">Nova ação de marca</button>
+              </div>
+              <div class="dashboard-list" data-dashboard-followups></div>
+            </div>
+
+            <div class="dashboard-panel-block">
+              <div class="dashboard-panel-block-head">
+                <div>
+                  <h3>Prazos próximos</h3>
+                  <p class="muted">Campanhas que vencem em até 3 dias ou já atrasaram.</p>
+                </div>
+              </div>
+              <div class="dashboard-list" data-dashboard-deadlines></div>
+            </div>
+
+            <div class="dashboard-panel-block">
+              <div class="dashboard-panel-block-head">
+                <div>
+                  <h3>Pagamentos pendentes</h3>
+                  <p class="muted">Campanhas em aguardando pagamento.</p>
+                </div>
+              </div>
+              <div class="dashboard-list" data-dashboard-payments></div>
+            </div>
+          </article>
+
+          <article class="card dashboard-card dashboard-card--financial">
+            <div class="dashboard-card-head">
+              <div>
+                <div class="dashboard-eyebrow">Financeiro</div>
+                <h2>Financeiro</h2>
+              </div>
+              <button class="btn btn-link" data-action="goto-performance-financial" type="button">Abrir financeiro</button>
+            </div>
+            <div data-dashboard-financial></div>
+          </article>
+
+          <article class="card dashboard-card dashboard-card--pipeline">
+            <div class="dashboard-card-head">
+              <div>
+                <div class="dashboard-eyebrow">Operação</div>
+                <h2>Pipeline</h2>
+              </div>
+              <button class="btn btn-ghost btn-small" data-action="goto-campaigns" type="button">Ver campanhas</button>
+            </div>
+            <div data-dashboard-pipeline></div>
+          </article>
+
+          <article class="card dashboard-card dashboard-card--goal">
+            <div class="dashboard-card-head">
+              <div>
+                <div class="dashboard-eyebrow">Fechamento</div>
+                <h2>Meta do mês</h2>
+              </div>
+              <button class="btn btn-ghost btn-small" data-action="edit-monthly-goal" type="button">Editar meta</button>
+            </div>
+            <div data-dashboard-goal></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page-section" data-section="brands">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Marcas</h1>
+            <p class="section-subtitle">Organize seus contatos, acompanhe follow-up e veja o histórico comercial de cada marca.</p>
           </div>
+          <button class="btn btn-primary" data-action="new-brand" type="button">Nova marca</button>
+        </div>
 
-          <div style="margin-top: 20px;"></div>
-          <h3 class="dash-section-title dash-section-title--sm">Missões diárias</h3>
-          <p class="section-subtitle" style="margin-bottom: 12px;">Pequenos passos que rendem XP.</p>
-          <div class="mission-grid" data-missions></div>
-
-          <div style="margin-top: 20px;"></div>
-          <h3 class="dash-section-title dash-section-title--sm">Desafios da semana</h3>
-          <p class="section-subtitle" style="margin-bottom: 12px;">Foque no que traz mais retorno.</p>
-          <div class="mission-grid" data-challenges></div>
+        <div class="brands-shell">
+          <div class="brands-main">
+            <div class="card brands-stats" data-brand-stats></div>
+            <div class="card brands-list-card">
+              <div class="brands-list-head">
+                <div>
+                  <h2>Lista de marcas</h2>
+                  <p class="section-subtitle">Tabela compacta com status, faturamento, campanhas e follow-up.</p>
+                </div>
+                <button class="btn btn-ghost btn-small" data-action="new-brand" type="button">Nova marca</button>
+              </div>
+              <div data-brands></div>
+            </div>
+          </div>
+          <aside class="brands-side" data-brand-detail></aside>
         </div>
       </section>
 
@@ -361,13 +398,6 @@
         <div class="settings-grid">
           <div class="toggle">
             <div>
-              <div>Resumo semanal</div>
-              <p class="muted">Receba um resumão por e-mail.</p>
-            </div>
-            <input type="checkbox" data-setting="weekly" />
-          </div>
-          <div class="toggle">
-            <div>
               <div>Alertas de campanha</div>
               <p class="muted">Lembretes de entregas e revisões.</p>
             </div>
@@ -384,25 +414,6 @@
 
 
 
-        <div style="margin-top: 18px;"></div>
-        <div class="card">
-          <div class="section-header" style="margin-bottom: 12px;">
-            <div>
-              <h3>Resumo semanal</h3>
-              <p class="section-subtitle">Receba um resumo completo da sua semana por e-mail.</p>
-            </div>
-            <button class="btn btn-ghost" data-action="send-weekly-summary" type="button">Enviar agora</button>
-          </div>
-          <div class="muted" id="weekly-summary-msg"></div>
-          <div class="script-output" id="weekly-summary-preview" style="margin-top: 12px; display: none;"></div>
-          <div id="weekly-summary-actions" style="margin-top: 12px; display: none; align-items: center; gap: 10px;">
-            <button class="btn btn-ghost btn-small" data-action="copy-weekly-preview" type="button">Copiar texto</button>
-            <a class="auth-link" href="api/email_log.php" target="_blank" rel="noopener">Abrir log</a>
-            <a class="auth-link" href="api/smtp_example.php" target="_blank" rel="noopener">Ver exemplo SMTP</a>
-          </div>
-        </div>
-
-        <div style="margin-top: 18px;"></div>
         <div class="card">
           <h3>Conta</h3>
           <p class="muted">Logado como: <strong data-account-email>seu@email.com</strong></p>
@@ -525,6 +536,162 @@
         <button class="btn btn-primary" type="submit">Salvar campanha</button>
         <button class="btn btn-danger" type="button" id="campaign-delete-inline-btn" data-action="delete-campaign" style="display:none;">Excluir campanha</button>
         <div class="muted" id="campaign-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="brand-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-brand-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3 data-brand-modal-title>Nova marca</h3>
+          <p class="muted">Cadastre os dados principais e o próximo passo comercial.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-brand-modal" type="button">Fechar</button>
+      </div>
+
+      <form class="form-grid" id="brand-form">
+        <input type="hidden" name="id" />
+        <div class="form-row">
+          <label>Nome da marca</label>
+          <input class="input" name="name" type="text" placeholder="Ex: Nike" required />
+        </div>
+        <div class="form-row">
+          <label>Instagram</label>
+          <input class="input" name="instagram" type="text" placeholder="@marca" />
+        </div>
+        <div class="form-row">
+          <label>Email</label>
+          <input class="input" name="email" type="email" placeholder="contato@marca.com" />
+        </div>
+        <div class="form-row">
+          <label>Contato principal</label>
+          <input class="input" name="contact" type="text" placeholder="Ex: Ana / João" />
+        </div>
+        <div class="form-row">
+          <label>Status</label>
+          <select class="select" name="status">
+            <option value="lead">Lead</option>
+            <option value="negociando">Negociando</option>
+            <option value="cliente_ativo">Cliente ativo</option>
+            <option value="cliente_recorrente">Cliente recorrente</option>
+            <option value="inativa">Inativa</option>
+            <option value="perdida">Perdida</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Próxima ação</label>
+          <select class="select" name="nextActionType">
+            <option value="">Sem próxima ação</option>
+            <option value="followup">Follow-up</option>
+            <option value="enviar_proposta">Enviar proposta</option>
+            <option value="cobrar_resposta">Cobrar resposta</option>
+            <option value="enviar_roteiro">Enviar roteiro</option>
+            <option value="cobrar_aprovacao">Cobrar aprovação</option>
+            <option value="entregar_conteudo">Entregar conteúdo</option>
+            <option value="revisar_ajustes">Revisar ajustes</option>
+            <option value="cobrar_pagamento">Cobrar pagamento</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-row" id="brand-next-action-custom-row" style="display:none;">
+          <label>Tipo personalizado</label>
+          <input class="input" name="nextActionCustomType" type="text" placeholder="Ex: confirmar briefing" />
+        </div>
+        <div class="form-row">
+          <label>Data da próxima ação</label>
+          <input class="input" name="nextActionDate" type="date" />
+        </div>
+        <div class="form-row">
+          <label>Observação curta</label>
+          <textarea class="textarea" name="nextActionNote" maxlength="140" placeholder="Notas rápidas da conversa."></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-brand-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar marca</button>
+        </div>
+        <div class="muted" id="brand-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="brand-delete-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-brand-delete-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Excluir marca?</h3>
+          <p class="muted">Digite <strong>EXCLUIR</strong> para confirmar.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-brand-delete-modal" type="button">Fechar</button>
+      </div>
+
+      <div class="muted" id="brand-delete-title"></div>
+      <form class="form-grid" id="brand-delete-form" style="margin-top: 12px;">
+        <div class="form-row">
+          <label>Confirmação</label>
+          <input class="input" id="brand-delete-input" type="text" placeholder="Digite EXCLUIR" autocomplete="off" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-brand-delete-modal" type="button">Cancelar</button>
+          <button class="btn btn-danger" id="brand-delete-confirm" type="submit" disabled>Excluir</button>
+        </div>
+        <div class="muted" id="brand-delete-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="brand-action-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-brand-action-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Ação de marca</h3>
+          <p class="muted">Crie ou edite o follow-up comercial dessa marca.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-brand-action-modal" type="button">Fechar</button>
+      </div>
+
+      <form class="form-grid" id="brand-action-form">
+        <div class="form-row">
+          <label>Marca</label>
+          <select class="select" name="brandId" required>
+            <option value="">Escolher marca...</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Tipo de ação</label>
+          <select class="select" name="nextActionType" required>
+            <option value="">Escolher...</option>
+            <option value="followup">Follow-up</option>
+            <option value="enviar_proposta">Enviar proposta</option>
+            <option value="cobrar_resposta">Cobrar resposta</option>
+            <option value="enviar_roteiro">Enviar roteiro</option>
+            <option value="cobrar_aprovacao">Cobrar aprovação</option>
+            <option value="entregar_conteudo">Entregar conteúdo</option>
+            <option value="revisar_ajustes">Revisar ajustes</option>
+            <option value="cobrar_pagamento">Cobrar pagamento</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-row" id="brand-action-custom-row" style="display:none;">
+          <label>Tipo personalizado</label>
+          <input class="input" name="nextActionCustomType" type="text" placeholder="Ex: reagendar call" />
+        </div>
+        <div class="form-row">
+          <label>Data</label>
+          <input class="input" name="nextActionDate" type="date" required />
+        </div>
+        <div class="form-row">
+          <label>Observação curta</label>
+          <textarea class="textarea" name="nextActionNote" maxlength="140" placeholder="Observação rápida."></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-brand-action-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar ação</button>
+        </div>
+        <div class="muted" id="brand-action-msg"></div>
       </form>
     </div>
   </div>
@@ -782,7 +949,7 @@
   <div class="toast toast-xp" id="xp-toast"></div>
   <div class="toast" id="toast"></div>
 
-  <script type="module" src="assets/js2/app.js?v=20260217d"></script>
+  <script type="module" src="assets/js2/app.js?v=20260228c"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

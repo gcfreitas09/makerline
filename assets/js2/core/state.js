@@ -201,6 +201,7 @@ const defaultState = {
     performanceTab: 'financial',
     openMetric: 'pocket',
     openScript: null,
+    selectedBrandId: null,
     brandComposer: {
       brandId: null,
       type: 'first',
@@ -271,12 +272,48 @@ const statusDot = {
 };
 
 const brandStatuses = {
-  enviado: 'Mandei msg',
+  lead: 'Lead',
   negociando: 'Negociando',
-  fechado: 'Fechou'
+  cliente_ativo: 'Cliente ativo',
+  cliente_recorrente: 'Cliente recorrente',
+  inativa: 'Inativa',
+  perdida: 'Perdida'
 };
 
 const brandOptions = Object.keys(brandStatuses);
+
+const nextActionOptions = [
+  'followup',
+  'enviar_proposta',
+  'cobrar_resposta',
+  'enviar_roteiro',
+  'cobrar_aprovacao',
+  'entregar_conteudo',
+  'revisar_ajustes',
+  'cobrar_pagamento',
+  'outro'
+];
+
+const nextActionLabels = {
+  followup: 'Follow-up',
+  enviar_proposta: 'Enviar proposta',
+  cobrar_resposta: 'Cobrar resposta',
+  enviar_roteiro: 'Enviar roteiro',
+  cobrar_aprovacao: 'Cobrar aprovação',
+  entregar_conteudo: 'Entregar conteúdo',
+  revisar_ajustes: 'Revisar ajustes',
+  cobrar_pagamento: 'Cobrar pagamento',
+  outro: 'Outro'
+};
+
+const getNextActionLabel = (type, customType = '') => {
+  const safeType = String(type || '').trim();
+  if (!safeType) return '';
+  if (safeType === 'outro') {
+    return String(customType || '').trim() || nextActionLabels.outro;
+  }
+  return nextActionLabels[safeType] || safeType;
+};
 
 const deepClone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -384,6 +421,159 @@ const normalizeBrandIds = (currentState) => {
   });
 };
 
+const normalizeBrandEntities = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+  const brands = Array.isArray(currentState.brands) ? currentState.brands : [];
+
+  const normalizeStatus = (value) => {
+    const raw = String(value || '').trim().toLowerCase();
+    if (!raw) return 'lead';
+    if (raw === 'enviado' || raw === 'sem_resposta') return 'lead';
+    if (raw === 'fechado' || raw === 'cliente' || raw === 'ativo') return 'cliente_ativo';
+    if (raw === 'recorrente') return 'cliente_recorrente';
+    if (raw === 'inactive') return 'inativa';
+    return brandStatuses[raw] ? raw : 'lead';
+  };
+
+  const normalizeInteractions = (value) => {
+    if (!Array.isArray(value)) return [];
+    return value
+      .map((item) => {
+        if (!item || typeof item !== 'object') return null;
+        return {
+          id: String(item.id || `bi-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`),
+          date: String(item.date || '').trim(),
+          type: String(item.type || '').trim() || 'dm',
+          note: String(item.note || item.observation || '').trim()
+        };
+      })
+      .filter(Boolean);
+  };
+
+  brands.forEach((brand, index) => {
+    if (!brand || typeof brand !== 'object') return;
+    brand.name = String(brand.name || brand.brand || '').trim();
+    if (!brand.name) brand.name = `Marca ${index + 1}`;
+    brand.instagram = String(brand.instagram || '').trim();
+    brand.email = String(brand.email || '').trim();
+    brand.contact = String(brand.contact || brand.contactName || '').trim();
+    brand.status = normalizeStatus(brand.status);
+    brand.nextActionType = String(brand.nextActionType || '').trim();
+    brand.nextActionCustomType = String(brand.nextActionCustomType || '').trim();
+    brand.nextActionDate = String(brand.nextActionDate || '').trim();
+    brand.nextActionNote = String(brand.nextActionNote || '').trim().slice(0, 140);
+    brand.interactions = normalizeInteractions(brand.interactions);
+  });
+
+  currentState.ui = currentState.ui && typeof currentState.ui === 'object' ? currentState.ui : {};
+  const selectedBrandId = String(currentState.ui.selectedBrandId || '').trim();
+  const validSelectedBrand = brands.some((brand) => brand.id === selectedBrandId);
+  currentState.ui.selectedBrandId = validSelectedBrand ? selectedBrandId : brands[0]?.id || null;
+};
+
+const normalizeCampaignLinksAndFields = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+
+  currentState.brands = Array.isArray(currentState.brands) ? currentState.brands : [];
+  currentState.campaigns = Array.isArray(currentState.campaigns) ? currentState.campaigns : [];
+
+  const brandByKey = new Map();
+  currentState.brands.forEach((brand) => {
+    const key = String(brand?.name || '').trim().toLowerCase();
+    if (key) brandByKey.set(key, brand);
+  });
+
+  const ensureBrand = (brandName) => {
+    const name = String(brandName || '').trim();
+    if (!name) return null;
+    const key = name.toLowerCase();
+    if (brandByKey.has(key)) return brandByKey.get(key);
+
+    const created = {
+      id: `b-${Date.now()}-${currentState.brands.length + 1}`,
+      name,
+      instagram: '',
+      email: '',
+      contact: '',
+      status: 'lead',
+      nextActionType: '',
+      nextActionCustomType: '',
+      nextActionDate: '',
+      nextActionNote: '',
+      interactions: []
+    };
+    currentState.brands.push(created);
+    brandByKey.set(key, created);
+    return created;
+  };
+
+  currentState.campaigns.forEach((campaign, index) => {
+    if (!campaign || typeof campaign !== 'object') return;
+
+    campaign.title = String(campaign.title || '').trim();
+    campaign.brand = String(campaign.brand || '').trim();
+    campaign.brandId = String(campaign.brandId || '').trim() || null;
+    campaign.nextActionType = String(campaign.nextActionType || '').trim();
+    campaign.nextActionCustomType = String(campaign.nextActionCustomType || '').trim();
+    campaign.nextActionDate = String(campaign.nextActionDate || '').trim();
+    campaign.nextActionNote = String(campaign.nextActionNote || '').trim().slice(0, 140);
+    campaign.paymentReceivedAt = String(campaign.paymentReceivedAt || '').trim();
+    campaign.paymentDate = String(campaign.paymentDate || '').trim();
+    campaign.contactName = String(campaign.contactName || '').trim();
+    campaign.contactEmail = String(campaign.contactEmail || '').trim();
+
+    const paymentPercentRaw = Number.isFinite(campaign.paymentPercent)
+      ? campaign.paymentPercent
+      : parseInt(String(campaign.paymentPercent || ''), 10);
+    campaign.paymentPercent = Number.isFinite(paymentPercentRaw)
+      ? Math.max(0, Math.min(100, Math.round(paymentPercentRaw)))
+      : 0;
+
+    const linkedBrand =
+      (campaign.brandId && currentState.brands.find((brand) => brand.id === campaign.brandId)) ||
+      ensureBrand(campaign.brand) ||
+      null;
+
+    if (linkedBrand) {
+      campaign.brandId = linkedBrand.id;
+      campaign.brand = linkedBrand.name;
+      if (!campaign.title) campaign.title = linkedBrand.name;
+    } else if (!campaign.title) {
+      campaign.title = `Campanha ${index + 1}`;
+    }
+
+    if (!campaign.contract || typeof campaign.contract !== 'object') {
+      campaign.contract = {};
+    }
+    campaign.contract = {
+      usageRights: String(campaign.contract.usageRights || '').trim(),
+      usagePeriod: String(campaign.contract.usagePeriod || '').trim(),
+      advanceAmount: Number.isFinite(campaign.contract.advanceAmount)
+        ? campaign.contract.advanceAmount
+        : parseInt(String(campaign.contract.advanceAmount || ''), 10) || 0,
+      productSent: Boolean(campaign.contract.productSent),
+      productReceivedAt: String(campaign.contract.productReceivedAt || '').trim(),
+      invoiceRequired: Boolean(campaign.contract.invoiceRequired),
+      paymentExpectedAt: String(campaign.contract.paymentExpectedAt || campaign.paymentDate || '').trim()
+    };
+
+    campaign.history = Array.isArray(campaign.history)
+      ? campaign.history
+          .map((entry) => {
+            if (!entry || typeof entry !== 'object') return null;
+            return {
+              id: String(entry.id || `ch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`),
+              type: String(entry.type || '').trim(),
+              title: String(entry.title || '').trim(),
+              note: String(entry.note || '').trim(),
+              date: String(entry.date || entry.createdAt || campaign.updatedAt || campaign.createdAt || '').trim()
+            };
+          })
+          .filter(Boolean)
+      : [];
+  });
+};
+
 const mergeState = (base, incoming) => {
   if (Array.isArray(base)) {
     return Array.isArray(incoming) ? incoming : base;
@@ -451,6 +641,9 @@ const loadState = () => {
 
   normalizeCampaignTitles(nextState);
   normalizeCampaignPipeline(nextState);
+  normalizeBrandEntities(nextState);
+  normalizeBrandIds(nextState);
+  normalizeCampaignLinksAndFields(nextState);
   normalizeBrandIds(nextState);
   return nextState;
 };
@@ -562,6 +755,10 @@ const replaceState = (nextState) => {
   if (!nextState || typeof nextState !== 'object') return;
   const merged = mergeState(defaultState, nextState);
   normalizeCampaignTitles(merged);
+  normalizeCampaignPipeline(merged);
+  normalizeBrandEntities(merged);
+  normalizeBrandIds(merged);
+  normalizeCampaignLinksAndFields(merged);
   normalizeBrandIds(merged);
   state = merged;
 };
@@ -1029,7 +1226,7 @@ const badgeCatalog = [
   { id: 'badge-above-goal', category: 'financial', title: 'Receita acima da meta', desc: 'Receita confirmada acima da meta mensal', icon: 'trend', xp: 250, check: (s) => { const goal = s.settings?.monthlyGoal||0; if(!goal) return {done:false,current:0,target:goal}; const now=new Date(); const cm=now.getMonth(); const cy=now.getFullYear(); const mc=(s.campaigns||[]).filter(c=>{const d=new Date(c.updatedAt||c.createdAt);return d.getMonth()===cm&&d.getFullYear()===cy&&(c.status==='concluida'||c.paymentPercent>=100);}); const rev=mc.reduce((a,c)=>a+(c.value||0),0); return {done:rev>=goal,current:rev,target:goal}; } },
   { id: 'badge-3months-growth', category: 'financial', title: '3 meses crescendo', desc: 'Receita cresceu por 3 meses consecutivos', icon: 'trend', xp: 400, check: () => ({done:false,current:0,target:3,insight:'Registre receita por 3 meses para desbloquear.'}) },
   // Comercial
-  { id: 'badge-10-responses', category: 'commercial', title: '10 contatos com resposta', desc: 'Receber resposta de 10 marcas', icon: 'chat', xp: 200, check: (s) => { const b=(s.brands||[]).filter(x=>x.status&&x.status!=='enviado'&&x.status!=='sem_resposta'); return {done:b.length>=10,current:b.length,target:10}; } },
+  { id: 'badge-10-responses', category: 'commercial', title: '10 contatos com resposta', desc: 'Receber resposta de 10 marcas', icon: 'chat', xp: 200, check: (s) => { const b=(s.brands||[]).filter(x=>!['lead','inativa','perdida'].includes(String(x.status||''))); return {done:b.length>=10,current:b.length,target:10}; } },
   { id: 'badge-5-closed-month', category: 'commercial', title: '5 campanhas no m\u00eas', desc: 'Fechar 5 campanhas em um m\u00eas', icon: 'radar', xp: 300, check: (s) => { const now=new Date(); const cm=now.getMonth(); const cy=now.getFullYear(); const mc=(s.campaigns||[]).filter(c=>{const d=new Date(c.createdAt);return d.getMonth()===cm&&d.getFullYear()===cy;}); return {done:mc.length>=5,current:mc.length,target:5}; } },
   // Operacional
   { id: 'badge-30-no-delay', category: 'operational', title: '30 dias sem atraso', desc: 'Nenhuma campanha atrasada por 30 dias seguidos', icon: 'time', xp: 350, check: (s) => { const today=new Date().toISOString().slice(0,10); const overdue=(s.campaigns||[]).filter(c=>c.dueDate&&c.dueDate<today&&c.status!=='concluida'); return {done:overdue.length===0,current:overdue.length===0?30:0,target:30,insight:overdue.length?`${overdue.length} campanha(s) atrasada(s)`:'Tudo em dia!'}; } },
@@ -1052,6 +1249,8 @@ export {
   statusDot,
   brandStatuses,
   brandOptions,
+  nextActionOptions,
+  getNextActionLabel,
   deepClone,
   mergeState,
   loadState,
