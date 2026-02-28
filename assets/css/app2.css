@@ -1778,8 +1778,13 @@ select[data-campaign-stage]:focus {
 .campaign-table {
   width: 100%;
   border-collapse: separate;
+<<<<<<< Updated upstream
   border-spacing: 0 10px;
+=======
+  border-spacing: 0 12px;
+>>>>>>> Stashed changes
   table-layout: auto;
+  margin-top: -12px;
 }
 
 .campaign-table th,
@@ -3392,7 +3397,7 @@ button[data-action="bonus-xp"] {
 
 /* ── Priority Campaign Row ── */
 .campaign-priority {
-  box-shadow: none;
+  box-shadow: inset 0 0 18px rgba(245, 158, 11, 0.11);
 }
 .campaign-priority td {
   background: linear-gradient(180deg, rgba(32, 24, 8, 0.92), rgba(16, 14, 8, 0.84)) !important;
@@ -3403,7 +3408,7 @@ button[data-action="bonus-xp"] {
 
 @media (min-width: 721px) {
   .campaign-priority {
-    box-shadow: none;
+    box-shadow: inset 0 0 18px rgba(245, 158, 11, 0.11);
   }
 
   .campaign-priority td {
@@ -3428,7 +3433,11 @@ button[data-action="bonus-xp"] {
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--radius-lg);
     overflow: hidden;
+<<<<<<< Updated upstream
     box-shadow: inset 0 0 18px rgba(245, 158, 11, 0.12);
+=======
+    box-shadow: inset 0 0 18px rgba(245, 158, 11, 0.11);
+>>>>>>> Stashed changes
   }
 
   .campaign-priority::after {
