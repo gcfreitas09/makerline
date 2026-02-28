@@ -281,20 +281,17 @@ const handleActionClick = (event) => {
   }
 
   if (action === 'goto-scripts') {
-    setActivePage('scripts');
+    setActivePage('campaigns');
     return;
   }
 
   if (action === 'goto-metrics' || action === 'goto-performance') {
-    setActivePage('performance');
+    setActivePage('dashboard');
     return;
   }
 
   if (action === 'goto-performance-financial') {
-    state.ui.performanceTab = 'financial';
-    saveState();
-    setActivePage('performance');
-    renderAll();
+    setActivePage('dashboard');
     return;
   }
 
