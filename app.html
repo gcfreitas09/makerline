@@ -27,10 +27,10 @@
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-    <link rel="stylesheet" href="assets/css/app2.css?v=20260228d" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260228d">
+    <link rel="stylesheet" href="assets/css/app2.css?v=20260228i" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260228i">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="assets/js2/core/customSelect.js?v=20260216a"></script>
+  <script src="assets/js2/core/customSelect.js?v=20260228i"></script>
 </head>
 <body>
   <div class="page-shell">
@@ -85,21 +85,6 @@
           </svg>
           Campanhas
         </button>
-        <button class="nav-item" data-target="scripts" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2l4 4-4 4-4-4 4-4z" />
-            <path d="M2 12l4 4-4 4-4-4 4-4z" />
-            <path d="M22 12l-4 4 4 4 4-4-4-4z" />
-          </svg>
-          Roteiros IA
-        </button>
-        <button class="nav-item" data-target="performance" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 17l6-6 4 4 8-8" />
-            <path d="M21 7v6h-6" />
-          </svg>
-          Performance
-        </button>
         <button class="nav-item" data-target="settings" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3" />
@@ -130,7 +115,7 @@
             <p class="section-subtitle">Continue sua jornada e suba de nível hoje.</p>
             <p class="section-subtitle" data-dashboard-narrative></p>
           </div>
-          <button class="btn btn-primary" data-action="goto-scripts" type="button">Criar novo roteiro</button>
+          <button class="btn btn-primary" data-action="new-campaign" type="button">Nova campanha</button>
         </div>
 
         <div class="dashboard-layout">
@@ -183,13 +168,12 @@
           </div>
 
           <div class="dashboard-sidebar">
-            <div class="card dashboard-card dashboard-card--finance" data-action="goto-performance-financial" data-dashboard-card-link="financial" role="button" tabindex="0">
+            <div class="card dashboard-card dashboard-card--finance">
               <div class="dashboard-card-header dashboard-card-header--interactive">
                 <div>
                   <p class="dashboard-eyebrow">Financeiro</p>
                   <h2 class="dashboard-card-title">Financeiro</h2>
                 </div>
-                <span class="dashboard-link-hint">Abrir financeiro</span>
               </div>
               <div class="dashboard-metric-stack" data-dashboard-financial></div>
             </div>
@@ -282,7 +266,7 @@
                 </div>
                 <button class="btn btn-ghost btn-small" data-action="open-brand-modal" type="button">Nova marca</button>
               </div>
-              <div class="brand-list-table" data-brands></div>
+              <div data-brands></div>
             </div>
           </div>
 
@@ -290,126 +274,6 @@
             <div class="card brand-detail-card" data-brand-detail></div>
           </div>
         </div>
-      </section>
-
-      <section class="page-section" data-section="scripts">
-        <div class="section-header">
-          <div class="section-title-block">
-            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
-            <h1 class="section-title">Gerador de roteiro com IA</h1>
-            <p class="section-subtitle">Briefing simples pra sair com um roteiro rápido (Reels, TikTok e Shorts).</p>
-          </div>
-          <button class="btn btn-ghost" data-action="bonus-xp" type="button">Ganhar XP rápido</button>
-        </div>
-
-        <div class="card">
-          <form class="form-grid" id="script-form">
-            <div class="form-row">
-              <label>Marca / Produto</label>
-              <input class="input" id="script-brand" type="text" placeholder="Ex: marca de skincare, app, ecommerce" />
-            </div>
-            <div class="form-row">
-              <label>Vincular em campanha (opcional)</label>
-              <select class="select" id="script-campaign">
-                <option value="">Sem campanha</option>
-              </select>
-              <div class="muted">Se esse roteiro for pra uma campanha que já existe, escolhe ela aqui.</div>
-            </div>
-            <div class="form-row">
-              <label>Tipo de vídeo</label>
-              <select class="select" id="script-type">
-                <option value="review">Review rápido</option>
-                <option value="unboxing">Unboxing</option>
-                <option value="tutorial">Tutorial</option>
-                <option value="storytelling">Storytelling</option>
-              </select>
-            </div>
-            <div class="form-row">
-            <label>Duração</label>
-            <select class="select" id="script-length">
-              <option value="15s">15s</option>
-              <option value="30s">30s</option>
-              <option value="60s">60s</option>
-              <option value="60s+">60s+</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label>Tom do vídeo</label>
-            <select class="select" id="script-tone">
-              <option value="leve">Leve e direto</option>
-              <option value="engra">Engraçado</option>
-              <option value="educativo">Educativo</option>
-            </select>
-          </div>
-            <div class="form-row">
-              <label>Público-alvo</label>
-              <input class="input" id="script-audience" type="text" placeholder="Ex: mulheres 25-35, fitness" />
-            </div>
-            <div class="form-row">
-              <label>Objetivo da campanha</label>
-              <textarea class="textarea" id="script-goal" placeholder="Ex: gerar vendas, awareness, teste social"></textarea>
-            </div>
-            <button class="btn btn-primary" type="submit">Gerar roteiro com IA</button>
-          </form>
-        </div>
-
-        <div style="margin-top: 18px;"></div>
-        <div class="card">
-          <div class="section-header" style="margin-bottom: 12px;">
-            <div>
-              <h3>Roteiro gerado</h3>
-              <p class="section-subtitle">Seu texto aparece aqui (e dá pra editar).</p>
-            </div>
-            <div style="display: flex; gap: 10px;">
-              <button class="btn btn-ghost" data-action="finalize-script" type="button">Finalizar</button>
-              <button class="btn btn-ghost" data-action="copy-script" type="button">Copiar</button>
-            </div>
-          </div>
-          <div class="script-output" id="script-output">Preencha o briefing e gere seu primeiro roteiro.</div>
-        </div>
-
-        <div style="margin-top: 18px;"></div>
-        <div class="card">
-          <div class="section-header" style="margin-bottom: 12px;">
-            <div>
-              <h3>Histórico de roteiros</h3>
-              <p class="section-subtitle">Veja o que você já gerou e reaproveite.</p>
-            </div>
-          </div>
-          <div class="script-history" data-script-history></div>
-        </div>
-      </section>
-
-      <section class="page-section" data-section="performance">
-        <div class="section-header">
-          <div class="section-title-block">
-            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
-            <h1 class="section-title">Performance</h1>
-            <p class="section-subtitle">Visão estratégica do seu crescimento financeiro e operacional.</p>
-          </div>
-        </div>
-
-        <div class="perf-tabs">
-          <button class="perf-tab active" data-action="perf-tab" data-perf-tab="financial" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Financeira
-          </button>
-          <button class="perf-tab" data-action="perf-tab" data-perf-tab="commercial" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
-            Comercial
-          </button>
-          <button class="perf-tab" data-action="perf-tab" data-perf-tab="operational" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            Operacional
-          </button>
-          <button class="perf-tab" data-action="perf-tab" data-perf-tab="badges" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v4a5 5 0 0 1-10 0V4z"/></svg>
-            Badges
-          </button>
-        </div>
-
-        <div class="perf-range-bar" data-perf-range></div>
-        <div class="perf-content" data-perf-content></div>
       </section>
 
       <section class="page-section" data-section="settings">
@@ -1043,7 +907,7 @@
   <div class="toast toast-xp" id="xp-toast"></div>
   <div class="toast" id="toast"></div>
 
-  <script type="module" src="assets/js2/app.js?v=20260227a"></script>
+  <script type="module" src="assets/js2/app.js?v=20260228i"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
