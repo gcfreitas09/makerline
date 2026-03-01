@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -6,12 +6,12 @@
   <title>Makerline - UGC Quest</title>
   <meta
     name="description"
-    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+    content="Gerencie campanhas, roteiros e mÃ©tricas de um jeito gamificado. Feito pra creators UGC evoluÃ­rem no dia a dia."
   />
   <meta property="og:title" content="Makerline - UGC Quest" />
   <meta
     property="og:description"
-    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+    content="Gerencie campanhas, roteiros e mÃ©tricas de um jeito gamificado. Feito pra creators UGC evoluÃ­rem no dia a dia."
   />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="assets/img/share.png" />
@@ -22,7 +22,7 @@
   <meta name="twitter:title" content="Makerline - UGC Quest" />
   <meta
     name="twitter:description"
-    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+    content="Gerencie campanhas, roteiros e mÃ©tricas de um jeito gamificado. Feito pra creators UGC evoluÃ­rem no dia a dia."
   />
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
@@ -37,13 +37,13 @@
       </div>
       <div>
         <div class="brand-name">Makerline</div>
-        <div class="brand-tag">Level up your content</div>
+        <div class="brand-tag">Painel comercial para creators</div>
       </div>
     </div>
 
     <div>
       <h2>UGC Quest</h2>
-      <p>Gerencie campanhas e evolua seu conteúdo com uma pegada gamificada.</p>
+      <p>Gerencie campanhas, marcas e entregas com uma operacao mais clara e profissional.</p>
     </div>
 
     <div class="auth-tabs">
@@ -85,7 +85,7 @@
     </form>
 
     <div class="auth-footer">
-      <span>Ao continuar, você inicia sua jornada no UGC Quest.</span>
+      <span>Ao continuar, voce entra no seu painel da Makerline.</span>
     </div>
   </div>
 
@@ -251,7 +251,7 @@
 
         if (!data || typeof data !== 'object') {
           msgEl.textContent =
-            'O servidor respondeu algo estranho. Confere se o Apache do XAMPP tá ligado.';
+            'O servidor respondeu algo estranho. Confere se o Apache do XAMPP tÃ¡ ligado.';
           return null;
         }
 
@@ -268,7 +268,7 @@
         return data;
       } catch (err) {
         msgEl.textContent =
-          'Não consegui falar com o servidor. Confere o XAMPP (Apache) e tenta de novo.';
+          'NÃ£o consegui falar com o servidor. Confere o XAMPP (Apache) e tenta de novo.';
         return null;
       }
     };
@@ -290,7 +290,7 @@
         return false;
       }
 
-      msgEl.textContent = auto ? 'Achei sua conta, mas ela tá sem senha. Vou te mandar um código…' : 'Mandando o código...';
+      msgEl.textContent = auto ? 'Achei sua conta, mas ela tÃ¡ sem senha. Vou te mandar um cÃ³digoâ€¦' : 'Mandando o cÃ³digo...';
 
       try {
         const res = await fetch('api/forgot.php', {
@@ -302,7 +302,7 @@
         const data = parseJsonSafe(raw);
 
         if (!data || typeof data !== 'object') {
-          msgEl.textContent = 'O servidor respondeu estranho. Confere se o Apache do XAMPP tá ligado.';
+          msgEl.textContent = 'O servidor respondeu estranho. Confere se o Apache do XAMPP tÃ¡ ligado.';
           return false;
         }
 
@@ -311,9 +311,9 @@
           return false;
         }
 
-        msgEl.textContent = data.message || 'Código enviado. Olha seu email.';
+        msgEl.textContent = data.message || 'CÃ³digo enviado. Olha seu email.';
         if (data.code) {
-          msgEl.textContent += ` Código: ${data.code}`;
+          msgEl.textContent += ` CÃ³digo: ${data.code}`;
         }
 
         try {
@@ -331,7 +331,7 @@
         }, 600);
         return true;
       } catch (err) {
-        msgEl.textContent = 'Não deu pra enviar agora. Tenta de novo.';
+        msgEl.textContent = 'NÃ£o deu pra enviar agora. Tenta de novo.';
         return false;
       }
     };

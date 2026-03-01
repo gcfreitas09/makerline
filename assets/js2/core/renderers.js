@@ -764,6 +764,11 @@ const renderCampaigns = () => {
                       <span class="btn-advance-label">Avançar: ${escapeHtml(nextStatusLabel)}</span>
                     </button>`;
                 }
+              } else {
+                advanceBtnHtml = `
+                  <span class="btn-advance btn-advance-disabled" aria-disabled="true">
+                    <span class="btn-advance-label">Etapa final</span>
+                  </span>`;
               }
 
 

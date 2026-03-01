@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -16,7 +16,7 @@
       </div>
       <div>
         <div class="brand-name">Makerline</div>
-        <div class="brand-tag">Level up your content</div>
+        <div class="brand-tag">Painel comercial para creators</div>
       </div>
     </div>
 
@@ -79,15 +79,15 @@
             window.location.replace(next);
             return;
           }
-          disableForm(data?.error || data?.message || 'Não consegui enviar o código.');
+          disableForm(data?.error || data?.message || 'NÃ£o consegui enviar o cÃ³digo.');
         })
         .catch(() => {
-          disableForm('Não consegui enviar o código.');
+          disableForm('NÃ£o consegui enviar o cÃ³digo.');
         });
     }
 
     if (!token && !email) {
-      disableForm('Esse link não vale mais.');
+      disableForm('Esse link nÃ£o vale mais.');
     }
 
     form.addEventListener('submit', async (e) => {
@@ -101,7 +101,7 @@
         return;
       }
       if (password !== confirm) {
-        msg.textContent = 'As senhas não batem.';
+        msg.textContent = 'As senhas nÃ£o batem.';
         return;
       }
 
@@ -126,7 +126,7 @@
           window.location.replace('index.html');
         }, 1200);
       } catch (err) {
-        msg.textContent = 'Não consegui salvar.';
+        msg.textContent = 'NÃ£o consegui salvar.';
       }
     });
   </script>
