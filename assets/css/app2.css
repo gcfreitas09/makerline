@@ -4357,6 +4357,18 @@ button[data-action="bonus-xp"] {
   cursor: pointer;
 }
 
+.brand-table-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 4px;
+  border-radius: 999px;
+  background: rgba(125, 151, 189, 0.2);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
 .brand-table-row:hover {
   transform: translateY(-2px);
   border-color: rgba(115, 195, 183, 0.22);
@@ -4369,6 +4381,34 @@ button[data-action="bonus-xp"] {
     radial-gradient(circle at top right, rgba(115, 195, 183, 0.1), transparent 34%),
     linear-gradient(180deg, rgba(12, 28, 41, 0.96), rgba(11, 21, 34, 0.9));
   box-shadow: 0 16px 34px rgba(6, 15, 29, 0.28);
+}
+
+.brand-table-row.has-pending {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 12px 28px rgba(6, 15, 29, 0.16);
+}
+
+.brand-table-row--lead::before {
+  background: linear-gradient(180deg, #7fb4ff, #5f86d6);
+}
+
+.brand-table-row--negociando::before {
+  background: linear-gradient(180deg, #5eead4, #2dd4bf);
+}
+
+.brand-table-row--cliente_ativo::before {
+  background: linear-gradient(180deg, #86efac, #34d399);
+}
+
+.brand-table-row--cliente_recorrente::before {
+  background: linear-gradient(180deg, #67e8f9, #38bdf8);
+}
+
+.brand-table-row--inativa::before {
+  background: linear-gradient(180deg, #94a3b8, #64748b);
+}
+
+.brand-table-row--perdida::before {
+  background: linear-gradient(180deg, #fda4af, #fb7185);
 }
 
 .brand-table-row::after {
@@ -4387,6 +4427,13 @@ button[data-action="bonus-xp"] {
   align-content: center;
 }
 
+.brand-table-cell--money,
+.brand-table-cell--count,
+.brand-table-cell--next,
+.brand-table-cell--date {
+  align-self: stretch;
+}
+
 .brand-table-cell strong,
 .brand-table-cell span,
 .brand-table-cell p {
@@ -4399,6 +4446,7 @@ button[data-action="bonus-xp"] {
   font-weight: 700;
   line-height: 1.16;
   letter-spacing: -0.02em;
+  color: #f4f8fd;
 }
 
 .brand-table-cell--primary .muted {
@@ -4406,6 +4454,7 @@ button[data-action="bonus-xp"] {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 0.9rem;
+  color: rgba(201, 214, 229, 0.76);
 }
 
 .brand-table-cell--money strong,
@@ -4419,6 +4468,64 @@ button[data-action="bonus-xp"] {
 .brand-table-cell--date span {
   color: rgba(232, 240, 248, 0.9);
   font-weight: 600;
+}
+
+.brand-date-badge,
+.brand-metric-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(18, 29, 45, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.brand-metric-badge--money {
+  justify-content: flex-start;
+  background: linear-gradient(180deg, rgba(21, 46, 41, 0.84), rgba(16, 31, 31, 0.9));
+  border-color: rgba(74, 222, 128, 0.18);
+  color: #d8ffeb;
+}
+
+.brand-metric-badge--count {
+  min-width: 52px;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(27, 42, 67, 0.84), rgba(18, 29, 47, 0.9));
+  border-color: rgba(96, 165, 250, 0.2);
+  color: #dcecff;
+}
+
+.brand-date-badge--empty {
+  background: linear-gradient(180deg, rgba(45, 57, 74, 0.75), rgba(33, 42, 57, 0.82));
+  border-color: rgba(148, 163, 184, 0.14);
+  color: #d6dee9;
+}
+
+.brand-date-badge--overdue {
+  background: linear-gradient(180deg, rgba(91, 34, 41, 0.82), rgba(56, 22, 28, 0.9));
+  border-color: rgba(251, 113, 133, 0.3);
+  color: #ffd8df;
+}
+
+.brand-date-badge--today {
+  background: linear-gradient(180deg, rgba(92, 71, 24, 0.84), rgba(57, 43, 16, 0.9));
+  border-color: rgba(251, 191, 36, 0.26);
+  color: #ffefc3;
+}
+
+.brand-date-badge--upcoming {
+  background: linear-gradient(180deg, rgba(24, 58, 83, 0.84), rgba(15, 35, 51, 0.9));
+  border-color: rgba(56, 189, 248, 0.24);
+  color: #d7f2ff;
+}
+
+.brand-date-badge--last {
+  background: linear-gradient(180deg, rgba(35, 45, 62, 0.82), rgba(24, 31, 45, 0.9));
+  border-color: rgba(148, 163, 184, 0.16);
+  color: #dde7f2;
 }
 
 .brand-table-cell--pending .chip {
@@ -4579,6 +4686,24 @@ button[data-action="bonus-xp"] {
   color: #e3f1f5;
   border-color: rgba(136, 166, 207, 0.28);
   box-shadow: 0 6px 16px rgba(7, 25, 34, 0.16);
+}
+
+.chip-brand-pending--overdue {
+  background: linear-gradient(180deg, rgba(98, 35, 46, 0.9), rgba(62, 22, 31, 0.94));
+  border-color: rgba(251, 113, 133, 0.36);
+  color: #ffe2e7;
+}
+
+.chip-brand-pending--today {
+  background: linear-gradient(180deg, rgba(94, 73, 24, 0.9), rgba(61, 45, 16, 0.94));
+  border-color: rgba(245, 158, 11, 0.34);
+  color: #ffefcb;
+}
+
+.chip-brand-pending--upcoming {
+  background: linear-gradient(180deg, rgba(31, 84, 110, 0.9), rgba(20, 53, 70, 0.94));
+  border-color: rgba(56, 189, 248, 0.32);
+  color: #d9f4ff;
 }
 
 .brand-detail-card {

@@ -898,6 +898,14 @@ const renderBrands = () => {
     if (!safe) return 'Sem follow-up';
     return formatDateShort(safe);
   };
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const getFollowupTone = (value) => {
+    const safe = String(value || '').trim();
+    if (!safe) return 'empty';
+    if (safe < todayKey) return 'overdue';
+    if (safe === todayKey) return 'today';
+    return 'upcoming';
+  };
 
   const brandSummaries = brands.map((brand) => {
     const linkedCampaigns = campaigns
@@ -1017,11 +1025,12 @@ const renderBrands = () => {
           .map((item) => {
             const isActive = item.brand.id === selectedBrand.id;
             const isDormant = ['inativa', 'perdida'].includes(item.brand.status);
+            const followupTone = getFollowupTone(item.nextFollowup);
             const actionChip = item.pendingAction
-              ? `<span class="chip chip-pill chip-brand-pending">${escapeHtml(item.nextActionLabel || 'Pendente')}</span>`
+              ? `<span class="chip chip-pill chip-brand-pending chip-brand-pending--${followupTone}">${escapeHtml(item.nextActionLabel || 'Pendente')}</span>`
               : '<span class="chip chip-pill chip-brand-neutral">Sem pendência</span>';
             return `
-              <div class="brand-table-row ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
+              <div class="brand-table-row brand-table-row--${escapeHtml(item.brand.status)} ${item.pendingAction ? 'has-pending' : 'is-clear'} ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
                 <div class="brand-table-cell brand-table-cell--primary" data-label="Marca">
                   <strong>${escapeHtml(item.brand.name || 'Marca')}</strong>
                   <span class="muted">${escapeHtml(item.brand.contact || item.brand.instagram || item.brand.email || 'Sem contato principal')}</span>
@@ -1033,16 +1042,16 @@ const renderBrands = () => {
                   ${actionChip}
                 </div>
                 <div class="brand-table-cell brand-table-cell--next" data-label="Próximo follow-up">
-                  <span>${formatRelativeAction(item.nextFollowup)}</span>
+                  <span class="brand-date-badge brand-date-badge--${followupTone}">${formatRelativeAction(item.nextFollowup)}</span>
                 </div>
                 <div class="brand-table-cell brand-table-cell--money" data-label="Total faturado">
-                  <strong>${formatCurrency(item.totalFaturado)}</strong>
+                  <strong class="brand-metric-badge brand-metric-badge--money">${formatCurrency(item.totalFaturado)}</strong>
                 </div>
                 <div class="brand-table-cell brand-table-cell--count" data-label="Campanhas">
-                  <strong>${item.campaignCount}</strong>
+                  <strong class="brand-metric-badge brand-metric-badge--count">${item.campaignCount}</strong>
                 </div>
                 <div class="brand-table-cell brand-table-cell--date" data-label="Último contato">
-                  <span>${item.lastContact ? formatDateShort(item.lastContact) : '—'}</span>
+                  <span class="brand-date-badge brand-date-badge--last">${item.lastContact ? formatDateShort(item.lastContact) : '—'}</span>
                 </div>
                 <div class="brand-table-cell brand-table-cell--actions" data-label="Ações">
                   <div class="brand-row-actions">
