@@ -1,15 +1,8 @@
   import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-  import { renderAll } from './core/renderers.js';
-  import { setActivePage, requestNotificationPermission } from './core/ui.js';
-  import { initActions } from './core/actions.js';
-  import {
-    ensureDailyMissions,
-    ensureWeeklyChallenges,
-    ensureWeeklyFocus,
-    ensureOnboarding,
-    syncAchievements
-  } from './core/gamification.js';
-  import { initOnboardingQuiz } from './features/onboarding/quiz.js';
+  import { renderAll } from './core/renderers.js?v=20260301aa';
+  import { setActivePage } from './core/ui.js?v=20260301x';
+  import { initActions } from './core/actions.js?v=20260301z';
+  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260301x';
   import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260217b';
 
   const sessionToken = sessionStorage.getItem('ugcQuestToken') || '';
@@ -27,6 +20,98 @@
     if (email) state.profile.email = email;
     saveState();
   };
+
+const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'settings']);
+
+const getSafeProfileName = () => {
+  const safeName = String(state.profile?.name || sessionStorage.getItem('ugcQuestUserName') || 'Criador').trim();
+  return safeName || 'Criador';
+};
+
+const getSafeProfileInitial = () => getSafeProfileName().charAt(0).toUpperCase() || 'C';
+
+  const sanitizeActiveUiState = () => {
+  if (!state.ui || typeof state.ui !== 'object') state.ui = {};
+  const activePage = String(state.ui.activePage || 'dashboard').trim();
+  state.ui.activePage = ACTIVE_PAGES.has(activePage) ? activePage : 'dashboard';
+  if (typeof state.ui.campaignDashboardFilter !== 'string') state.ui.campaignDashboardFilter = '';
+  if (typeof state.ui.dashboardPipelineOpen !== 'string') state.ui.dashboardPipelineOpen = '';
+};
+
+const enforceModernShell = () => {
+  document.querySelectorAll('.nav-item[data-target]').forEach((item) => {
+    const target = String(item.dataset.target || '').trim();
+    if (!ACTIVE_PAGES.has(target)) item.remove();
+  });
+
+  document.querySelectorAll('.page-section').forEach((section) => {
+    const target = String(section.dataset.section || '').trim();
+    if (!ACTIVE_PAGES.has(target)) section.remove();
+  });
+
+  document
+    .querySelectorAll(
+      '.brand-user-chip, .brand-tag, [data-missions], [data-challenges], [data-performance-summary], [data-performance-content], [data-performance-tabs], [data-script-history], #xp-toast, #toast-root'
+    )
+    .forEach((node) => node.remove());
+
+  const brand = document.querySelector('.brand');
+  if (brand) {
+    const brandNeedsReset =
+      Boolean(brand.querySelector('.brand-user-chip, .brand-tag')) ||
+      !brand.querySelector('.brand-name') ||
+      !brand.querySelector('.brand-icon img');
+
+    if (brandNeedsReset) {
+      brand.innerHTML = `
+        <div class="brand-icon">
+          <img src="assets/img/logo.png" alt="Makerline" />
+        </div>
+        <div>
+          <div class="brand-name">Makerline</div>
+        </div>
+      `;
+    }
+
+    const brandName = brand.querySelector('.brand-name');
+    if (brandName && brandName.textContent !== 'Makerline') brandName.textContent = 'Makerline';
+  }
+
+  const profileCard = document.querySelector('.profile-card');
+  if (profileCard) {
+    const profileNeedsReset =
+      profileCard.classList.contains('profile-card--account') ||
+      Boolean(profileCard.querySelector('.profile-value, .progress-track, [data-profile-name-sidebar], [data-profile-initial]')) ||
+      !profileCard.querySelector('[data-profile-avatar]') ||
+      !profileCard.querySelector('[data-profile-name]');
+
+    if (profileNeedsReset) {
+      profileCard.className = 'profile-card';
+      profileCard.innerHTML = `
+        <div class="profile-avatar" data-profile-avatar>${getSafeProfileInitial()}</div>
+        <div class="profile-card-copy">
+          <div class="profile-card-name" data-profile-name>${getSafeProfileName()}</div>
+        </div>
+      `;
+    }
+
+    const avatar = profileCard.querySelector('[data-profile-avatar]');
+    const name = profileCard.querySelector('[data-profile-name]');
+    const safeInitial = getSafeProfileInitial();
+    const safeName = getSafeProfileName();
+    if (avatar && avatar.textContent !== safeInitial) avatar.textContent = safeInitial;
+    if (name && name.textContent !== safeName) name.textContent = safeName;
+  }
+};
+
+const startShellGuard = () => {
+  if (window.__ugcShellGuardStarted || !document.body) return;
+  const observer = new MutationObserver(() => {
+    enforceModernShell();
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  window.__ugcShellGuardStarted = true;
+};
 
 const parseIso = (value) => {
   const date = value ? new Date(value) : null;
@@ -125,7 +210,8 @@ const hydrateStateFromServer = async () => {
     const remoteState = data.state;
     const hasValidRemoteData = (
       (remoteState.campaigns && remoteState.campaigns.length > 0) ||
-      (remoteState.gamification && remoteState.gamification.xp > 0)
+      (remoteState.brands && remoteState.brands.length > 0) ||
+      Boolean(String(remoteState.meta?.updatedAt || '').trim())
     );
 
     // Se o estado remoto tem dados válidos, usar ele
@@ -133,10 +219,10 @@ const hydrateStateFromServer = async () => {
     if (hasValidRemoteData) {
       console.log('[Sync] Carregando estado do servidor:', {
         campanhas: remoteState.campaigns?.length || 0,
-        xp: remoteState.gamification?.xp || 0,
-        level: remoteState.gamification?.level || 1
+        marcas: remoteState.brands?.length || 0
       });
       replaceState(remoteState);
+      sanitizeActiveUiState();
     } else {
       console.log('[Sync] Estado remoto vazio, mantendo estado local');
     }
@@ -148,10 +234,9 @@ const hydrateStateFromServer = async () => {
   // Renderizar imediatamente se houver sessão
   if (hasSession) {
     initProfileFromSession();
-    ensureDailyMissions();
-    ensureWeeklyChallenges();
-    ensureWeeklyFocus();
-    syncAchievements();
+    sanitizeActiveUiState();
+    enforceModernShell();
+    startShellGuard();
     renderAll();
     setActivePage('dashboard');
     initAdminTrackerCard();
@@ -167,18 +252,15 @@ const hydrateStateFromServer = async () => {
 
       // Habilitar salvamento remoto somente após hidratação
       enableRemoteSave();
-
-      // Recalcular streak e missões com o estado do servidor
-      ensureDailyMissions();
-      ensureWeeklyChallenges();
-      ensureWeeklyFocus();
-      ensureOnboarding();
-      syncAchievements();
+      sanitizeActiveUiState();
+      enforceModernShell();
+      startShellGuard();
       
       // Inicializar quiz de onboarding
       initOnboardingQuiz();
       
       // Re-renderizar com dados do servidor
+      enforceModernShell();
       renderAll();
       
       // Debug
@@ -188,7 +270,6 @@ const hydrateStateFromServer = async () => {
       // Inicializar features
       setActivePage('dashboard');
       initActions();
-      requestNotificationPermission();
     })();
   window.__ugcAppLoaded = true;
 });

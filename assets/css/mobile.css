@@ -128,12 +128,17 @@ ampaign-status-stage select option {
 @media (max-width: 1024px) {
   .dashboard-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: none;
-    grid-auto-rows: auto;
   }
 
-  .dashboard-sidebar {
-    order: 2;
+  .dashboard-pipeline-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 14px;
+  }
+
+  .dashboard-pipeline-track::before {
+    left: 12%;
+    right: 12%;
+    top: 71px;
   }
 }
 
@@ -161,8 +166,48 @@ ampaign-status-stage select option {
     width: 100%;
   }
 
-  .dashboard-pipeline-grid {
+  .dashboard-pipeline-track {
     grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .dashboard-pipeline-track::before {
+    display: none;
+  }
+
+  .dashboard-pipeline-detail {
+    display: none;
+  }
+
+  .dashboard-pipeline-step {
+    gap: 10px;
+  }
+
+  .dashboard-pipeline-step-count {
+    min-height: 44px;
+    font-size: 17px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .dashboard-pipeline-step-label {
+    font-size: 20px;
+  }
+
+  .dashboard-pipeline-panel-header,
+  .dashboard-pipeline-panel-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dashboard-pipeline-panel-meta {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .dashboard-pipeline-modal-panel {
+    width: min(560px, 100%);
+    max-height: min(88vh, 720px);
   }
 
   .dashboard-metric-value {

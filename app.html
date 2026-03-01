@@ -6,12 +6,12 @@
   <title>Makerline - UGC Quest</title>
   <meta
     name="description"
-    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+    content="Gerencie campanhas, marcas e rotina comercial em um painel claro, direto e profissional."
   />
   <meta property="og:title" content="Makerline - UGC Quest" />
   <meta
     property="og:description"
-    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+    content="Gerencie campanhas, marcas e rotina comercial em um painel claro, direto e profissional."
   />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="assets/img/share.png" />
@@ -22,15 +22,15 @@
   <meta name="twitter:title" content="Makerline - UGC Quest" />
   <meta
     name="twitter:description"
-    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+    content="Gerencie campanhas, marcas e rotina comercial em um painel claro, direto e profissional."
   />
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-    <link rel="stylesheet" href="assets/css/app2.css?v=20260217c" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260216a">
+    <link rel="stylesheet" href="assets/css/app2.css?v=20260301z" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260301z">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="assets/js2/core/customSelect.js?v=20260216a"></script>
+  <script src="assets/js2/core/customSelect.js?v=20260228m"></script>
 </head>
 <body>
   <div class="page-shell">
@@ -41,21 +41,13 @@
         </div>
         <div>
           <div class="brand-name">Makerline</div>
-          <div class="brand-tag">Level up your content</div>
         </div>
       </div>
 
       <div class="profile-card">
-        <div class="level-badge" data-profile-level>-</div>
-        <div style="flex:1;min-width:0">
-          <div class="profile-label">Seu nível</div>
-          <div class="profile-value"><span data-profile-xp>—</span> XP</div>
-          <div class="sidebar-progress">
-            <div class="progress-track">
-              <div class="progress-fill" data-profile-xpbar style="width: 0%"></div>
-            </div>
-            <div class="progress-label">Faltam <span data-profile-xp-remaining>—</span> XP para subir</div>
-          </div>
+        <div class="profile-avatar" data-profile-avatar>G</div>
+        <div class="profile-card-copy">
+          <div class="profile-card-name" data-profile-name>CRIADOR</div>
         </div>
       </div>
 
@@ -68,6 +60,14 @@
           </svg>
           Dashboard
         </button>
+        <button class="nav-item" data-target="brands" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 19V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11" />
+            <path d="M3 19h18" />
+            <path d="M9 6V4a3 3 0 0 1 6 0v2" />
+          </svg>
+          Marcas
+        </button>
         <button class="nav-item" data-target="campaigns" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 4h6v6H4z" />
@@ -76,21 +76,6 @@
             <path d="M14 14h6v6h-6z" />
           </svg>
           Campanhas
-        </button>
-        <button class="nav-item" data-target="scripts" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2l4 4-4 4-4-4 4-4z" />
-            <path d="M2 12l4 4-4 4-4-4 4-4z" />
-            <path d="M22 12l-4 4 4 4 4-4-4-4z" />
-          </svg>
-          Roteiros IA
-        </button>
-        <button class="nav-item" data-target="performance" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 17l6-6 4 4 8-8" />
-            <path d="M21 7v6h-6" />
-          </svg>
-          Performance
         </button>
         <button class="nav-item" data-target="settings" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -119,94 +104,92 @@
           <div class="section-title-block">
             <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
             <h1 class="section-title"><span data-greeting>Boa tarde</span>, <span data-profile-name>criador</span>!</h1>
-            <p class="section-subtitle">Continue sua jornada e suba de nível hoje.</p>
+            <p class="section-subtitle">Acompanhe prioridades, prazos e movimentos do dia.</p>
             <p class="section-subtitle" data-dashboard-narrative></p>
           </div>
-          <button class="btn btn-primary" data-action="goto-scripts" type="button">Criar novo roteiro</button>
+          <button class="btn btn-primary" data-action="new-campaign" type="button">Nova campanha</button>
         </div>
 
         <div class="dashboard-layout">
-          <div class="dashboard-primary">
-            <div class="card dashboard-card dashboard-card--actions">
-              <div class="dashboard-card-header">
+          <div class="card dashboard-card dashboard-card--actions">
+            <div class="dashboard-card-header">
+              <div>
+                <p class="dashboard-eyebrow">Maior prioridade</p>
+                <h2 class="dashboard-card-title">Ações de hoje</h2>
+              </div>
+            </div>
+
+            <div class="dashboard-action-group">
+              <div class="dashboard-group-header">
                 <div>
-                  <p class="dashboard-eyebrow">Maior prioridade</p>
-                  <h2 class="dashboard-card-title">Ações de hoje</h2>
+                  <h3 class="dashboard-group-title">Follow-ups pendentes</h3>
+                  <p class="dashboard-group-subtitle">Próximas ações de marcas e campanhas.</p>
+                </div>
+                <button class="btn btn-ghost btn-small" data-action="open-brand-action-modal" type="button">Nova ação de marca</button>
+              </div>
+              <div class="dashboard-list" data-dashboard-followups>
+                <p class="muted">Nenhum follow-up pendente.</p>
+              </div>
+            </div>
+
+            <div class="dashboard-action-group">
+              <div class="dashboard-group-header">
+                <div>
+                  <h3 class="dashboard-group-title">Prazos próximos</h3>
+                  <p class="dashboard-group-subtitle">Campanhas que vencem em até 3 dias ou já atrasaram.</p>
                 </div>
               </div>
+              <div class="dashboard-list" data-dashboard-deadlines>
+                <p class="muted">Nenhum prazo próximo.</p>
+              </div>
+            </div>
 
-              <div class="dashboard-action-group">
-                <div class="dashboard-group-header">
-                  <div>
-                    <h3 class="dashboard-group-title">Follow-ups pendentes</h3>
-                    <p class="dashboard-group-subtitle">Próximas ações de marcas e campanhas.</p>
-                  </div>
-                  <button class="btn btn-ghost btn-small" data-action="open-brand-action-modal" type="button">Nova ação de marca</button>
-                </div>
-                <div class="dashboard-list" data-dashboard-followups>
-                  <p class="muted">Nenhum follow-up pendente.</p>
+            <div class="dashboard-action-group">
+              <div class="dashboard-group-header">
+                <div>
+                  <h3 class="dashboard-group-title">Pagamentos pendentes</h3>
+                  <p class="dashboard-group-subtitle">Campanhas em aguardando pagamento.</p>
                 </div>
               </div>
-
-              <div class="dashboard-action-group">
-                <div class="dashboard-group-header">
-                  <div>
-                    <h3 class="dashboard-group-title">Prazos próximos</h3>
-                    <p class="dashboard-group-subtitle">Campanhas que vencem em até 3 dias ou já atrasaram.</p>
-                  </div>
-                </div>
-                <div class="dashboard-list" data-dashboard-deadlines>
-                  <p class="muted">Nenhum prazo próximo.</p>
-                </div>
-              </div>
-
-              <div class="dashboard-action-group">
-                <div class="dashboard-group-header">
-                  <div>
-                    <h3 class="dashboard-group-title">Pagamentos pendentes</h3>
-                    <p class="dashboard-group-subtitle">Campanhas em aguardando pagamento.</p>
-                  </div>
-                </div>
-                <div class="dashboard-list" data-dashboard-payments>
-                  <p class="muted">Nenhum pagamento pendente.</p>
-                </div>
+              <div class="dashboard-list" data-dashboard-payments>
+                <p class="muted">Nenhum pagamento pendente.</p>
               </div>
             </div>
           </div>
 
-          <div class="dashboard-sidebar">
-            <div class="card dashboard-card dashboard-card--finance" data-action="goto-performance-financial" data-dashboard-card-link="financial" role="button" tabindex="0">
-              <div class="dashboard-card-header dashboard-card-header--interactive">
-                <div>
-                  <p class="dashboard-eyebrow">Financeiro</p>
-                  <h2 class="dashboard-card-title">Financeiro</h2>
-                </div>
-                <span class="dashboard-link-hint">Abrir financeiro</span>
+          <div class="card dashboard-card dashboard-card--pipeline">
+            <div class="dashboard-card-header">
+              <div>
+                <p class="dashboard-eyebrow">Operação</p>
+                <h2 class="dashboard-card-title">Pipeline</h2>
               </div>
-              <div class="dashboard-metric-stack" data-dashboard-financial></div>
+              <button class="btn btn-ghost btn-small" data-action="goto-campaigns" type="button">Ver campanhas</button>
             </div>
-
-            <div class="card dashboard-card dashboard-card--pipeline">
-              <div class="dashboard-card-header">
-                <div>
-                  <p class="dashboard-eyebrow">Operação</p>
-                  <h2 class="dashboard-card-title">Pipeline</h2>
-                </div>
-                <button class="btn btn-ghost btn-small" data-action="goto-campaigns" type="button">Ver campanhas</button>
-              </div>
+            <div class="dashboard-pipeline-shell">
               <div class="dashboard-pipeline-grid" data-dashboard-pipeline></div>
+              <div class="dashboard-pipeline-detail" data-dashboard-pipeline-detail></div>
             </div>
+          </div>
 
-            <div class="card dashboard-card dashboard-card--goal">
-              <div class="dashboard-card-header">
-                <div>
-                  <p class="dashboard-eyebrow">Fechamento</p>
-                  <h2 class="dashboard-card-title">Meta do mês</h2>
-                </div>
-                <button class="btn btn-ghost btn-small" data-action="edit-monthly-goal" type="button">Editar meta</button>
+          <div class="card dashboard-card dashboard-card--finance">
+            <div class="dashboard-card-header dashboard-card-header--interactive">
+              <div>
+                <p class="dashboard-eyebrow">Financeiro</p>
+                <h2 class="dashboard-card-title">Financeiro</h2>
               </div>
-              <div class="dashboard-metric-stack" data-dashboard-goal></div>
             </div>
+            <div class="dashboard-metric-stack" data-dashboard-financial></div>
+          </div>
+
+          <div class="card dashboard-card dashboard-card--goal">
+            <div class="dashboard-card-header">
+              <div>
+                <p class="dashboard-eyebrow">Fechamento</p>
+                <h2 class="dashboard-card-title">Meta do mês</h2>
+              </div>
+              <button class="btn btn-ghost btn-small" data-action="edit-monthly-goal" type="button">Editar meta</button>
+            </div>
+            <div class="dashboard-metric-stack" data-dashboard-goal></div>
           </div>
         </div>
       </section>
@@ -241,124 +224,47 @@
         <div class="campaign-list" data-campaigns></div>
       </section>
 
-      <section class="page-section" data-section="scripts">
+      <section class="page-section" data-section="brands">
         <div class="section-header">
           <div class="section-title-block">
             <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
-            <h1 class="section-title">Gerador de roteiro com IA</h1>
-            <p class="section-subtitle">Briefing simples pra sair com um roteiro rápido (Reels, TikTok e Shorts).</p>
+            <h1 class="section-title">Marcas</h1>
+            <p class="section-subtitle">Organize seus contatos, acompanhe o follow-up e veja o histórico comercial de cada marca.</p>
           </div>
-          <button class="btn btn-ghost" data-action="bonus-xp" type="button">Ganhar XP rápido</button>
-        </div>
-
-        <div class="card">
-          <form class="form-grid" id="script-form">
-            <div class="form-row">
-              <label>Marca / Produto</label>
-              <input class="input" id="script-brand" type="text" placeholder="Ex: marca de skincare, app, ecommerce" />
-            </div>
-            <div class="form-row">
-              <label>Vincular em campanha (opcional)</label>
-              <select class="select" id="script-campaign">
-                <option value="">Sem campanha</option>
-              </select>
-              <div class="muted">Se esse roteiro for pra uma campanha que já existe, escolhe ela aqui.</div>
-            </div>
-            <div class="form-row">
-              <label>Tipo de vídeo</label>
-              <select class="select" id="script-type">
-                <option value="review">Review rápido</option>
-                <option value="unboxing">Unboxing</option>
-                <option value="tutorial">Tutorial</option>
-                <option value="storytelling">Storytelling</option>
-              </select>
-            </div>
-            <div class="form-row">
-            <label>Duração</label>
-            <select class="select" id="script-length">
-              <option value="15s">15s</option>
-              <option value="30s">30s</option>
-              <option value="60s">60s</option>
-              <option value="60s+">60s+</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label>Tom do vídeo</label>
-            <select class="select" id="script-tone">
-              <option value="leve">Leve e direto</option>
-              <option value="engra">Engraçado</option>
-              <option value="educativo">Educativo</option>
-            </select>
-          </div>
-            <div class="form-row">
-              <label>Público-alvo</label>
-              <input class="input" id="script-audience" type="text" placeholder="Ex: mulheres 25-35, fitness" />
-            </div>
-            <div class="form-row">
-              <label>Objetivo da campanha</label>
-              <textarea class="textarea" id="script-goal" placeholder="Ex: gerar vendas, awareness, teste social"></textarea>
-            </div>
-            <button class="btn btn-primary" type="submit">Gerar roteiro com IA</button>
-          </form>
-        </div>
-
-        <div style="margin-top: 18px;"></div>
-        <div class="card">
-          <div class="section-header" style="margin-bottom: 12px;">
-            <div>
-              <h3>Roteiro gerado</h3>
-              <p class="section-subtitle">Seu texto aparece aqui (e dá pra editar).</p>
-            </div>
-            <div style="display: flex; gap: 10px;">
-              <button class="btn btn-ghost" data-action="finalize-script" type="button">Finalizar</button>
-              <button class="btn btn-ghost" data-action="copy-script" type="button">Copiar</button>
-            </div>
-          </div>
-          <div class="script-output" id="script-output">Preencha o briefing e gere seu primeiro roteiro.</div>
-        </div>
-
-        <div style="margin-top: 18px;"></div>
-        <div class="card">
-          <div class="section-header" style="margin-bottom: 12px;">
-            <div>
-              <h3>Histórico de roteiros</h3>
-              <p class="section-subtitle">Veja o que você já gerou e reaproveite.</p>
-            </div>
-          </div>
-          <div class="script-history" data-script-history></div>
-        </div>
-      </section>
-
-      <section class="page-section" data-section="performance">
-        <div class="section-header">
-          <div class="section-title-block">
-            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
-            <h1 class="section-title">Performance</h1>
-            <p class="section-subtitle">Visão estratégica do seu crescimento financeiro e operacional.</p>
+          <div class="section-actions">
+            <button class="btn btn-ghost" data-action="new-campaign" type="button">Nova campanha</button>
+            <button class="btn btn-primary" data-action="open-brand-modal" type="button">Nova marca</button>
           </div>
         </div>
 
-        <div class="perf-tabs">
-          <button class="perf-tab active" data-action="perf-tab" data-perf-tab="financial" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Financeira
-          </button>
-          <button class="perf-tab" data-action="perf-tab" data-perf-tab="commercial" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
-            Comercial
-          </button>
-          <button class="perf-tab" data-action="perf-tab" data-perf-tab="operational" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            Operacional
-          </button>
-          <button class="perf-tab" data-action="perf-tab" data-perf-tab="badges" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v4a5 5 0 0 1-10 0V4z"/></svg>
-            Badges
-          </button>
-        </div>
+        <div class="brands-shell">
+          <div class="brands-main">
+            <div class="card brands-summary-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Visão geral</h3>
+                  <p class="section-subtitle">Status, valor em carteira e próximos passos de cada relacionamento.</p>
+                </div>
+              </div>
+              <div class="brands-stats" data-brand-stats></div>
+            </div>
 
-        <div class="perf-range-bar" data-perf-range></div>
-        <div class="perf-content" data-perf-content></div>
+            <div class="card brands-list-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Lista de marcas</h3>
+                  <p class="section-subtitle">Tabela compacta com status, faturamento, campanhas e follow-up.</p>
+                </div>
+                <button class="btn btn-ghost btn-small" data-action="open-brand-modal" type="button">Nova marca</button>
+              </div>
+              <div data-brands></div>
+            </div>
+          </div>
+
+          <div class="brands-detail-column">
+            <div class="card brand-detail-card" data-brand-detail></div>
+          </div>
+        </div>
       </section>
 
       <section class="page-section" data-section="settings">
@@ -470,7 +376,13 @@
         <input type="hidden" name="id" />
         <div class="form-row">
           <label>Marca</label>
-          <input class="input" name="brand" type="text" placeholder="Ex: Nike" required />
+          <div class="form-split">
+            <select class="select" name="brandId" data-campaign-brand-select required>
+              <option value="">Escolher marca...</option>
+            </select>
+            <button class="btn btn-ghost btn-small" data-action="open-brand-modal" data-brand-modal-context="campaign" type="button">Nova marca</button>
+          </div>
+          <div class="muted">Toda campanha precisa estar vinculada a uma marca.</div>
         </div>
         <div class="form-row">
           <label>Como começou</label>
@@ -601,6 +513,111 @@
     </div>
   </div>
 
+  <div class="modal" id="brand-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-brand-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3 data-brand-modal-title>Nova marca</h3>
+          <p class="muted" data-brand-modal-subtitle>Registre o contato principal e defina o próximo passo comercial.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-brand-modal" type="button">Fechar</button>
+      </div>
+
+      <form class="form-grid" id="brand-form">
+        <input type="hidden" name="id" />
+        <div class="form-row">
+          <label>Nome da marca</label>
+          <input class="input" id="brand-name" name="name" type="text" placeholder="Ex: Nike" maxlength="80" required />
+        </div>
+        <div class="form-row">
+          <label>Instagram (opcional)</label>
+          <input class="input" name="instagram" type="text" placeholder="@marca" maxlength="120" />
+        </div>
+        <div class="form-row">
+          <label>Email (opcional)</label>
+          <input class="input" name="email" type="email" placeholder="contato@marca.com" maxlength="160" />
+        </div>
+        <div class="form-row">
+          <label>Contato principal (opcional)</label>
+          <input class="input" name="contact" type="text" placeholder="Ex: Ana / João" maxlength="80" />
+        </div>
+        <div class="form-row">
+          <label>Status inicial</label>
+          <select class="select" name="status">
+            <option value="lead">Lead</option>
+            <option value="negociando">Negociando</option>
+            <option value="cliente_ativo">Cliente ativo</option>
+            <option value="cliente_recorrente">Cliente recorrente</option>
+            <option value="inativa">Inativa</option>
+            <option value="perdida">Perdida</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Próxima ação</label>
+          <select class="select" name="nextActionType">
+            <option value="">Sem ação pendente</option>
+            <option value="followup">Follow-up</option>
+            <option value="enviar_proposta">Enviar proposta</option>
+            <option value="cobrar_resposta">Cobrar resposta</option>
+            <option value="enviar_roteiro">Enviar roteiro</option>
+            <option value="cobrar_aprovacao">Cobrar aprovação</option>
+            <option value="entregar_conteudo">Entregar conteúdo</option>
+            <option value="revisar_ajustes">Revisar ajustes</option>
+            <option value="cobrar_pagamento">Cobrar pagamento</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-row" id="brand-next-action-custom-row" style="display:none;">
+          <label>Tipo personalizado</label>
+          <input class="input" name="nextActionCustomType" type="text" maxlength="80" placeholder="Ex: reativar contato no email" />
+        </div>
+        <div class="form-row">
+          <label>Data da próxima ação</label>
+          <input class="input" name="nextActionDate" type="date" />
+        </div>
+        <div class="form-row">
+          <label>Observação curta</label>
+          <input class="input" name="nextActionNote" type="text" maxlength="140" placeholder="Ex: mandar proposta até quinta" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-brand-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar marca</button>
+        </div>
+        <button class="btn btn-danger" id="brand-delete-inline-btn" data-action="delete-brand" data-brand-id="" type="button" style="display:none;">Excluir marca</button>
+        <div class="muted" id="brand-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="brand-delete-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-brand-delete-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Excluir marca?</h3>
+          <p class="muted">Digite <strong>EXCLUIR</strong> para confirmar. Se ainda existirem campanhas vinculadas, a exclusão será bloqueada.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-brand-delete-modal" type="button">Fechar</button>
+      </div>
+
+      <div class="muted" id="brand-delete-title"></div>
+
+      <form class="form-grid" id="brand-delete-form" style="margin-top: 12px;">
+        <div class="form-row">
+          <label>Confirmação</label>
+          <input class="input" id="brand-delete-input" type="text" placeholder="Digite EXCLUIR" autocomplete="off" />
+          <div class="muted">Isso apaga a marca e o histórico de interações dela.</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-brand-delete-modal" type="button">Cancelar</button>
+          <button class="btn btn-danger" id="brand-delete-confirm" type="submit" disabled>Excluir</button>
+        </div>
+        <div class="muted" id="brand-delete-msg"></div>
+      </form>
+    </div>
+  </div>
+
   <div class="modal" id="script-delete-modal" aria-hidden="true">
     <div class="modal-scrim" data-action="close-script-delete-modal"></div>
     <div class="modal-panel card">
@@ -647,7 +664,7 @@
             <h4 style="margin-top: 8px;" data-focus-modal-label></h4>
             <p class="muted" style="margin-top: 6px;">Progresso: <span data-focus-modal-current>0</span> / <span data-focus-modal-target>0</span></p>
           </div>
-          <span class="chip">+<span data-focus-modal-xp>0</span> XP</span>
+          <span class="chip">Acompanhamento semanal</span>
         </div>
 
         <div class="progress-track" style="margin-top: 12px;">
@@ -878,10 +895,21 @@
     </div>
   </div>
 
-  <div class="toast toast-xp" id="xp-toast"></div>
-  <div class="toast" id="toast"></div>
+  <div class="modal" id="dashboard-pipeline-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-dashboard-pipeline-modal"></div>
+    <div class="modal-panel card dashboard-pipeline-modal-panel">
+      <div class="modal-header">
+        <div>
+          <h3 data-dashboard-pipeline-modal-title>Pipeline</h3>
+          <p class="muted" data-dashboard-pipeline-modal-subtitle>Veja as campanhas dessa fase sem sair do dashboard.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-dashboard-pipeline-modal" type="button">Fechar</button>
+      </div>
+      <div class="dashboard-pipeline-modal-body" data-dashboard-pipeline-modal-body></div>
+    </div>
+  </div>
 
-  <script type="module" src="assets/js2/app.js?v=20260217d"></script>
+  <script type="module" src="assets/js2/app.js?v=20260301x"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

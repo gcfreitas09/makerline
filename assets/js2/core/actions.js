@@ -1,13 +1,23 @@
-import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions } from './state.js';
-import { setActivePage, showToast } from './ui.js';
-import { trackEvent, awardXp } from './gamification.js';
-import { renderAll } from './renderers.js';
+﻿import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
+import { setActivePage, showToast } from './ui.js?v=20260301x';
+import { trackEvent } from './gamification.js?v=20260301u';
+import { renderAll } from './renderers.js?v=20260301z';
 
 import {
   closeCampaignModal,
   initCampaignForm,
   openCampaignModal
 } from '../features/campaigns/modal.js';
+import {
+  closeBrandModal,
+  initBrandForm,
+  openBrandModal
+} from '../features/brands/modal.js';
+import {
+  closeBrandDeleteModal,
+  initBrandDeleteFeature,
+  openBrandDeleteModal
+} from '../features/brands/delete.js';
 import {
   closeCampaignDeleteModal,
   initCampaignDeleteFeature,
@@ -28,7 +38,7 @@ import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/setting
 import { sendWeeklySummaryNow } from '../features/settings/weekly_summary.js';
 import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js';
 
-/* ── Money mask helper ── */
+/* â”€â”€ Money mask helper â”€â”€ */
 const formatMoneyInput = (raw) => {
   const digits = String(raw || '').replace(/\D/g, '');
   if (!digits) return '';
@@ -42,6 +52,7 @@ const applyMoneyMask = (input) => {
 };
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
+const isPipelineModalViewport = () => Boolean(window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
 
 const getBrandActionModal = () => ({
   modal: document.getElementById('brand-action-modal'),
@@ -97,7 +108,7 @@ const openBrandActionModal = (brandId = '') => {
   if (noteInput) noteInput.value = brand?.nextActionNote || '';
   setBrandActionCustomVisibility(brand?.nextActionType || '');
 
-  if (title) title.textContent = brand?.nextActionType ? 'Editar ação de marca' : 'Nova ação de marca';
+  if (title) title.textContent = brand?.nextActionType ? 'Editar aÃ§Ã£o de marca' : 'Nova aÃ§Ã£o de marca';
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   if (select) select.focus();
@@ -110,7 +121,7 @@ const closeBrandActionModal = () => {
   modal.setAttribute('aria-hidden', 'true');
   if (form) form.reset();
   if (msg) msg.textContent = '';
-  if (title) title.textContent = 'Nova ação de marca';
+  if (title) title.textContent = 'Nova aÃ§Ã£o de marca';
   setBrandActionCustomVisibility('');
 };
 
@@ -130,15 +141,15 @@ const handleBrandActionSubmit = (event) => {
 
   if (msg) msg.textContent = '';
   if (!brand) {
-    if (msg) msg.textContent = 'Escolha uma marca válida.';
+    if (msg) msg.textContent = 'Escolha uma marca vÃ¡lida.';
     return;
   }
   if (!nextActionType) {
-    if (msg) msg.textContent = 'Escolha a próxima ação.';
+    if (msg) msg.textContent = 'Escolha a prÃ³xima aÃ§Ã£o.';
     return;
   }
   if (!nextActionDate) {
-    if (msg) msg.textContent = 'Defina a data da ação.';
+    if (msg) msg.textContent = 'Defina a data da aÃ§Ã£o.';
     return;
   }
   if (nextActionType === 'outro' && !nextActionCustomType) {
@@ -154,11 +165,11 @@ const handleBrandActionSubmit = (event) => {
   saveState();
   renderAll();
   closeBrandActionModal();
-  showToast('Ação da marca salva.');
+  showToast('AÃ§Ã£o da marca salva.');
 };
 
 /* Posi\u00e7\u00e3o global de (status, stage) no pipeline.
-   Total: 15 posi\u00e7\u00f5es, 14 transi\u00e7\u00f5es → 100 XP para pipeline completo. */
+   Total: 15 posi\u00e7\u00f5es, 14 transi\u00e7\u00f5es â†’ 100 XP para pipeline completo. */
 const getGlobalStagePos = (status, stage) => {
   let pos = 0;
   for (const s of campaignStatusOrder) {
@@ -189,6 +200,47 @@ const copyText = (text, doneMessage) => {
   document.execCommand('copy');
   document.body.removeChild(temp);
   showToast(doneMessage);
+};
+
+const handleBrandInteractionSubmit = (event) => {
+  const form = event.target;
+  if (!(form instanceof HTMLFormElement) || form.id !== 'brand-interaction-form') return;
+
+  event.preventDefault();
+
+  const data = new FormData(form);
+  const brandId = String(data.get('brandId') || '').trim();
+  const type = String(data.get('type') || 'dm').trim();
+  const date = String(data.get('date') || '').trim();
+  const note = String(data.get('note') || '').trim().slice(0, 140);
+  const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
+
+  if (!brand) {
+    showToast('Marca nÃ£o encontrada.');
+    return;
+  }
+  if (!date) {
+    showToast('Defina a data da interaÃ§Ã£o.');
+    return;
+  }
+  if (!['dm', 'email', 'call'].includes(type)) {
+    showToast('Escolha um tipo vÃ¡lido de interaÃ§Ã£o.');
+    return;
+  }
+
+  if (!Array.isArray(brand.interactions)) brand.interactions = [];
+  brand.interactions.unshift({
+    id: `bi-${Date.now()}`,
+    type,
+    date,
+    note,
+    createdAt: new Date().toISOString()
+  });
+  brand.updatedAt = new Date().toISOString();
+
+  saveState();
+  renderAll();
+  showToast('InteraÃ§Ã£o registrada.');
 };
 
 const handleActionClick = (event) => {
@@ -230,25 +282,151 @@ const handleActionClick = (event) => {
   }
 
   if (action === 'goto-scripts') {
-    setActivePage('scripts');
+    setActivePage('campaigns');
     return;
   }
 
   if (action === 'goto-metrics' || action === 'goto-performance') {
-    setActivePage('performance');
+    setActivePage('dashboard');
     return;
   }
 
   if (action === 'goto-performance-financial') {
-    state.ui.performanceTab = 'financial';
-    saveState();
-    setActivePage('performance');
-    renderAll();
+    setActivePage('dashboard');
     return;
   }
 
   if (action === 'goto-campaigns') {
+    state.ui.campaignDashboardFilter = '';
+    state.ui.campaignFilter = 'all';
+    saveState();
     setActivePage('campaigns');
+    renderAll();
+    return;
+  }
+
+  if (action === 'toggle-dashboard-pipeline-panel') {
+    const pipelineFilter = String(actionEl.dataset.pipelineFilter || '').trim();
+    if (!pipelineFilter) return;
+    state.ui.dashboardPipelineOpen = isPipelineModalViewport()
+      ? pipelineFilter
+      : state.ui.dashboardPipelineOpen === pipelineFilter
+        ? ''
+        : pipelineFilter;
+    saveState();
+    renderAll();
+    return;
+  }
+
+  if (action === 'close-dashboard-pipeline-modal') {
+    state.ui.dashboardPipelineOpen = '';
+    saveState();
+    renderAll();
+    return;
+  }
+
+  if (action === 'open-dashboard-pipeline-filter') {
+    const pipelineFilter = String(actionEl.dataset.pipelineFilter || '').trim();
+    const statusByPipelineFilter = {
+      prospeccao: 'prospeccao',
+      producao: 'producao',
+      finalizacao: 'finalizacao',
+      concluida: 'concluida',
+      negociacao: 'prospeccao',
+      aprovacao: 'producao',
+      concluidas: 'concluida'
+    };
+    if (!pipelineFilter) return;
+    state.ui.campaignDashboardFilter = pipelineFilter;
+    state.ui.campaignFilter = statusByPipelineFilter[pipelineFilter] || 'all';
+    state.ui.dashboardPipelineOpen = pipelineFilter;
+    saveState();
+    setActivePage('campaigns');
+    renderAll();
+    return;
+  }
+
+  if (action === 'clear-dashboard-campaign-filter') {
+    state.ui.campaignDashboardFilter = '';
+    state.ui.campaignFilter = 'all';
+    saveState();
+    renderAll();
+    return;
+  }
+
+  if (action === 'open-brand-modal') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    const returnTo = actionEl.dataset.brandModalContext === 'campaign' ? 'campaign' : '';
+    openBrandModal(brandId, { returnTo });
+    return;
+  }
+
+  if (action === 'edit-brand') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    if (!brandId) return;
+    openBrandModal(brandId);
+    return;
+  }
+
+  if (action === 'close-brand-modal') {
+    closeBrandModal();
+    return;
+  }
+
+  if (action === 'delete-brand') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    if (!brandId) return;
+    if (actionEl.closest('#brand-modal')) {
+      closeBrandModal();
+    }
+    openBrandDeleteModal(brandId);
+    return;
+  }
+
+  if (action === 'close-brand-delete-modal') {
+    closeBrandDeleteModal();
+    return;
+  }
+
+  if (action === 'copy-brand-email') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
+    if (!brand?.email) {
+      showToast('Essa marca nÃ£o tem email cadastrado.');
+      return;
+    }
+    copyText(brand.email, 'Email copiado.');
+    return;
+  }
+
+  if (action === 'select-brand') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    if (!brandId || state.ui.selectedBrandId === brandId) return;
+    state.ui.selectedBrandId = brandId;
+    saveState();
+    renderAll();
+    return;
+  }
+
+  if (action === 'new-campaign-for-brand') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    if (!brandId) return;
+    state.ui.pendingCampaignBrandId = brandId;
+    openCampaignModal();
+    injectOnboardingHeader();
+    return;
+  }
+
+  if (action === 'toggle-brand-active') {
+    const brandId = String(actionEl.dataset.brandId || '').trim();
+    const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
+    if (!brand) return;
+    const isDormant = ['inativa', 'perdida'].includes(String(brand.status || '').trim());
+    brand.status = isDormant ? 'lead' : 'inativa';
+    brand.updatedAt = new Date().toISOString();
+    saveState();
+    renderAll();
+    showToast(isDormant ? 'Marca reativada.' : 'Marca desativada.');
     return;
   }
 
@@ -290,7 +468,7 @@ const handleActionClick = (event) => {
     if (source !== 'brand') item.updatedAt = new Date().toISOString();
     saveState();
     renderAll();
-    showToast('Ação concluída.');
+    showToast('AÃ§Ã£o concluÃ­da.');
     return;
   }
 
@@ -311,7 +489,7 @@ const handleActionClick = (event) => {
     return;
   }
 
-  /* ── Performance tabs ── */
+  /* â”€â”€ Performance tabs â”€â”€ */
   if (action === 'perf-tab') {
     const tab = actionEl.dataset.perfTab;
     if (!tab) return;
@@ -364,7 +542,13 @@ const handleActionClick = (event) => {
     return;
   }
 
-    if (action === 'new-campaign') {
+  if (action === 'new-campaign') {
+    const brands = Array.isArray(state.brands) ? state.brands : [];
+    if (!brands.length) {
+      openBrandModal('', { returnTo: 'campaign' });
+      showToast('Crie uma marca antes de cadastrar a campanha.');
+      return;
+    }
     openCampaignModal();
     injectOnboardingHeader();
     return;
@@ -414,8 +598,6 @@ const handleActionClick = (event) => {
     const campaign = state.campaigns.find((item) => item.id === campaignId);
     if (!campaign) return;
 
-    const isModel = campaign.isModel === true;
-
     const currentStatus = campaign.status;
     const currentStage = campaign.stage;
     const stageOptions = getCampaignStageOptions(currentStatus);
@@ -426,7 +608,6 @@ const handleActionClick = (event) => {
 
     if (!isLastStage) {
       const nextStage = stageOptions[currentStageIndex + 1];
-      const xpGain = isModel ? 0 : 5;
       campaign.stage = nextStage.id;
       campaign.updatedAt = new Date().toISOString();
       trackEvent('campaign_stage_changed', {
@@ -436,16 +617,14 @@ const handleActionClick = (event) => {
         stage: campaign.stage,
         campaign
       });
-      if (xpGain > 0) awardXp(xpGain);
       saveState();
       renderAll();
-      showToast(`Avançou: ${nextStage.label}${xpGain > 0 ? ` (+${xpGain} XP)` : ''}`);
+      showToast(`Avan?ou: ${nextStage.label}`);
     } else if (!isLastStatus) {
       const previousStatus = campaign.status;
       const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
       campaign.status = nextStatus;
       campaign.stage = getDefaultCampaignStage(nextStatus);
-      const xpGain = isModel ? 0 : 5;
       campaign.updatedAt = new Date().toISOString();
       trackEvent('campaign_status_changed', {
         campaignId: campaign.id,
@@ -464,10 +643,9 @@ const handleActionClick = (event) => {
           campaign
         });
       }
-      if (xpGain > 0) awardXp(xpGain);
       saveState();
       renderAll();
-      showToast(`Avan\u00e7ou: ${statusLabels[campaign.status] || campaign.status}${xpGain > 0 ? ` (+${xpGain} XP)` : ''}`);
+      showToast(`Avan?ou: ${statusLabels[campaign.status] || campaign.status}`);
     }
     return;
   }
@@ -477,7 +655,7 @@ const handleActionClick = (event) => {
     const campaign = state.campaigns.find((item) => item.id === campaignId);
     if (!campaign) return;
     
-    // Se já é prioridade, apenas remove
+    // Se jÃ¡ Ã© prioridade, apenas remove
     if (campaign.priority) {
       campaign.priority = false;
       campaign.updatedAt = new Date().toISOString();
@@ -554,7 +732,7 @@ const handleActionClick = (event) => {
     const current = currentId ? state.scripts.find((item) => item.id === currentId) : null;
     if (!current) return;
     if (current.finalized) {
-      showToast('Este roteiro já está finalizado.');
+      showToast('Este roteiro jÃ¡ estÃ¡ finalizado.');
       return;
     }
     current.finalized = true;
@@ -638,6 +816,10 @@ const handleNavClick = (event) => {
     saveState();
     renderAll();
   }
+  if (target === 'brands') {
+    saveState();
+    renderAll();
+  }
 };
 
 const handleFilterClick = (event) => {
@@ -645,9 +827,15 @@ const handleFilterClick = (event) => {
   if (!filterBtn) return;
   document.querySelectorAll('.filter-btn').forEach((btn) => btn.classList.remove('active'));
   filterBtn.classList.add('active');
+  state.ui.campaignDashboardFilter = '';
   state.ui.campaignFilter = filterBtn.dataset.filter;
   saveState();
   renderAll();
+};
+
+const getStageLabelForHistory = (status, stageId) => {
+  const found = getCampaignStageOptions(status).find((opt) => opt.id === stageId);
+  return found?.label || stageId || 'Sem etapa';
 };
 
 const handleChange = (event) => {
@@ -667,31 +855,35 @@ const handleChange = (event) => {
     const previousStatus = campaign.status;
     const previousStage = campaign.stage;
     const newStatus = target.value;
-    
-    const currentStatusIndex = campaignStatusOrder.indexOf(previousStatus);
-    const newStatusIndex = campaignStatusOrder.indexOf(newStatus);
-    
-    const isModel = campaign.isModel === true;
-    // XP proporcional: 5 XP por cada posição de etapa percorrida
     const oldPos = getGlobalStagePos(previousStatus, previousStage);
     const newPos = getGlobalStagePos(newStatus, getDefaultCampaignStage(newStatus));
     const delta = newPos - oldPos;
-    const xpAmount = isModel ? 0 : Math.abs(delta) * 5;
-
-    if (!isModel && delta < 0 && xpAmount > 0) {
-      const loss = Math.min(xpAmount, state.profile.xp);
-      if (loss > 0) {
-        state.profile.xp -= loss;
-        showToast(`-${loss} XP (voltou)`);
-      }
-    } else if (!isModel && delta > 0 && xpAmount > 0) {
-      awardXp(xpAmount);
-      showToast(`+${xpAmount} XP (avançou)`);
-    }
     
     campaign.status = newStatus;
     campaign.stage = getDefaultCampaignStage(campaign.status);
     campaign.updatedAt = new Date().toISOString();
+
+    const previousStatusLabel = statusLabels[previousStatus] || previousStatus;
+    const nextStatusLabel = statusLabels[campaign.status] || campaign.status;
+    const previousStageLabel = getStageLabelForHistory(previousStatus, previousStage);
+    const nextStageLabel = getStageLabelForHistory(campaign.status, campaign.stage);
+    const statusDirection = delta > 0 ? 'advanced' : delta < 0 ? 'regressed' : 'updated';
+
+    appendCampaignHistoryEntry(campaign, {
+      type: statusDirection === 'advanced' ? 'status_advanced' : statusDirection === 'regressed' ? 'status_regressed' : 'status_updated',
+      title: statusDirection === 'advanced' ? 'Status avanÃ§ou' : statusDirection === 'regressed' ? 'Status regrediu' : 'Status atualizado',
+      description: `${previousStatusLabel} -> ${nextStatusLabel}`,
+      occurredAt: campaign.updatedAt
+    });
+
+    if (campaign.stage && campaign.stage !== previousStage) {
+      appendCampaignHistoryEntry(campaign, {
+        type: delta < 0 ? 'stage_regressed' : 'stage_advanced',
+        title: delta < 0 ? 'Etapa regrediu' : 'Etapa avanÃ§ou',
+        description: `${previousStageLabel} -> ${nextStageLabel}`,
+        occurredAt: campaign.updatedAt
+      });
+    }
     
     // Atualiza classes de cor do select de status
     target.className = `select select-compact status-${campaign.status}`;
@@ -728,33 +920,23 @@ const handleChange = (event) => {
     const previousStage = campaign.stage;
     const nextStage = target.value;
     if (nextStage === previousStage) return;
-
-    const isModel = campaign.isModel === true;
     const options = getCampaignStageOptions(campaign.status);
     const previousStageIndex = options.findIndex((opt) => opt.id === previousStage);
     const nextStageIndex = options.findIndex((opt) => opt.id === nextStage);
-    
-    // XP fixo por etapa: 5 XP
     const stageOldPos = getGlobalStagePos(campaign.status, previousStage);
     const stageNewPos = getGlobalStagePos(campaign.status, nextStage);
     const stageDelta = stageNewPos - stageOldPos;
-    const stepsChanged = Math.abs(nextStageIndex - previousStageIndex);
-    const stageXp = isModel ? 0 : stepsChanged * 5;
-
-    if (!isModel && stageDelta < 0 && stageXp > 0) {
-      const loss = Math.min(stageXp, state.profile.xp);
-      if (loss > 0) {
-        state.profile.xp -= loss;
-        showToast(`-${loss} XP (etapa voltou)`);
-      }
-    } else if (!isModel && stageDelta > 0 && stageXp > 0) {
-      awardXp(stageXp);
-      showToast(`+${stageXp} XP (etapa avançou)`);
-    }
     
     const isValid = options.some((opt) => opt.id === nextStage);
     campaign.stage = isValid ? nextStage : getDefaultCampaignStage(campaign.status);
     campaign.updatedAt = new Date().toISOString();
+
+    appendCampaignHistoryEntry(campaign, {
+      type: stageDelta > 0 ? 'stage_advanced' : stageDelta < 0 ? 'stage_regressed' : 'stage_updated',
+      title: stageDelta > 0 ? 'Etapa avanÃ§ou' : stageDelta < 0 ? 'Etapa regrediu' : 'Etapa atualizada',
+      description: `${getStageLabelForHistory(campaign.status, previousStage)} -> ${getStageLabelForHistory(campaign.status, campaign.stage)}`,
+      occurredAt: campaign.updatedAt
+    });
 
     // Atualiza classes de cor do select de etapa
     target.className = `select select-compact stage-${campaign.status}`;
@@ -769,7 +951,8 @@ const handleChange = (event) => {
 
     saveState();
     renderAll();
-    showToast('Etapa atualizada.');urn;
+    showToast('Etapa atualizada.');
+    return;
   }
 
   if (target.matches('[data-brand-status]')) {
@@ -777,7 +960,9 @@ const handleChange = (event) => {
     const brand = state.brands.find((item) => item.id === brandId);
     if (!brand) return;
     brand.status = target.value;
+    brand.updatedAt = new Date().toISOString();
     saveState();
+    renderAll();
     showToast('Marca atualizada.');
     return;
   }
@@ -811,7 +996,7 @@ const handleChange = (event) => {
     showToast('Config salva.');
   }
 
-  /* ── Metas Financeiras ── */
+  /* â”€â”€ Metas Financeiras â”€â”€ */
   if (target.matches('[data-goals]')) {
     const key = target.dataset.goals;
     state.settings[key] = target.type === 'number' ? Number(target.value) || 0 : target.value;
@@ -820,7 +1005,7 @@ const handleChange = (event) => {
     return;
   }
 
-  /* ── Perfil do Criador ── */
+  /* â”€â”€ Perfil do Criador â”€â”€ */
   if (target.matches('[data-creator]')) {
     const key = target.dataset.creator;
     state.settings[key] = target.value;
@@ -836,16 +1021,16 @@ const handleChange = (event) => {
     return;
   }
 
-  /* ── Configuração da IA ── */
+  /* â”€â”€ ConfiguraÃ§Ã£o da IA â”€â”€ */
   if (target.matches('[data-ai]')) {
     const key = target.dataset.ai;
     state.settings[key] = target.value;
     saveState();
-    showToast('Configuração de IA salva.');
+    showToast('ConfiguraÃ§Ã£o de IA salva.');
     return;
   }
 
-  /* ── Alertas Inteligentes ── */
+  /* â”€â”€ Alertas Inteligentes â”€â”€ */
   if (target.matches('[data-smart-alert]')) {
     const key = target.dataset.smartAlert;
     state.settings[key] = target.checked;
@@ -860,7 +1045,7 @@ const handleChange = (event) => {
     return;
   }
 
-  /* ── Campaign sort ── */
+  /* â”€â”€ Campaign sort â”€â”€ */
   if (target.matches('[data-campaign-sort]')) {
     state.ui.campaignSort = target.value || 'updatedAt';
     saveState();
@@ -872,6 +1057,8 @@ const handleChange = (event) => {
 const initActions = () => {
   initScriptFlow();
   initScriptDeleteFeature();
+  initBrandForm();
+  initBrandDeleteFeature();
   initCampaignForm();
   initCampaignDeleteFeature();
   initAccountForm();
@@ -905,6 +1092,7 @@ const initActions = () => {
   document.body.addEventListener('click', handleNavClick);
   document.body.addEventListener('click', handleFilterClick);
   document.body.addEventListener('change', handleChange);
+  document.body.addEventListener('submit', handleBrandInteractionSubmit);
   document.body.addEventListener('keydown', (event) => {
     const actionCard = event.target.closest('[data-dashboard-card-link]');
     if (!actionCard) return;
@@ -934,3 +1122,5 @@ const initActions = () => {
 };
 
 export { initActions };
+
+
