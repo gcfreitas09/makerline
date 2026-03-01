@@ -16,6 +16,7 @@ const ensureOnboardingQuiz = () => {
   if (ob.campaignCount === undefined) ob.campaignCount = null;
   if (ob.firstCampaignCreated === undefined) ob.firstCampaignCreated = false;
   if (ob.tooltipsDone === undefined) ob.tooltipsDone = false;
+  if (ob.campaignHintDismissed === undefined) ob.campaignHintDismissed = false;
   if (ob.targetBrandType === undefined) ob.targetBrandType = null;
   if (ob.weeklyOutreachGoal === undefined) ob.weeklyOutreachGoal = null;
   return ob;
@@ -272,16 +273,50 @@ const convertModelToReal = (campaignId) => {
 const startCampaignHighlight = () => {
   const ob = ensureOnboardingQuiz();
   if (ob.firstCampaignCreated && ob.tooltipsDone) return;
+  if (ob.campaignHintDismissed === true) return;
 
   setTimeout(() => {
     const btn = document.querySelector('[data-action="new-campaign"]');
     if (!btn) return;
     if (ob.firstCampaignCreated) return;
+    if (ob.campaignHintDismissed === true) return;
 
     btn.classList.add('onboarding-glow');
+    const existingTip = btn.querySelector('.onboarding-tooltip');
+    if (existingTip) existingTip.remove();
+
     const tip = document.createElement('div');
     tip.className = 'onboarding-tooltip';
-    tip.textContent = 'Comece por aqui.';
+    tip.innerHTML = `
+      <span class="onboarding-tooltip-text">Comece por aqui.</span>
+      <span class="onboarding-tooltip-close" role="button" aria-label="Fechar dica" tabindex="0">&times;</span>
+    `;
+    tip.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+    const closeHint = () => {
+      ob.campaignHintDismissed = true;
+      saveState();
+      removeCampaignHighlight();
+    };
+
+    const closeButton = tip.querySelector('.onboarding-tooltip-close');
+    if (closeButton) {
+      closeButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        closeHint();
+      });
+      closeButton.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        closeHint();
+      });
+    }
+
     btn.style.position = 'relative';
     btn.appendChild(tip);
   }, 400);

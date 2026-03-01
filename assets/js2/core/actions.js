@@ -1,6 +1,6 @@
 import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, getCampaignStageLabel, getNextActionLabel } from './state.js';
 import { setActivePage, showToast } from './ui.js';
-import { trackEvent, awardXp } from './gamification.js';
+import { trackEvent } from './gamification.js';
 import { renderAll } from './renderers.js';
 
 import {
@@ -497,7 +497,6 @@ const handleActionClick = (event) => {
 
     if (!isLastStage) {
       const nextStage = stageOptions[currentStageIndex + 1];
-      const xpGain = isModel ? 0 : 5;
       campaign.stage = nextStage.id;
       campaign.updatedAt = new Date().toISOString();
       trackEvent('campaign_stage_changed', {
@@ -507,7 +506,6 @@ const handleActionClick = (event) => {
         stage: campaign.stage,
         campaign
       });
-      if (xpGain > 0) awardXp(xpGain);
       saveState();
       renderAll();
       showToast(`Avançou: ${nextStage.label}${xpGain > 0 ? ` (+${xpGain} XP)` : ''}`);

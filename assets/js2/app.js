@@ -1,15 +1,8 @@
   import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-  import { renderAll } from './core/renderers.js?v=20260228d';
-  import { setActivePage, requestNotificationPermission } from './core/ui.js';
-  import { initActions } from './core/actions.js?v=20260228d';
-  import {
-    ensureDailyMissions,
-    ensureWeeklyChallenges,
-    ensureWeeklyFocus,
-    ensureOnboarding,
-    syncAchievements
-  } from './core/gamification.js';
-  import { initOnboardingQuiz } from './features/onboarding/quiz.js';
+  import { renderAll } from './core/renderers.js?v=20260301b';
+  import { setActivePage } from './core/ui.js?v=20260301b';
+  import { initActions } from './core/actions.js?v=20260301b';
+  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260301b';
   import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260217b';
 
   const sessionToken = sessionStorage.getItem('ugcQuestToken') || '';
@@ -125,7 +118,8 @@ const hydrateStateFromServer = async () => {
     const remoteState = data.state;
     const hasValidRemoteData = (
       (remoteState.campaigns && remoteState.campaigns.length > 0) ||
-      (remoteState.gamification && remoteState.gamification.xp > 0)
+      (remoteState.brands && remoteState.brands.length > 0) ||
+      (remoteState.settings && typeof remoteState.settings === 'object')
     );
 
     // Se o estado remoto tem dados válidos, usar ele
@@ -133,8 +127,7 @@ const hydrateStateFromServer = async () => {
     if (hasValidRemoteData) {
       console.log('[Sync] Carregando estado do servidor:', {
         campanhas: remoteState.campaigns?.length || 0,
-        xp: remoteState.gamification?.xp || 0,
-        level: remoteState.gamification?.level || 1
+        marcas: remoteState.brands?.length || 0
       });
       replaceState(remoteState);
     } else {
@@ -148,10 +141,6 @@ const hydrateStateFromServer = async () => {
   // Renderizar imediatamente se houver sessão
   if (hasSession) {
     initProfileFromSession();
-    ensureDailyMissions();
-    ensureWeeklyChallenges();
-    ensureWeeklyFocus();
-    syncAchievements();
     renderAll();
     setActivePage('dashboard');
     initAdminTrackerCard();
@@ -169,11 +158,6 @@ const hydrateStateFromServer = async () => {
       enableRemoteSave();
 
       // Recalcular streak e missões com o estado do servidor
-      ensureDailyMissions();
-      ensureWeeklyChallenges();
-      ensureWeeklyFocus();
-      ensureOnboarding();
-      syncAchievements();
       
       // Inicializar quiz de onboarding
       initOnboardingQuiz();
@@ -188,7 +172,6 @@ const hydrateStateFromServer = async () => {
       // Inicializar features
       setActivePage('dashboard');
       initActions();
-      requestNotificationPermission();
     })();
   window.__ugcAppLoaded = true;
 });

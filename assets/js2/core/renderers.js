@@ -14,7 +14,6 @@
   formatCurrency,
   formatPercent,
   todayKey,
-  xpForLevel,
   badgeCatalog,
   getBadgeById
 } from './state.js';
@@ -80,103 +79,42 @@ const iconSvg = (name) => ICONS[name] || '';
 const renderProfile = () => {
   const greetings = document.querySelectorAll('[data-greeting]');
   const profileName = document.querySelectorAll('[data-profile-name]');
-  const profileLevel = document.querySelectorAll('[data-profile-level]');
-  const profileXp = document.querySelectorAll('[data-profile-xp]');
-  const profileXpGoal = document.querySelectorAll('[data-profile-xp-goal]');
-  const profileXpRemaining = document.querySelectorAll('[data-profile-xp-remaining]');
-  const profileXpBar = document.querySelectorAll('[data-profile-xpbar]');
-  const profileStreak = document.querySelectorAll('[data-profile-streak]');
-  const profileStreakBar = document.querySelectorAll('[data-profile-streakbar]');
+  const profileNameSidebar = document.querySelectorAll('[data-profile-name-sidebar]');
+  const profileInitial = document.querySelectorAll('[data-profile-initial]');
   const dashboardNarrative = document.querySelectorAll('[data-dashboard-narrative]');
-  const streakTip = document.querySelectorAll('[data-streak-tip]');
-  const focusCurrent = document.querySelectorAll('[data-focus-current]');
-  const focusTarget = document.querySelectorAll('[data-focus-target]');
-  const focusXp = document.querySelectorAll('[data-focus-xp]');
-  const focusLabel = document.querySelectorAll('[data-focus-label]');
-  const focusBar = document.querySelectorAll('[data-focus-bar]');
-
-  const isMax = state.profile.level >= 10;
-  const goal = xpForLevel(state.profile.level);
-  const remaining = isMax ? 0 : Math.max(goal - state.profile.xp, 0);
-  const progress = isMax ? 1 : goal ? Math.min(state.profile.xp / goal, 1) : 0;
-  const streakGoal = 30;
-  const streakProgress = Math.min(Math.max(state.profile.streak / streakGoal, 0), 1);
-  const focusGoal = Number.isFinite(state.focus?.target) ? state.focus.target : 0;
-  const focusCurrentValue = Number.isFinite(state.focus?.current) ? state.focus.current : 0;
-  const focusProgress = focusGoal ? Math.min(Math.max(focusCurrentValue / focusGoal, 0), 1) : 0;
 
   const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
-  const scripts = Array.isArray(state.scripts) ? state.scripts : [];
   const brands = Array.isArray(state.brands) ? state.brands : [];
+  const followUps =
+    campaigns.filter((campaign) => campaign.nextActionType && campaign.nextActionDate).length +
+    brands.filter((brand) => brand.nextActionType && brand.nextActionDate).length;
+  const pendingPayments = campaigns.filter(
+    (campaign) => campaign.stage === 'aguardando_pagamento' && Number(campaign.paymentPercent || 0) < 100
+  ).length;
 
   const hour = new Date().getHours();
   const greeting = hour >= 5 && hour < 12 ? 'Bom dia' : hour >= 12 && hour < 18 ? 'Boa tarde' : 'Boa noite';
-
-  const actionsLeft = remaining ? Math.max(1, Math.ceil(remaining / 20)) : 0;
+  const safeName = String(state.profile.name || 'criador').trim() || 'criador';
+  const initial = safeName.charAt(0).toUpperCase() || 'M';
   let narrative = '';
 
-  if (state.profile.level === 1 && state.profile.xp <= 40) {
-    narrative = 'Todo mundo começa do zero. Você já deu o primeiro passo.';
-  } else if (!campaigns.length) {
-    narrative = 'Cria uma campanha (mesmo de teste). Isso já destrava XP e deixa tudo mais claro.';
-  } else if (!scripts.length) {
-    narrative = 'Gera um roteiro rapidinho. É XP por esforço e já te coloca no ritmo.';
+  if (!campaigns.length) {
+    narrative = 'Crie sua primeira campanha para começar a organizar o pipeline com clareza.';
   } else if (!brands.length) {
-    narrative = 'Salva um contato de marca. Mesmo que seja “outros”, vale o registro.';
-  } else if (remaining > 0 && remaining <= 25) {
-    narrative = `Tá na beirinha do próximo nível. Só mais ${remaining} XP.`;
-  } else if (remaining > 0) {
-    narrative = `Faltam ~${actionsLeft} ações pra subir de nível. Vai no passo a passo.`;
+    narrative = 'Cadastre suas marcas para concentrar contato, follow-up e histórico comercial no mesmo lugar.';
+  } else if (followUps > 0) {
+    narrative = `${followUps} follow-up${followUps > 1 ? 's' : ''} pedem atenção no seu painel hoje.`;
+  } else if (pendingPayments > 0) {
+    narrative = `${pendingPayments} pagamento${pendingPayments > 1 ? 's' : ''} ainda ${pendingPayments > 1 ? 'estão' : 'está'} pendente${pendingPayments > 1 ? 's' : ''}.`;
   } else {
-    narrative = 'Bora manter o ritmo e desbloquear as próximas conquistas.';
-  }
-
-  let streakText = 'Sua melhor sequência do mês.';
-  if (state.profile.streak <= 1) {
-    streakText = 'É difícil começar. Amanhã você mantém a chama acesa.';
-  } else if (state.profile.streak < 4) {
-    streakText = 'Boa! Você já entrou na sequência.';
-  } else if (state.profile.streak < 7) {
-    streakText = 'Consistência tá on. Mantém mais um dia.';
-  } else {
-    streakText = 'Tá quente! Você tá virando o jogo na marra.';
+    narrative = 'Seu painel está organizado. Use as campanhas e marcas para manter o fluxo comercial atualizado.';
   }
 
   greetings.forEach((el) => (el.textContent = greeting));
-  profileName.forEach((el) => (el.textContent = state.profile.name));
-  profileLevel.forEach((el) => (el.textContent = state.profile.level));
-  profileXp.forEach((el) => (el.textContent = state.profile.xp));
-  profileXpGoal.forEach((el) => (el.textContent = isMax ? 'MAX' : goal));
-  profileXpRemaining.forEach((el) => (el.textContent = remaining));
-  profileXpBar.forEach((el) => (el.style.width = `${progress * 100}%`));
-  profileStreak.forEach((el) => (el.textContent = state.profile.streak));
-  profileStreakBar.forEach((el) => (el.style.width = `${streakProgress * 100}%`));
+  profileName.forEach((el) => (el.textContent = safeName));
+  profileNameSidebar.forEach((el) => (el.textContent = safeName));
+  profileInitial.forEach((el) => (el.textContent = initial));
   dashboardNarrative.forEach((el) => (el.textContent = narrative));
-  streakTip.forEach((el) => (el.textContent = streakText));
-
-  // Cores dinâmicas do foguinho baseadas no streak
-  const streakIcons = document.querySelectorAll('[data-streak-icon]');
-  streakIcons.forEach((icon) => {
-    const streak = state.profile.streak;
-    icon.classList.remove('streak-10', 'streak-20', 'streak-30', 'streak-40', 'streak-50', 'streak-60', 'streak-70', 'streak-80', 'streak-90', 'streak-100');
-    
-    if (streak >= 100) icon.classList.add('streak-100');
-    else if (streak >= 90) icon.classList.add('streak-90');
-    else if (streak >= 80) icon.classList.add('streak-80');
-    else if (streak >= 70) icon.classList.add('streak-70');
-    else if (streak >= 60) icon.classList.add('streak-60');
-    else if (streak >= 50) icon.classList.add('streak-50');
-    else if (streak >= 40) icon.classList.add('streak-40');
-    else if (streak >= 30) icon.classList.add('streak-30');
-    else if (streak >= 20) icon.classList.add('streak-20');
-    else if (streak >= 10) icon.classList.add('streak-10');
-  });
-
-  focusLabel.forEach((el) => (el.textContent = state.focus?.label || 'Foco'));
-  focusCurrent.forEach((el) => (el.textContent = String(state.focus?.current ?? 0)));
-  focusTarget.forEach((el) => (el.textContent = String(state.focus?.target ?? 0)));
-  focusXp.forEach((el) => (el.textContent = String(state.focus?.xp ?? 0)));
-  focusBar.forEach((el) => (el.style.width = `${focusProgress * 100}%`));
 };
 
 const renderMissions = () => {
@@ -820,7 +758,6 @@ const renderCampaigns = () => {
                   advanceBtnHtml = `
                     <button class="btn-advance" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
                       <span class="btn-advance-label">Avançar: ${escapeHtml(nextStage.label)}</span>
-                      <span class="btn-advance-xp">+5 XP</span>
                     </button>`;
                 } else if (!isLastStatus) {
                   const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
@@ -828,7 +765,6 @@ const renderCampaigns = () => {
                   advanceBtnHtml = `
                     <button class="btn-advance btn-advance-status" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
                       <span class="btn-advance-label">Avançar: ${escapeHtml(nextStatusLabel)}</span>
-                      <span class="btn-advance-xp">+5 XP</span>
                     </button>`;
                 }
               }
@@ -919,212 +855,286 @@ const renderBrands = () => {
   const detailContainer = document.querySelector('[data-brand-detail]');
   const brands = Array.isArray(state.brands) ? state.brands : [];
   const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
-  const byBrandId = new Map();
+  const escapeBrandHtml = (value) =>
+    String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
 
-  campaigns.forEach((campaign) => {
-    const key = String(campaign.brandId || '').trim();
-    if (!key) return;
-    if (!byBrandId.has(key)) byBrandId.set(key, []);
-    byBrandId.get(key).push(campaign);
+  const normalizeBrandKey = (value) => String(value || '').trim().toLowerCase();
+  const formatDateShort = (value) => {
+    const safe = String(value || '').trim();
+    if (!safe) return '—';
+    const date = new Date(`${safe}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString('pt-BR');
+  };
+  const isoToDateKey = (value) => {
+    const date = value ? new Date(value) : null;
+    if (!date || Number.isNaN(date.getTime())) return '';
+    return date.toISOString().slice(0, 10);
+  };
+  const today = new Date().toISOString().slice(0, 10);
+  const getFollowupTone = (value) => {
+    const safe = String(value || '').trim();
+    if (!safe) return 'empty';
+    if (safe < today) return 'overdue';
+    if (safe === today) return 'today';
+    return 'upcoming';
+  };
+
+  const brandSummaries = brands.map((brand) => {
+    const linkedCampaigns = campaigns
+      .filter((campaign) => {
+        if (!campaign || typeof campaign !== 'object') return false;
+        if (String(campaign.brandId || '').trim()) return String(campaign.brandId || '').trim() === brand.id;
+        return normalizeBrandKey(campaign.brand) === normalizeBrandKey(brand.name);
+      })
+      .slice()
+      .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')));
+
+    const totalFaturado = linkedCampaigns.reduce((sum, campaign) => sum + (Number(campaign?.value) || 0), 0);
+    const interactions = (Array.isArray(brand.interactions) ? brand.interactions : [])
+      .slice()
+      .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+    const lastInteraction = interactions[0] || null;
+    const lastCampaignUpdate = linkedCampaigns[0] ? isoToDateKey(linkedCampaigns[0].updatedAt || linkedCampaigns[0].createdAt) : '';
+    const lastContact = lastInteraction?.date || lastCampaignUpdate || '';
+    const lastCompletedCampaign =
+      linkedCampaigns.find((campaign) => campaign.status === 'concluida' || campaign.paymentPercent >= 100) || linkedCampaigns[0] || null;
+    const pendingAction = Boolean(brand.nextActionType && brand.nextActionDate);
+
+    return {
+      brand,
+      linkedCampaigns,
+      totalFaturado,
+      campaignCount: linkedCampaigns.length,
+      ticketMedio: linkedCampaigns.length ? totalFaturado / linkedCampaigns.length : 0,
+      lastContact,
+      pendingAction,
+      nextFollowup: brand.nextActionDate || '',
+      nextActionLabel: getNextActionLabel(brand.nextActionType, brand.nextActionCustomType),
+      lastWork: lastCompletedCampaign
+    };
   });
 
-  const selectedBrandId = brands.some((brand) => brand.id === state.ui.selectedBrandId)
-    ? state.ui.selectedBrandId
-    : brands[0]?.id || null;
-  state.ui.selectedBrandId = selectedBrandId;
-  const selectedBrand = brands.find((brand) => brand.id === selectedBrandId) || null;
+  brandSummaries.sort((a, b) => {
+    if (a.pendingAction !== b.pendingAction) return a.pendingAction ? -1 : 1;
+    if ((a.nextFollowup || '9999-12-31') !== (b.nextFollowup || '9999-12-31')) {
+      return (a.nextFollowup || '9999-12-31').localeCompare(b.nextFollowup || '9999-12-31');
+    }
+    return String(a.brand.name || '').localeCompare(String(b.brand.name || ''), 'pt-BR');
+  });
 
-  const getBrandTotal = (brandId) => (byBrandId.get(brandId) || []).reduce((sum, campaign) => sum + (Number(campaign.value) || 0), 0);
-  const getBrandTicket = (brandId) => {
-    const linked = byBrandId.get(brandId) || [];
-    return linked.length ? Math.round(getBrandTotal(brandId) / linked.length) : 0;
+  const brandStatusCounts = {
+    lead: brandSummaries.filter((item) => item.brand.status === 'lead').length,
+    negociando: brandSummaries.filter((item) => item.brand.status === 'negociando').length,
+    clientes: brandSummaries.filter((item) => ['cliente_ativo', 'cliente_recorrente'].includes(item.brand.status)).length,
+    pendentes: brandSummaries.filter((item) => item.pendingAction).length
   };
 
   if (statsContainer) {
-    const totalBrands = brands.length;
-    const negotiating = brands.filter((brand) => brand.status === 'negociando').length;
-    const activeClients = brands.filter((brand) => ['cliente_ativo', 'cliente_recorrente'].includes(brand.status)).length;
-    const totalRevenue = brands.reduce((sum, brand) => sum + getBrandTotal(brand.id), 0);
     statsContainer.innerHTML = `
       <div class="brands-stats-grid">
         <div class="brands-stat-card">
           <span>Marcas registradas</span>
-          <strong>${totalBrands}</strong>
-          <p class="muted">${brands.filter((brand) => brand.status === 'lead').length} lead(s) em abertura</p>
+          <strong>${brandSummaries.length}</strong>
+          <p class="muted">${brandStatusCounts.lead} lead(s) em abertura</p>
         </div>
         <div class="brands-stat-card">
           <span>Negociando</span>
-          <strong>${negotiating}</strong>
+          <strong>${brandStatusCounts.negociando}</strong>
           <p class="muted">Conversas quentes no momento</p>
         </div>
         <div class="brands-stat-card">
           <span>Clientes</span>
-          <strong>${activeClients}</strong>
+          <strong>${brandStatusCounts.clientes}</strong>
           <p class="muted">Ativos e recorrentes</p>
         </div>
         <div class="brands-stat-card">
           <span>Faturado total</span>
-          <strong>${formatCurrency(totalRevenue)}</strong>
-          <p class="muted">${brands.filter((brand) => brand.nextActionDate).length} com ação pendente</p>
+          <strong>${formatCurrency(brandSummaries.reduce((sum, item) => sum + item.totalFaturado, 0))}</strong>
+          <p class="muted">${brandStatusCounts.pendentes} com ação pendente</p>
         </div>
       </div>
     `;
   }
 
-  const rows = brands
-    .map((brand) => {
-      const linkedCampaigns = byBrandId.get(brand.id) || [];
-      const total = getBrandTotal(brand.id);
-      const latestContact = [...linkedCampaigns]
-        .map((campaign) => String(campaign.updatedAt || campaign.createdAt || '').slice(0, 10))
-        .filter(Boolean)
-        .sort()
-        .reverse()[0] || '';
-      const actionLabel = brand.nextActionType ? getNextActionLabel(brand.nextActionType, brand.nextActionCustomType) : 'Sem pendência';
-      const actionClass = brand.nextActionType ? 'dashboard-badge' : 'dashboard-badge dashboard-badge--muted';
-      const isActive = brand.status !== 'inativa';
-      return `
-        <tr class="${selectedBrandId === brand.id ? 'is-selected' : ''}" data-brand-row="${brand.id}">
-          <td data-label="Marca">
-            <div class="brands-table-main">
-              <strong>${escapeHtml(brand.name || 'Marca')}</strong>
-              <span class="muted">${escapeHtml(brand.email || brand.contact || 'Sem contato principal')}</span>
-            </div>
-          </td>
-          <td data-label="Status"><span class="chip chip-pill">${escapeHtml(brandStatuses[brand.status] || brand.status || 'Lead')}</span></td>
-          <td data-label="Total faturado">${formatCurrency(total)}</td>
-          <td data-label="Campanhas">${linkedCampaigns.length}</td>
-          <td data-label="Último contato">${latestContact ? fmtDateBR(latestContact) : '—'}</td>
-          <td data-label="Próximo follow-up">${brand.nextActionDate ? fmtDateBR(brand.nextActionDate) : 'Sem follow-up'}</td>
-          <td data-label="Ação pendente"><span class="${actionClass}">${escapeHtml(actionLabel)}</span></td>
-          <td data-label="Ações">
-            <div class="brands-row-actions">
-              <button class="btn btn-ghost btn-small" data-action="select-brand" data-brand-id="${brand.id}" type="button">Abrir</button>
-              <button class="btn btn-ghost btn-small" data-action="edit-brand" data-brand-id="${brand.id}" type="button">Editar</button>
-              <button class="btn btn-ghost btn-small" data-action="toggle-brand-active" data-brand-id="${brand.id}" type="button">${isActive ? 'Desativar' : 'Reativar'}</button>
-              <button class="btn btn-primary btn-small" data-action="new-campaign-for-brand" data-brand-id="${brand.id}" type="button">Campanha</button>
-            </div>
-          </td>
-        </tr>
-      `;
-    })
-    .join('');
-
-  container.innerHTML = brands.length
-    ? `
-      <div class="table-wrap brands-table-wrap">
-        <table class="campaign-table brands-table">
-          <thead>
-            <tr>
-              <th>Marca</th>
-              <th>Status</th>
-              <th>Total faturado</th>
-              <th>Campanhas</th>
-              <th>Último contato</th>
-              <th>Próximo follow-up</th>
-              <th>Ação pendente</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
+  if (!brandSummaries.length) {
+    container.innerHTML = `
+      <div class="brand-empty-state">
+        <div class="metric-icon">${iconSvg('radar')}</div>
+        <div>
+          <h3>Nenhuma marca registrada</h3>
+          <p class="muted">Crie sua primeira marca para organizar campanhas, follow-ups e histórico comercial no mesmo lugar.</p>
+        </div>
       </div>
-    `
-    : '<div class="card">Nenhuma marca cadastrada ainda.</div>';
-
-  if (detailContainer) {
-    if (!selectedBrand) {
+    `;
+    if (detailContainer) {
       detailContainer.innerHTML = `
         <div class="card">
-          <h2>Marca selecionada</h2>
-          <p class="muted">Escolha uma marca da lista para ver o detalhe completo.</p>
-        </div>
-      `;
-    } else {
-      const linkedCampaigns = (byBrandId.get(selectedBrand.id) || []).slice().sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
-      const latestWork = linkedCampaigns[0];
-      const nextActionLabel = selectedBrand.nextActionType
-        ? getNextActionLabel(selectedBrand.nextActionType, selectedBrand.nextActionCustomType)
-        : '';
-      detailContainer.innerHTML = `
-        <div class="card">
-          <div class="brands-detail-head">
-            <div>
-              <div class="dashboard-eyebrow">Marca selecionada</div>
-              <h2>${escapeHtml(selectedBrand.name || 'Marca')}</h2>
-              <p class="muted">${escapeHtml(selectedBrand.contact || 'Sem contato principal')} ${selectedBrand.email ? `• ${escapeHtml(selectedBrand.email)}` : ''}</p>
-            </div>
-            <div class="brands-detail-actions">
-              <button class="btn btn-ghost btn-small" data-action="edit-brand" data-brand-id="${selectedBrand.id}" type="button">Editar</button>
-              <button class="btn btn-danger btn-small" data-action="delete-brand" data-brand-id="${selectedBrand.id}" type="button">Excluir</button>
-            </div>
-          </div>
-
-          <div class="brands-detail-grid">
-            <div class="brands-detail-stat"><span>Instagram</span><strong>${escapeHtml(selectedBrand.instagram || '—')}</strong></div>
-            <div class="brands-detail-stat"><span>Status</span><strong>${escapeHtml(brandStatuses[selectedBrand.status] || selectedBrand.status)}</strong></div>
-            <div class="brands-detail-stat"><span>Total faturado</span><strong>${formatCurrency(getBrandTotal(selectedBrand.id))}</strong></div>
-            <div class="brands-detail-stat"><span>Ticket médio</span><strong>${linkedCampaigns.length ? formatCurrency(getBrandTicket(selectedBrand.id)) : '—'}</strong></div>
-            <div class="brands-detail-stat"><span>N° campanhas</span><strong>${linkedCampaigns.length}</strong></div>
-            <div class="brands-detail-stat"><span>Último trabalho realizado</span><strong>${escapeHtml(latestWork ? getCampaignLabel(latestWork) : '—')}</strong></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="brands-detail-head">
-            <div>
-              <h2>Próxima ação</h2>
-              <p class="muted">Follow-up atual dessa marca.</p>
-            </div>
-            <button class="btn btn-ghost btn-small" data-action="edit-brand-action" data-brand-id="${selectedBrand.id}" type="button">Editar ação</button>
-          </div>
-          <div class="brands-detail-panel">
-            ${
-              selectedBrand.nextActionDate
-                ? `
-                  <div class="dashboard-eyebrow">Próximo follow-up</div>
-                  <strong>${fmtDateBR(selectedBrand.nextActionDate)}</strong>
-                  <div class="dashboard-list-meta" style="margin-top: 14px;">Tipo</div>
-                  <strong>${escapeHtml(nextActionLabel)}</strong>
-                  <p class="muted">${escapeHtml(selectedBrand.nextActionNote || 'Sem observação cadastrada.')}</p>
-                `
-                : `
-                  <strong>Sem próxima ação definida</strong>
-                  <p class="muted">Defina um follow-up para essa marca e deixe o dashboard comercial sempre em dia.</p>
-                `
-            }
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="brands-detail-head">
-            <div>
-              <h2>Histórico de campanhas</h2>
-              <p class="muted">Campanhas vinculadas a essa marca.</p>
-            </div>
-          </div>
-          <div class="brands-history-list">
-            ${
-              linkedCampaigns.length
-                ? linkedCampaigns
-                    .map(
-                      (campaign) => `
-                        <div class="brands-history-item">
-                          <strong>${escapeHtml(getCampaignLabel(campaign))}</strong>
-                          <div class="muted">${escapeHtml(statusLabels[campaign.status] || campaign.status)}${campaign.stage ? ` • ${escapeHtml(getCampaignStageLabel(campaign.status, campaign.stage) || '')}` : ''}</div>
-                          <div class="muted">${formatCurrency(Number(campaign.value) || 0)} • Pagamento ${campaign.paymentDate ? fmtDateBR(campaign.paymentDate) : 'sem data'}</div>
-                          <div class="muted">Prazo ${campaign.dueDate ? fmtDateBR(campaign.dueDate) : 'sem prazo'}</div>
-                          <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${campaign.id}" type="button">Abrir campanha</button>
-                        </div>
-                      `
-                    )
-                    .join('')
-                : '<p class="muted">Nenhuma campanha vinculada a essa marca.</p>'
-            }
-          </div>
+          <h2>Quando você adicionar uma marca, o detalhe aparece aqui.</h2>
+          <p class="muted">Você vai conseguir ver resumo, próxima ação e campanhas vinculadas.</p>
+          <button class="btn btn-primary" data-action="new-brand" type="button">Criar primeira marca</button>
         </div>
       `;
     }
+    return;
+  }
+
+  const hasSelected = brandSummaries.some((item) => item.brand.id === state.ui.selectedBrandId);
+  if (!hasSelected) {
+    state.ui.selectedBrandId = brandSummaries[0].brand.id;
+  }
+
+  const selectedSummary = brandSummaries.find((item) => item.brand.id === state.ui.selectedBrandId) || brandSummaries[0];
+  const selectedBrand = selectedSummary.brand;
+
+  container.innerHTML = `
+    <div class="brand-list-table">
+      <div class="brand-table-head">
+        <span>Marca</span>
+        <span>Status</span>
+        <span>Ação pendente</span>
+        <span>Próximo follow-up</span>
+        <span>Total faturado</span>
+        <span>Campanhas</span>
+        <span>Último contato</span>
+        <span>Ações</span>
+      </div>
+      <div class="brand-table-body">
+        ${brandSummaries
+          .map((item) => {
+            const isActive = item.brand.id === selectedBrand.id;
+            const isDormant = ['inativa', 'perdida'].includes(item.brand.status);
+            const followupTone = getFollowupTone(item.nextFollowup);
+            const actionChip = item.pendingAction
+              ? `<span class="chip chip-pill chip-brand-pending chip-brand-pending--${followupTone}">${escapeBrandHtml(item.nextActionLabel || 'Pendente')}</span>`
+              : '<span class="chip chip-pill chip-brand-neutral">Sem pendência</span>';
+
+            return `
+              <div class="brand-table-row brand-table-row--${escapeBrandHtml(item.brand.status)} ${item.pendingAction ? 'has-pending' : 'is-clear'} ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
+                <div class="brand-table-cell brand-table-cell--primary" data-label="Marca">
+                  <strong>${escapeBrandHtml(item.brand.name || 'Marca')}</strong>
+                  <span class="muted">${escapeBrandHtml(item.brand.contact || item.brand.instagram || item.brand.email || 'Sem contato principal')}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--status" data-label="Status">
+                  <span class="chip chip-pill chip-brand-status chip-brand-status--${escapeBrandHtml(item.brand.status)}">${escapeBrandHtml(brandStatuses[item.brand.status] || item.brand.status)}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--pending" data-label="Ação pendente">
+                  ${actionChip}
+                </div>
+                <div class="brand-table-cell brand-table-cell--next" data-label="Próximo follow-up">
+                  <span class="brand-date-badge brand-date-badge--${followupTone}">${item.nextFollowup ? formatDateShort(item.nextFollowup) : 'Sem follow-up'}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--money" data-label="Total faturado">
+                  <strong class="brand-metric-badge brand-metric-badge--money">${formatCurrency(item.totalFaturado)}</strong>
+                </div>
+                <div class="brand-table-cell brand-table-cell--count" data-label="Campanhas">
+                  <strong class="brand-metric-badge brand-metric-badge--count">${item.campaignCount}</strong>
+                </div>
+                <div class="brand-table-cell brand-table-cell--date" data-label="Último contato">
+                  <span class="brand-date-badge brand-date-badge--last">${item.lastContact ? formatDateShort(item.lastContact) : '—'}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--actions" data-label="Ações">
+                  <div class="brand-row-actions">
+                    <button class="btn btn-ghost btn-small brand-row-btn brand-row-btn--edit" data-action="edit-brand" data-brand-id="${item.brand.id}" type="button">Editar</button>
+                    <button class="btn btn-ghost btn-small brand-row-btn ${isDormant ? 'brand-row-btn--reactivate' : 'brand-row-btn--deactivate'}" data-action="toggle-brand-active" data-brand-id="${item.brand.id}" type="button">${isDormant ? 'Reativar' : 'Desativar'}</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          })
+          .join('')}
+      </div>
+    </div>
+  `;
+
+  if (detailContainer) {
+    const nextActionLabel = selectedBrand.nextActionType
+      ? getNextActionLabel(selectedBrand.nextActionType, selectedBrand.nextActionCustomType)
+      : '';
+
+    detailContainer.innerHTML = `
+      <div class="card">
+        <div class="brands-detail-head">
+          <div>
+            <div class="dashboard-eyebrow">Marca selecionada</div>
+            <h2>${escapeBrandHtml(selectedBrand.name || 'Marca')}</h2>
+            <p class="muted">${escapeBrandHtml(selectedBrand.contact || 'Sem contato principal')} ${selectedBrand.email ? `• ${escapeBrandHtml(selectedBrand.email)}` : selectedBrand.instagram ? `• ${escapeBrandHtml(selectedBrand.instagram)}` : ''}</p>
+          </div>
+          <div class="brands-detail-actions">
+            <button class="btn btn-ghost btn-small" data-action="edit-brand" data-brand-id="${selectedBrand.id}" type="button">Editar marca</button>
+            <button class="btn btn-primary btn-small" data-action="new-campaign-for-brand" data-brand-id="${selectedBrand.id}" type="button">Nova campanha</button>
+          </div>
+        </div>
+
+        <div class="brands-detail-grid">
+          <div class="brands-detail-stat"><span>Instagram</span><strong>${escapeBrandHtml(selectedBrand.instagram || '—')}</strong></div>
+          <div class="brands-detail-stat"><span>Status</span><strong>${escapeBrandHtml(brandStatuses[selectedBrand.status] || selectedBrand.status)}</strong></div>
+          <div class="brands-detail-stat"><span>Total faturado</span><strong>${formatCurrency(selectedSummary.totalFaturado)}</strong></div>
+          <div class="brands-detail-stat"><span>Ticket médio</span><strong>${selectedSummary.campaignCount ? formatCurrency(selectedSummary.ticketMedio) : '—'}</strong></div>
+          <div class="brands-detail-stat"><span>N° campanhas</span><strong>${selectedSummary.campaignCount}</strong></div>
+          <div class="brands-detail-stat"><span>Último trabalho realizado</span><strong>${escapeBrandHtml(selectedSummary.lastWork?.title || selectedSummary.lastWork?.brand || '—')}</strong></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="brands-detail-head">
+          <div>
+            <h2>Próxima ação</h2>
+            <p class="muted">Follow-up atual dessa marca.</p>
+          </div>
+          <button class="btn btn-ghost btn-small" data-action="edit-brand-action" data-brand-id="${selectedBrand.id}" type="button">Editar ação</button>
+        </div>
+        <div class="brands-detail-panel">
+          ${
+            selectedSummary.pendingAction
+              ? `
+                <div class="dashboard-eyebrow">Próximo follow-up</div>
+                <strong>${formatDateShort(selectedBrand.nextActionDate)}</strong>
+                <div class="dashboard-list-meta" style="margin-top: 14px;">Tipo</div>
+                <strong>${escapeBrandHtml(nextActionLabel || '—')}</strong>
+                <p class="muted">${escapeBrandHtml(selectedBrand.nextActionNote || 'Sem observação cadastrada.')}</p>
+              `
+              : `
+                <strong>Sem próxima ação definida</strong>
+                <p class="muted">Defina um follow-up para essa marca e deixe o dashboard comercial sempre em dia.</p>
+              `
+          }
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="brands-detail-head">
+          <div>
+            <h2>Histórico de campanhas</h2>
+            <p class="muted">Campanhas vinculadas a essa marca.</p>
+          </div>
+        </div>
+        <div class="brands-history-list">
+          ${
+            selectedSummary.linkedCampaigns.length
+              ? selectedSummary.linkedCampaigns
+                  .map(
+                    (campaign) => `
+                      <div class="brands-history-item">
+                        <strong>${escapeBrandHtml(getCampaignLabel(campaign))}</strong>
+                        <div class="muted">${escapeBrandHtml(statusLabels[campaign.status] || campaign.status)}${campaign.stage ? ` • ${escapeBrandHtml(getCampaignStageLabel(campaign.status, campaign.stage) || '')}` : ''}</div>
+                        <div class="muted">${formatCurrency(Number(campaign.value) || 0)} • Pagamento ${campaign.paymentDate ? formatDateShort(campaign.paymentDate) : 'sem data'}</div>
+                        <div class="muted">Prazo ${campaign.dueDate ? formatDateShort(campaign.dueDate) : 'sem prazo'}</div>
+                        <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${campaign.id}" type="button">Abrir campanha</button>
+                      </div>
+                    `
+                  )
+                  .join('')
+              : '<p class="muted">Nenhuma campanha vinculada a essa marca.</p>'
+          }
+        </div>
+      </div>
+    `;
   }
 };
 

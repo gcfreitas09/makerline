@@ -27,10 +27,10 @@
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-    <link rel="stylesheet" href="assets/css/app2.css?v=20260228g" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260228g">
+    <link rel="stylesheet" href="assets/css/app2.css?v=20260301a" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260301a">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="assets/js2/core/customSelect.js?v=20260228g"></script>
+  <script src="assets/js2/core/customSelect.js?v=20260301a"></script>
 </head>
 <body>
   <div class="page-shell">
@@ -40,22 +40,18 @@
           <img src="assets/img/logo.png" alt="Makerline" />
         </div>
         <div>
-          <div class="brand-name">Makerline</div>
-          <div class="brand-tag">Level up your content</div>
+          <div class="brand-title-row">
+            <div class="brand-name">Makerline</div>
+            <span class="brand-user-chip" data-profile-initial>M</span>
+          </div>
+          <div class="brand-tag">Seu painel comercial</div>
         </div>
       </div>
 
-      <div class="profile-card">
-        <div class="level-badge" data-profile-level>-</div>
+      <div class="profile-card profile-card--account">
+        <div class="profile-avatar" data-profile-initial>M</div>
         <div style="flex:1;min-width:0">
-          <div class="profile-label">Seu nível</div>
-          <div class="profile-value"><span data-profile-xp>—</span> XP</div>
-          <div class="sidebar-progress">
-            <div class="progress-track">
-              <div class="progress-fill" data-profile-xpbar style="width: 0%"></div>
-            </div>
-            <div class="progress-label">Faltam <span data-profile-xp-remaining>—</span> XP para subir</div>
-          </div>
+          <div class="profile-value" data-profile-name-sidebar>Criador</div>
         </div>
       </div>
 
@@ -112,7 +108,7 @@
           <div class="section-title-block">
             <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
             <h1 class="section-title"><span data-greeting>Boa tarde</span>, <span data-profile-name>criador</span>!</h1>
-            <p class="section-subtitle">Continue sua jornada e suba de nível hoje.</p>
+            <p class="section-subtitle">Acompanhe o que precisa acontecer hoje e mantenha o comercial em dia.</p>
             <p class="section-subtitle" data-dashboard-narrative></p>
           </div>
           <button class="btn btn-primary" data-action="new-campaign" type="button">Nova campanha</button>
@@ -810,10 +806,7 @@
     </div>
   </div>
 
-  <div class="toast toast-xp" id="xp-toast"></div>
-  <div class="toast" id="toast"></div>
-
-  <script type="module" src="assets/js2/app.js?v=20260228g"></script>
+  <script type="module" src="assets/js2/app.js?v=20260301b"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
