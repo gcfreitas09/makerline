@@ -1266,6 +1266,37 @@ textarea {
   gap: 12px;
 }
 
+.campaign-dashboard-banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(103, 232, 249, 0.18);
+  background: linear-gradient(135deg, rgba(10, 24, 40, 0.92), rgba(8, 18, 34, 0.96));
+}
+
+.campaign-dashboard-banner-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.campaign-dashboard-banner-copy strong {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.campaign-dashboard-eyebrow {
+  color: #8fd8ff;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 600;
+}
+
 .campaign-card {
   display: grid;
   gap: 12px;
@@ -4044,6 +4075,32 @@ button[data-action="bonus-xp"] {
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
+}
+
+.dashboard-kpi--button,
+.dashboard-mini-card--button {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.dashboard-kpi--button:hover,
+.dashboard-mini-card--button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(103, 232, 249, 0.24);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.dashboard-kpi--button:focus-visible,
+.dashboard-mini-card--button:focus-visible {
+  outline: 2px solid rgba(103, 232, 249, 0.45);
+  outline-offset: 2px;
+}
+
+.dashboard-mini-card--pipeline span,
+.dashboard-mini-card--pipeline strong {
+  color: #f8fbff;
 }
 
 .dashboard-kpi strong,

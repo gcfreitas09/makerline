@@ -275,7 +275,27 @@ const handleActionClick = (event) => {
   }
 
   if (action === 'goto-campaigns') {
+    state.ui.campaignDashboardView = 'all';
     setActivePage('campaigns');
+    saveState();
+    renderAll();
+    return;
+  }
+
+  if (action === 'open-dashboard-campaign-view') {
+    const view = String(actionEl.dataset.view || '').trim() || 'all';
+    state.ui.campaignDashboardView = view;
+    state.ui.campaignFilter = 'all';
+    saveState();
+    setActivePage('campaigns');
+    renderAll();
+    return;
+  }
+
+  if (action === 'clear-dashboard-campaign-view') {
+    state.ui.campaignDashboardView = 'all';
+    saveState();
+    renderAll();
     return;
   }
 

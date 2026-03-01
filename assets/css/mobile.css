@@ -147,6 +147,11 @@ ampaign-status-stage select option {
     align-items: stretch;
   }
 
+  .campaign-dashboard-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .dashboard-list-actions,
   .brands-row-actions,
   .brands-detail-actions,

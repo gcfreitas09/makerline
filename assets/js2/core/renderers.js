@@ -410,26 +410,26 @@ const renderDashboardFinancials = () => {
     .reduce((sum, campaign) => sum + (Number(campaign.value) || 0), 0);
 
   const pipelineStats = [
-    ['Leads em negociação', liveCampaigns.filter((campaign) => campaign.status === 'prospeccao' && campaign.stage === 'negociacao').length],
-    ['Campanhas em produção', liveCampaigns.filter((campaign) => campaign.status === 'producao').length],
-    ['Aguardando aprovação', liveCampaigns.filter((campaign) => ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage)).length],
-    ['Aguardando pagamento', pendingPayments.length]
+    ['Leads em negociação', liveCampaigns.filter((campaign) => campaign.status === 'prospeccao' && campaign.stage === 'negociacao').length, 'pipeline_negotiation'],
+    ['Campanhas em produção', liveCampaigns.filter((campaign) => campaign.status === 'producao').length, 'pipeline_production'],
+    ['Aguardando aprovação', liveCampaigns.filter((campaign) => ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage)).length, 'pipeline_approval'],
+    ['Campanhas concluídas', liveCampaigns.filter((campaign) => campaign.status === 'concluida').length, 'pipeline_completed']
   ];
 
   financialContainer.innerHTML = `
     <div class="dashboard-kpis">
-      <div class="dashboard-kpi">
+      <button class="dashboard-kpi dashboard-kpi--button" data-action="open-dashboard-campaign-view" data-view="financial_receivable" type="button">
         <span>A receber</span>
         <strong>${formatCurrency(aReceber)}</strong>
-      </div>
-      <div class="dashboard-kpi dashboard-kpi--danger">
+      </button>
+      <button class="dashboard-kpi dashboard-kpi--button dashboard-kpi--danger" data-action="open-dashboard-campaign-view" data-view="financial_overdue" type="button">
         <span>Atrasado</span>
         <strong>${formatCurrency(atrasado)}</strong>
-      </div>
-      <div class="dashboard-kpi dashboard-kpi--accent">
+      </button>
+      <button class="dashboard-kpi dashboard-kpi--button dashboard-kpi--accent" data-action="open-dashboard-campaign-view" data-view="financial_received_month" type="button">
         <span>Recebido no mês</span>
         <strong>${formatCurrency(recebidoMes)}</strong>
-      </div>
+      </button>
     </div>
   `;
 
@@ -438,11 +438,11 @@ const renderDashboardFinancials = () => {
       <div class="dashboard-mini-grid">
         ${pipelineStats
           .map(
-            ([label, value]) => `
-              <div class="dashboard-mini-card">
+            ([label, value, view]) => `
+              <button class="dashboard-mini-card dashboard-mini-card--button dashboard-mini-card--pipeline" data-action="open-dashboard-campaign-view" data-view="${view}" type="button">
                 <span>${label}</span>
                 <strong>${value}</strong>
-              </div>
+              </button>
             `
           )
           .join('')}
@@ -453,18 +453,18 @@ const renderDashboardFinancials = () => {
   if (goalContainer) {
     goalContainer.innerHTML = `
       <div class="dashboard-kpis dashboard-kpis--goal">
-        <div class="dashboard-kpi">
+        <button class="dashboard-kpi dashboard-kpi--button" data-action="edit-monthly-goal" type="button">
           <span>Meta mensal</span>
           <strong>${formatCurrency(Number(state.settings?.monthlyGoal) || 0)}</strong>
-        </div>
-        <div class="dashboard-kpi dashboard-kpi--accent">
+        </button>
+        <button class="dashboard-kpi dashboard-kpi--button dashboard-kpi--accent" data-action="open-dashboard-campaign-view" data-view="financial_received_month" type="button">
           <span>Receita confirmada</span>
           <strong>${formatCurrency(recebidoMes)}</strong>
-        </div>
-        <div class="dashboard-kpi">
+        </button>
+        <button class="dashboard-kpi dashboard-kpi--button" data-action="open-dashboard-campaign-view" data-view="financial_scheduled_month" type="button">
           <span>Receita prevista</span>
           <strong>${formatCurrency(receitaPrevista)}</strong>
-        </div>
+        </button>
       </div>
     `;
   }
@@ -590,6 +590,7 @@ const renderCampaigns = () => {
 
   const filter = state.ui.campaignFilter || 'all';
   const sortBy = state.ui.campaignSort || 'updatedAt';
+  const dashboardView = state.ui.campaignDashboardView || 'all';
 
   const escapeHtml = (value) =>
     String(value ?? '')
@@ -639,6 +640,20 @@ const renderCampaigns = () => {
 
   /* Smart indicators */
   const todayStr = new Date().toISOString().slice(0, 10);
+  const todayBase = new Date(`${todayStr}T00:00:00`);
+  const currentMonth = todayBase.getMonth();
+  const currentYear = todayBase.getFullYear();
+  const isCurrentMonth = (value) => {
+    if (!value) return false;
+    const date = new Date(value);
+    return !Number.isNaN(date.getTime()) && date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+  };
+  const getDeadlineDiff = (value) => {
+    if (!value) return null;
+    const date = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return null;
+    return Math.floor((date - todayBase) / 86400000);
+  };
   const getIndicators = (c) => {
     const tags = [];
     if (c.status === 'concluida') return tags;
@@ -681,10 +696,83 @@ const renderCampaigns = () => {
   const sortSelect = document.querySelector('[data-campaign-sort]');
   if (sortSelect && sortSelect.value !== sortBy) sortSelect.value = sortBy;
 
+  const dashboardViewMeta = {
+    financial_receivable: {
+      title: 'Financeiro: a receber',
+      description: 'Campanhas aguardando pagamento e ainda não recebidas.'
+    },
+    financial_overdue: {
+      title: 'Financeiro: atrasado',
+      description: 'Campanhas com pagamento vencido e ainda pendente.'
+    },
+    financial_received_month: {
+      title: 'Financeiro: recebido no mês',
+      description: 'Campanhas recebidas no mês atual.'
+    },
+    financial_scheduled_month: {
+      title: 'Financeiro: receita prevista',
+      description: 'Campanhas com pagamento programado para este mês.'
+    },
+    pipeline_negotiation: {
+      title: 'Pipeline: leads em negociação',
+      description: 'Campanhas na etapa de negociação.'
+    },
+    pipeline_production: {
+      title: 'Pipeline: campanhas em produção',
+      description: 'Campanhas que já entraram em produção.'
+    },
+    pipeline_approval: {
+      title: 'Pipeline: aguardando aprovação',
+      description: 'Campanhas esperando aprovação de roteiro ou conteúdo.'
+    },
+    pipeline_completed: {
+      title: 'Pipeline: campanhas concluídas',
+      description: 'Campanhas já finalizadas no fluxo comercial.'
+    },
+    deadlines: {
+      title: 'Prazos próximos',
+      description: 'Campanhas que vencem em até 3 dias ou já atrasaram.'
+    }
+  };
+
+  const matchesDashboardView = (campaign) => {
+    switch (dashboardView) {
+      case 'financial_receivable':
+        return campaign.stage === 'aguardando_pagamento' && Number(campaign.paymentPercent || 0) < 100;
+      case 'financial_overdue':
+        return (
+          campaign.stage === 'aguardando_pagamento' &&
+          Number(campaign.paymentPercent || 0) < 100 &&
+          campaign.paymentDate &&
+          campaign.paymentDate < todayStr
+        );
+      case 'financial_received_month':
+        if (campaign.paymentReceivedAt) return isCurrentMonth(campaign.paymentReceivedAt);
+        return (campaign.status === 'concluida' || Number(campaign.paymentPercent || 0) >= 100) && isCurrentMonth(String(campaign.updatedAt || '').slice(0, 10));
+      case 'financial_scheduled_month':
+        return campaign.paymentDate && isCurrentMonth(campaign.paymentDate);
+      case 'pipeline_negotiation':
+        return campaign.status === 'prospeccao' && campaign.stage === 'negociacao';
+      case 'pipeline_production':
+        return campaign.status === 'producao';
+      case 'pipeline_approval':
+        return ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage);
+      case 'pipeline_completed':
+        return campaign.status === 'concluida';
+      case 'deadlines': {
+        const diff = getDeadlineDiff(campaign.dueDate);
+        return campaign.status !== 'concluida' && diff !== null && diff <= 3;
+      }
+      default:
+        return true;
+    }
+  };
+
   const allCampaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
   const list = allCampaigns
     .filter((campaign) => {
       if (filter !== 'all' && campaign.status !== filter) return false;
+      if (!matchesDashboardView(campaign)) return false;
       return true;
     })
     .sort((a, b) => {
@@ -703,7 +791,23 @@ const renderCampaigns = () => {
     });
 
   if (!list.length) {
-    container.innerHTML = '<div class="card">Nenhuma campanha por aqui.</div>';
+    container.innerHTML = `
+      ${
+        dashboardViewMeta[dashboardView]
+          ? `
+            <div class="campaign-dashboard-banner">
+              <div class="campaign-dashboard-banner-copy">
+                <span class="campaign-dashboard-eyebrow">Visão do dashboard</span>
+                <strong>${dashboardViewMeta[dashboardView].title}</strong>
+                <p class="muted">${dashboardViewMeta[dashboardView].description}</p>
+              </div>
+              <button class="btn btn-ghost btn-small" data-action="clear-dashboard-campaign-view" type="button">Limpar</button>
+            </div>
+          `
+          : ''
+      }
+      <div class="card">Nenhuma campanha por aqui.</div>
+    `;
     return;
   }
 
@@ -716,6 +820,20 @@ const renderCampaigns = () => {
   };
 
   container.innerHTML = `
+    ${
+      dashboardViewMeta[dashboardView]
+        ? `
+          <div class="campaign-dashboard-banner">
+            <div class="campaign-dashboard-banner-copy">
+              <span class="campaign-dashboard-eyebrow">Visão do dashboard</span>
+              <strong>${dashboardViewMeta[dashboardView].title}</strong>
+              <p class="muted">${dashboardViewMeta[dashboardView].description}</p>
+            </div>
+            <button class="btn btn-ghost btn-small" data-action="clear-dashboard-campaign-view" type="button">Limpar</button>
+          </div>
+        `
+        : ''
+    }
     <div class="table-wrap campaign-table-wrap">
       <table class="campaign-table">
         <thead>
