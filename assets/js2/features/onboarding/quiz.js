@@ -1,7 +1,7 @@
 ﻿import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js';
-import { setActivePage, showToast } from '../../core/ui.js?v=20260301h';
-import { trackEvent } from '../../core/gamification.js?v=20260301h';
+import { setActivePage, showToast } from '../../core/ui.js?v=20260301u';
+import { trackEvent } from '../../core/gamification.js?v=20260301u';
 
 /* â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
@@ -16,11 +16,7 @@ const ensureOnboardingQuiz = () => {
   if (ob.campaignCount === undefined) ob.campaignCount = null;
   if (ob.firstCampaignCreated === undefined) ob.firstCampaignCreated = false;
   if (ob.tooltipsDone === undefined) ob.tooltipsDone = false;
-<<<<<<< Updated upstream
-  if (ob.campaignHintDismissed === undefined) ob.campaignHintDismissed = false;
-=======
   if (ob.ctaTipDismissed === undefined) ob.ctaTipDismissed = false;
->>>>>>> Stashed changes
   if (ob.targetBrandType === undefined) ob.targetBrandType = null;
   if (ob.weeklyOutreachGoal === undefined) ob.weeklyOutreachGoal = null;
   return ob;
@@ -276,65 +272,24 @@ const convertModelToReal = (campaignId) => {
 
 const startCampaignHighlight = () => {
   const ob = ensureOnboardingQuiz();
-<<<<<<< Updated upstream
-  if (ob.firstCampaignCreated && ob.tooltipsDone) return;
-  if (ob.campaignHintDismissed === true) return;
-=======
   if ((ob.firstCampaignCreated && ob.tooltipsDone) || ob.ctaTipDismissed) return;
->>>>>>> Stashed changes
 
   setTimeout(() => {
     const btn = document.querySelector('[data-action="new-campaign"]');
     if (!btn) return;
-<<<<<<< Updated upstream
-    if (ob.firstCampaignCreated) return;
-    if (ob.campaignHintDismissed === true) return;
-=======
     if (ob.firstCampaignCreated || ob.ctaTipDismissed) return;
->>>>>>> Stashed changes
 
     btn.classList.add('onboarding-glow');
-    const existingTip = btn.querySelector('.onboarding-tooltip');
-    if (existingTip) existingTip.remove();
-
     const tip = document.createElement('div');
     tip.className = 'onboarding-tooltip';
     tip.innerHTML = `
       <span class="onboarding-tooltip-text">Comece por aqui.</span>
-<<<<<<< Updated upstream
-      <span class="onboarding-tooltip-close" role="button" aria-label="Fechar dica" tabindex="0">&times;</span>
-=======
       <button class="onboarding-tooltip-close" type="button" aria-label="Fechar dica">×</button>
->>>>>>> Stashed changes
     `;
     tip.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
     });
-<<<<<<< Updated upstream
-
-    const closeHint = () => {
-      ob.campaignHintDismissed = true;
-      saveState();
-      removeCampaignHighlight();
-    };
-
-    const closeButton = tip.querySelector('.onboarding-tooltip-close');
-    if (closeButton) {
-      closeButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        closeHint();
-      });
-      closeButton.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
-        event.preventDefault();
-        event.stopPropagation();
-        closeHint();
-      });
-    }
-
-=======
     const closeBtn = tip.querySelector('.onboarding-tooltip-close');
     if (closeBtn) {
       closeBtn.addEventListener('click', (event) => {
@@ -346,7 +301,6 @@ const startCampaignHighlight = () => {
         removeCampaignHighlight();
       });
     }
->>>>>>> Stashed changes
     btn.style.position = 'relative';
     btn.appendChild(tip);
   }, 400);

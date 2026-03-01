@@ -7,21 +7,6 @@ const getBrandModal = () => ({
   modal: document.getElementById('brand-modal'),
   form: document.getElementById('brand-form'),
   msg: document.getElementById('brand-msg'),
-<<<<<<< Updated upstream
-  title: document.querySelector('[data-brand-modal-title]')
-});
-
-const toggleCustomActionRow = (form) => {
-  const typeSelect = form?.querySelector('[name="nextActionType"]');
-  const customRow = document.getElementById('brand-next-action-custom-row');
-  if (!typeSelect || !customRow) return;
-  customRow.style.display = typeSelect.value === 'outro' ? '' : 'none';
-};
-
-const openBrandModal = (brandId = '') => {
-  const { modal, form, msg, title } = getBrandModal();
-  if (!modal || !form) return;
-=======
   title: document.querySelector('[data-brand-modal-title]'),
   subtitle: document.querySelector('[data-brand-modal-subtitle]'),
   deleteBtn: document.getElementById('brand-delete-inline-btn')
@@ -105,46 +90,9 @@ const openBrandModal = (brandId = '', options = {}) => {
       delete deleteBtn.dataset.brandId;
     }
   }
->>>>>>> Stashed changes
 
-  form.reset();
-  form.dataset.brandId = '';
-  if (msg) msg.textContent = '';
-
-  const brand = (state.brands || []).find((item) => item.id === brandId) || null;
-  if (brand) {
-    form.dataset.brandId = brand.id;
-    if (title) title.textContent = 'Editar marca';
-    form.querySelector('[name="id"]').value = brand.id;
-    form.querySelector('[name="name"]').value = brand.name || '';
-    form.querySelector('[name="instagram"]').value = brand.instagram || '';
-    form.querySelector('[name="email"]').value = brand.email || '';
-    form.querySelector('[name="contact"]').value = brand.contact || '';
-    form.querySelector('[name="status"]').value = brand.status || 'lead';
-    form.querySelector('[name="nextActionType"]').value = brand.nextActionType || '';
-    form.querySelector('[name="nextActionCustomType"]').value = brand.nextActionCustomType || '';
-    form.querySelector('[name="nextActionDate"]').value = brand.nextActionDate || '';
-    form.querySelector('[name="nextActionNote"]').value = brand.nextActionNote || '';
-  } else if (title) {
-    title.textContent = 'Nova marca';
-  }
-
-  toggleCustomActionRow(form);
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
-<<<<<<< Updated upstream
-  window.setTimeout(() => form.querySelector('[name="name"]')?.focus(), 0);
-};
-
-const closeBrandModal = () => {
-  const { modal, form, msg } = getBrandModal();
-  if (!modal || !form) return;
-  modal.classList.remove('open');
-  modal.setAttribute('aria-hidden', 'true');
-  form.reset();
-  form.dataset.brandId = '';
-  if (msg) msg.textContent = '';
-=======
   if (nameInput) nameInput.focus();
 };
 
@@ -181,7 +129,6 @@ const syncCampaignsWithBrand = (brand, previousName = '') => {
     if (!campaign.contactEmail && brand.email) campaign.contactEmail = brand.email;
     campaign.updatedAt = new Date().toISOString();
   });
->>>>>>> Stashed changes
 };
 
 const handleBrandSubmit = (event) => {
@@ -191,16 +138,6 @@ const handleBrandSubmit = (event) => {
   if (msg) msg.textContent = '';
 
   const data = new FormData(form);
-<<<<<<< Updated upstream
-  const id = String(data.get('id') || form.dataset.brandId || '').trim();
-  const name = String(data.get('name') || '').trim();
-  const instagram = String(data.get('instagram') || '').trim();
-  const email = String(data.get('email') || '').trim();
-  const contact = String(data.get('contact') || '').trim();
-  const status = String(data.get('status') || 'lead').trim();
-  const nextActionType = String(data.get('nextActionType') || '').trim();
-  const nextActionCustomType = String(data.get('nextActionCustomType') || '').trim();
-=======
   const id = String(data.get('id') || '').trim();
   const name = String(data.get('name') || '').trim().slice(0, 80);
   const instagram = String(data.get('instagram') || '').trim().replace(/^@+/, '@').slice(0, 120);
@@ -210,7 +147,6 @@ const handleBrandSubmit = (event) => {
   const nextActionTypeRaw = String(data.get('nextActionType') || '').trim();
   const nextActionType = nextActionOptions.includes(nextActionTypeRaw) ? nextActionTypeRaw : '';
   const nextActionCustomType = String(data.get('nextActionCustomType') || '').trim().slice(0, 80);
->>>>>>> Stashed changes
   const nextActionDate = String(data.get('nextActionDate') || '').trim();
   const nextActionNote = String(data.get('nextActionNote') || '').trim().slice(0, 140);
 
@@ -218,61 +154,6 @@ const handleBrandSubmit = (event) => {
     if (msg) msg.textContent = 'Informe o nome da marca.';
     return;
   }
-<<<<<<< Updated upstream
-  if (nextActionType && !nextActionDate) {
-    if (msg) msg.textContent = 'Defina a data da próxima ação.';
-    return;
-  }
-  if (nextActionType === 'outro' && !nextActionCustomType) {
-    if (msg) msg.textContent = 'Descreva o tipo personalizado.';
-    return;
-  }
-
-  if (id) {
-    const brand = state.brands.find((item) => item.id === id);
-    if (!brand) {
-      if (msg) msg.textContent = 'Não encontrei essa marca.';
-      return;
-    }
-    brand.name = name;
-    brand.instagram = instagram;
-    brand.email = email;
-    brand.contact = contact;
-    brand.status = status;
-    brand.nextActionType = nextActionType;
-    brand.nextActionCustomType = nextActionType === 'outro' ? nextActionCustomType : '';
-    brand.nextActionDate = nextActionDate;
-    brand.nextActionNote = nextActionNote;
-
-    (state.campaigns || []).forEach((campaign) => {
-      if (campaign.brandId === brand.id) campaign.brand = brand.name;
-    });
-
-    saveState();
-    renderAll();
-    closeBrandModal();
-    showToast('Marca atualizada.');
-    return;
-  }
-
-  const brand = {
-    id: `b-${Date.now()}`,
-    name,
-    instagram,
-    email,
-    contact,
-    status,
-    nextActionType,
-    nextActionCustomType: nextActionType === 'outro' ? nextActionCustomType : '',
-    nextActionDate,
-    nextActionNote,
-    interactions: []
-  };
-
-  state.brands.unshift(brand);
-  state.ui.selectedBrandId = brand.id;
-  trackEvent('brand_created', { brandId: brand.id, brand });
-=======
   if (email && !email.includes('@')) {
     if (msg) msg.textContent = 'Informe um email válido ou deixe em branco.';
     return;
@@ -339,7 +220,6 @@ const handleBrandSubmit = (event) => {
     state.ui.pendingCampaignBrandId = brand.id;
   }
 
->>>>>>> Stashed changes
   saveState();
   renderAll();
   populateCampaignBrandSelect(brand.id);
@@ -375,12 +255,6 @@ const handleBrandSubmit = (event) => {
 
 const initBrandForm = () => {
   const { form } = getBrandModal();
-<<<<<<< Updated upstream
-  if (!form || form.dataset.bound === '1') return;
-  form.dataset.bound = '1';
-  form.addEventListener('submit', handleBrandSubmit);
-  form.querySelector('[name="nextActionType"]')?.addEventListener('change', () => toggleCustomActionRow(form));
-=======
   if (!form) return;
   if (form.dataset.bound === '1') return;
   form.dataset.bound = '1';
@@ -400,7 +274,6 @@ const initBrandForm = () => {
       populateCampaignBrandSelect(selected);
     });
   } catch (error) {}
->>>>>>> Stashed changes
 };
 
 export { openBrandModal, closeBrandModal, initBrandForm, populateCampaignBrandSelect };

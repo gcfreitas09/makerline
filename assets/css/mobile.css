@@ -125,15 +125,15 @@ ampaign-status-stage select option {
   border-radius: 0;
 }
 
-@media (max-width: 1100px) {
-  .dashboard-grid,
-  .brands-shell {
+@media (max-width: 1024px) {
+  .dashboard-layout {
     grid-template-columns: 1fr;
-    grid-template-areas:
-      "today"
-      "financial"
-      "pipeline"
-      "goal";
+    grid-template-rows: none;
+    grid-auto-rows: auto;
+  }
+
+  .dashboard-sidebar {
+    order: 2;
   }
 
   .brands-shell {
@@ -163,35 +163,35 @@ ampaign-status-stage select option {
 }
 
 @media (max-width: 768px) {
-  .dashboard-list-item,
-  .dashboard-card-head,
-  .dashboard-panel-block-head,
-  .brands-list-head,
-  .brands-detail-head {
+  .dashboard-card {
+    padding: 18px;
+    gap: 16px;
+  }
+
+  .dashboard-group-header,
+  .dashboard-card-header,
+  .dashboard-item,
+  .dashboard-item-topline {
     flex-direction: column;
+  }
+
+  .dashboard-card-header,
+  .dashboard-group-header,
+  .dashboard-item-actions {
     align-items: stretch;
   }
 
-  .campaign-dashboard-banner {
-    flex-direction: column;
-    align-items: stretch;
+  .dashboard-item-actions .btn,
+  .dashboard-group-header .btn {
+    width: 100%;
   }
 
-  .dashboard-list-actions,
-  .brands-row-actions,
-  .brands-detail-actions,
-  .modal-actions--spread {
-    justify-content: stretch;
-  }
-
-  .dashboard-mini-grid,
-  .brands-stats-grid,
-  .brands-detail-grid {
+  .dashboard-pipeline-grid {
     grid-template-columns: 1fr;
   }
 
-  .brands-table-wrap {
-    overflow-x: auto;
+  .dashboard-metric-value {
+    font-size: 28px;
   }
 
   .section-actions {
