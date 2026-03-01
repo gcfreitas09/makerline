@@ -1,6 +1,6 @@
 import { state, saveState } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js';
-import { showToast } from '../../core/ui.js';
+import { showToast } from '../../core/ui.js?v=20260301g';
 
 const getCampaignDeleteModal = () => ({
   modal: document.getElementById('campaign-delete-modal'),

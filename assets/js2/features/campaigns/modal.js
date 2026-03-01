@@ -1,7 +1,15 @@
+<<<<<<< Updated upstream
 import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js';
 import { showToast } from '../../core/ui.js';
 import { trackEvent } from '../../core/gamification.js';
+=======
+import { state, saveState, getDefaultCampaignStage, nextActionOptions } from '../../core/state.js';
+import { renderAll } from '../../core/renderers.js?v=20260301h';
+import { showToast } from '../../core/ui.js?v=20260301h';
+import { trackEvent } from '../../core/gamification.js?v=20260301h';
+import { populateCampaignBrandSelect } from '../brands/modal.js';
+>>>>>>> Stashed changes
 
 const getCampaignModal = () => ({
   modal: document.getElementById('campaign-modal'),
@@ -24,6 +32,24 @@ const parseMoneyBRL = (raw) => {
   return digits ? parseInt(digits, 10) : 0;
 };
 
+<<<<<<< Updated upstream
+=======
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
+const getBrandById = (brandId) => (Array.isArray(state.brands) ? state.brands : []).find((brand) => brand.id === brandId) || null;
+
+const toggleNextActionCustomRow = (form, value) => {
+  const customRow = document.getElementById('campaign-next-action-custom-row');
+  const customInput = form?.querySelector('input[name="nextActionCustomType"]');
+  const show = value === 'outro';
+  if (customRow) customRow.style.display = show ? '' : 'none';
+  if (customInput) {
+    customInput.required = show;
+    if (!show) customInput.value = '';
+  }
+};
+
+>>>>>>> Stashed changes
 const setModalMode = ({ mode, campaign }) => {
   const { title, subtitle, form } = getCampaignModal();
   const isEdit = mode === 'edit';
@@ -74,7 +100,11 @@ const openCampaignModal = (campaignId = null, preset = {}) => {
   const startOtherInput = form.querySelector('input[name="startMethodOther"]');
   const contactNameInput = form.querySelector('input[name="contactName"]');
   const contactEmailInput = form.querySelector('input[name="contactEmail"]');
+<<<<<<< Updated upstream
   const brandInput = form.querySelector('input[name="brand"]');
+=======
+  const brandSelect = form.querySelector('select[name="brandId"]');
+>>>>>>> Stashed changes
   const mailtoBtn = document.getElementById('campaign-mailto-btn');
   const startOtherRow = document.getElementById('campaign-start-other-row');
 
@@ -88,13 +118,35 @@ const openCampaignModal = (campaignId = null, preset = {}) => {
   if (contactEmailInput) contactEmailInput.value = '';
   if (startOtherRow) startOtherRow.style.display = 'none';
   if (mailtoBtn) mailtoBtn.style.display = 'none';
+<<<<<<< Updated upstream
+=======
+  if (nextActionTypeSelect) nextActionTypeSelect.value = '';
+  if (nextActionDateInput) nextActionDateInput.value = '';
+  if (nextActionNoteInput) nextActionNoteInput.value = '';
+  if (nextActionCustomInput) nextActionCustomInput.value = '';
+  toggleNextActionCustomRow(form, '');
+  populateCampaignBrandSelect(state.ui.pendingCampaignBrandId || '');
+
+  if (msg) msg.textContent = '';
+>>>>>>> Stashed changes
 
   if (campaignId) {
     const campaign = state.campaigns.find((item) => item.id === campaignId);
     if (campaign) {
       setModalMode({ mode: 'edit', campaign });
+<<<<<<< Updated upstream
       form.querySelector('input[name="id"]').value = campaign.id;
       if (brandInput) brandInput.value = campaign.brand || '';
+=======
+      const idInput = form.querySelector('input[name="id"]');
+      if (idInput) idInput.value = campaign.id;
+
+      if (brandSelect) {
+        populateCampaignBrandSelect(campaign.brandId || state.ui.pendingCampaignBrandId || '');
+        brandSelect.value = campaign.brandId || state.ui.pendingCampaignBrandId || '';
+      }
+
+>>>>>>> Stashed changes
       if (valueInput) valueInput.value = formatMoneyBRL(campaign.value) || 'R$ 0';
       if (barterSelect) barterSelect.value = campaign.barter ? '1' : '0';
       if (paymentDateInput) paymentDateInput.value = campaign.paymentDate || '';
@@ -135,10 +187,27 @@ const openCampaignModal = (campaignId = null, preset = {}) => {
     }
   } else {
     setModalMode({ mode: 'create', campaign: null });
+<<<<<<< Updated upstream
     form.querySelector('input[name="id"]').value = '';
     if (brandInput && preset.brandId) {
       const brand = (state.brands || []).find((item) => item.id === preset.brandId);
       if (brand) brandInput.value = brand.name || '';
+=======
+    const idInput = form.querySelector('input[name="id"]');
+    if (idInput) idInput.value = '';
+    if (brandSelect) {
+      populateCampaignBrandSelect(state.ui.pendingCampaignBrandId || '');
+      brandSelect.value = state.ui.pendingCampaignBrandId || '';
+      const selectedBrand = getBrandById(brandSelect.value);
+      if (selectedBrand) {
+        if (contactNameInput && !contactNameInput.value) contactNameInput.value = selectedBrand.contact || '';
+        if (contactEmailInput && !contactEmailInput.value) contactEmailInput.value = selectedBrand.email || '';
+        if (mailtoBtn && selectedBrand.email) {
+          mailtoBtn.href = `mailto:${encodeURIComponent(selectedBrand.email)}`;
+          mailtoBtn.style.display = '';
+        }
+      }
+>>>>>>> Stashed changes
     }
   }
 
@@ -153,9 +222,15 @@ const openCampaignModal = (campaignId = null, preset = {}) => {
     }
   }
 
+<<<<<<< Updated upstream
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   if (brandInput) brandInput.focus();
+=======
+  state.ui.pendingCampaignBrandId = null;
+
+  if (brandSelect) brandSelect.focus();
+>>>>>>> Stashed changes
 };
 
 const closeCampaignModal = () => {
@@ -199,7 +274,11 @@ const handleCampaignSubmit = (event) => {
 
   const data = new FormData(form);
   const id = String(data.get('id') || '').trim();
+<<<<<<< Updated upstream
   const brandName = String(data.get('brand') || '').trim();
+=======
+  const brandId = String(data.get('brandId') || '').trim();
+>>>>>>> Stashed changes
   const value = Math.max(parseMoneyBRL(data.get('value')), 0);
   const barter = String(data.get('barter') || '0') === '1';
   const dueDate = String(data.get('dueDate') || '').trim();
@@ -216,9 +295,26 @@ const handleCampaignSubmit = (event) => {
   const paymentDate = String(data.get('paymentDate') || '').trim();
   const contactName = String(data.get('contactName') || '').trim();
   const contactEmail = String(data.get('contactEmail') || '').trim();
+<<<<<<< Updated upstream
 
   if (!brandName) {
     if (msg) msg.textContent = 'Coloca a marca pra salvar.';
+=======
+  const nextActionTypeRaw = String(data.get('nextActionType') || '').trim();
+  const nextActionType = nextActionOptions.includes(nextActionTypeRaw) ? nextActionTypeRaw : '';
+  const nextActionCustomType = String(data.get('nextActionCustomType') || '').trim().slice(0, 80);
+  const nextActionDate = String(data.get('nextActionDate') || '').trim();
+  const nextActionNote = String(data.get('nextActionNote') || '').trim().slice(0, 140);
+  const paymentReceivedAt =
+    paymentPercent >= 100
+      ? (paymentReceivedAtRaw || todayIso())
+      : '';
+  const brandRecord = getBrandById(brandId);
+  const brand = brandRecord?.name || '';
+
+  if (!brandRecord) {
+    if (msg) msg.textContent = 'Escolha uma marca para salvar a campanha.';
+>>>>>>> Stashed changes
     return;
   }
 
@@ -233,6 +329,10 @@ const handleCampaignSubmit = (event) => {
   const allowedStartMethods = ['ugc_platform', 'inbound', 'outbound', 'instagram', 'agencia', 'comunidade', 'other'];
   const startMethodSafe = allowedStartMethods.includes(startMethodNormalized) ? startMethodNormalized : '';
 
+  if (contactName && !brandRecord.contact) brandRecord.contact = contactName;
+  if (contactEmail && !brandRecord.email) brandRecord.email = contactEmail;
+  brandRecord.updatedAt = nowIso;
+
   if (id) {
     const campaign = state.campaigns.find((item) => item.id === id);
     if (!campaign) {
@@ -244,8 +344,13 @@ const handleCampaignSubmit = (event) => {
     const previousLife = campaign.archived ? 'archived' : campaign.paused ? 'paused' : 'active';
     const previousBrand = String(campaign.brand || '').trim();
 
+<<<<<<< Updated upstream
     campaign.brand = brand.name;
     campaign.brandId = brand.id;
+=======
+    campaign.brandId = brandRecord.id;
+    campaign.brand = brand;
+>>>>>>> Stashed changes
     campaign.value = value;
     campaign.barter = barter;
     campaign.dueDate = dueDate;
@@ -286,15 +391,26 @@ const handleCampaignSubmit = (event) => {
     return;
   }
 
+<<<<<<< Updated upstream
   const brandKey = brand.name.toLowerCase();
   const existingCount = state.campaigns.filter((campaign) => String(campaign.brand || '').toLowerCase() === brandKey).length;
   const title = existingCount ? `${brand.name} #${existingCount + 1}` : brand.name;
+=======
+  const brandKey = brand.toLowerCase();
+  const existingCount = state.campaigns.filter((c) => String(c.brandId || '').trim() === brandRecord.id || String(c.brand || '').toLowerCase() === brandKey).length;
+  const title = existingCount ? `${brand} #${existingCount + 1}` : `${brand}`;
+>>>>>>> Stashed changes
 
   const campaign = {
     id: `c-${Date.now()}`,
     title,
+<<<<<<< Updated upstream
     brand: brand.name,
     brandId: brand.id,
+=======
+    brandId: brandRecord.id,
+    brand,
+>>>>>>> Stashed changes
     status: 'prospeccao',
     stage: getDefaultCampaignStage('prospeccao'),
     value,
@@ -350,6 +466,11 @@ const initCampaignForm = () => {
   const startMethodSelect = campaignForm.querySelector('select[name="startMethod"]');
   const startOtherRow = document.getElementById('campaign-start-other-row');
   const startOtherInput = campaignForm.querySelector('input[name="startMethodOther"]');
+<<<<<<< Updated upstream
+=======
+  const nextActionTypeSelect = campaignForm.querySelector('select[name="nextActionType"]');
+  const brandSelect = campaignForm.querySelector('select[name="brandId"]');
+>>>>>>> Stashed changes
   if (startMethodSelect) {
     startMethodSelect.addEventListener('change', () => {
       const show = startMethodSelect.value === 'other';
@@ -357,6 +478,32 @@ const initCampaignForm = () => {
       if (!show && startOtherInput) startOtherInput.value = '';
     });
   }
+<<<<<<< Updated upstream
+=======
+  if (nextActionTypeSelect) {
+    nextActionTypeSelect.addEventListener('change', () => {
+      toggleNextActionCustomRow(campaignForm, nextActionTypeSelect.value);
+    });
+  }
+  if (brandSelect) {
+    brandSelect.addEventListener('change', () => {
+      const selectedBrand = getBrandById(brandSelect.value);
+      const contactNameInput = campaignForm.querySelector('input[name="contactName"]');
+      const contactEmailInput = campaignForm.querySelector('input[name="contactEmail"]');
+      const mailtoBtn = document.getElementById('campaign-mailto-btn');
+      if (!selectedBrand) {
+        if (mailtoBtn) mailtoBtn.style.display = 'none';
+        return;
+      }
+      if (contactNameInput && !contactNameInput.value.trim()) contactNameInput.value = selectedBrand.contact || '';
+      if (contactEmailInput && !contactEmailInput.value.trim()) contactEmailInput.value = selectedBrand.email || '';
+      if (mailtoBtn && (contactEmailInput?.value || selectedBrand.email)) {
+        mailtoBtn.href = `mailto:${encodeURIComponent(contactEmailInput?.value || selectedBrand.email)}`;
+        mailtoBtn.style.display = (contactEmailInput?.value || selectedBrand.email) ? '' : 'none';
+      }
+    });
+  }
+>>>>>>> Stashed changes
 
   const contactEmailInput = campaignForm.querySelector('input[name="contactEmail"]');
   const mailtoBtn = document.getElementById('campaign-mailto-btn');
@@ -392,6 +539,14 @@ const initCampaignForm = () => {
       moneyInput.setSelectionRange(moneyInput.value.length, moneyInput.value.length);
     }
   });
+
+  try {
+    document.addEventListener('ugc:brands-changed', () => {
+      const selectedId = state.ui.pendingCampaignBrandId || brandSelect?.value || '';
+      populateCampaignBrandSelect(selectedId);
+      if (brandSelect && selectedId) brandSelect.value = selectedId;
+    });
+  } catch (error) {}
 };
 
 export { openCampaignModal, closeCampaignModal, initCampaignForm };

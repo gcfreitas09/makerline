@@ -135,6 +135,31 @@ ampaign-status-stage select option {
       "pipeline"
       "goal";
   }
+
+  .brands-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-detail-card {
+    position: static;
+    top: auto;
+  }
+
+  .brands-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .brand-detail-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .brand-interaction-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .brand-interaction-form .btn {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 768px) {
@@ -168,4 +193,84 @@ ampaign-status-stage select option {
   .brands-table-wrap {
     overflow-x: auto;
   }
+
+  .section-actions {
+    width: 100%;
+  }
+
+  .section-actions .btn {
+    width: 100%;
+  }
+
+  .brands-stats,
+  .brand-detail-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-table-head {
+    display: none;
+  }
+
+  .brand-table-row {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .brand-table-cell {
+    gap: 4px;
+  }
+
+  .brand-table-cell::before {
+    content: attr(data-label);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .brand-table-cell--primary,
+  .brand-table-cell--actions {
+    grid-column: 1 / -1;
+  }
+
+  .brand-table-cell--actions {
+    justify-content: flex-start;
+  }
+
+  .brand-row-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .brand-row-btn {
+    width: 100%;
+  }
+
+  .brand-detail-header,
+  .brand-detail-actions,
+  .brand-detail-block-head,
+  .brand-history-meta {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .brand-detail-header,
+  .brand-detail-actions,
+  .brand-detail-block-head {
+    align-items: stretch;
+  }
+
+  .brand-detail-actions .btn,
+  .brand-detail-block-head .btn {
+    width: 100%;
+  }
+
+  .campaign-context-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
 }

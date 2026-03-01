@@ -195,6 +195,7 @@ const defaultState = {
   ui: {
     activePage: 'dashboard',
     campaignFilter: 'all',
+    campaignDashboardFilter: '',
     campaignPaymentFilter: 'all',
     campaignSort: 'updatedAt',
     campaignSortDir: 'desc',
@@ -207,6 +208,8 @@ const defaultState = {
       type: 'first',
       text: ''
     },
+    selectedBrandId: null,
+    pendingCampaignBrandId: null,
     missionDate: todayKey(),
     weeklyDate: weekKey()
   }
@@ -282,6 +285,7 @@ const brandStatuses = {
 
 const brandOptions = Object.keys(brandStatuses);
 
+<<<<<<< Updated upstream
 const nextActionOptions = [
   'followup',
   'enviar_proposta',
@@ -293,6 +297,15 @@ const nextActionOptions = [
   'cobrar_pagamento',
   'outro'
 ];
+=======
+const brandInteractionTypes = {
+  dm: 'DM',
+  email: 'Email',
+  call: 'Call'
+};
+
+const brandInteractionOptions = Object.keys(brandInteractionTypes);
+>>>>>>> Stashed changes
 
 const nextActionLabels = {
   followup: 'Follow-up',
@@ -393,6 +406,7 @@ const normalizeCampaignPipeline = (currentState) => {
     const filter = String(currentState.ui.campaignFilter || 'all').trim().toLowerCase();
     if (filter === 'pendente' || filter === 'negociando') currentState.ui.campaignFilter = 'prospeccao';
     if (filter === 'realizado') currentState.ui.campaignFilter = 'finalizacao';
+    if (typeof currentState.ui.campaignDashboardFilter !== 'string') currentState.ui.campaignDashboardFilter = '';
   }
 };
 
@@ -421,7 +435,218 @@ const normalizeBrandIds = (currentState) => {
   });
 };
 
+<<<<<<< Updated upstream
 const normalizeBrandEntities = (currentState) => {
+=======
+const normalizeBrandFields = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+
+  const statusMigration = {
+    enviado: 'lead',
+    negociando: 'negociando',
+    fechado: 'cliente_ativo',
+    cliente: 'cliente_ativo',
+    ativo: 'cliente_ativo',
+    recorrente: 'cliente_recorrente',
+    inativo: 'inativa',
+    sem_resposta: 'lead'
+  };
+
+  const brands = Array.isArray(currentState.brands) ? currentState.brands : [];
+  brands.forEach((brand, index) => {
+    if (!brand || typeof brand !== 'object') return;
+
+    brand.name = stripUgcPrefix(String(brand.name || '').trim()).slice(0, 80) || `Marca ${index + 1}`;
+    brand.instagram = String(brand.instagram || '').trim().slice(0, 120);
+    brand.email = String(brand.email || '').trim().slice(0, 160);
+    brand.contact = String(brand.contact || '').trim().slice(0, 80);
+
+    const rawStatus = String(brand.status || '').trim().toLowerCase();
+    const migratedStatus = statusMigration[rawStatus] || rawStatus;
+    brand.status = brandOptions.includes(migratedStatus) ? migratedStatus : 'lead';
+
+    const createdAt = String(brand.createdAt || '').trim();
+    const updatedAt = String(brand.updatedAt || '').trim();
+    brand.createdAt = createdAt || brand.updatedAt || new Date().toISOString();
+    brand.updatedAt = updatedAt || brand.createdAt;
+
+    const rawInteractions = Array.isArray(brand.interactions) ? brand.interactions : [];
+    brand.interactions = rawInteractions
+      .map((interaction, interactionIndex) => {
+        if (!interaction || typeof interaction !== 'object') return null;
+        const rawType = String(interaction.type || '').trim().toLowerCase();
+        const type = brandInteractionOptions.includes(rawType) ? rawType : 'dm';
+        const note = String(interaction.note || interaction.text || '').trim().slice(0, 140);
+        const date = /^\d{4}-\d{2}-\d{2}$/.test(String(interaction.date || '').trim())
+          ? String(interaction.date || '').trim()
+          : String(interaction.createdAt || '').slice(0, 10);
+        if (!date && !note) return null;
+        return {
+          id: String(interaction.id || `bi-${index}-${interactionIndex}`),
+          date,
+          type,
+          note,
+          createdAt: String(interaction.createdAt || interaction.updatedAt || brand.updatedAt || brand.createdAt || '')
+            || new Date().toISOString()
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+  });
+};
+
+const normalizeCampaignBrandLinks = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+
+  const brands = Array.isArray(currentState.brands) ? currentState.brands : [];
+  const campaigns = Array.isArray(currentState.campaigns) ? currentState.campaigns : [];
+  const byId = new Map();
+  const byName = new Map();
+
+  const keyForName = (value) => stripUgcPrefix(String(value || '').trim()).toLowerCase();
+
+  brands.forEach((brand) => {
+    if (!brand || typeof brand !== 'object') return;
+    if (brand.id) byId.set(String(brand.id), brand);
+    const nameKey = keyForName(brand.name);
+    if (nameKey && !byName.has(nameKey)) byName.set(nameKey, brand);
+  });
+
+  campaigns.forEach((campaign, index) => {
+    if (!campaign || typeof campaign !== 'object') return;
+
+    const rawBrandId = String(campaign.brandId || '').trim();
+    const campaignBrandName = stripUgcPrefix(String(campaign.brand || '').trim());
+    const nameKey = keyForName(campaignBrandName);
+
+    let linkedBrand = rawBrandId ? byId.get(rawBrandId) || null : null;
+    if (!linkedBrand && nameKey) {
+      linkedBrand = byName.get(nameKey) || null;
+    }
+
+    if (!linkedBrand && campaignBrandName) {
+      linkedBrand = {
+        id: `b-legacy-${Date.now()}-${index}`,
+        name: campaignBrandName,
+        instagram: '',
+        email: String(campaign.contactEmail || '').trim().slice(0, 160),
+        contact: String(campaign.contactName || '').trim().slice(0, 80),
+        status: 'lead',
+        interactions: [],
+        nextActionType: '',
+        nextActionCustomType: '',
+        nextActionDate: '',
+        nextActionNote: '',
+        createdAt: String(campaign.createdAt || '').trim() || new Date().toISOString(),
+        updatedAt: String(campaign.updatedAt || campaign.createdAt || '').trim() || new Date().toISOString()
+      };
+      brands.push(linkedBrand);
+      byId.set(linkedBrand.id, linkedBrand);
+      byName.set(nameKey, linkedBrand);
+    }
+
+    if (linkedBrand) {
+      campaign.brandId = linkedBrand.id;
+      campaign.brand = linkedBrand.name;
+      if (!linkedBrand.contact && campaign.contactName) linkedBrand.contact = String(campaign.contactName || '').trim().slice(0, 80);
+      if (!linkedBrand.email && campaign.contactEmail) linkedBrand.email = String(campaign.contactEmail || '').trim().slice(0, 160);
+      return;
+    }
+
+    campaign.brandId = '';
+  });
+};
+
+const normalizeNextActionFields = (item, { allowPaymentReceived = false } = {}) => {
+  if (!item || typeof item !== 'object') return;
+
+  const rawType = String(item.nextActionType || '').trim();
+  const nextActionType = nextActionOptions.includes(rawType) ? rawType : '';
+  const nextActionDate = /^\d{4}-\d{2}-\d{2}$/.test(String(item.nextActionDate || '').trim())
+    ? String(item.nextActionDate || '').trim()
+    : '';
+  const nextActionCustomType = String(item.nextActionCustomType || '').trim().slice(0, 80);
+  const nextActionNote = String(item.nextActionNote || '').trim().slice(0, 140);
+
+  if (!nextActionType || !nextActionDate || (nextActionType === 'outro' && !nextActionCustomType)) {
+    item.nextActionType = '';
+    item.nextActionCustomType = '';
+    item.nextActionDate = '';
+    item.nextActionNote = '';
+  } else {
+    item.nextActionType = nextActionType;
+    item.nextActionCustomType = nextActionType === 'outro' ? nextActionCustomType : '';
+    item.nextActionDate = nextActionDate;
+    item.nextActionNote = nextActionNote;
+  }
+
+  if (!allowPaymentReceived) return;
+
+  item.paymentReceivedAt = /^\d{4}-\d{2}-\d{2}$/.test(String(item.paymentReceivedAt || '').trim())
+    ? String(item.paymentReceivedAt || '').trim()
+    : '';
+};
+
+const normalizeCampaignActionFields = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+  const campaigns = Array.isArray(currentState.campaigns) ? currentState.campaigns : [];
+  campaigns.forEach((campaign) => normalizeNextActionFields(campaign, { allowPaymentReceived: true }));
+};
+
+const normalizeCampaignContractFields = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+  const campaigns = Array.isArray(currentState.campaigns) ? currentState.campaigns : [];
+  campaigns.forEach((campaign) => {
+    if (!campaign || typeof campaign !== 'object') return;
+    campaign.contractUsageRights = String(campaign.contractUsageRights || '').trim().slice(0, 120);
+    campaign.contractUsageTerm = String(campaign.contractUsageTerm || '').trim().slice(0, 120);
+
+    const advancePaymentRaw = Number.isFinite(campaign.contractAdvancePaymentAmount)
+      ? campaign.contractAdvancePaymentAmount
+      : parseInt(String(campaign.contractAdvancePaymentAmount || ''), 10);
+    campaign.contractAdvancePaymentAmount = Number.isFinite(advancePaymentRaw) ? Math.max(0, advancePaymentRaw) : 0;
+
+    const productSentRaw = String(campaign.contractProductSent || '').trim().toLowerCase();
+    campaign.contractProductSent = ['sim', 'nao'].includes(productSentRaw) ? productSentRaw : 'nao';
+    campaign.contractProductReceiptDate = /^\d{4}-\d{2}-\d{2}$/.test(String(campaign.contractProductReceiptDate || '').trim())
+      ? String(campaign.contractProductReceiptDate || '').trim()
+      : '';
+
+    const invoiceRequiredRaw = String(campaign.contractInvoiceRequired || '').trim().toLowerCase();
+    campaign.contractInvoiceRequired = ['sim', 'nao'].includes(invoiceRequiredRaw) ? invoiceRequiredRaw : 'nao';
+  });
+};
+
+const normalizeCampaignHistory = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+  const campaigns = Array.isArray(currentState.campaigns) ? currentState.campaigns : [];
+  campaigns.forEach((campaign, campaignIndex) => {
+    if (!campaign || typeof campaign !== 'object') return;
+    const rawHistory = Array.isArray(campaign.history) ? campaign.history : [];
+    campaign.history = rawHistory
+      .map((entry, entryIndex) => {
+        if (!entry || typeof entry !== 'object') return null;
+        const type = String(entry.type || 'note').trim().toLowerCase() || 'note';
+        const title = String(entry.title || '').trim().slice(0, 120);
+        const description = String(entry.description || '').trim().slice(0, 240);
+        const occurredAt = String(entry.occurredAt || entry.createdAt || '').trim();
+        if (!title && !description && !occurredAt) return null;
+        return {
+          id: String(entry.id || `ch-${campaignIndex}-${entryIndex}`),
+          type,
+          title: title || 'Atualização',
+          description,
+          occurredAt: occurredAt || new Date().toISOString(),
+          createdAt: String(entry.createdAt || occurredAt || '').trim() || new Date().toISOString()
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => String(b.occurredAt || '').localeCompare(String(a.occurredAt || '')));
+  });
+};
+
+const normalizeBrandActionFields = (currentState) => {
+>>>>>>> Stashed changes
   if (!currentState || typeof currentState !== 'object') return;
   const brands = Array.isArray(currentState.brands) ? currentState.brands : [];
 
@@ -641,10 +866,22 @@ const loadState = () => {
 
   normalizeCampaignTitles(nextState);
   normalizeCampaignPipeline(nextState);
+<<<<<<< Updated upstream
   normalizeBrandEntities(nextState);
   normalizeBrandIds(nextState);
   normalizeCampaignLinksAndFields(nextState);
+=======
+  normalizeBrandFields(nextState);
+>>>>>>> Stashed changes
   normalizeBrandIds(nextState);
+  normalizeCampaignBrandLinks(nextState);
+  normalizeBrandFields(nextState);
+  normalizeBrandIds(nextState);
+  normalizeCampaignBrandLinks(nextState);
+  normalizeCampaignActionFields(nextState);
+  normalizeCampaignContractFields(nextState);
+  normalizeCampaignHistory(nextState);
+  normalizeBrandActionFields(nextState);
   return nextState;
 };
 
@@ -756,11 +993,45 @@ const replaceState = (nextState) => {
   const merged = mergeState(defaultState, nextState);
   normalizeCampaignTitles(merged);
   normalizeCampaignPipeline(merged);
+<<<<<<< Updated upstream
   normalizeBrandEntities(merged);
   normalizeBrandIds(merged);
   normalizeCampaignLinksAndFields(merged);
+=======
+  normalizeBrandFields(merged);
+>>>>>>> Stashed changes
   normalizeBrandIds(merged);
+  normalizeCampaignBrandLinks(merged);
+  normalizeBrandFields(merged);
+  normalizeBrandIds(merged);
+  normalizeCampaignBrandLinks(merged);
+  normalizeCampaignActionFields(merged);
+  normalizeCampaignContractFields(merged);
+  normalizeCampaignHistory(merged);
+  normalizeBrandActionFields(merged);
   state = merged;
+};
+
+const appendCampaignHistory = (campaign, { type = 'note', title = '', description = '', occurredAt = '' } = {}) => {
+  if (!campaign || typeof campaign !== 'object') return null;
+  if (!Array.isArray(campaign.history)) campaign.history = [];
+
+  const safeTitle = String(title || '').trim().slice(0, 120) || 'Atualização';
+  const safeDescription = String(description || '').trim().slice(0, 240);
+  const safeOccurredAt = String(occurredAt || '').trim() || new Date().toISOString();
+
+  const entry = {
+    id: `ch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    type: String(type || 'note').trim().toLowerCase() || 'note',
+    title: safeTitle,
+    description: safeDescription,
+    occurredAt: safeOccurredAt,
+    createdAt: new Date().toISOString()
+  };
+
+  campaign.history.unshift(entry);
+  campaign.history.sort((a, b) => String(b.occurredAt || '').localeCompare(String(a.occurredAt || '')));
+  return entry;
 };
 
 const xpForLevel = (level) => {
@@ -1226,7 +1497,11 @@ const badgeCatalog = [
   { id: 'badge-above-goal', category: 'financial', title: 'Receita acima da meta', desc: 'Receita confirmada acima da meta mensal', icon: 'trend', xp: 250, check: (s) => { const goal = s.settings?.monthlyGoal||0; if(!goal) return {done:false,current:0,target:goal}; const now=new Date(); const cm=now.getMonth(); const cy=now.getFullYear(); const mc=(s.campaigns||[]).filter(c=>{const d=new Date(c.updatedAt||c.createdAt);return d.getMonth()===cm&&d.getFullYear()===cy&&(c.status==='concluida'||c.paymentPercent>=100);}); const rev=mc.reduce((a,c)=>a+(c.value||0),0); return {done:rev>=goal,current:rev,target:goal}; } },
   { id: 'badge-3months-growth', category: 'financial', title: '3 meses crescendo', desc: 'Receita cresceu por 3 meses consecutivos', icon: 'trend', xp: 400, check: () => ({done:false,current:0,target:3,insight:'Registre receita por 3 meses para desbloquear.'}) },
   // Comercial
+<<<<<<< Updated upstream
   { id: 'badge-10-responses', category: 'commercial', title: '10 contatos com resposta', desc: 'Receber resposta de 10 marcas', icon: 'chat', xp: 200, check: (s) => { const b=(s.brands||[]).filter(x=>!['lead','inativa','perdida'].includes(String(x.status||''))); return {done:b.length>=10,current:b.length,target:10}; } },
+=======
+  { id: 'badge-10-responses', category: 'commercial', title: '10 contatos com resposta', desc: 'Receber resposta de 10 marcas', icon: 'chat', xp: 200, check: (s) => { const b=(s.brands||[]).filter(x=>['negociando','cliente_ativo','cliente_recorrente','perdida'].includes(x.status)); return {done:b.length>=10,current:b.length,target:10}; } },
+>>>>>>> Stashed changes
   { id: 'badge-5-closed-month', category: 'commercial', title: '5 campanhas no m\u00eas', desc: 'Fechar 5 campanhas em um m\u00eas', icon: 'radar', xp: 300, check: (s) => { const now=new Date(); const cm=now.getMonth(); const cy=now.getFullYear(); const mc=(s.campaigns||[]).filter(c=>{const d=new Date(c.createdAt);return d.getMonth()===cm&&d.getFullYear()===cy;}); return {done:mc.length>=5,current:mc.length,target:5}; } },
   // Operacional
   { id: 'badge-30-no-delay', category: 'operational', title: '30 dias sem atraso', desc: 'Nenhuma campanha atrasada por 30 dias seguidos', icon: 'time', xp: 350, check: (s) => { const today=new Date().toISOString().slice(0,10); const overdue=(s.campaigns||[]).filter(c=>c.dueDate&&c.dueDate<today&&c.status!=='concluida'); return {done:overdue.length===0,current:overdue.length===0?30:0,target:30,insight:overdue.length?`${overdue.length} campanha(s) atrasada(s)`:'Tudo em dia!'}; } },
@@ -1249,8 +1524,15 @@ export {
   statusDot,
   brandStatuses,
   brandOptions,
+<<<<<<< Updated upstream
+=======
+  brandInteractionTypes,
+  brandInteractionOptions,
+  nextActionLabels,
+>>>>>>> Stashed changes
   nextActionOptions,
   getNextActionLabel,
+  appendCampaignHistory,
   deepClone,
   mergeState,
   loadState,
@@ -1277,7 +1559,10 @@ export {
   badgeCatalog,
   getBadgeById
 };
+<<<<<<< Updated upstream
 
 
 
 
+=======
+>>>>>>> Stashed changes

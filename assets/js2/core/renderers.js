@@ -9,8 +9,11 @@
   typeLabels,
   statusDot,
   brandStatuses,
+<<<<<<< Updated upstream
   brandOptions,
   getNextActionLabel,
+=======
+>>>>>>> Stashed changes
   formatCurrency,
   formatPercent,
   todayKey,
@@ -79,21 +82,34 @@ const iconSvg = (name) => ICONS[name] || '';
 const renderProfile = () => {
   const greetings = document.querySelectorAll('[data-greeting]');
   const profileName = document.querySelectorAll('[data-profile-name]');
+<<<<<<< Updated upstream
   const profileNameSidebar = document.querySelectorAll('[data-profile-name-sidebar]');
   const profileInitial = document.querySelectorAll('[data-profile-initial]');
+=======
+  const profileAvatar = document.querySelectorAll('[data-profile-avatar]');
+  const profileMiniAvatar = document.querySelectorAll('[data-profile-mini-avatar]');
+>>>>>>> Stashed changes
   const dashboardNarrative = document.querySelectorAll('[data-dashboard-narrative]');
 
   const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
   const brands = Array.isArray(state.brands) ? state.brands : [];
+<<<<<<< Updated upstream
   const followUps =
     campaigns.filter((campaign) => campaign.nextActionType && campaign.nextActionDate).length +
     brands.filter((brand) => brand.nextActionType && brand.nextActionDate).length;
   const pendingPayments = campaigns.filter(
     (campaign) => campaign.stage === 'aguardando_pagamento' && Number(campaign.paymentPercent || 0) < 100
   ).length;
+=======
+  const now = new Date();
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const overdue = campaigns.filter((campaign) => campaign && !campaign.archived && campaign.dueDate && campaign.dueDate < todayKey).length;
+  const pendingPayments = campaigns.filter((campaign) => campaign && !campaign.archived && campaign.stage === 'aguardando_pagamento' && (Number(campaign.paymentPercent) || 0) < 100).length;
+>>>>>>> Stashed changes
 
-  const hour = new Date().getHours();
+  const hour = now.getHours();
   const greeting = hour >= 5 && hour < 12 ? 'Bom dia' : hour >= 12 && hour < 18 ? 'Boa tarde' : 'Boa noite';
+<<<<<<< Updated upstream
   const safeName = String(state.profile.name || 'criador').trim() || 'criador';
   const initial = safeName.charAt(0).toUpperCase() || 'M';
   let narrative = '';
@@ -108,12 +124,35 @@ const renderProfile = () => {
     narrative = `${pendingPayments} pagamento${pendingPayments > 1 ? 's' : ''} ainda ${pendingPayments > 1 ? 'estão' : 'está'} pendente${pendingPayments > 1 ? 's' : ''}.`;
   } else {
     narrative = 'Seu painel está organizado. Use as campanhas e marcas para manter o fluxo comercial atualizado.';
+=======
+  const safeName = String(state.profile.name || 'Criador').trim() || 'Criador';
+  const firstLetter = safeName.charAt(0).toUpperCase() || 'C';
+  let narrative = '';
+
+  if (!brands.length && !campaigns.length) {
+    narrative = 'Comece cadastrando uma marca ou campanha para organizar sua operação.';
+  } else if (!brands.length) {
+    narrative = 'Cadastre suas marcas para centralizar follow-ups, histórico e campanhas.';
+  } else if (!campaigns.length) {
+    narrative = 'Crie sua próxima campanha para alimentar o pipeline e o financeiro.';
+  } else if (overdue > 0) {
+    narrative = `${overdue} campanha(s) com prazo vencido pedem atenção hoje.`;
+  } else if (pendingPayments > 0) {
+    narrative = `${pendingPayments} campanha(s) aguardam pagamento e impactam o fechamento do mês.`;
+  } else {
+    narrative = 'Seu dashboard está em dia. Use os blocos abaixo para mover a operação.';
+>>>>>>> Stashed changes
   }
 
   greetings.forEach((el) => (el.textContent = greeting));
   profileName.forEach((el) => (el.textContent = safeName));
+<<<<<<< Updated upstream
   profileNameSidebar.forEach((el) => (el.textContent = safeName));
   profileInitial.forEach((el) => (el.textContent = initial));
+=======
+  profileAvatar.forEach((el) => (el.textContent = firstLetter));
+  profileMiniAvatar.forEach((el) => (el.textContent = firstLetter));
+>>>>>>> Stashed changes
   dashboardNarrative.forEach((el) => (el.textContent = narrative));
 };
 
@@ -283,6 +322,7 @@ const computeDashboardFinance = () => {
   const doneCampaigns = campaigns.filter((c) => c.status === 'concluida');
   const ticketMedio = doneCampaigns.length ? Math.round(doneCampaigns.reduce((s, c) => s + (c.value || 0), 0) / doneCampaigns.length) : 0;
 
+<<<<<<< Updated upstream
   const prevMonthCampaigns = campaigns.filter((c) =>
     isPrevMonth(c.createdAt) || isPrevMonth(c.updatedAt) || isPrevMonth(c.dueDate)
   );
@@ -290,6 +330,58 @@ const computeDashboardFinance = () => {
     .filter((c) => c.status === 'concluida' || (c.paymentPercent && c.paymentPercent >= 100))
     .reduce((s, c) => s + (c.value || 0), 0);
   const crescimento = prevReceita ? (((receitaConfirmada - prevReceita) / prevReceita) * 100) : 0;
+=======
+  const deadlines = campaigns
+    .filter((campaign) => {
+      if (!campaign || campaign.archived || campaign.status === 'concluida' || !campaign.dueDate) return false;
+      const due = parseDay(campaign.dueDate);
+      return Boolean(due && due.getTime() <= plusThree.getTime());
+    })
+    .map((campaign) => ({
+      id: campaign.id,
+      title: campaign.title || campaign.brand || 'Campanha',
+      brand: campaign.brand || 'Sem marca',
+      dueDate: campaign.dueDate,
+      sortDays: dayDiff(campaign.dueDate),
+      statusLabel: [statusLabels[campaign.status] || campaign.status, getCampaignStageLabel(campaign.status, campaign.stage)]
+        .filter(Boolean)
+        .join(' · ')
+    }))
+    .sort((a, b) => {
+      if ((a.sortDays < 0) !== (b.sortDays < 0)) return a.sortDays < 0 ? -1 : 1;
+      if (a.sortDays !== b.sortDays) return a.sortDays - b.sortDays;
+      return a.title.localeCompare(b.title, 'pt-BR');
+    });
+
+  const payments = pendingPayments
+    .map((campaign) => ({
+      id: campaign.id,
+      brand: campaign.brand || 'Sem marca',
+      title: campaign.title || campaign.brand || 'Campanha',
+      value: Number(campaign.value) || 0,
+      paymentDate: campaign.paymentDate || '',
+      overdue: Boolean(campaign.paymentDate && campaign.paymentDate < todayKey),
+      statusLabel: campaign.paymentDate && campaign.paymentDate < todayKey ? 'Atrasado' : 'A receber'
+    }))
+    .sort((a, b) => {
+      if (a.overdue !== b.overdue) return a.overdue ? -1 : 1;
+      if ((a.paymentDate || '9999-12-31') !== (b.paymentDate || '9999-12-31')) return (a.paymentDate || '9999-12-31').localeCompare(b.paymentDate || '9999-12-31');
+      return a.brand.localeCompare(b.brand, 'pt-BR');
+    });
+
+  const financeiro = {
+    aReceber: sumValues(pendingPayments),
+    atrasado: sumValues(overduePayments),
+    recebidoNoMes: sumValues(receivedThisMonth)
+  };
+
+  const pipeline = {
+    negociacao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'prospeccao' && campaign.stage === 'negociacao').length,
+    producao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'producao').length,
+    aprovacao: campaigns.filter((campaign) => campaign && !campaign.archived && ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage)).length,
+    concluidas: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'concluida').length
+  };
+>>>>>>> Stashed changes
 
   return {
     receitaPrevista, receitaConfirmada, meta, diffValor, diffPercent, metaOk,
@@ -433,6 +525,7 @@ const renderDashboardFinancials = () => {
     </div>
   `;
 
+<<<<<<< Updated upstream
   if (pipelineContainer) {
     pipelineContainer.innerHTML = `
       <div class="dashboard-mini-grid">
@@ -449,6 +542,26 @@ const renderDashboardFinancials = () => {
       </div>
     `;
   }
+=======
+  pipelineContainer.innerHTML = `
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="negociacao" type="button">
+      <span class="dashboard-pipeline-label">Leads em negociação</span>
+      <strong class="dashboard-pipeline-value">${d.pipeline.negociacao}</strong>
+    </button>
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="producao" type="button">
+      <span class="dashboard-pipeline-label">Campanhas em produção</span>
+      <strong class="dashboard-pipeline-value">${d.pipeline.producao}</strong>
+    </button>
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="aprovacao" type="button">
+      <span class="dashboard-pipeline-label">Aguardando aprovação</span>
+      <strong class="dashboard-pipeline-value">${d.pipeline.aprovacao}</strong>
+    </button>
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="concluidas" type="button">
+      <span class="dashboard-pipeline-label">Campanhas concluídas</span>
+      <strong class="dashboard-pipeline-value">${d.pipeline.concluidas}</strong>
+    </button>
+  `;
+>>>>>>> Stashed changes
 
   if (goalContainer) {
     goalContainer.innerHTML = `
@@ -589,8 +702,34 @@ const renderCampaigns = () => {
   if (!container) return;
 
   const filter = state.ui.campaignFilter || 'all';
+  const dashboardFilter = String(state.ui.campaignDashboardFilter || '').trim();
   const sortBy = state.ui.campaignSort || 'updatedAt';
+<<<<<<< Updated upstream
   const dashboardView = state.ui.campaignDashboardView || 'all';
+=======
+  const dashboardFilterMeta = {
+    negociacao: { label: 'Leads em negociação' },
+    producao: { label: 'Campanhas em produção' },
+    aprovacao: { label: 'Aguardando aprovação' },
+    concluidas: { label: 'Campanhas concluídas' }
+  };
+  const matchesDashboardCampaignFilter = (campaign, key) => {
+    if (!key) return true;
+    if (!campaign || campaign.archived) return false;
+    switch (key) {
+      case 'negociacao':
+        return campaign.status === 'prospeccao' && campaign.stage === 'negociacao';
+      case 'producao':
+        return campaign.status === 'producao';
+      case 'aprovacao':
+        return ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage);
+      case 'concluidas':
+        return campaign.status === 'concluida';
+      default:
+        return true;
+    }
+  };
+>>>>>>> Stashed changes
 
   const escapeHtml = (value) =>
     String(value ?? '')
@@ -772,7 +911,11 @@ const renderCampaigns = () => {
   const list = allCampaigns
     .filter((campaign) => {
       if (filter !== 'all' && campaign.status !== filter) return false;
+<<<<<<< Updated upstream
       if (!matchesDashboardView(campaign)) return false;
+=======
+      if (!matchesDashboardCampaignFilter(campaign, dashboardFilter)) return false;
+>>>>>>> Stashed changes
       return true;
     })
     .sort((a, b) => {
@@ -790,7 +933,20 @@ const renderCampaigns = () => {
       }
     });
 
+  const dashboardFilterBanner = dashboardFilterMeta[dashboardFilter]
+    ? `
+      <div class="campaign-context-banner">
+        <div class="campaign-context-copy">
+          <strong>${escapeHtml(dashboardFilterMeta[dashboardFilter].label)}</strong>
+          <span>Mostrando as campanhas abertas a partir do dashboard.</span>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="clear-dashboard-campaign-filter" type="button">Limpar</button>
+      </div>
+    `
+    : '';
+
   if (!list.length) {
+<<<<<<< Updated upstream
     container.innerHTML = `
       ${
         dashboardViewMeta[dashboardView]
@@ -808,6 +964,9 @@ const renderCampaigns = () => {
       }
       <div class="card">Nenhuma campanha por aqui.</div>
     `;
+=======
+    container.innerHTML = `${dashboardFilterBanner}<div class="card">Nenhuma campanha encontrada nesse filtro.</div>`;
+>>>>>>> Stashed changes
     return;
   }
 
@@ -820,6 +979,7 @@ const renderCampaigns = () => {
   };
 
   container.innerHTML = `
+<<<<<<< Updated upstream
     ${
       dashboardViewMeta[dashboardView]
         ? `
@@ -834,6 +994,9 @@ const renderCampaigns = () => {
         `
         : ''
     }
+=======
+    ${dashboardFilterBanner}
+>>>>>>> Stashed changes
     <div class="table-wrap campaign-table-wrap">
       <table class="campaign-table">
         <thead>
@@ -966,9 +1129,12 @@ const renderCampaigns = () => {
 };
 
 const renderBrands = () => {
-  const container = document.querySelector('[data-brands]');
-  if (!container) return;
+  const listContainer = document.querySelector('[data-brands]');
+  const detailContainer = document.querySelector('[data-brand-detail]');
+  const statsContainer = document.querySelector('[data-brand-stats]');
+  if (!listContainer || !detailContainer || !statsContainer) return;
 
+<<<<<<< Updated upstream
   const statsContainer = document.querySelector('[data-brand-stats]');
   const detailContainer = document.querySelector('[data-brand-detail]');
   const brands = Array.isArray(state.brands) ? state.brands : [];
@@ -982,6 +1148,12 @@ const renderBrands = () => {
       .replace(/'/g, '&#39;');
 
   const normalizeBrandKey = (value) => String(value || '').trim().toLowerCase();
+=======
+  const brands = (Array.isArray(state.brands) ? state.brands : []).slice();
+  const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
+
+  const toBrandKey = (value) => String(value || '').trim().toLowerCase();
+>>>>>>> Stashed changes
   const formatDateShort = (value) => {
     const safe = String(value || '').trim();
     if (!safe) return '—';
@@ -994,6 +1166,7 @@ const renderBrands = () => {
     if (!date || Number.isNaN(date.getTime())) return '';
     return date.toISOString().slice(0, 10);
   };
+<<<<<<< Updated upstream
   const today = new Date().toISOString().slice(0, 10);
   const getFollowupTone = (value) => {
     const safe = String(value || '').trim();
@@ -1001,6 +1174,12 @@ const renderBrands = () => {
     if (safe < today) return 'overdue';
     if (safe === today) return 'today';
     return 'upcoming';
+=======
+  const formatRelativeAction = (value) => {
+    const safe = String(value || '').trim();
+    if (!safe) return 'Sem follow-up';
+    return formatDateShort(safe);
+>>>>>>> Stashed changes
   };
 
   const brandSummaries = brands.map((brand) => {
@@ -1008,7 +1187,11 @@ const renderBrands = () => {
       .filter((campaign) => {
         if (!campaign || typeof campaign !== 'object') return false;
         if (String(campaign.brandId || '').trim()) return String(campaign.brandId || '').trim() === brand.id;
+<<<<<<< Updated upstream
         return normalizeBrandKey(campaign.brand) === normalizeBrandKey(brand.name);
+=======
+        return toBrandKey(campaign.brand) === toBrandKey(brand.name);
+>>>>>>> Stashed changes
       })
       .slice()
       .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')));
@@ -1020,8 +1203,12 @@ const renderBrands = () => {
     const lastInteraction = interactions[0] || null;
     const lastCampaignUpdate = linkedCampaigns[0] ? isoToDateKey(linkedCampaigns[0].updatedAt || linkedCampaigns[0].createdAt) : '';
     const lastContact = lastInteraction?.date || lastCampaignUpdate || '';
+<<<<<<< Updated upstream
     const lastCompletedCampaign =
       linkedCampaigns.find((campaign) => campaign.status === 'concluida' || campaign.paymentPercent >= 100) || linkedCampaigns[0] || null;
+=======
+    const lastCompletedCampaign = linkedCampaigns.find((campaign) => campaign.status === 'concluida' || campaign.paymentPercent >= 100) || linkedCampaigns[0] || null;
+>>>>>>> Stashed changes
     const pendingAction = Boolean(brand.nextActionType && brand.nextActionDate);
 
     return {
@@ -1031,6 +1218,10 @@ const renderBrands = () => {
       campaignCount: linkedCampaigns.length,
       ticketMedio: linkedCampaigns.length ? totalFaturado / linkedCampaigns.length : 0,
       lastContact,
+<<<<<<< Updated upstream
+=======
+      interactions,
+>>>>>>> Stashed changes
       pendingAction,
       nextFollowup: brand.nextActionDate || '',
       nextActionLabel: getNextActionLabel(brand.nextActionType, brand.nextActionCustomType),
@@ -1053,6 +1244,7 @@ const renderBrands = () => {
     pendentes: brandSummaries.filter((item) => item.pendingAction).length
   };
 
+<<<<<<< Updated upstream
   if (statsContainer) {
     statsContainer.innerHTML = `
       <div class="brands-stats-grid">
@@ -1082,6 +1274,33 @@ const renderBrands = () => {
 
   if (!brandSummaries.length) {
     container.innerHTML = `
+=======
+  statsContainer.innerHTML = `
+    <div class="brand-stat-card">
+      <span class="brand-stat-label">Marcas registradas</span>
+      <strong class="brand-stat-value">${brandSummaries.length}</strong>
+      <span class="brand-stat-note">${brandStatusCounts.lead} lead(s) em abertura</span>
+    </div>
+    <div class="brand-stat-card">
+      <span class="brand-stat-label">Negociando</span>
+      <strong class="brand-stat-value">${brandStatusCounts.negociando}</strong>
+      <span class="brand-stat-note">Conversas quentes no momento</span>
+    </div>
+    <div class="brand-stat-card">
+      <span class="brand-stat-label">Clientes</span>
+      <strong class="brand-stat-value">${brandStatusCounts.clientes}</strong>
+      <span class="brand-stat-note">Ativos e recorrentes</span>
+    </div>
+    <div class="brand-stat-card">
+      <span class="brand-stat-label">Faturado total</span>
+      <strong class="brand-stat-value">${formatCurrency(brandSummaries.reduce((sum, item) => sum + item.totalFaturado, 0))}</strong>
+      <span class="brand-stat-note">${brandStatusCounts.pendentes} com ação pendente</span>
+    </div>
+  `;
+
+  if (!brandSummaries.length) {
+    listContainer.innerHTML = `
+>>>>>>> Stashed changes
       <div class="brand-empty-state">
         <div class="metric-icon">${iconSvg('radar')}</div>
         <div>
@@ -1090,6 +1309,7 @@ const renderBrands = () => {
         </div>
       </div>
     `;
+<<<<<<< Updated upstream
     if (detailContainer) {
       detailContainer.innerHTML = `
         <div class="card">
@@ -1254,6 +1474,191 @@ const renderBrands = () => {
       </div>
     `;
   }
+=======
+    detailContainer.innerHTML = `
+      <div class="brand-detail-empty">
+        <h3>Quando você adicionar uma marca, o detalhe aparece aqui.</h3>
+        <p class="muted">Você vai conseguir ver resumo, próxima ação e campanhas vinculadas no mesmo lugar.</p>
+        <button class="btn btn-primary" data-action="open-brand-modal" type="button">Criar primeira marca</button>
+      </div>
+    `;
+    return;
+  }
+
+  const hasSelected = brandSummaries.some((item) => item.brand.id === state.ui.selectedBrandId);
+  if (!hasSelected) {
+    state.ui.selectedBrandId = brandSummaries[0].brand.id;
+  }
+
+  const selectedSummary = brandSummaries.find((item) => item.brand.id === state.ui.selectedBrandId) || brandSummaries[0];
+  const selectedBrand = selectedSummary.brand;
+
+  listContainer.innerHTML = `
+    <div class="brand-list-table">
+      <div class="brand-table-head">
+        <span>Marca</span>
+        <span>Status</span>
+        <span>Ação pendente</span>
+        <span>Próximo follow-up</span>
+        <span>Total faturado</span>
+        <span>Campanhas</span>
+        <span>Último contato</span>
+        <span>Ações</span>
+      </div>
+      <div class="brand-table-body">
+        ${brandSummaries
+          .map((item) => {
+            const isActive = item.brand.id === selectedBrand.id;
+            const isDormant = ['inativa', 'perdida'].includes(item.brand.status);
+            const actionChip = item.pendingAction
+              ? `<span class="chip chip-pill chip-brand-pending">${escapeHtml(item.nextActionLabel || 'Pendente')}</span>`
+              : '<span class="chip chip-pill chip-brand-neutral">Sem pendência</span>';
+            return `
+              <div class="brand-table-row ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
+                <div class="brand-table-cell brand-table-cell--primary" data-label="Marca">
+                  <strong>${escapeHtml(item.brand.name || 'Marca')}</strong>
+                  <span class="muted">${escapeHtml(item.brand.contact || item.brand.instagram || item.brand.email || 'Sem contato principal')}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--status" data-label="Status">
+                  <span class="chip chip-pill chip-brand-status chip-brand-status--${escapeHtml(item.brand.status)}">${escapeHtml(brandStatuses[item.brand.status] || item.brand.status)}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--pending" data-label="Ação pendente">
+                  ${actionChip}
+                </div>
+                <div class="brand-table-cell brand-table-cell--next" data-label="Próximo follow-up">
+                  <span>${formatRelativeAction(item.nextFollowup)}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--money" data-label="Total faturado">
+                  <strong>${formatCurrency(item.totalFaturado)}</strong>
+                </div>
+                <div class="brand-table-cell brand-table-cell--count" data-label="Campanhas">
+                  <strong>${item.campaignCount}</strong>
+                </div>
+                <div class="brand-table-cell brand-table-cell--date" data-label="Último contato">
+                  <span>${item.lastContact ? formatDateShort(item.lastContact) : '—'}</span>
+                </div>
+                <div class="brand-table-cell brand-table-cell--actions" data-label="Ações">
+                  <div class="brand-row-actions">
+                    <button class="btn btn-ghost btn-small brand-row-btn brand-row-btn--edit" data-action="edit-brand" data-brand-id="${item.brand.id}" type="button">Editar</button>
+                    <button class="btn btn-ghost btn-small brand-row-btn ${isDormant ? 'brand-row-btn--reactivate' : 'brand-row-btn--deactivate'}" data-action="toggle-brand-active" data-brand-id="${item.brand.id}" type="button">${isDormant ? 'Reativar' : 'Desativar'}</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          })
+          .join('')}
+      </div>
+    </div>
+  `;
+
+  const nextActionCard = selectedSummary.pendingAction
+    ? `
+      <div class="brand-detail-nextaction">
+        <div class="brand-detail-metric">
+          <span class="brand-detail-label">Próximo follow-up</span>
+          <strong>${formatDateShort(selectedBrand.nextActionDate)}</strong>
+        </div>
+        <div class="brand-detail-metric">
+          <span class="brand-detail-label">Tipo</span>
+          <strong>${escapeHtml(selectedSummary.nextActionLabel || '—')}</strong>
+        </div>
+        <div class="brand-detail-note">${escapeHtml(selectedBrand.nextActionNote || 'Sem observação cadastrada.')}</div>
+      </div>
+    `
+    : `
+      <div class="brand-detail-nextaction brand-detail-nextaction--empty">
+        <strong>Sem próxima ação definida</strong>
+        <p class="muted">Defina um follow-up para essa marca e deixe o dashboard comercial sempre em dia.</p>
+      </div>
+    `;
+
+  detailContainer.innerHTML = `
+    <div class="brand-detail-header">
+      <div>
+        <p class="dashboard-eyebrow">Marca selecionada</p>
+        <h2>${escapeHtml(selectedBrand.name || 'Marca')}</h2>
+        <p class="muted">${escapeHtml(selectedBrand.contact || 'Sem contato principal')} · ${escapeHtml(selectedBrand.email || selectedBrand.instagram || 'Sem canal principal')}</p>
+      </div>
+      <div class="brand-detail-actions">
+        <button class="btn btn-ghost btn-small" data-action="edit-brand" data-brand-id="${selectedBrand.id}" type="button">Editar marca</button>
+        <button class="btn btn-primary btn-small" data-action="new-campaign-for-brand" data-brand-id="${selectedBrand.id}" type="button">Nova campanha</button>
+      </div>
+    </div>
+
+    <div class="brand-detail-summary">
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Instagram</span>
+        <strong>${escapeHtml(selectedBrand.instagram || '—')}</strong>
+      </div>
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Status</span>
+        <strong>${escapeHtml(brandStatuses[selectedBrand.status] || selectedBrand.status)}</strong>
+      </div>
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Total faturado</span>
+        <strong>${formatCurrency(selectedSummary.totalFaturado)}</strong>
+      </div>
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Ticket médio</span>
+        <strong>${selectedSummary.campaignCount ? formatCurrency(selectedSummary.ticketMedio) : '—'}</strong>
+      </div>
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Nº campanhas</span>
+        <strong>${selectedSummary.campaignCount}</strong>
+      </div>
+      <div class="brand-detail-summary-card">
+        <span class="brand-detail-label">Último trabalho realizado</span>
+        <strong>${escapeHtml(selectedSummary.lastWork?.title || selectedSummary.lastWork?.brand || '—')}</strong>
+      </div>
+    </div>
+
+    <div class="brand-detail-grid">
+      <div class="brand-detail-block">
+        <div class="brand-detail-block-head">
+          <div>
+            <h3>Próxima ação</h3>
+            <p class="muted">Follow-up atual dessa marca.</p>
+          </div>
+          <button class="btn btn-ghost btn-small" data-action="edit-brand-action" data-brand-id="${selectedBrand.id}" type="button">Editar ação</button>
+        </div>
+        ${nextActionCard}
+      </div>
+
+      <div class="brand-detail-block">
+        <div class="brand-detail-block-head">
+          <div>
+            <h3>Histórico de campanhas</h3>
+            <p class="muted">Campanhas vinculadas a essa marca.</p>
+          </div>
+        </div>
+        <div class="brand-history-list">
+          ${selectedSummary.linkedCampaigns.length
+            ? selectedSummary.linkedCampaigns
+                .map((campaign) => `
+                  <div class="brand-history-item">
+                    <div>
+                      <strong>${escapeHtml(campaign.title || campaign.brand || 'Campanha')}</strong>
+                      <div class="muted">${escapeHtml(
+                        [statusLabels[campaign.status] || campaign.status, getCampaignStageLabel(campaign.status, campaign.stage)]
+                          .filter(Boolean)
+                          .join(' · ')
+                      )}</div>
+                    </div>
+                    <div class="brand-history-meta">
+                      <span>${formatCurrency(Number(campaign.value) || 0)}</span>
+                      <span>${campaign.paymentPercent >= 100 ? 'Pago' : campaign.paymentDate ? `Pagamento ${formatDateShort(campaign.paymentDate)}` : 'Pagamento pendente'}</span>
+                      <span>Prazo ${campaign.dueDate ? formatDateShort(campaign.dueDate) : '—'}</span>
+                    </div>
+                    <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${campaign.id}" type="button">Abrir campanha</button>
+                  </div>
+                `)
+                .join('')
+            : '<p class="muted">Nenhuma campanha vinculada a essa marca ainda.</p>'}
+        </div>
+      </div>
+    </div>
+  `;
+>>>>>>> Stashed changes
 };
 
 /* ──────────────────── PERFORMANCE ──────────────────── */
@@ -1755,6 +2160,7 @@ const renderAll = () => {
   renderChallenges();
   renderBrands();
   renderCampaigns();
+  renderBrands();
   renderPerformance();
   renderSettings();
   renderScriptHistory();

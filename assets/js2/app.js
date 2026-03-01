@@ -1,8 +1,15 @@
   import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
+<<<<<<< Updated upstream
   import { renderAll } from './core/renderers.js?v=20260301d';
   import { setActivePage } from './core/ui.js?v=20260301d';
   import { initActions } from './core/actions.js?v=20260301d';
   import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260301d';
+=======
+  import { renderAll } from './core/renderers.js?v=20260301p';
+  import { setActivePage } from './core/ui.js?v=20260301h';
+  import { initActions } from './core/actions.js?v=20260301p';
+  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260301s';
+>>>>>>> Stashed changes
   import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260217b';
 
   const sessionToken = sessionStorage.getItem('ugcQuestToken') || '';
@@ -156,8 +163,11 @@ const hydrateStateFromServer = async () => {
 
       // Habilitar salvamento remoto somente após hidratação
       enableRemoteSave();
+<<<<<<< Updated upstream
 
       // Recalcular streak e missões com o estado do servidor
+=======
+>>>>>>> Stashed changes
       
       // Inicializar quiz de onboarding
       initOnboardingQuiz();

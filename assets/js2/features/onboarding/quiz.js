@@ -1,9 +1,9 @@
-import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
+﻿import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js';
-import { setActivePage, showToast } from '../../core/ui.js';
-import { trackEvent } from '../../core/gamification.js';
+import { setActivePage, showToast } from '../../core/ui.js?v=20260301h';
+import { trackEvent } from '../../core/gamification.js?v=20260301h';
 
-/* ── helpers ────────────────────────────────────────────────── */
+/* â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const ensureOnboardingQuiz = () => {
   if (!state.progress) state.progress = {};
@@ -16,7 +16,11 @@ const ensureOnboardingQuiz = () => {
   if (ob.campaignCount === undefined) ob.campaignCount = null;
   if (ob.firstCampaignCreated === undefined) ob.firstCampaignCreated = false;
   if (ob.tooltipsDone === undefined) ob.tooltipsDone = false;
+<<<<<<< Updated upstream
   if (ob.campaignHintDismissed === undefined) ob.campaignHintDismissed = false;
+=======
+  if (ob.ctaTipDismissed === undefined) ob.ctaTipDismissed = false;
+>>>>>>> Stashed changes
   if (ob.targetBrandType === undefined) ob.targetBrandType = null;
   if (ob.weeklyOutreachGoal === undefined) ob.weeklyOutreachGoal = null;
   return ob;
@@ -32,7 +36,7 @@ const isOnboardingComplete = () => {
   return ob.quizDone === true && ob.firstCampaignCreated === true && ob.tooltipsDone === true;
 };
 
-/* ── quiz overlay ───────────────────────────────────────────── */
+/* â”€â”€ quiz overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 let currentScreen = 1;
 
@@ -63,7 +67,7 @@ const closeQuiz = () => {
   overlay.classList.remove('open');
 };
 
-/* ── quiz actions ───────────────────────────────────────────── */
+/* â”€â”€ quiz actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const handleQuizAction = (action, el) => {
   if (action === 'quiz-start') {
@@ -92,7 +96,7 @@ const handleQuizAction = (action, el) => {
     return true;
   }
 
-  // ── Mini-wizard step 1: brand type ──
+  // â”€â”€ Mini-wizard step 1: brand type â”€â”€
   if (action === 'quiz-brand-type') {
     const ob = ensureOnboardingQuiz();
     ob.targetBrandType = el?.dataset?.value || 'outra';
@@ -101,7 +105,7 @@ const handleQuizAction = (action, el) => {
     return true;
   }
 
-  // ── Mini-wizard step 2: weekly outreach goal ──
+  // â”€â”€ Mini-wizard step 2: weekly outreach goal â”€â”€
   if (action === 'quiz-outreach-goal') {
     const ob = ensureOnboardingQuiz();
     ob.weeklyOutreachGoal = Number(el?.dataset?.value) || 5;
@@ -110,7 +114,7 @@ const handleQuizAction = (action, el) => {
     return true;
   }
 
-  // ── Mini-wizard step 3: create model campaign ──
+  // â”€â”€ Mini-wizard step 3: create model campaign â”€â”€
   if (action === 'quiz-create-prospection') {
     const ob = ensureOnboardingQuiz();
     createModelCampaign(ob.targetBrandType, ob.weeklyOutreachGoal);
@@ -124,7 +128,7 @@ const handleQuizAction = (action, el) => {
     return true;
   }
 
-  // ── Skip: go to campaigns ──
+  // â”€â”€ Skip: go to campaigns â”€â”€
   if (action === 'quiz-go-campaigns') {
     const ob = ensureOnboardingQuiz();
     ob.quizDone = true;
@@ -136,19 +140,19 @@ const handleQuizAction = (action, el) => {
     return true;
   }
 
-  // ── "no campaigns" skip ──
+  // â”€â”€ "no campaigns" skip â”€â”€
   if (action === 'quiz-no-campaigns-skip') {
     showScreen(8);
     return true;
   }
 
-  // ── Outreach +1 ──
+  // â”€â”€ Outreach +1 â”€â”€
   if (action === 'outreach-add') {
     incrementOutreach(el?.dataset?.campaignId);
     return true;
   }
 
-  // ── Convert model to real ──
+  // â”€â”€ Convert model to real â”€â”€
   if (action === 'convert-to-real') {
     convertModelToReal(el?.dataset?.campaignId);
     return true;
@@ -157,7 +161,7 @@ const handleQuizAction = (action, el) => {
   return false;
 };
 
-/* ── model campaign ─────────────────────────────────────────── */
+/* â”€â”€ model campaign â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const createModelCampaign = (brandType, outreachGoal) => {
   const brandLabels = {
@@ -168,8 +172,8 @@ const createModelCampaign = (brandType, outreachGoal) => {
 
   const campaign = {
     id: `c-model-${Date.now()}`,
-    title: `Prospecção – ${brandLabel}`,
-    brand: `Prospecção – ${brandLabel}`,
+    title: `ProspecÃ§Ã£o â€“ ${brandLabel}`,
+    brand: `ProspecÃ§Ã£o â€“ ${brandLabel}`,
     status: 'prospeccao',
     stage: getDefaultCampaignStage('prospeccao'),
     value: 0,
@@ -198,7 +202,7 @@ const createModelCampaign = (brandType, outreachGoal) => {
   saveState();
 };
 
-/* ── outreach tracking ──────────────────────────────────────── */
+/* â”€â”€ outreach tracking â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const ensureOutreachTracking = (weeklyGoal) => {
   if (!state.progress.outreach) {
@@ -234,13 +238,13 @@ const incrementOutreach = (campaignId) => {
 
   const p = getOutreachProgress();
   if (p && p.sent >= p.goal) {
-    showToast(`Meta semanal atingida: ${p.goal} envios! 🎉`);
+    showToast(`Meta semanal atingida: ${p.goal} envios! ðŸŽ‰`);
   } else if (p) {
     showToast(`Proposta registrada! ${p.sent}/${p.goal} esta semana`);
   }
 };
 
-/* ── convert to real ────────────────────────────────────────── */
+/* â”€â”€ convert to real â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const convertModelToReal = (campaignId) => {
   const campaign = state.campaigns.find((c) => c.id === campaignId);
@@ -268,18 +272,26 @@ const convertModelToReal = (campaignId) => {
   showToast('Preencha os dados da sua campanha real!');
 };
 
-/* ── campaign highlight (glow on "Nova campanha") ──────────── */
+/* â”€â”€ campaign highlight (glow on "Nova campanha") â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const startCampaignHighlight = () => {
   const ob = ensureOnboardingQuiz();
+<<<<<<< Updated upstream
   if (ob.firstCampaignCreated && ob.tooltipsDone) return;
   if (ob.campaignHintDismissed === true) return;
+=======
+  if ((ob.firstCampaignCreated && ob.tooltipsDone) || ob.ctaTipDismissed) return;
+>>>>>>> Stashed changes
 
   setTimeout(() => {
     const btn = document.querySelector('[data-action="new-campaign"]');
     if (!btn) return;
+<<<<<<< Updated upstream
     if (ob.firstCampaignCreated) return;
     if (ob.campaignHintDismissed === true) return;
+=======
+    if (ob.firstCampaignCreated || ob.ctaTipDismissed) return;
+>>>>>>> Stashed changes
 
     btn.classList.add('onboarding-glow');
     const existingTip = btn.querySelector('.onboarding-tooltip');
@@ -289,12 +301,17 @@ const startCampaignHighlight = () => {
     tip.className = 'onboarding-tooltip';
     tip.innerHTML = `
       <span class="onboarding-tooltip-text">Comece por aqui.</span>
+<<<<<<< Updated upstream
       <span class="onboarding-tooltip-close" role="button" aria-label="Fechar dica" tabindex="0">&times;</span>
+=======
+      <button class="onboarding-tooltip-close" type="button" aria-label="Fechar dica">×</button>
+>>>>>>> Stashed changes
     `;
     tip.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
     });
+<<<<<<< Updated upstream
 
     const closeHint = () => {
       ob.campaignHintDismissed = true;
@@ -317,6 +334,19 @@ const startCampaignHighlight = () => {
       });
     }
 
+=======
+    const closeBtn = tip.querySelector('.onboarding-tooltip-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const onboarding = ensureOnboardingQuiz();
+        onboarding.ctaTipDismissed = true;
+        saveState();
+        removeCampaignHighlight();
+      });
+    }
+>>>>>>> Stashed changes
     btn.style.position = 'relative';
     btn.appendChild(tip);
   }, 400);
@@ -330,7 +360,7 @@ const removeCampaignHighlight = () => {
   if (tip) tip.remove();
 };
 
-/* ── post-creation tooltips ─────────────────────────────────── */
+/* â”€â”€ post-creation tooltips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 let tooltipStep = 0;
 let tooltipCampaignId = null;
@@ -353,7 +383,7 @@ const showNextTooltip = () => {
     const statusSelect = row.querySelector('[data-campaign-status]');
     if (statusSelect) {
       statusSelect.classList.add('onboarding-highlight');
-      attachTooltip(statusSelect, 'Você pode mudar o status conforme a campanha avança.', 'Entendi', () => {
+      attachTooltip(statusSelect, 'VocÃª pode mudar o status conforme a campanha avanÃ§a.', 'Entendi', () => {
         statusSelect.classList.remove('onboarding-highlight');
         tooltipStep = 1;
         showNextTooltip();
@@ -363,7 +393,7 @@ const showNextTooltip = () => {
     const stageSelect = row.querySelector('[data-campaign-stage]');
     if (stageSelect) {
       stageSelect.classList.add('onboarding-highlight');
-      attachTooltip(stageSelect, 'E aqui você define exatamente em que etapa está.', 'Próximo', () => {
+      attachTooltip(stageSelect, 'E aqui vocÃª define exatamente em que etapa estÃ¡.', 'PrÃ³ximo', () => {
         stageSelect.classList.remove('onboarding-highlight');
         tooltipStep = 2;
         showNextTooltip();
@@ -373,7 +403,7 @@ const showNextTooltip = () => {
     const advanceBtn = row.querySelector('[data-action="advance-stage"]');
     if (advanceBtn) {
       advanceBtn.classList.add('onboarding-highlight');
-      attachTooltip(advanceBtn, 'Quando a campanha evoluir, clique aqui para avançar e ganhar XP.', 'Finalizar', () => {
+      attachTooltip(advanceBtn, 'Quando a campanha evoluir, clique aqui para avan?ar para a pr?xima etapa.', 'Finalizar', () => {
         advanceBtn.classList.remove('onboarding-highlight');
         completeOnboarding();
       });
@@ -423,7 +453,7 @@ const completeOnboarding = () => {
   saveState();
 };
 
-/* ── listen for campaign creation ───────────────────────────── */
+/* â”€â”€ listen for campaign creation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const initOnboardingListeners = () => {
   document.addEventListener('ugc:campaigns-changed', (e) => {
@@ -450,7 +480,7 @@ const initOnboardingListeners = () => {
   });
 };
 
-/* ── campaign modal onboarding header ───────────────────────── */
+/* â”€â”€ campaign modal onboarding header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const injectOnboardingHeader = () => {
   const ob = ensureOnboardingQuiz();
@@ -466,22 +496,22 @@ const injectOnboardingHeader = () => {
   const header = document.createElement('div');
   header.id = 'campaign-onboarding-header';
   header.className = 'onboarding-modal-header';
-  header.innerHTML = '<span>Passo 1 de 3 – Registrar campanha</span>';
+  header.innerHTML = '<span>Passo 1 de 3 â€“ Registrar campanha</span>';
   panel.insertBefore(header, panel.firstChild);
 
   setTimeout(() => startFieldTooltips(), 500);
 };
 
-/* ── field-by-field tooltips inside Campaign modal ──────────── */
+/* â”€â”€ field-by-field tooltips inside Campaign modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 let fieldTooltipStep = 0;
 
 const fieldTooltipDefs = [
   { selector: 'input[name="brand"]', text: 'Comece digitando o nome da marca aqui.', event: 'input' },
-  { selector: 'select[name="startMethod"]', text: 'Selecione como essa campanha começou.', event: 'change' },
-  { selector: 'input[name="value"]', text: 'Quanto você vai receber? Se for permuta, pode deixar R$ 0.', event: 'input' },
+  { selector: 'select[name="startMethod"]', text: 'Selecione como essa campanha comeÃ§ou.', event: 'change' },
+  { selector: 'input[name="value"]', text: 'Quanto vocÃª vai receber? Se for permuta, pode deixar R$ 0.', event: 'input' },
   { selector: 'input[name="dueDate"]', text: 'Defina um prazo pra nunca perder o deadline.', event: 'change' },
-  { selector: '#campaign-form button[type="submit"]', text: 'Tudo pronto? Clique aqui para salvar! 🚀', event: null }
+  { selector: '#campaign-form button[type="submit"]', text: 'Tudo pronto? Clique aqui para salvar! ðŸš€', event: null }
 ];
 
 const startFieldTooltips = () => {
@@ -533,7 +563,7 @@ const clearFieldTooltips = () => {
   }
 };
 
-/* ── model campaign row rendering helpers ───────────────────── */
+/* â”€â”€ model campaign row rendering helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const renderModelOutreachBar = (campaign) => {
   if (!campaign.isModel || !campaign.modelMeta) return '';
@@ -563,7 +593,7 @@ const renderModelAdvanceBtn = (campaign) => {
   `;
 };
 
-/* ── public API ──────────────────────────────────────────────── */
+/* â”€â”€ public API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const initOnboardingQuiz = () => {
   const ob = ensureOnboardingQuiz();
@@ -602,3 +632,4 @@ export {
   getOutreachProgress,
   incrementOutreach
 };
+

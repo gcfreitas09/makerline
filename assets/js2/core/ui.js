@@ -3,7 +3,7 @@ import { saveState, state } from './state.js';
 const setActivePage = (page) => {
   const navItems = document.querySelectorAll('.nav-item[data-target]');
   const sections = document.querySelectorAll('.page-section');
-  const validPages = Array.from(sections).map((s) => s.dataset.section);
+  const validPages = Array.from(sections).map((section) => section.dataset.section);
   const targetPage = validPages.includes(page) ? page : 'dashboard';
 
   navItems.forEach((item) => {

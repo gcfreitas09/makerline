@@ -1,6 +1,6 @@
 import { state, saveState } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js';
-import { showToast } from '../../core/ui.js';
+import { showToast } from '../../core/ui.js?v=20260301h';
 
 const getBrandDeleteModal = () => ({
   modal: document.getElementById('brand-delete-modal'),
@@ -59,10 +59,39 @@ const handleBrandDeleteSubmit = (event) => {
     return;
   }
 
+<<<<<<< Updated upstream
   const linkedCampaigns = (Array.isArray(state.campaigns) ? state.campaigns : []).filter((campaign) => campaign.brandId === id);
   if (linkedCampaigns.length) {
     if (msg) msg.textContent = 'Essa marca possui campanhas vinculadas. Remova ou troque o vínculo antes de excluir.';
     return;
+=======
+  const linkedCampaigns = (Array.isArray(state.campaigns) ? state.campaigns : []).filter((campaign) => {
+    if (!campaign || typeof campaign !== 'object') return false;
+    if (String(campaign.brandId || '').trim()) return String(campaign.brandId || '').trim() === id;
+    const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === id);
+    return Boolean(brand && String(campaign.brand || '').trim().toLowerCase() === String(brand.name || '').trim().toLowerCase());
+  });
+
+  if (linkedCampaigns.length) {
+    if (msg) msg.textContent = `Essa marca ainda tem ${linkedCampaigns.length} campanha(s) vinculada(s). Reatribua ou exclua essas campanhas antes.`;
+    input.focus();
+    return;
+  }
+
+  state.brands = (Array.isArray(state.brands) ? state.brands : []).filter((item) => item.id !== id);
+
+  if (state.ui?.brandComposer?.brandId === id) {
+    state.ui.brandComposer.brandId = null;
+    state.ui.brandComposer.text = '';
+    state.ui.brandComposer.lastBrandId = null;
+    state.ui.brandComposer.lastType = null;
+>>>>>>> Stashed changes
+  }
+  if (state.ui?.selectedBrandId === id) {
+    state.ui.selectedBrandId = null;
+  }
+  if (state.ui?.pendingCampaignBrandId === id) {
+    state.ui.pendingCampaignBrandId = null;
   }
 
   state.brands = (Array.isArray(state.brands) ? state.brands : []).filter((item) => item.id !== id);
@@ -91,4 +120,3 @@ const initBrandDeleteFeature = () => {
 };
 
 export { initBrandDeleteFeature, openBrandDeleteModal, closeBrandDeleteModal };
-

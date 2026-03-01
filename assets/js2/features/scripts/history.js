@@ -1,5 +1,5 @@
 import { state, saveState } from '../../core/state.js';
-import { setScriptOutput, showToast } from '../../core/ui.js';
+import { setScriptOutput, showToast } from '../../core/ui.js?v=20260301g';
 import { renderAll } from '../../core/renderers.js';
 
 const copyText = (text, doneMessage) => {
@@ -42,4 +42,3 @@ const copyCurrentScript = () => {
 };
 
 export { openScriptFromHistory, copyScriptFromHistory, copyCurrentScript };
-
