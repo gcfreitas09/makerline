@@ -1,15 +1,8 @@
   import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-  import { renderAll } from './core/renderers.js?v=20260228k';
-  import { setActivePage, requestNotificationPermission } from './core/ui.js';
-  import { initActions } from './core/actions.js?v=20260228k';
-  import {
-    ensureDailyMissions,
-    ensureWeeklyChallenges,
-    ensureWeeklyFocus,
-    ensureOnboarding,
-    syncAchievements
-  } from './core/gamification.js';
-  import { initOnboardingQuiz } from './features/onboarding/quiz.js';
+  import { renderAll } from './core/renderers.js?v=20260301p';
+  import { setActivePage } from './core/ui.js?v=20260301h';
+  import { initActions } from './core/actions.js?v=20260301p';
+  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260301s';
   import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260217b';
 
   const sessionToken = sessionStorage.getItem('ugcQuestToken') || '';
@@ -148,10 +141,6 @@ const hydrateStateFromServer = async () => {
   // Renderizar imediatamente se houver sessão
   if (hasSession) {
     initProfileFromSession();
-    ensureDailyMissions();
-    ensureWeeklyChallenges();
-    ensureWeeklyFocus();
-    syncAchievements();
     renderAll();
     setActivePage('dashboard');
     initAdminTrackerCard();
@@ -167,13 +156,6 @@ const hydrateStateFromServer = async () => {
 
       // Habilitar salvamento remoto somente após hidratação
       enableRemoteSave();
-
-      // Recalcular streak e missões com o estado do servidor
-      ensureDailyMissions();
-      ensureWeeklyChallenges();
-      ensureWeeklyFocus();
-      ensureOnboarding();
-      syncAchievements();
       
       // Inicializar quiz de onboarding
       initOnboardingQuiz();
@@ -188,7 +170,6 @@ const hydrateStateFromServer = async () => {
       // Inicializar features
       setActivePage('dashboard');
       initActions();
-      requestNotificationPermission();
     })();
   window.__ugcAppLoaded = true;
 });

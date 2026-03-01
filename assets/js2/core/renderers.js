@@ -9,7 +9,6 @@
   typeLabels,
   statusDot,
   brandStatuses,
-  brandInteractionTypes,
   formatCurrency,
   formatPercent,
   xpForLevel,
@@ -78,103 +77,42 @@ const iconSvg = (name) => ICONS[name] || '';
 const renderProfile = () => {
   const greetings = document.querySelectorAll('[data-greeting]');
   const profileName = document.querySelectorAll('[data-profile-name]');
-  const profileLevel = document.querySelectorAll('[data-profile-level]');
-  const profileXp = document.querySelectorAll('[data-profile-xp]');
-  const profileXpGoal = document.querySelectorAll('[data-profile-xp-goal]');
-  const profileXpRemaining = document.querySelectorAll('[data-profile-xp-remaining]');
-  const profileXpBar = document.querySelectorAll('[data-profile-xpbar]');
-  const profileStreak = document.querySelectorAll('[data-profile-streak]');
-  const profileStreakBar = document.querySelectorAll('[data-profile-streakbar]');
+  const profileAvatar = document.querySelectorAll('[data-profile-avatar]');
+  const profileMiniAvatar = document.querySelectorAll('[data-profile-mini-avatar]');
   const dashboardNarrative = document.querySelectorAll('[data-dashboard-narrative]');
-  const streakTip = document.querySelectorAll('[data-streak-tip]');
-  const focusCurrent = document.querySelectorAll('[data-focus-current]');
-  const focusTarget = document.querySelectorAll('[data-focus-target]');
-  const focusXp = document.querySelectorAll('[data-focus-xp]');
-  const focusLabel = document.querySelectorAll('[data-focus-label]');
-  const focusBar = document.querySelectorAll('[data-focus-bar]');
-
-  const isMax = state.profile.level >= 10;
-  const goal = xpForLevel(state.profile.level);
-  const remaining = isMax ? 0 : Math.max(goal - state.profile.xp, 0);
-  const progress = isMax ? 1 : goal ? Math.min(state.profile.xp / goal, 1) : 0;
-  const streakGoal = 30;
-  const streakProgress = Math.min(Math.max(state.profile.streak / streakGoal, 0), 1);
-  const focusGoal = Number.isFinite(state.focus?.target) ? state.focus.target : 0;
-  const focusCurrentValue = Number.isFinite(state.focus?.current) ? state.focus.current : 0;
-  const focusProgress = focusGoal ? Math.min(Math.max(focusCurrentValue / focusGoal, 0), 1) : 0;
 
   const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
-  const scripts = Array.isArray(state.scripts) ? state.scripts : [];
   const brands = Array.isArray(state.brands) ? state.brands : [];
+  const now = new Date();
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const overdue = campaigns.filter((campaign) => campaign && !campaign.archived && campaign.dueDate && campaign.dueDate < todayKey).length;
+  const pendingPayments = campaigns.filter((campaign) => campaign && !campaign.archived && campaign.stage === 'aguardando_pagamento' && (Number(campaign.paymentPercent) || 0) < 100).length;
 
-  const hour = new Date().getHours();
+  const hour = now.getHours();
   const greeting = hour >= 5 && hour < 12 ? 'Bom dia' : hour >= 12 && hour < 18 ? 'Boa tarde' : 'Boa noite';
-
-  const actionsLeft = remaining ? Math.max(1, Math.ceil(remaining / 20)) : 0;
+  const safeName = String(state.profile.name || 'Criador').trim() || 'Criador';
+  const firstLetter = safeName.charAt(0).toUpperCase() || 'C';
   let narrative = '';
 
-  if (state.profile.level === 1 && state.profile.xp <= 40) {
-    narrative = 'Todo mundo começa do zero. Você já deu o primeiro passo.';
-  } else if (!campaigns.length) {
-    narrative = 'Cria uma campanha (mesmo de teste). Isso já destrava XP e deixa tudo mais claro.';
-  } else if (!scripts.length) {
-    narrative = 'Gera um roteiro rapidinho. É XP por esforço e já te coloca no ritmo.';
+  if (!brands.length && !campaigns.length) {
+    narrative = 'Comece cadastrando uma marca ou campanha para organizar sua operação.';
   } else if (!brands.length) {
-    narrative = 'Salva um contato de marca. Mesmo que seja “outros”, vale o registro.';
-  } else if (remaining > 0 && remaining <= 25) {
-    narrative = `Tá na beirinha do próximo nível. Só mais ${remaining} XP.`;
-  } else if (remaining > 0) {
-    narrative = `Faltam ~${actionsLeft} ações pra subir de nível. Vai no passo a passo.`;
+    narrative = 'Cadastre suas marcas para centralizar follow-ups, histórico e campanhas.';
+  } else if (!campaigns.length) {
+    narrative = 'Crie sua próxima campanha para alimentar o pipeline e o financeiro.';
+  } else if (overdue > 0) {
+    narrative = `${overdue} campanha(s) com prazo vencido pedem atenção hoje.`;
+  } else if (pendingPayments > 0) {
+    narrative = `${pendingPayments} campanha(s) aguardam pagamento e impactam o fechamento do mês.`;
   } else {
-    narrative = 'Bora manter o ritmo e desbloquear as próximas conquistas.';
-  }
-
-  let streakText = 'Sua melhor sequência do mês.';
-  if (state.profile.streak <= 1) {
-    streakText = 'É difícil começar. Amanhã você mantém a chama acesa.';
-  } else if (state.profile.streak < 4) {
-    streakText = 'Boa! Você já entrou na sequência.';
-  } else if (state.profile.streak < 7) {
-    streakText = 'Consistência tá on. Mantém mais um dia.';
-  } else {
-    streakText = 'Tá quente! Você tá virando o jogo na marra.';
+    narrative = 'Seu dashboard está em dia. Use os blocos abaixo para mover a operação.';
   }
 
   greetings.forEach((el) => (el.textContent = greeting));
-  profileName.forEach((el) => (el.textContent = state.profile.name));
-  profileLevel.forEach((el) => (el.textContent = state.profile.level));
-  profileXp.forEach((el) => (el.textContent = state.profile.xp));
-  profileXpGoal.forEach((el) => (el.textContent = isMax ? 'MAX' : goal));
-  profileXpRemaining.forEach((el) => (el.textContent = remaining));
-  profileXpBar.forEach((el) => (el.style.width = `${progress * 100}%`));
-  profileStreak.forEach((el) => (el.textContent = state.profile.streak));
-  profileStreakBar.forEach((el) => (el.style.width = `${streakProgress * 100}%`));
+  profileName.forEach((el) => (el.textContent = safeName));
+  profileAvatar.forEach((el) => (el.textContent = firstLetter));
+  profileMiniAvatar.forEach((el) => (el.textContent = firstLetter));
   dashboardNarrative.forEach((el) => (el.textContent = narrative));
-  streakTip.forEach((el) => (el.textContent = streakText));
-
-  // Cores dinâmicas do foguinho baseadas no streak
-  const streakIcons = document.querySelectorAll('[data-streak-icon]');
-  streakIcons.forEach((icon) => {
-    const streak = state.profile.streak;
-    icon.classList.remove('streak-10', 'streak-20', 'streak-30', 'streak-40', 'streak-50', 'streak-60', 'streak-70', 'streak-80', 'streak-90', 'streak-100');
-    
-    if (streak >= 100) icon.classList.add('streak-100');
-    else if (streak >= 90) icon.classList.add('streak-90');
-    else if (streak >= 80) icon.classList.add('streak-80');
-    else if (streak >= 70) icon.classList.add('streak-70');
-    else if (streak >= 60) icon.classList.add('streak-60');
-    else if (streak >= 50) icon.classList.add('streak-50');
-    else if (streak >= 40) icon.classList.add('streak-40');
-    else if (streak >= 30) icon.classList.add('streak-30');
-    else if (streak >= 20) icon.classList.add('streak-20');
-    else if (streak >= 10) icon.classList.add('streak-10');
-  });
-
-  focusLabel.forEach((el) => (el.textContent = state.focus?.label || 'Foco'));
-  focusCurrent.forEach((el) => (el.textContent = String(state.focus?.current ?? 0)));
-  focusTarget.forEach((el) => (el.textContent = String(state.focus?.target ?? 0)));
-  focusXp.forEach((el) => (el.textContent = String(state.focus?.xp ?? 0)));
-  focusBar.forEach((el) => (el.style.width = `${focusProgress * 100}%`));
 };
 
 const renderMissions = () => {
@@ -417,7 +355,7 @@ const computeDashboardFinance = () => {
     negociacao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'prospeccao' && campaign.stage === 'negociacao').length,
     producao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'producao').length,
     aprovacao: campaigns.filter((campaign) => campaign && !campaign.archived && ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage)).length,
-    pagamento: pendingPayments.length
+    concluidas: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'concluida').length
   };
 
   return {
@@ -543,22 +481,22 @@ const renderDashboardFinancials = () => {
   `;
 
   pipelineContainer.innerHTML = `
-    <div class="dashboard-pipeline-item">
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="negociacao" type="button">
       <span class="dashboard-pipeline-label">Leads em negociação</span>
       <strong class="dashboard-pipeline-value">${d.pipeline.negociacao}</strong>
-    </div>
-    <div class="dashboard-pipeline-item">
+    </button>
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="producao" type="button">
       <span class="dashboard-pipeline-label">Campanhas em produção</span>
       <strong class="dashboard-pipeline-value">${d.pipeline.producao}</strong>
-    </div>
-    <div class="dashboard-pipeline-item">
+    </button>
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="aprovacao" type="button">
       <span class="dashboard-pipeline-label">Aguardando aprovação</span>
       <strong class="dashboard-pipeline-value">${d.pipeline.aprovacao}</strong>
-    </div>
-    <div class="dashboard-pipeline-item">
-      <span class="dashboard-pipeline-label">Aguardando pagamento</span>
-      <strong class="dashboard-pipeline-value">${d.pipeline.pagamento}</strong>
-    </div>
+    </button>
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="concluidas" type="button">
+      <span class="dashboard-pipeline-label">Campanhas concluídas</span>
+      <strong class="dashboard-pipeline-value">${d.pipeline.concluidas}</strong>
+    </button>
   `;
 
   goalContainer.innerHTML = `
@@ -612,7 +550,30 @@ const renderCampaigns = () => {
   if (!container) return;
 
   const filter = state.ui.campaignFilter || 'all';
+  const dashboardFilter = String(state.ui.campaignDashboardFilter || '').trim();
   const sortBy = state.ui.campaignSort || 'updatedAt';
+  const dashboardFilterMeta = {
+    negociacao: { label: 'Leads em negociação' },
+    producao: { label: 'Campanhas em produção' },
+    aprovacao: { label: 'Aguardando aprovação' },
+    concluidas: { label: 'Campanhas concluídas' }
+  };
+  const matchesDashboardCampaignFilter = (campaign, key) => {
+    if (!key) return true;
+    if (!campaign || campaign.archived) return false;
+    switch (key) {
+      case 'negociacao':
+        return campaign.status === 'prospeccao' && campaign.stage === 'negociacao';
+      case 'producao':
+        return campaign.status === 'producao';
+      case 'aprovacao':
+        return ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage);
+      case 'concluidas':
+        return campaign.status === 'concluida';
+      default:
+        return true;
+    }
+  };
 
   const escapeHtml = (value) =>
     String(value ?? '')
@@ -708,6 +669,7 @@ const renderCampaigns = () => {
   const list = allCampaigns
     .filter((campaign) => {
       if (filter !== 'all' && campaign.status !== filter) return false;
+      if (!matchesDashboardCampaignFilter(campaign, dashboardFilter)) return false;
       return true;
     })
     .sort((a, b) => {
@@ -725,8 +687,20 @@ const renderCampaigns = () => {
       }
     });
 
+  const dashboardFilterBanner = dashboardFilterMeta[dashboardFilter]
+    ? `
+      <div class="campaign-context-banner">
+        <div class="campaign-context-copy">
+          <strong>${escapeHtml(dashboardFilterMeta[dashboardFilter].label)}</strong>
+          <span>Mostrando as campanhas abertas a partir do dashboard.</span>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="clear-dashboard-campaign-filter" type="button">Limpar</button>
+      </div>
+    `
+    : '';
+
   if (!list.length) {
-    container.innerHTML = '<div class="card">Nenhuma campanha por aqui.</div>';
+    container.innerHTML = `${dashboardFilterBanner}<div class="card">Nenhuma campanha encontrada nesse filtro.</div>`;
     return;
   }
 
@@ -739,6 +713,7 @@ const renderCampaigns = () => {
   };
 
   container.innerHTML = `
+    ${dashboardFilterBanner}
     <div class="table-wrap campaign-table-wrap">
       <table class="campaign-table">
         <thead>
@@ -781,7 +756,6 @@ const renderCampaigns = () => {
                   advanceBtnHtml = `
                     <button class="btn-advance" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
                       <span class="btn-advance-label">Avançar: ${escapeHtml(nextStage.label)}</span>
-                      <span class="btn-advance-xp">+5 XP</span>
                     </button>`;
                 } else if (!isLastStatus) {
                   const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
@@ -789,7 +763,6 @@ const renderCampaigns = () => {
                   advanceBtnHtml = `
                     <button class="btn-advance btn-advance-status" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
                       <span class="btn-advance-label">Avançar: ${escapeHtml(nextStatusLabel)}</span>
-                      <span class="btn-advance-xp">+5 XP</span>
                     </button>`;
                 }
               }
@@ -986,7 +959,7 @@ const renderBrands = () => {
     detailContainer.innerHTML = `
       <div class="brand-detail-empty">
         <h3>Quando você adicionar uma marca, o detalhe aparece aqui.</h3>
-        <p class="muted">Você vai conseguir ver resumo, próxima ação, campanhas vinculadas e interações.</p>
+        <p class="muted">Você vai conseguir ver resumo, próxima ação e campanhas vinculadas no mesmo lugar.</p>
         <button class="btn btn-primary" data-action="open-brand-modal" type="button">Criar primeira marca</button>
       </div>
     `;
@@ -1080,10 +1053,6 @@ const renderBrands = () => {
       </div>
     `;
 
-  const interactionOptionsHtml = Object.entries(brandInteractionTypes)
-    .map(([value, label]) => `<option value="${value}">${label}</option>`)
-    .join('');
-
   detailContainer.innerHTML = `
     <div class="brand-detail-header">
       <div>
@@ -1167,41 +1136,6 @@ const renderBrands = () => {
                 .join('')
             : '<p class="muted">Nenhuma campanha vinculada a essa marca ainda.</p>'}
         </div>
-      </div>
-    </div>
-
-    <div class="brand-detail-block">
-      <div class="brand-detail-block-head">
-        <div>
-          <h3>Histórico de interações</h3>
-          <p class="muted">Registro simples de DM, email e call.</p>
-        </div>
-      </div>
-
-      <form class="brand-interaction-form" id="brand-interaction-form">
-        <input type="hidden" name="brandId" value="${selectedBrand.id}" />
-        <select class="select" name="type">
-          ${interactionOptionsHtml}
-        </select>
-        <input class="input" name="date" type="date" value="${new Date().toISOString().slice(0, 10)}" />
-        <input class="input" name="note" type="text" maxlength="140" placeholder="Ex: respondeu no email e pediu proposta" />
-        <button class="btn btn-primary btn-small" type="submit">Registrar</button>
-      </form>
-
-      <div class="brand-interaction-list">
-        ${selectedSummary.interactions.length
-          ? selectedSummary.interactions
-              .map((interaction) => `
-                <div class="brand-interaction-item">
-                  <div>
-                    <strong>${escapeHtml(brandInteractionTypes[interaction.type] || interaction.type)}</strong>
-                    <div class="muted">${formatDateShort(interaction.date)}</div>
-                  </div>
-                  <p>${escapeHtml(interaction.note || 'Sem observação.')}</p>
-                </div>
-              `)
-              .join('')
-          : '<p class="muted">Nenhuma interação registrada para essa marca.</p>'}
       </div>
     </div>
   `;

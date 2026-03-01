@@ -195,6 +195,7 @@ const defaultState = {
   ui: {
     activePage: 'dashboard',
     campaignFilter: 'all',
+    campaignDashboardFilter: '',
     campaignPaymentFilter: 'all',
     campaignSort: 'updatedAt',
     campaignSortDir: 'desc',
@@ -383,6 +384,7 @@ const normalizeCampaignPipeline = (currentState) => {
     const filter = String(currentState.ui.campaignFilter || 'all').trim().toLowerCase();
     if (filter === 'pendente' || filter === 'negociando') currentState.ui.campaignFilter = 'prospeccao';
     if (filter === 'realizado') currentState.ui.campaignFilter = 'finalizacao';
+    if (typeof currentState.ui.campaignDashboardFilter !== 'string') currentState.ui.campaignDashboardFilter = '';
   }
 };
 

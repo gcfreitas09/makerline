@@ -1,5 +1,5 @@
 import { state, formatCurrency } from '../../core/state.js';
-import { showToast } from '../../core/ui.js';
+import { showToast } from '../../core/ui.js?v=20260301g';
 
 const buildSnapshot = () => {
   const totalCampaigns = state.campaigns.length;

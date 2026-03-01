@@ -1,5 +1,5 @@
 import { state, saveState } from '../../core/state.js';
-import { showToast } from '../../core/ui.js';
+import { showToast } from '../../core/ui.js?v=20260301g';
 import { renderAll } from '../../core/renderers.js';
 
 const syncWeeklySetting = async (enabled) => {

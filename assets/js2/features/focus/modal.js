@@ -1,7 +1,7 @@
 import { state } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js';
-import { showToast } from '../../core/ui.js';
-import { ensureWeeklyFocus, progressWeeklyFocus } from '../../core/gamification.js';
+import { showToast } from '../../core/ui.js?v=20260301g';
+import { ensureWeeklyFocus, progressWeeklyFocus } from '../../core/gamification.js?v=20260301g';
 
 const getFocusModal = () => ({
   modal: document.getElementById('focus-modal'),
@@ -63,4 +63,3 @@ const confirmFocusModal = () => {
 };
 
 export { openFocusModal, closeFocusModal, confirmFocusModal };
-

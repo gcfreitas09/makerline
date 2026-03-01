@@ -1,6 +1,6 @@
 import { state, saveState, typeLabels } from '../../core/state.js';
-import { setScriptOutput, showToast } from '../../core/ui.js';
-import { trackEvent } from '../../core/gamification.js';
+import { setScriptOutput, showToast } from '../../core/ui.js?v=20260301g';
+import { trackEvent } from '../../core/gamification.js?v=20260301g';
 import { renderAll } from '../../core/renderers.js';
 import { generateScript } from '../../core/scripts.js';
 
@@ -473,4 +473,3 @@ const initScriptFlow = () => {
 };
 
 export { initScriptFlow };
-
