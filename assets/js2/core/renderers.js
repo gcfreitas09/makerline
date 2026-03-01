@@ -12,9 +12,7 @@
   brandInteractionTypes,
   formatCurrency,
   formatPercent,
-  xpForLevel,
-  badgeCatalog,
-  getBadgeById
+  badgeCatalog
 } from './state.js';
 import { setScriptOutput } from './ui.js';
 
@@ -78,103 +76,39 @@ const iconSvg = (name) => ICONS[name] || '';
 const renderProfile = () => {
   const greetings = document.querySelectorAll('[data-greeting]');
   const profileName = document.querySelectorAll('[data-profile-name]');
-  const profileLevel = document.querySelectorAll('[data-profile-level]');
-  const profileXp = document.querySelectorAll('[data-profile-xp]');
-  const profileXpGoal = document.querySelectorAll('[data-profile-xp-goal]');
-  const profileXpRemaining = document.querySelectorAll('[data-profile-xp-remaining]');
-  const profileXpBar = document.querySelectorAll('[data-profile-xpbar]');
-  const profileStreak = document.querySelectorAll('[data-profile-streak]');
-  const profileStreakBar = document.querySelectorAll('[data-profile-streakbar]');
+  const profileNameSidebar = document.querySelectorAll('[data-profile-name-sidebar]');
+  const profileInitial = document.querySelectorAll('[data-profile-initial]');
   const dashboardNarrative = document.querySelectorAll('[data-dashboard-narrative]');
-  const streakTip = document.querySelectorAll('[data-streak-tip]');
-  const focusCurrent = document.querySelectorAll('[data-focus-current]');
-  const focusTarget = document.querySelectorAll('[data-focus-target]');
-  const focusXp = document.querySelectorAll('[data-focus-xp]');
-  const focusLabel = document.querySelectorAll('[data-focus-label]');
-  const focusBar = document.querySelectorAll('[data-focus-bar]');
-
-  const isMax = state.profile.level >= 10;
-  const goal = xpForLevel(state.profile.level);
-  const remaining = isMax ? 0 : Math.max(goal - state.profile.xp, 0);
-  const progress = isMax ? 1 : goal ? Math.min(state.profile.xp / goal, 1) : 0;
-  const streakGoal = 30;
-  const streakProgress = Math.min(Math.max(state.profile.streak / streakGoal, 0), 1);
-  const focusGoal = Number.isFinite(state.focus?.target) ? state.focus.target : 0;
-  const focusCurrentValue = Number.isFinite(state.focus?.current) ? state.focus.current : 0;
-  const focusProgress = focusGoal ? Math.min(Math.max(focusCurrentValue / focusGoal, 0), 1) : 0;
 
   const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
-  const scripts = Array.isArray(state.scripts) ? state.scripts : [];
   const brands = Array.isArray(state.brands) ? state.brands : [];
+  const followUps = campaigns.filter((campaign) => campaign.nextActionType && campaign.nextActionDate).length +
+    brands.filter((brand) => brand.nextActionType && brand.nextActionDate).length;
+  const pendingPayments = campaigns.filter((campaign) => campaign.stage === 'aguardando_pagamento' && Number(campaign.paymentPercent || 0) < 100).length;
 
   const hour = new Date().getHours();
   const greeting = hour >= 5 && hour < 12 ? 'Bom dia' : hour >= 12 && hour < 18 ? 'Boa tarde' : 'Boa noite';
-
-  const actionsLeft = remaining ? Math.max(1, Math.ceil(remaining / 20)) : 0;
+  const safeName = String(state.profile.name || 'criador').trim() || 'criador';
+  const initial = safeName.charAt(0).toUpperCase() || 'M';
   let narrative = '';
 
-  if (state.profile.level === 1 && state.profile.xp <= 40) {
-    narrative = 'Todo mundo começa do zero. Você já deu o primeiro passo.';
-  } else if (!campaigns.length) {
-    narrative = 'Cria uma campanha (mesmo de teste). Isso já destrava XP e deixa tudo mais claro.';
-  } else if (!scripts.length) {
-    narrative = 'Gera um roteiro rapidinho. É XP por esforço e já te coloca no ritmo.';
+  if (!campaigns.length) {
+    narrative = 'Crie sua primeira campanha para começar a organizar o pipeline com clareza.';
   } else if (!brands.length) {
-    narrative = 'Salva um contato de marca. Mesmo que seja “outros”, vale o registro.';
-  } else if (remaining > 0 && remaining <= 25) {
-    narrative = `Tá na beirinha do próximo nível. Só mais ${remaining} XP.`;
-  } else if (remaining > 0) {
-    narrative = `Faltam ~${actionsLeft} ações pra subir de nível. Vai no passo a passo.`;
+    narrative = 'Cadastre suas marcas para concentrar contato, follow-up e histórico comercial no mesmo lugar.';
+  } else if (followUps > 0) {
+    narrative = `${followUps} follow-up${followUps > 1 ? 's' : ''} pedem atenção no seu painel hoje.`;
+  } else if (pendingPayments > 0) {
+    narrative = `${pendingPayments} pagamento${pendingPayments > 1 ? 's' : ''} ainda ${pendingPayments > 1 ? 'estão' : 'está'} pendente${pendingPayments > 1 ? 's' : ''}.`;
   } else {
-    narrative = 'Bora manter o ritmo e desbloquear as próximas conquistas.';
-  }
-
-  let streakText = 'Sua melhor sequência do mês.';
-  if (state.profile.streak <= 1) {
-    streakText = 'É difícil começar. Amanhã você mantém a chama acesa.';
-  } else if (state.profile.streak < 4) {
-    streakText = 'Boa! Você já entrou na sequência.';
-  } else if (state.profile.streak < 7) {
-    streakText = 'Consistência tá on. Mantém mais um dia.';
-  } else {
-    streakText = 'Tá quente! Você tá virando o jogo na marra.';
+    narrative = 'Seu painel está organizado. Use as campanhas e marcas para manter o fluxo comercial atualizado.';
   }
 
   greetings.forEach((el) => (el.textContent = greeting));
-  profileName.forEach((el) => (el.textContent = state.profile.name));
-  profileLevel.forEach((el) => (el.textContent = state.profile.level));
-  profileXp.forEach((el) => (el.textContent = state.profile.xp));
-  profileXpGoal.forEach((el) => (el.textContent = isMax ? 'MAX' : goal));
-  profileXpRemaining.forEach((el) => (el.textContent = remaining));
-  profileXpBar.forEach((el) => (el.style.width = `${progress * 100}%`));
-  profileStreak.forEach((el) => (el.textContent = state.profile.streak));
-  profileStreakBar.forEach((el) => (el.style.width = `${streakProgress * 100}%`));
+  profileName.forEach((el) => (el.textContent = safeName));
+  profileNameSidebar.forEach((el) => (el.textContent = safeName));
+  profileInitial.forEach((el) => (el.textContent = initial));
   dashboardNarrative.forEach((el) => (el.textContent = narrative));
-  streakTip.forEach((el) => (el.textContent = streakText));
-
-  // Cores dinâmicas do foguinho baseadas no streak
-  const streakIcons = document.querySelectorAll('[data-streak-icon]');
-  streakIcons.forEach((icon) => {
-    const streak = state.profile.streak;
-    icon.classList.remove('streak-10', 'streak-20', 'streak-30', 'streak-40', 'streak-50', 'streak-60', 'streak-70', 'streak-80', 'streak-90', 'streak-100');
-    
-    if (streak >= 100) icon.classList.add('streak-100');
-    else if (streak >= 90) icon.classList.add('streak-90');
-    else if (streak >= 80) icon.classList.add('streak-80');
-    else if (streak >= 70) icon.classList.add('streak-70');
-    else if (streak >= 60) icon.classList.add('streak-60');
-    else if (streak >= 50) icon.classList.add('streak-50');
-    else if (streak >= 40) icon.classList.add('streak-40');
-    else if (streak >= 30) icon.classList.add('streak-30');
-    else if (streak >= 20) icon.classList.add('streak-20');
-    else if (streak >= 10) icon.classList.add('streak-10');
-  });
-
-  focusLabel.forEach((el) => (el.textContent = state.focus?.label || 'Foco'));
-  focusCurrent.forEach((el) => (el.textContent = String(state.focus?.current ?? 0)));
-  focusTarget.forEach((el) => (el.textContent = String(state.focus?.target ?? 0)));
-  focusXp.forEach((el) => (el.textContent = String(state.focus?.xp ?? 0)));
-  focusBar.forEach((el) => (el.style.width = `${focusProgress * 100}%`));
 };
 
 const renderMissions = () => {
@@ -781,7 +715,6 @@ const renderCampaigns = () => {
                   advanceBtnHtml = `
                     <button class="btn-advance" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
                       <span class="btn-advance-label">Avançar: ${escapeHtml(nextStage.label)}</span>
-                      <span class="btn-advance-xp">+5 XP</span>
                     </button>`;
                 } else if (!isLastStatus) {
                   const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
@@ -789,7 +722,6 @@ const renderCampaigns = () => {
                   advanceBtnHtml = `
                     <button class="btn-advance btn-advance-status" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
                       <span class="btn-advance-label">Avançar: ${escapeHtml(nextStatusLabel)}</span>
-                      <span class="btn-advance-xp">+5 XP</span>
                     </button>`;
                 }
               }

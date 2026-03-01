@@ -6,12 +6,12 @@
   <title>Makerline - UGC Quest</title>
   <meta
     name="description"
-    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+    content="Gerencie campanhas, marcas e rotina comercial em um painel claro, atual e profissional."
   />
   <meta property="og:title" content="Makerline - UGC Quest" />
   <meta
     property="og:description"
-    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+    content="Gerencie campanhas, marcas e rotina comercial em um painel claro, atual e profissional."
   />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="assets/img/share.png" />
@@ -22,15 +22,15 @@
   <meta name="twitter:title" content="Makerline - UGC Quest" />
   <meta
     name="twitter:description"
-    content="Gerencie campanhas, roteiros e métricas de um jeito gamificado. Feito pra creators UGC evoluírem no dia a dia."
+    content="Gerencie campanhas, marcas e rotina comercial em um painel claro, atual e profissional."
   />
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-    <link rel="stylesheet" href="assets/css/app2.css?v=20260228m" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260228m">
+    <link rel="stylesheet" href="assets/css/app2.css?v=20260228p" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260228p">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="assets/js2/core/customSelect.js?v=20260228m"></script>
+  <script src="assets/js2/core/customSelect.js?v=20260228p"></script>
 </head>
 <body>
   <div class="page-shell">
@@ -41,21 +41,14 @@
         </div>
         <div>
           <div class="brand-name">Makerline</div>
-          <div class="brand-tag">Level up your content</div>
+          <div class="brand-tag">Seu painel comercial</div>
         </div>
       </div>
 
-      <div class="profile-card">
-        <div class="level-badge" data-profile-level>-</div>
+      <div class="profile-card profile-card--account">
+        <div class="profile-avatar" data-profile-initial>M</div>
         <div style="flex:1;min-width:0">
-          <div class="profile-label">Seu nível</div>
-          <div class="profile-value"><span data-profile-xp>—</span> XP</div>
-          <div class="sidebar-progress">
-            <div class="progress-track">
-              <div class="progress-fill" data-profile-xpbar style="width: 0%"></div>
-            </div>
-            <div class="progress-label">Faltam <span data-profile-xp-remaining>—</span> XP para subir</div>
-          </div>
+          <div class="profile-value" data-profile-name-sidebar>Criador</div>
         </div>
       </div>
 
@@ -112,7 +105,7 @@
           <div class="section-title-block">
             <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
             <h1 class="section-title"><span data-greeting>Boa tarde</span>, <span data-profile-name>criador</span>!</h1>
-            <p class="section-subtitle">Continue sua jornada e suba de nível hoje.</p>
+            <p class="section-subtitle">Acompanhe o que precisa acontecer hoje e mantenha o comercial em dia.</p>
             <p class="section-subtitle" data-dashboard-narrative></p>
           </div>
           <button class="btn btn-primary" data-action="new-campaign" type="button">Nova campanha</button>
@@ -655,41 +648,6 @@
     </div>
   </div>
 
-  <div class="modal" id="focus-modal" aria-hidden="true">
-    <div class="modal-scrim" data-action="close-focus-modal"></div>
-    <div class="modal-panel card">
-      <div class="modal-header">
-        <div>
-          <h3>Confirmar foco</h3>
-          <p class="muted">Vai marcar +1 no seu foco da semana?</p>
-        </div>
-        <button class="btn btn-ghost btn-small" data-action="close-focus-modal" type="button">Fechar</button>
-      </div>
-
-      <div class="card" style="margin-top: 12px;">
-        <div style="display: flex; justify-content: space-between; gap: 12px; align-items: flex-start;">
-          <div>
-            <div class="badge">Foco atual</div>
-            <h4 style="margin-top: 8px;" data-focus-modal-label></h4>
-            <p class="muted" style="margin-top: 6px;">Progresso: <span data-focus-modal-current>0</span> / <span data-focus-modal-target>0</span></p>
-          </div>
-          <span class="chip">+<span data-focus-modal-xp>0</span> XP</span>
-        </div>
-
-        <div class="progress-track" style="margin-top: 12px;">
-          <div class="progress-fill" data-focus-modal-bar style="width: 0%"></div>
-        </div>
-      </div>
-
-      <div class="modal-actions" style="margin-top: 14px;">
-        <button class="btn btn-ghost" data-action="close-focus-modal" type="button">Cancelar</button>
-        <button class="btn btn-primary" data-action="confirm-focus-modal" type="button">Confirmar</button>
-      </div>
-
-      <div class="muted" id="focus-modal-msg"></div>
-    </div>
-  </div>
-
   <!-- Onboarding Quiz -->
   <div class="quiz-overlay" id="onboarding-quiz">
     <div class="quiz-backdrop"></div>
@@ -904,10 +862,9 @@
     </div>
   </div>
 
-  <div class="toast toast-xp" id="xp-toast"></div>
   <div class="toast" id="toast"></div>
 
-  <script type="module" src="assets/js2/app.js?v=20260228m"></script>
+  <script type="module" src="assets/js2/app.js?v=20260228p"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

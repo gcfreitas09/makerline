@@ -17,7 +17,9 @@ import {
   outfitItems,
   shoeItems
 } from './state.js';
-import { showToast, showXpToast } from './ui.js';
+import { showToast } from './ui.js';
+
+const showXpToast = () => {};
 
 const MAX_LEVEL = 10;
 const DAILY_BONUS_XP = 20;
