@@ -27,8 +27,8 @@
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-    <link rel="stylesheet" href="assets/css/app2.css?v=20260301z" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260301z">
+    <link rel="stylesheet" href="assets/css/app2.css?v=20260301ac" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260301ac">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="assets/js2/core/customSelect.js?v=20260228m"></script>
 </head>
@@ -76,6 +76,13 @@
             <path d="M14 14h6v6h-6z" />
           </svg>
           Campanhas
+        </button>
+        <button class="nav-item" data-target="finance" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20" />
+            <path d="M17 6H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+          Financeiro
         </button>
         <button class="nav-item" data-target="settings" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -177,6 +184,7 @@
                 <p class="dashboard-eyebrow">Financeiro</p>
                 <h2 class="dashboard-card-title">Financeiro</h2>
               </div>
+              <button class="btn btn-ghost btn-small" data-action="goto-finance" type="button">Abrir financeiro</button>
             </div>
             <div class="dashboard-metric-stack" data-dashboard-financial></div>
           </div>
@@ -263,6 +271,74 @@
 
           <div class="brands-detail-column">
             <div class="card brand-detail-card" data-brand-detail></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section" data-section="finance">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Financeiro</h1>
+            <p class="section-subtitle">Acompanhe recebimentos, previsões e o fluxo financeiro das campanhas.</p>
+          </div>
+          <div class="section-actions">
+            <label class="finance-page-filter">
+              <span>Período</span>
+                <select class="select select--compact" data-finance-range aria-label="Filtrar período financeiro">
+                  <option value="15">15 dias</option>
+                  <option value="30" selected>30 dias</option>
+                  <option value="45">45 dias</option>
+                  <option value="90">90 dias</option>
+                  <option value="0">Todo histórico</option>
+                </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="finance-page">
+          <div class="card finance-overview-card">
+            <div class="section-header section-header--tight">
+              <div>
+                <h3>Visão geral</h3>
+                <p class="section-subtitle">Resumo financeiro da operação com foco em recebido, aberto e atraso.</p>
+              </div>
+            </div>
+            <div class="finance-overview-grid" data-finance-overview></div>
+          </div>
+
+          <div class="finance-page-body">
+            <div class="card finance-campaigns-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Campanhas</h3>
+                  <p class="section-subtitle">Clique para expandir e ver os detalhes financeiros completos.</p>
+                </div>
+              </div>
+              <div class="finance-campaign-list" data-finance-campaigns></div>
+            </div>
+
+            <div class="finance-page-side">
+              <div class="card finance-flow-card">
+                <div class="section-header section-header--tight">
+                  <div>
+                    <h3>Fluxo futuro</h3>
+                    <p class="section-subtitle">Quanto deve entrar nas próximas janelas.</p>
+                  </div>
+                </div>
+                <div class="finance-flow-list" data-finance-future></div>
+              </div>
+
+              <div class="card finance-indicators-card">
+                <div class="section-header section-header--tight">
+                  <div>
+                    <h3>Indicadores</h3>
+                    <p class="section-subtitle">Leitura rápida do financeiro na janela selecionada.</p>
+                  </div>
+                </div>
+                <div class="finance-indicators-grid" data-finance-indicators></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -909,7 +985,7 @@
     </div>
   </div>
 
-  <script type="module" src="assets/js2/app.js?v=20260301x"></script>
+  <script type="module" src="assets/js2/app.js?v=20260301aj"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

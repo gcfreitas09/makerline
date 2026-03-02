@@ -1,8 +1,8 @@
   import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-  import { renderAll } from './core/renderers.js?v=20260301aa';
+import { renderAll } from './core/renderers.js?v=20260301aj';
   import { setActivePage } from './core/ui.js?v=20260301x';
-  import { initActions } from './core/actions.js?v=20260301z';
-  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260301x';
+import { initActions } from './core/actions.js?v=20260301aj';
+  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260301y';
   import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260217b';
 
   const sessionToken = sessionStorage.getItem('ugcQuestToken') || '';
@@ -21,7 +21,7 @@
     saveState();
   };
 
-const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'settings']);
+const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'settings']);
 
 const getSafeProfileName = () => {
   const safeName = String(state.profile?.name || sessionStorage.getItem('ugcQuestUserName') || 'Criador').trim();
@@ -36,6 +36,9 @@ const getSafeProfileInitial = () => getSafeProfileName().charAt(0).toUpperCase()
   state.ui.activePage = ACTIVE_PAGES.has(activePage) ? activePage : 'dashboard';
   if (typeof state.ui.campaignDashboardFilter !== 'string') state.ui.campaignDashboardFilter = '';
   if (typeof state.ui.dashboardPipelineOpen !== 'string') state.ui.dashboardPipelineOpen = '';
+  const financeRangeDays = Number(state.ui.financeRangeDays);
+  state.ui.financeRangeDays = [0, 15, 30, 60, 90].includes(financeRangeDays) ? financeRangeDays : 30;
+  if (typeof state.ui.financeExpandedCampaignId !== 'string') state.ui.financeExpandedCampaignId = '';
 };
 
 const enforceModernShell = () => {

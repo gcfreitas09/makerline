@@ -305,9 +305,13 @@ const startCampaignHighlight = () => {
     if (!btn) return;
     if (ob.firstCampaignCreated || ob.tooltipsDone || areOnboardingTooltipsSnoozed()) return;
 
+    const host = btn.parentElement;
+    if (!host) return;
+
     btn.classList.add('onboarding-glow');
     const tip = document.createElement('div');
     tip.className = 'onboarding-tooltip';
+    tip.dataset.tooltipFor = 'new-campaign';
     tip.innerHTML = `
       <span class="onboarding-tooltip-text">Comece por aqui.</span>
       <button class="onboarding-tooltip-close" type="button" aria-label="Fechar mensagem">&times;</button>
@@ -317,8 +321,14 @@ const startCampaignHighlight = () => {
       event.stopPropagation();
       dismissOnboardingTooltips();
     });
-    btn.style.position = 'relative';
-    btn.appendChild(tip);
+
+    if (window.getComputedStyle(host).position === 'static') {
+      host.style.position = 'relative';
+    }
+
+    tip.style.top = `${btn.offsetTop + btn.offsetHeight + 10}px`;
+    tip.style.left = `${btn.offsetLeft + btn.offsetWidth / 2}px`;
+    host.appendChild(tip);
   }, 400);
 };
 
@@ -326,7 +336,8 @@ const removeCampaignHighlight = () => {
   const btn = document.querySelector('[data-action="new-campaign"]');
   if (!btn) return;
   btn.classList.remove('onboarding-glow');
-  const tip = btn.querySelector('.onboarding-tooltip');
+  const host = btn.parentElement;
+  const tip = host?.querySelector('.onboarding-tooltip[data-tooltip-for="new-campaign"]');
   if (tip) tip.remove();
 };
 

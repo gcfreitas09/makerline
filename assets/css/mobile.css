@@ -130,6 +130,14 @@ ampaign-status-stage select option {
     grid-template-columns: 1fr;
   }
 
+  .finance-overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .finance-page-body {
+    grid-template-columns: 1fr;
+  }
+
   .dashboard-pipeline-track {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px 14px;
@@ -143,6 +151,47 @@ ampaign-status-stage select option {
 }
 
 @media (max-width: 768px) {
+  .finance-page-filter {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .finance-overview-card,
+  .finance-flow-card,
+  .finance-indicators-card,
+  .finance-campaigns-card {
+    padding: 18px;
+  }
+
+  .finance-overview-grid,
+  .finance-indicators-grid,
+  .finance-campaign-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .finance-campaign-summary {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .finance-campaign-value,
+  .finance-payment-status {
+    justify-self: start;
+  }
+
+  .finance-campaign-chevron {
+    justify-self: end;
+  }
+
+  .finance-campaign-details-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .finance-campaign-details-footer .btn {
+    width: 100%;
+  }
+
   .dashboard-card {
     padding: 18px;
     gap: 16px;
@@ -212,5 +261,11 @@ ampaign-status-stage select option {
 
   .dashboard-metric-value {
     font-size: 28px;
+  }
+}
+
+@media (max-width: 520px) {
+  .finance-overview-grid {
+    grid-template-columns: 1fr;
   }
 }
