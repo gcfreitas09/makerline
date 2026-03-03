@@ -196,8 +196,6 @@ const defaultState = {
     activePage: 'dashboard',
     campaignFilter: 'all',
     campaignDashboardFilter: '',
-    financeRangeDays: 30,
-    financeExpandedCampaignId: '',
     campaignPaymentFilter: 'all',
     campaignSort: 'updatedAt',
     campaignSortDir: 'desc',

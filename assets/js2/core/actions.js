@@ -1,7 +1,7 @@
-import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions } from './state.js';
-import { setActivePage, showToast } from './ui.js';
-import { trackEvent } from './gamification.js';
-import { renderAll } from './renderers.js';
+﻿import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
+import { setActivePage, showToast } from './ui.js?v=20260301h';
+import { trackEvent } from './gamification.js?v=20260301h';
+import { renderAll } from './renderers.js?v=20260301p';
 
 import {
   closeCampaignModal,
@@ -106,7 +106,7 @@ const openBrandActionModal = (brandId = '') => {
   if (noteInput) noteInput.value = brand?.nextActionNote || '';
   setBrandActionCustomVisibility(brand?.nextActionType || '');
 
-  if (title) title.textContent = brand?.nextActionType ? 'Editar ação de marca' : 'Nova ação de marca';
+  if (title) title.textContent = brand?.nextActionType ? 'Editar aÃ§Ã£o de marca' : 'Nova aÃ§Ã£o de marca';
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   if (select) select.focus();
@@ -119,7 +119,7 @@ const closeBrandActionModal = () => {
   modal.setAttribute('aria-hidden', 'true');
   if (form) form.reset();
   if (msg) msg.textContent = '';
-  if (title) title.textContent = 'Nova ação de marca';
+  if (title) title.textContent = 'Nova aÃ§Ã£o de marca';
   setBrandActionCustomVisibility('');
 };
 
@@ -139,15 +139,15 @@ const handleBrandActionSubmit = (event) => {
 
   if (msg) msg.textContent = '';
   if (!brand) {
-    if (msg) msg.textContent = 'Escolha uma marca válida.';
+    if (msg) msg.textContent = 'Escolha uma marca vÃ¡lida.';
     return;
   }
   if (!nextActionType) {
-    if (msg) msg.textContent = 'Escolha a próxima ação.';
+    if (msg) msg.textContent = 'Escolha a prÃ³xima aÃ§Ã£o.';
     return;
   }
   if (!nextActionDate) {
-    if (msg) msg.textContent = 'Defina a data da ação.';
+    if (msg) msg.textContent = 'Defina a data da aÃ§Ã£o.';
     return;
   }
   if (nextActionType === 'outro' && !nextActionCustomType) {
@@ -163,11 +163,25 @@ const handleBrandActionSubmit = (event) => {
   saveState();
   renderAll();
   closeBrandActionModal();
-  showToast('Ação da marca salva.');
+  showToast('AÃ§Ã£o da marca salva.');
 };
 
 /* Posi\u00e7\u00e3o global de (status, stage) no pipeline.
-   Total: 15 posi\u00e7\u00f5es, 14 transi\u00e7\u00f5es → 100 XP para pipeline completo. */
+   Total: 15 posi\u00e7\u00f5es, 14 transi\u00e7\u00f5es â†’ 100 XP para pipeline completo. */
+const getGlobalStagePos = (status, stage) => {
+  let pos = 0;
+  for (const s of campaignStatusOrder) {
+    const stages = getCampaignStageOptions(s);
+    if (s === status) {
+      const idx = stages.findIndex(opt => opt.id === stage);
+      return pos + Math.max(0, idx);
+    }
+    pos += stages.length;
+  }
+  return pos;
+};
+const TOTAL_TRANSITIONS = 14;
+
 const copyText = (text, doneMessage) => {
   const value = String(text || '').trim();
   if (!value) return;
@@ -200,15 +214,15 @@ const handleBrandInteractionSubmit = (event) => {
   const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
 
   if (!brand) {
-    showToast('Marca não encontrada.');
+    showToast('Marca nÃ£o encontrada.');
     return;
   }
   if (!date) {
-    showToast('Defina a data da interação.');
+    showToast('Defina a data da interaÃ§Ã£o.');
     return;
   }
   if (!['dm', 'email', 'call'].includes(type)) {
-    showToast('Escolha um tipo válido de interação.');
+    showToast('Escolha um tipo vÃ¡lido de interaÃ§Ã£o.');
     return;
   }
 
@@ -224,7 +238,7 @@ const handleBrandInteractionSubmit = (event) => {
 
   saveState();
   renderAll();
-  showToast('Interação registrada.');
+  showToast('InteraÃ§Ã£o registrada.');
 };
 
 const handleActionClick = (event) => {
@@ -281,7 +295,36 @@ const handleActionClick = (event) => {
   }
 
   if (action === 'goto-campaigns') {
+    state.ui.campaignDashboardFilter = '';
+    state.ui.campaignFilter = 'all';
+    saveState();
     setActivePage('campaigns');
+    renderAll();
+    return;
+  }
+
+  if (action === 'open-dashboard-pipeline-filter') {
+    const pipelineFilter = String(actionEl.dataset.pipelineFilter || '').trim();
+    const statusByPipelineFilter = {
+      negociacao: 'prospeccao',
+      producao: 'producao',
+      aprovacao: 'producao',
+      concluidas: 'concluida'
+    };
+    if (!pipelineFilter) return;
+    state.ui.campaignDashboardFilter = pipelineFilter;
+    state.ui.campaignFilter = statusByPipelineFilter[pipelineFilter] || 'all';
+    saveState();
+    setActivePage('campaigns');
+    renderAll();
+    return;
+  }
+
+  if (action === 'clear-dashboard-campaign-filter') {
+    state.ui.campaignDashboardFilter = '';
+    state.ui.campaignFilter = 'all';
+    saveState();
+    renderAll();
     return;
   }
 
@@ -323,7 +366,7 @@ const handleActionClick = (event) => {
     const brandId = String(actionEl.dataset.brandId || '').trim();
     const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
     if (!brand?.email) {
-      showToast('Essa marca não tem email cadastrado.');
+      showToast('Essa marca nÃ£o tem email cadastrado.');
       return;
     }
     copyText(brand.email, 'Email copiado.');
@@ -399,7 +442,7 @@ const handleActionClick = (event) => {
     if (source !== 'brand') item.updatedAt = new Date().toISOString();
     saveState();
     renderAll();
-    showToast('Ação concluída.');
+    showToast('AÃ§Ã£o concluÃ­da.');
     return;
   }
 
@@ -420,7 +463,7 @@ const handleActionClick = (event) => {
     return;
   }
 
-  /* ── Performance tabs ── */
+  /* â”€â”€ Performance tabs â”€â”€ */
   if (action === 'perf-tab') {
     const tab = actionEl.dataset.perfTab;
     if (!tab) return;
@@ -550,7 +593,7 @@ const handleActionClick = (event) => {
       });
       saveState();
       renderAll();
-      showToast(`Avançou: ${nextStage.label}`);
+      showToast(`Avan?ou: ${nextStage.label}`);
     } else if (!isLastStatus) {
       const previousStatus = campaign.status;
       const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
@@ -576,7 +619,7 @@ const handleActionClick = (event) => {
       }
       saveState();
       renderAll();
-      showToast(`Avançou: ${statusLabels[campaign.status] || campaign.status}`);
+      showToast(`Avan?ou: ${statusLabels[campaign.status] || campaign.status}`);
     }
     return;
   }
@@ -780,11 +823,10 @@ const handleChange = (event) => {
     const previousStatus = campaign.status;
     const previousStage = campaign.stage;
     const newStatus = target.value;
+    const oldPos = getGlobalStagePos(previousStatus, previousStage);
+    const newPos = getGlobalStagePos(newStatus, getDefaultCampaignStage(newStatus));
+    const delta = newPos - oldPos;
     
-    const currentStatusIndex = campaignStatusOrder.indexOf(previousStatus);
-    const newStatusIndex = campaignStatusOrder.indexOf(newStatus);
-    
-    // XP proporcional: 5 XP por cada posição de etapa percorrida
     campaign.status = newStatus;
     campaign.stage = getDefaultCampaignStage(campaign.status);
     campaign.updatedAt = new Date().toISOString();
@@ -846,9 +888,13 @@ const handleChange = (event) => {
     const previousStage = campaign.stage;
     const nextStage = target.value;
     if (nextStage === previousStage) return;
-
     const options = getCampaignStageOptions(campaign.status);
-
+    const previousStageIndex = options.findIndex((opt) => opt.id === previousStage);
+    const nextStageIndex = options.findIndex((opt) => opt.id === nextStage);
+    const stageOldPos = getGlobalStagePos(campaign.status, previousStage);
+    const stageNewPos = getGlobalStagePos(campaign.status, nextStage);
+    const stageDelta = stageNewPos - stageOldPos;
+    
     const isValid = options.some((opt) => opt.id === nextStage);
     campaign.stage = isValid ? nextStage : getDefaultCampaignStage(campaign.status);
     campaign.updatedAt = new Date().toISOString();

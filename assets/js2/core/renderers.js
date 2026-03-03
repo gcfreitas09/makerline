@@ -75,38 +75,41 @@ const iconSvg = (name) => ICONS[name] || '';
 const renderProfile = () => {
   const greetings = document.querySelectorAll('[data-greeting]');
   const profileName = document.querySelectorAll('[data-profile-name]');
-  const profileNameSidebar = document.querySelectorAll('[data-profile-name-sidebar]');
-  const profileInitial = document.querySelectorAll('[data-profile-initial]');
+  const profileAvatar = document.querySelectorAll('[data-profile-avatar]');
+  const profileMiniAvatar = document.querySelectorAll('[data-profile-mini-avatar]');
   const dashboardNarrative = document.querySelectorAll('[data-dashboard-narrative]');
 
   const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
   const brands = Array.isArray(state.brands) ? state.brands : [];
-  const followUps = campaigns.filter((campaign) => campaign.nextActionType && campaign.nextActionDate).length +
-    brands.filter((brand) => brand.nextActionType && brand.nextActionDate).length;
-  const pendingPayments = campaigns.filter((campaign) => campaign.stage === 'aguardando_pagamento' && Number(campaign.paymentPercent || 0) < 100).length;
+  const now = new Date();
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const overdue = campaigns.filter((campaign) => campaign && !campaign.archived && campaign.dueDate && campaign.dueDate < todayKey).length;
+  const pendingPayments = campaigns.filter((campaign) => campaign && !campaign.archived && campaign.stage === 'aguardando_pagamento' && (Number(campaign.paymentPercent) || 0) < 100).length;
 
   const hour = now.getHours();
   const greeting = hour >= 5 && hour < 12 ? 'Bom dia' : hour >= 12 && hour < 18 ? 'Boa tarde' : 'Boa noite';
-  const safeName = String(state.profile.name || 'criador').trim() || 'criador';
-  const initial = safeName.charAt(0).toUpperCase() || 'M';
+  const safeName = String(state.profile.name || 'Criador').trim() || 'Criador';
+  const firstLetter = safeName.charAt(0).toUpperCase() || 'C';
   let narrative = '';
 
-  if (!campaigns.length) {
-    narrative = 'Crie sua primeira campanha para começar a organizar o pipeline com clareza.';
+  if (!brands.length && !campaigns.length) {
+    narrative = 'Comece cadastrando uma marca ou campanha para organizar sua operação.';
   } else if (!brands.length) {
-    narrative = 'Cadastre suas marcas para concentrar contato, follow-up e histórico comercial no mesmo lugar.';
-  } else if (followUps > 0) {
-    narrative = `${followUps} follow-up${followUps > 1 ? 's' : ''} pedem atenção no seu painel hoje.`;
+    narrative = 'Cadastre suas marcas para centralizar follow-ups, histórico e campanhas.';
+  } else if (!campaigns.length) {
+    narrative = 'Crie sua próxima campanha para alimentar o pipeline e o financeiro.';
+  } else if (overdue > 0) {
+    narrative = `${overdue} campanha(s) com prazo vencido pedem atenção hoje.`;
   } else if (pendingPayments > 0) {
-    narrative = `${pendingPayments} pagamento${pendingPayments > 1 ? 's' : ''} ainda ${pendingPayments > 1 ? 'estão' : 'está'} pendente${pendingPayments > 1 ? 's' : ''}.`;
+    narrative = `${pendingPayments} campanha(s) aguardam pagamento e impactam o fechamento do mês.`;
   } else {
-    narrative = 'Seu painel está organizado. Use as campanhas e marcas para manter o fluxo comercial atualizado.';
+    narrative = 'Seu dashboard está em dia. Use os blocos abaixo para mover a operação.';
   }
 
   greetings.forEach((el) => (el.textContent = greeting));
   profileName.forEach((el) => (el.textContent = safeName));
-  profileNameSidebar.forEach((el) => (el.textContent = safeName));
-  profileInitial.forEach((el) => (el.textContent = initial));
+  profileAvatar.forEach((el) => (el.textContent = firstLetter));
+  profileMiniAvatar.forEach((el) => (el.textContent = firstLetter));
   dashboardNarrative.forEach((el) => (el.textContent = narrative));
 };
 
@@ -350,7 +353,7 @@ const computeDashboardFinance = () => {
     negociacao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'prospeccao' && campaign.stage === 'negociacao').length,
     producao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'producao').length,
     aprovacao: campaigns.filter((campaign) => campaign && !campaign.archived && ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage)).length,
-    pagamento: pendingPayments.length
+    concluidas: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'concluida').length
   };
 
   return {
@@ -476,22 +479,22 @@ const renderDashboardFinancials = () => {
   `;
 
   pipelineContainer.innerHTML = `
-    <div class="dashboard-pipeline-item">
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="negociacao" type="button">
       <span class="dashboard-pipeline-label">Leads em negociação</span>
       <strong class="dashboard-pipeline-value">${d.pipeline.negociacao}</strong>
-    </div>
-    <div class="dashboard-pipeline-item">
+    </button>
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="producao" type="button">
       <span class="dashboard-pipeline-label">Campanhas em produção</span>
       <strong class="dashboard-pipeline-value">${d.pipeline.producao}</strong>
-    </div>
-    <div class="dashboard-pipeline-item">
+    </button>
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="aprovacao" type="button">
       <span class="dashboard-pipeline-label">Aguardando aprovação</span>
       <strong class="dashboard-pipeline-value">${d.pipeline.aprovacao}</strong>
-    </div>
-    <div class="dashboard-pipeline-item">
-      <span class="dashboard-pipeline-label">Aguardando pagamento</span>
-      <strong class="dashboard-pipeline-value">${d.pipeline.pagamento}</strong>
-    </div>
+    </button>
+    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="concluidas" type="button">
+      <span class="dashboard-pipeline-label">Campanhas concluídas</span>
+      <strong class="dashboard-pipeline-value">${d.pipeline.concluidas}</strong>
+    </button>
   `;
 
   goalContainer.innerHTML = `
@@ -967,7 +970,7 @@ const renderBrands = () => {
     detailContainer.innerHTML = `
       <div class="brand-detail-empty">
         <h3>Quando você adicionar uma marca, o detalhe aparece aqui.</h3>
-        <p class="muted">Você vai conseguir ver resumo, próxima ação, campanhas vinculadas e interações.</p>
+        <p class="muted">Você vai conseguir ver resumo, próxima ação e campanhas vinculadas no mesmo lugar.</p>
         <button class="btn btn-primary" data-action="open-brand-modal" type="button">Criar primeira marca</button>
       </div>
     `;
@@ -1146,7 +1149,6 @@ const renderBrands = () => {
         </div>
       </div>
     </div>
-
   `;
 };
 
