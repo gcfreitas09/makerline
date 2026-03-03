@@ -354,7 +354,7 @@ const computeDashboardFinance = () => {
     negociacao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'prospeccao' && campaign.stage === 'negociacao').length,
     producao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'producao').length,
     aprovacao: campaigns.filter((campaign) => campaign && !campaign.archived && ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage)).length,
-    concluidas: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'concluida').length
+    pagamento: pendingPayments.length
   };
 
   return {
@@ -480,22 +480,22 @@ const renderDashboardFinancials = () => {
   `;
 
   pipelineContainer.innerHTML = `
-    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="negociacao" type="button">
+    <div class="dashboard-pipeline-item">
       <span class="dashboard-pipeline-label">Leads em negociação</span>
       <strong class="dashboard-pipeline-value">${d.pipeline.negociacao}</strong>
-    </button>
-    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="producao" type="button">
+    </div>
+    <div class="dashboard-pipeline-item">
       <span class="dashboard-pipeline-label">Campanhas em produção</span>
       <strong class="dashboard-pipeline-value">${d.pipeline.producao}</strong>
-    </button>
-    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="aprovacao" type="button">
+    </div>
+    <div class="dashboard-pipeline-item">
       <span class="dashboard-pipeline-label">Aguardando aprovação</span>
       <strong class="dashboard-pipeline-value">${d.pipeline.aprovacao}</strong>
-    </button>
-    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="concluidas" type="button">
-      <span class="dashboard-pipeline-label">Campanhas concluídas</span>
-      <strong class="dashboard-pipeline-value">${d.pipeline.concluidas}</strong>
-    </button>
+    </div>
+    <div class="dashboard-pipeline-item">
+      <span class="dashboard-pipeline-label">Aguardando pagamento</span>
+      <strong class="dashboard-pipeline-value">${d.pipeline.pagamento}</strong>
+    </div>
   `;
 
   goalContainer.innerHTML = `
@@ -512,399 +512,6 @@ const renderDashboardFinancials = () => {
       <strong class="dashboard-metric-value">${formatCurrency(d.meta.receitaPrevista)}</strong>
     </div>
   `;
-};
-
-const financeRangeLabelMap = {
-  15: '15 dias',
-  30: '30 dias',
-  45: '45 dias',
-  90: '90 dias',
-  0: 'Todo histórico'
-};
-
-const financeStatusMeta = {
-  a_receber: { label: 'A receber', className: 'finance-payment-status--open' },
-  atrasado: { label: 'Atrasado', className: 'finance-payment-status--overdue' },
-  recebido: { label: 'Recebido', className: 'finance-payment-status--received' }
-};
-
-const formatDateFullBR = (value) => {
-  const safe = String(value || '').trim();
-  if (!safe) return 'Sem prazo';
-  const parts = safe.split('-');
-  if (parts.length !== 3) return safe;
-  return `${parts[2]}/${parts[1]}/${parts[0]}`;
-};
-
-const computeFinancePageData = () => {
-  const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
-  const rangeDays = [0, 15, 30, 45, 90].includes(Number(state.ui.financeRangeDays)) ? Number(state.ui.financeRangeDays) : 30;
-  const now = new Date();
-  const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-  const todayKey = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`;
-
-  const parseDay = (value) => {
-    const safe = String(value || '').trim();
-    if (!safe) return null;
-    const raw = safe.length > 10 ? safe : `${safe}T00:00:00Z`;
-    const date = new Date(raw);
-    if (Number.isNaN(date.getTime())) return null;
-    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-  };
-
-  const toDateKey = (value) => {
-    const date = parseDay(value);
-    if (!date) return '';
-    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
-  };
-
-  const diffDays = (valueA, valueB = today) => {
-    const dateA = valueA instanceof Date ? valueA : parseDay(valueA);
-    const dateB = valueB instanceof Date ? valueB : parseDay(valueB);
-    if (!dateA || !dateB) return null;
-    return Math.floor((dateA.getTime() - dateB.getTime()) / 86400000);
-  };
-
-  const isCurrentMonth = (value) => {
-    const date = parseDay(value);
-    return Boolean(date && date.getUTCMonth() === today.getUTCMonth() && date.getUTCFullYear() === today.getUTCFullYear());
-  };
-
-  const getPaymentPercent = (campaign) => {
-    const raw = Number.isFinite(campaign?.paymentPercent)
-      ? campaign.paymentPercent
-      : parseInt(String(campaign?.paymentPercent || ''), 10);
-    return Number.isFinite(raw) ? Math.max(0, Math.min(100, Math.round(raw))) : 0;
-  };
-
-  const isReceivedCampaign = (campaign) =>
-    getPaymentPercent(campaign) >= 100 ||
-    Boolean(String(campaign?.paymentReceivedAt || '').trim()) ||
-    campaign?.status === 'concluida';
-
-  const getFinanceStatus = (campaign) => {
-    if (isReceivedCampaign(campaign)) return 'recebido';
-    if (campaign.paymentDate && campaign.paymentDate < todayKey) return 'atrasado';
-    return 'a_receber';
-  };
-
-  const isRelevantFinanceCampaign = (campaign) => {
-    if (!campaign || campaign.archived) return false;
-    const value = Number(campaign.value) || 0;
-    return (
-      value > 0 ||
-      Boolean(campaign.barter) ||
-      Boolean(campaign.paymentDate) ||
-      Boolean(campaign.paymentReceivedAt) ||
-      getPaymentPercent(campaign) > 0 ||
-      campaign.stage === 'aguardando_pagamento' ||
-      campaign.status === 'concluida'
-    );
-  };
-
-  const getValueLabel = (campaign) => {
-    const value = Number(campaign.value) || 0;
-    if (value > 0) return formatCurrency(value);
-    if (campaign.barter) return 'Permuta';
-    return 'R$ 0';
-  };
-
-  const relevantCampaigns = campaigns
-    .filter(isRelevantFinanceCampaign)
-    .map((campaign) => {
-      const statusKey = getFinanceStatus(campaign);
-      const paymentDate = String(campaign.paymentDate || '').trim();
-      const paymentReceivedAt = String(campaign.paymentReceivedAt || '').trim();
-      const dueDate = String(campaign.dueDate || '').trim();
-      const movementDate = toDateKey(campaign.updatedAt || campaign.createdAt);
-      const createdAtDay = parseDay(campaign.createdAt);
-      const receivedAtDay = parseDay(paymentReceivedAt || movementDate);
-      const delayFromDue = paymentDate
-        ? statusKey === 'recebido'
-          ? Math.max(0, diffDays(paymentReceivedAt || movementDate, paymentDate) || 0)
-          : Math.max(0, Math.abs(Math.min(diffDays(paymentDate) || 0, 0)))
-        : 0;
-
-      return {
-        id: campaign.id,
-        brand: campaign.brand || 'Sem marca',
-        title: campaign.title || campaign.brand || 'Campanha',
-        stageLabel: getCampaignStageLabel(campaign.status, campaign.stage) || statusLabels[campaign.status] || 'Sem etapa',
-        statusKey,
-        statusLabel: financeStatusMeta[statusKey]?.label || 'A receber',
-        statusClassName: financeStatusMeta[statusKey]?.className || 'finance-payment-status--open',
-        value: Number(campaign.value) || 0,
-        valueLabel: getValueLabel(campaign),
-        paymentDate,
-        paymentReceivedAt,
-        dueDate,
-        paymentType: campaign.barter ? ((Number(campaign.value) || 0) > 0 ? 'Dinheiro + permuta' : 'Permuta') : 'Dinheiro',
-        paymentMethod: String(campaign.paymentMethod || '').trim() || 'Não informado',
-        filterDate:
-          statusKey === 'recebido'
-            ? paymentReceivedAt || paymentDate || movementDate || dueDate
-            : paymentDate || dueDate || movementDate,
-        referenceDate:
-          statusKey === 'recebido'
-            ? paymentReceivedAt || paymentDate || movementDate || dueDate
-            : paymentDate || dueDate || movementDate,
-        daysOverdue: delayFromDue,
-        daysToReceive:
-          createdAtDay && receivedAtDay
-            ? Math.max(0, diffDays(receivedAtDay, createdAtDay) || 0)
-            : null
-      };
-    });
-
-  const matchesRange = (item) => {
-    if (!rangeDays) return true;
-    const refDay = parseDay(item.filterDate);
-    if (!refDay) return false;
-    const diff = diffDays(refDay, today);
-    if (diff === null) return false;
-    if (item.statusKey === 'recebido') return diff <= 0 && diff >= -rangeDays;
-    if (item.statusKey === 'atrasado') return diff < 0 && diff >= -rangeDays;
-    return diff >= 0 && diff <= rangeDays;
-  };
-
-  const filteredCampaigns = relevantCampaigns
-    .filter(matchesRange)
-    .sort((a, b) => {
-      const order = { atrasado: 0, a_receber: 1, recebido: 2 };
-      if (order[a.statusKey] !== order[b.statusKey]) return order[a.statusKey] - order[b.statusKey];
-      const refA = a.referenceDate || '9999-12-31';
-      const refB = b.referenceDate || '9999-12-31';
-      if (refA !== refB) return refA.localeCompare(refB);
-      return a.brand.localeCompare(b.brand, 'pt-BR');
-    });
-
-  const sumValues = (items) => items.reduce((sum, item) => sum + (Number(item.value) || 0), 0);
-  const receivedAll = relevantCampaigns.filter((item) => item.statusKey === 'recebido');
-  const openFiltered = filteredCampaigns.filter((item) => item.statusKey === 'a_receber');
-  const overdueFiltered = filteredCampaigns.filter((item) => item.statusKey === 'atrasado');
-  const receivedFiltered = filteredCampaigns.filter((item) => item.statusKey === 'recebido');
-  const receivedThisMonth = receivedAll.filter((item) => isCurrentMonth(item.paymentReceivedAt || item.paymentDate || item.referenceDate || item.filterDate));
-
-  const flowUpcoming = (days) =>
-    relevantCampaigns
-      .filter((item) => item.statusKey !== 'recebido' && item.paymentDate)
-      .filter((item) => {
-        const diff = diffDays(item.paymentDate);
-        return diff !== null && diff >= 0 && diff <= days;
-      });
-
-  const ticketMedio = receivedFiltered.length ? Math.round(sumValues(receivedFiltered) / receivedFiltered.length) : 0;
-  const recentMonths = [0, 1, 2].map((offset) => {
-    const monthDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - offset, 1));
-    return { month: monthDate.getUTCMonth(), year: monthDate.getUTCFullYear() };
-  });
-
-  const monthlyAverage3 = recentMonths.length
-    ? Math.round(
-        recentMonths.reduce((sum, bucket) => {
-          const monthTotal = receivedAll
-            .filter((item) => {
-              const date = parseDay(item.paymentReceivedAt || item.paymentDate || item.referenceDate || item.filterDate);
-              return Boolean(date && date.getUTCMonth() === bucket.month && date.getUTCFullYear() === bucket.year);
-            })
-            .reduce((acc, item) => acc + (Number(item.value) || 0), 0);
-          return sum + monthTotal;
-        }, 0) / recentMonths.length
-      )
-    : 0;
-
-  const brandTotals = receivedFiltered.reduce((acc, item) => {
-    const key = item.brand || 'Sem marca';
-    acc[key] = (acc[key] || 0) + (Number(item.value) || 0);
-    return acc;
-  }, {});
-
-  const mostProfitableEntry = Object.entries(brandTotals).sort((a, b) => b[1] - a[1])[0] || null;
-  const paidOnTimeCount = receivedFiltered.filter((item) => !item.paymentDate || item.daysOverdue === 0).length;
-  const avgDaysToReceiveSource = receivedFiltered.filter((item) => Number.isFinite(item.daysToReceive));
-  const avgDaysToReceive = avgDaysToReceiveSource.length
-    ? Math.round(avgDaysToReceiveSource.reduce((sum, item) => sum + item.daysToReceive, 0) / avgDaysToReceiveSource.length)
-    : null;
-
-  return {
-    rangeDays,
-    rangeLabel: financeRangeLabelMap[rangeDays] || '30 dias',
-    overview: {
-      totalRecebido: sumValues(receivedAll),
-      aReceber: sumValues(openFiltered),
-      atrasado: sumValues(overdueFiltered),
-      recebidoNoPeriodo: sumValues(receivedFiltered),
-      receitaMesAtual: sumValues(receivedThisMonth)
-    },
-    futureFlow: {
-      next7: sumValues(flowUpcoming(7)),
-      next30: sumValues(flowUpcoming(30))
-    },
-    indicators: {
-      receitaTotal: sumValues(receivedFiltered),
-      ticketMedio,
-      mediaMensal3: monthlyAverage3,
-      marcaMaisLucrativa: mostProfitableEntry ? mostProfitableEntry[0] : '—',
-      pctPagoNoPrazo: receivedFiltered.length ? Math.round((paidOnTimeCount / receivedFiltered.length) * 100) : null,
-      tempoMedioReceber: avgDaysToReceive
-    },
-    campaigns: filteredCampaigns
-  };
-};
-
-const renderFinancePage = () => {
-  const overviewContainer = document.querySelector('[data-finance-overview]');
-  const futureContainer = document.querySelector('[data-finance-future]');
-  const indicatorsContainer = document.querySelector('[data-finance-indicators]');
-  const campaignsContainer = document.querySelector('[data-finance-campaigns]');
-  const rangeSelect = document.querySelector('[data-finance-range]');
-  if (!overviewContainer || !futureContainer || !indicatorsContainer || !campaignsContainer) return;
-
-  const data = computeFinancePageData();
-  if (rangeSelect) rangeSelect.value = String(data.rangeDays);
-  const overviewPeriodLabel = 'Recebido no período';
-  const overviewPeriodNote = data.rangeDays === 0
-    ? 'Histórico completo recebido'
-    : `Campanhas recebidas em ${data.rangeLabel.toLowerCase()}`;
-
-  overviewContainer.innerHTML = `
-    <article class="finance-stat-card">
-      <span class="finance-stat-label">Total recebido</span>
-      <strong class="finance-stat-value">${formatCurrency(data.overview.totalRecebido)}</strong>
-      <span class="finance-stat-note">Histórico geral já pago</span>
-    </article>
-    <article class="finance-stat-card">
-      <span class="finance-stat-label">A receber</span>
-      <strong class="finance-stat-value finance-stat-value--accent">${formatCurrency(data.overview.aReceber)}</strong>
-      <span class="finance-stat-note">Pagamentos em aberto na janela selecionada</span>
-    </article>
-    <article class="finance-stat-card">
-      <span class="finance-stat-label">Atrasado</span>
-      <strong class="finance-stat-value finance-stat-value--danger">${formatCurrency(data.overview.atrasado)}</strong>
-      <span class="finance-stat-note">Valores vencidos na janela selecionada</span>
-    </article>
-    <article class="finance-stat-card">
-      <span class="finance-stat-label">${overviewPeriodLabel}</span>
-      <strong class="finance-stat-value finance-stat-value--success">${formatCurrency(data.overview.recebidoNoPeriodo)}</strong>
-      <span class="finance-stat-note">${overviewPeriodNote}</span>
-    </article>
-  `;
-
-  futureContainer.innerHTML = `
-    <article class="finance-flow-item">
-      <div>
-        <span class="finance-flow-label">Próximos 7 dias</span>
-        <strong class="finance-flow-value">${formatCurrency(data.futureFlow.next7)}</strong>
-      </div>
-      <span class="finance-flow-note">Entrada prevista na próxima semana</span>
-    </article>
-    <article class="finance-flow-item">
-      <div>
-        <span class="finance-flow-label">Próximos 30 dias</span>
-        <strong class="finance-flow-value">${formatCurrency(data.futureFlow.next30)}</strong>
-      </div>
-      <span class="finance-flow-note">Entrada prevista no próximo mês</span>
-    </article>
-  `;
-
-  indicatorsContainer.innerHTML = `
-    <article class="finance-indicator-card">
-      <span class="finance-indicator-label">Receita total</span>
-      <strong class="finance-indicator-value">${formatCurrency(data.indicators.receitaTotal)}</strong>
-      <span class="finance-indicator-note">${data.rangeLabel}</span>
-    </article>
-    <article class="finance-indicator-card">
-      <span class="finance-indicator-label">Ticket médio</span>
-      <strong class="finance-indicator-value">${data.indicators.ticketMedio ? formatCurrency(data.indicators.ticketMedio) : '—'}</strong>
-      <span class="finance-indicator-note">Campanhas recebidas</span>
-    </article>
-    <article class="finance-indicator-card">
-      <span class="finance-indicator-label">Média mensal (3 meses)</span>
-      <strong class="finance-indicator-value">${formatCurrency(data.indicators.mediaMensal3)}</strong>
-      <span class="finance-indicator-note">Últimos 3 meses</span>
-    </article>
-    <article class="finance-indicator-card">
-      <span class="finance-indicator-label">Marca mais lucrativa</span>
-      <strong class="finance-indicator-value finance-indicator-value--text">${escapeHtml(data.indicators.marcaMaisLucrativa)}</strong>
-      <span class="finance-indicator-note">Na janela selecionada</span>
-    </article>
-    <article class="finance-indicator-card">
-      <span class="finance-indicator-label">% paga no prazo</span>
-      <strong class="finance-indicator-value">${data.indicators.pctPagoNoPrazo === null ? '—' : `${data.indicators.pctPagoNoPrazo}%`}</strong>
-      <span class="finance-indicator-note">Campanhas já recebidas</span>
-    </article>
-    <article class="finance-indicator-card">
-      <span class="finance-indicator-label">Tempo médio para receber</span>
-      <strong class="finance-indicator-value">${data.indicators.tempoMedioReceber === null ? '—' : `${data.indicators.tempoMedioReceber} dias`}</strong>
-      <span class="finance-indicator-note">Da criação ao recebimento</span>
-    </article>
-  `;
-
-  const activeExpandedId = data.campaigns.some((item) => item.id === state.ui.financeExpandedCampaignId)
-    ? state.ui.financeExpandedCampaignId
-    : '';
-
-  campaignsContainer.innerHTML = data.campaigns.length
-    ? data.campaigns
-        .map((item) => {
-          const isOpen = activeExpandedId === item.id;
-          return `
-            <article class="finance-campaign-item ${isOpen ? 'is-open' : ''}">
-              <button
-                class="finance-campaign-summary"
-                data-action="toggle-finance-campaign"
-                data-campaign-id="${item.id}"
-                type="button"
-                aria-expanded="${isOpen ? 'true' : 'false'}"
-              >
-                <div class="finance-campaign-summary-main">
-                  <span class="finance-campaign-brand">${escapeHtml(item.brand)}</span>
-                  <strong class="finance-campaign-title">${escapeHtml(item.title)}</strong>
-                </div>
-                <strong class="finance-campaign-value">${escapeHtml(item.valueLabel)}</strong>
-                <span class="finance-payment-status ${item.statusClassName}">${escapeHtml(item.statusLabel)}</span>
-                <span class="finance-campaign-chevron" aria-hidden="true">${isOpen ? '−' : '+'}</span>
-              </button>
-              <div class="finance-campaign-details">
-                <div class="finance-campaign-details-grid">
-                  <div class="finance-campaign-detail-cell">
-                    <span>Data prevista</span>
-                    <strong>${escapeHtml(item.paymentDate ? formatDateFullBR(item.paymentDate) : 'Sem data prevista')}</strong>
-                  </div>
-                  <div class="finance-campaign-detail-cell">
-                    <span>Data de recebimento</span>
-                    <strong>${escapeHtml(item.paymentReceivedAt ? formatDateFullBR(item.paymentReceivedAt) : 'Não recebido')}</strong>
-                  </div>
-                  <div class="finance-campaign-detail-cell">
-                    <span>Dias de atraso</span>
-                    <strong>${item.daysOverdue > 0 ? `${item.daysOverdue} dia(s)` : 'Sem atraso'}</strong>
-                  </div>
-                  <div class="finance-campaign-detail-cell">
-                    <span>Tipo</span>
-                    <strong>${escapeHtml(item.paymentType)}</strong>
-                  </div>
-                  <div class="finance-campaign-detail-cell">
-                    <span>Forma de pagamento</span>
-                    <strong>${escapeHtml(item.paymentMethod)}</strong>
-                  </div>
-                </div>
-                <div class="finance-campaign-details-footer">
-                  <div class="finance-campaign-stage">
-                    <span>Etapa atual</span>
-                    <strong>${escapeHtml(item.stageLabel)}</strong>
-                  </div>
-                  ${
-                    item.statusKey !== 'recebido'
-                      ? `<button class="btn btn-primary btn-small" data-action="mark-payment-received" data-campaign-id="${item.id}" type="button">Marcar como recebido</button>`
-                      : ''
-                  }
-                </div>
-              </div>
-            </article>
-          `;
-        })
-        .join('')
-    : `<div class="finance-empty">Nenhuma campanha financeira encontrada em ${escapeHtml(data.rangeLabel.toLowerCase())}.</div>`;
 };
 
 /* ── Model campaign rendering helpers ──────────────────────── */
@@ -1269,6 +876,14 @@ const renderBrands = () => {
     if (!safe) return 'Sem follow-up';
     return formatDateShort(safe);
   };
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const getFollowupTone = (value) => {
+    const safe = String(value || '').trim();
+    if (!safe) return 'empty';
+    if (safe < todayKey) return 'overdue';
+    if (safe === todayKey) return 'today';
+    return 'upcoming';
+  };
 
   const brandSummaries = brands.map((brand) => {
     const linkedCampaigns = campaigns
@@ -1356,7 +971,7 @@ const renderBrands = () => {
     detailContainer.innerHTML = `
       <div class="brand-detail-empty">
         <h3>Quando você adicionar uma marca, o detalhe aparece aqui.</h3>
-        <p class="muted">Você vai conseguir ver resumo, próxima ação e campanhas vinculadas no mesmo lugar.</p>
+        <p class="muted">Você vai conseguir ver resumo, próxima ação, campanhas vinculadas e interações.</p>
         <button class="btn btn-primary" data-action="open-brand-modal" type="button">Criar primeira marca</button>
       </div>
     `;
@@ -1388,11 +1003,12 @@ const renderBrands = () => {
           .map((item) => {
             const isActive = item.brand.id === selectedBrand.id;
             const isDormant = ['inativa', 'perdida'].includes(item.brand.status);
+            const followupTone = getFollowupTone(item.nextFollowup);
             const actionChip = item.pendingAction
-              ? `<span class="chip chip-pill chip-brand-pending">${escapeHtml(item.nextActionLabel || 'Pendente')}</span>`
+              ? `<span class="chip chip-pill chip-brand-pending chip-brand-pending--${followupTone}">${escapeHtml(item.nextActionLabel || 'Pendente')}</span>`
               : '<span class="chip chip-pill chip-brand-neutral">Sem pendência</span>';
             return `
-              <div class="brand-table-row ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
+              <div class="brand-table-row brand-table-row--${escapeHtml(item.brand.status)} ${item.pendingAction ? 'has-pending' : 'is-clear'} ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
                 <div class="brand-table-cell brand-table-cell--primary" data-label="Marca">
                   <strong>${escapeHtml(item.brand.name || 'Marca')}</strong>
                   <span class="muted">${escapeHtml(item.brand.contact || item.brand.instagram || item.brand.email || 'Sem contato principal')}</span>
@@ -1404,16 +1020,16 @@ const renderBrands = () => {
                   ${actionChip}
                 </div>
                 <div class="brand-table-cell brand-table-cell--next" data-label="Próximo follow-up">
-                  <span>${formatRelativeAction(item.nextFollowup)}</span>
+                  <span class="brand-date-badge brand-date-badge--${followupTone}">${formatRelativeAction(item.nextFollowup)}</span>
                 </div>
                 <div class="brand-table-cell brand-table-cell--money" data-label="Total faturado">
-                  <strong>${formatCurrency(item.totalFaturado)}</strong>
+                  <strong class="brand-metric-badge brand-metric-badge--money">${formatCurrency(item.totalFaturado)}</strong>
                 </div>
                 <div class="brand-table-cell brand-table-cell--count" data-label="Campanhas">
-                  <strong>${item.campaignCount}</strong>
+                  <strong class="brand-metric-badge brand-metric-badge--count">${item.campaignCount}</strong>
                 </div>
                 <div class="brand-table-cell brand-table-cell--date" data-label="Último contato">
-                  <span>${item.lastContact ? formatDateShort(item.lastContact) : '—'}</span>
+                  <span class="brand-date-badge brand-date-badge--last">${item.lastContact ? formatDateShort(item.lastContact) : '—'}</span>
                 </div>
                 <div class="brand-table-cell brand-table-cell--actions" data-label="Ações">
                   <div class="brand-row-actions">
@@ -1535,6 +1151,7 @@ const renderBrands = () => {
         </div>
       </div>
     </div>
+
   `;
 };
 
@@ -2040,7 +1657,7 @@ const renderAll = () => {
   renderDashboardFinancials();
   renderCampaigns();
   renderBrands();
-  renderFinancePage();
+  renderPerformance();
   renderSettings();
   setScriptOutput('');
 };

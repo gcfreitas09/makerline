@@ -733,7 +733,6 @@ const loadState = () => {
   normalizeCampaignContractFields(nextState);
   normalizeCampaignHistory(nextState);
   normalizeBrandActionFields(nextState);
-  normalizeUiState(nextState);
   return nextState;
 };
 
@@ -855,7 +854,6 @@ const replaceState = (nextState) => {
   normalizeCampaignContractFields(merged);
   normalizeCampaignHistory(merged);
   normalizeBrandActionFields(merged);
-  normalizeUiState(merged);
   state = merged;
 };
 

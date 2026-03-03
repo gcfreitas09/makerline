@@ -1,7 +1,7 @@
-﻿import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
-import { setActivePage, showToast } from './ui.js?v=20260302b';
-import { trackEvent } from './gamification.js?v=20260301u';
-import { renderAll } from './renderers.js?v=20260302b';
+import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions } from './state.js';
+import { setActivePage, showToast } from './ui.js';
+import { trackEvent, awardXp } from './gamification.js';
+import { renderAll } from './renderers.js';
 
 import {
   closeCampaignModal,
@@ -107,7 +107,7 @@ const openBrandActionModal = (brandId = '') => {
   if (noteInput) noteInput.value = brand?.nextActionNote || '';
   setBrandActionCustomVisibility(brand?.nextActionType || '');
 
-  if (title) title.textContent = brand?.nextActionType ? 'Editar aÃ§Ã£o de marca' : 'Nova aÃ§Ã£o de marca';
+  if (title) title.textContent = brand?.nextActionType ? 'Editar ação de marca' : 'Nova ação de marca';
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   if (select) select.focus();
@@ -120,7 +120,7 @@ const closeBrandActionModal = () => {
   modal.setAttribute('aria-hidden', 'true');
   if (form) form.reset();
   if (msg) msg.textContent = '';
-  if (title) title.textContent = 'Nova aÃ§Ã£o de marca';
+  if (title) title.textContent = 'Nova ação de marca';
   setBrandActionCustomVisibility('');
 };
 
@@ -140,15 +140,15 @@ const handleBrandActionSubmit = (event) => {
 
   if (msg) msg.textContent = '';
   if (!brand) {
-    if (msg) msg.textContent = 'Escolha uma marca vÃ¡lida.';
+    if (msg) msg.textContent = 'Escolha uma marca válida.';
     return;
   }
   if (!nextActionType) {
-    if (msg) msg.textContent = 'Escolha a prÃ³xima aÃ§Ã£o.';
+    if (msg) msg.textContent = 'Escolha a próxima ação.';
     return;
   }
   if (!nextActionDate) {
-    if (msg) msg.textContent = 'Defina a data da aÃ§Ã£o.';
+    if (msg) msg.textContent = 'Defina a data da ação.';
     return;
   }
   if (nextActionType === 'outro' && !nextActionCustomType) {
@@ -164,7 +164,7 @@ const handleBrandActionSubmit = (event) => {
   saveState();
   renderAll();
   closeBrandActionModal();
-  showToast('AÃ§Ã£o da marca salva.');
+  showToast('Ação da marca salva.');
 };
 
 /* Posi\u00e7\u00e3o global de (status, stage) no pipeline.
@@ -215,15 +215,15 @@ const handleBrandInteractionSubmit = (event) => {
   const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
 
   if (!brand) {
-    showToast('Marca nÃ£o encontrada.');
+    showToast('Marca não encontrada.');
     return;
   }
   if (!date) {
-    showToast('Defina a data da interaÃ§Ã£o.');
+    showToast('Defina a data da interação.');
     return;
   }
   if (!['dm', 'email', 'call'].includes(type)) {
-    showToast('Escolha um tipo vÃ¡lido de interaÃ§Ã£o.');
+    showToast('Escolha um tipo válido de interação.');
     return;
   }
 
@@ -239,7 +239,7 @@ const handleBrandInteractionSubmit = (event) => {
 
   saveState();
   renderAll();
-  showToast('InteraÃ§Ã£o registrada.');
+  showToast('Interação registrada.');
 };
 
 const handleActionClick = (event) => {
@@ -295,44 +295,8 @@ const handleActionClick = (event) => {
     return;
   }
 
-  if (action === 'goto-finance') {
-    setActivePage('finance');
-    saveState();
-    renderAll();
-    return;
-  }
-
   if (action === 'goto-campaigns') {
-    state.ui.campaignDashboardFilter = '';
-    state.ui.campaignFilter = 'all';
-    saveState();
     setActivePage('campaigns');
-    renderAll();
-    return;
-  }
-
-  if (action === 'open-dashboard-pipeline-filter') {
-    const pipelineFilter = String(actionEl.dataset.pipelineFilter || '').trim();
-    const statusByPipelineFilter = {
-      negociacao: 'prospeccao',
-      producao: 'producao',
-      aprovacao: 'producao',
-      concluidas: 'concluida'
-    };
-    if (!pipelineFilter) return;
-    state.ui.campaignDashboardFilter = pipelineFilter;
-    state.ui.campaignFilter = statusByPipelineFilter[pipelineFilter] || 'all';
-    saveState();
-    setActivePage('campaigns');
-    renderAll();
-    return;
-  }
-
-  if (action === 'clear-dashboard-campaign-filter') {
-    state.ui.campaignDashboardFilter = '';
-    state.ui.campaignFilter = 'all';
-    saveState();
-    renderAll();
     return;
   }
 
@@ -374,7 +338,7 @@ const handleActionClick = (event) => {
     const brandId = String(actionEl.dataset.brandId || '').trim();
     const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
     if (!brand?.email) {
-      showToast('Essa marca nÃ£o tem email cadastrado.');
+      showToast('Essa marca não tem email cadastrado.');
       return;
     }
     copyText(brand.email, 'Email copiado.');
@@ -450,7 +414,7 @@ const handleActionClick = (event) => {
     if (source !== 'brand') item.updatedAt = new Date().toISOString();
     saveState();
     renderAll();
-    showToast('AÃ§Ã£o concluÃ­da.');
+    showToast('Ação concluída.');
     return;
   }
 
@@ -471,16 +435,7 @@ const handleActionClick = (event) => {
     return;
   }
 
-  if (action === 'toggle-finance-campaign') {
-    const campaignId = String(actionEl.dataset.campaignId || '').trim();
-    if (!campaignId) return;
-    state.ui.financeExpandedCampaignId = state.ui.financeExpandedCampaignId === campaignId ? '' : campaignId;
-    saveState();
-    renderAll();
-    return;
-  }
-
-  /* â”€â”€ Performance tabs â”€â”€ */
+  /* ── Performance tabs ── */
   if (action === 'perf-tab') {
     const tab = actionEl.dataset.perfTab;
     if (!tab) return;
@@ -807,7 +762,7 @@ const handleNavClick = (event) => {
     saveState();
     renderAll();
   }
-  if (target === 'brands' || target === 'finance') {
+  if (target === 'brands') {
     saveState();
     renderAll();
   }
