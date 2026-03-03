@@ -196,6 +196,8 @@ const defaultState = {
     activePage: 'dashboard',
     campaignFilter: 'all',
     campaignDashboardFilter: '',
+    financeRangeDays: 30,
+    financeExpandedCampaignId: '',
     campaignPaymentFilter: 'all',
     campaignSort: 'updatedAt',
     campaignSortDir: 'desc',
@@ -247,7 +249,7 @@ const campaignStagesByStatus = {
   concluida: [{ id: 'pago', label: 'Pago' }]
 };
 
-const activePages = new Set(['dashboard', 'brands', 'campaigns', 'settings']);
+const activePages = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'settings']);
 
 const getCampaignStageOptions = (status) => campaignStagesByStatus[String(status || '').trim()] || [];
 
@@ -403,6 +405,9 @@ const normalizeUiState = (currentState) => {
   currentState.ui.campaignFilter = ['all', ...campaignStatusOrder].includes(campaignFilter) ? campaignFilter : 'all';
 
   if (typeof currentState.ui.campaignDashboardFilter !== 'string') currentState.ui.campaignDashboardFilter = '';
+  const financeRangeDays = Number(currentState.ui.financeRangeDays);
+  currentState.ui.financeRangeDays = [0, 15, 30, 45, 90].includes(financeRangeDays) ? financeRangeDays : 30;
+  if (typeof currentState.ui.financeExpandedCampaignId !== 'string') currentState.ui.financeExpandedCampaignId = '';
   if (typeof currentState.ui.campaignPaymentFilter !== 'string') currentState.ui.campaignPaymentFilter = 'all';
   if (typeof currentState.ui.campaignSort !== 'string') currentState.ui.campaignSort = 'updatedAt';
   if (typeof currentState.ui.campaignSortDir !== 'string') currentState.ui.campaignSortDir = 'desc';

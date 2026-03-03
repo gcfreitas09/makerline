@@ -1,7 +1,7 @@
   import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-  import { renderAll } from './core/renderers.js?v=20260301w';
-  import { setActivePage } from './core/ui.js?v=20260301u';
-  import { initActions } from './core/actions.js?v=20260301u';
+  import { renderAll } from './core/renderers.js?v=20260302a';
+  import { setActivePage } from './core/ui.js?v=20260302b';
+  import { initActions } from './core/actions.js?v=20260302b';
   import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260301u';
   import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260217b';
 
@@ -21,7 +21,7 @@
     saveState();
   };
 
-const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'settings']);
+const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'settings']);
 
 const getSafeProfileName = () => {
   const safeName = String(state.profile?.name || sessionStorage.getItem('ugcQuestUserName') || 'Criador').trim();
@@ -35,6 +35,9 @@ const sanitizeActiveUiState = () => {
   const activePage = String(state.ui.activePage || 'dashboard').trim();
   state.ui.activePage = ACTIVE_PAGES.has(activePage) ? activePage : 'dashboard';
   if (typeof state.ui.campaignDashboardFilter !== 'string') state.ui.campaignDashboardFilter = '';
+  const financeRangeDays = Number(state.ui.financeRangeDays);
+  state.ui.financeRangeDays = [0, 15, 30, 45, 90].includes(financeRangeDays) ? financeRangeDays : 30;
+  if (typeof state.ui.financeExpandedCampaignId !== 'string') state.ui.financeExpandedCampaignId = '';
 };
 
 const enforceModernShell = () => {

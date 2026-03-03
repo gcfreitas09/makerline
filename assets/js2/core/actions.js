@@ -1,7 +1,7 @@
 ﻿import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
-import { setActivePage, showToast } from './ui.js?v=20260301u';
+import { setActivePage, showToast } from './ui.js?v=20260302b';
 import { trackEvent } from './gamification.js?v=20260301u';
-import { renderAll } from './renderers.js?v=20260301u';
+import { renderAll } from './renderers.js?v=20260302b';
 
 import {
   closeCampaignModal,
@@ -295,6 +295,13 @@ const handleActionClick = (event) => {
     return;
   }
 
+  if (action === 'goto-finance') {
+    setActivePage('finance');
+    saveState();
+    renderAll();
+    return;
+  }
+
   if (action === 'goto-campaigns') {
     state.ui.campaignDashboardFilter = '';
     state.ui.campaignFilter = 'all';
@@ -461,6 +468,15 @@ const handleActionClick = (event) => {
     saveState();
     renderAll();
     showToast('Pagamento marcado como recebido.');
+    return;
+  }
+
+  if (action === 'toggle-finance-campaign') {
+    const campaignId = String(actionEl.dataset.campaignId || '').trim();
+    if (!campaignId) return;
+    state.ui.financeExpandedCampaignId = state.ui.financeExpandedCampaignId === campaignId ? '' : campaignId;
+    saveState();
+    renderAll();
     return;
   }
 
@@ -791,7 +807,7 @@ const handleNavClick = (event) => {
     saveState();
     renderAll();
   }
-  if (target === 'brands') {
+  if (target === 'brands' || target === 'finance') {
     saveState();
     renderAll();
   }
@@ -818,6 +834,15 @@ const handleChange = (event) => {
 
   if (target.matches('[data-campaign-payment-filter]')) {
     state.ui.campaignPaymentFilter = target.value || 'all';
+    saveState();
+    renderAll();
+    return;
+  }
+
+  if (target.matches('[data-finance-range]')) {
+    const rangeDays = Number(target.value || 30);
+    state.ui.financeRangeDays = [0, 15, 30, 45, 90].includes(rangeDays) ? rangeDays : 30;
+    state.ui.financeExpandedCampaignId = '';
     saveState();
     renderAll();
     return;

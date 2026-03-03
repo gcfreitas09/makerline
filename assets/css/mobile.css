@@ -117,6 +117,45 @@
   }
 }
 
+@media (max-width: 768px) {
+  .finance-page-filter {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .finance-page-filter label,
+  .finance-page-filter select {
+    width: 100%;
+  }
+
+  .finance-overview-grid,
+  .finance-indicators-grid,
+  .finance-campaign-details-grid,
+  .finance-page-body {
+    grid-template-columns: 1fr;
+  }
+
+  .finance-campaign-summary {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .finance-campaign-value,
+  .finance-payment-status,
+  .finance-campaign-chevron {
+    justify-self: start;
+  }
+
+  .finance-campaign-details-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .finance-campaign-details-footer .btn {
+    width: 100%;
+  }
+}
+
 ampaign-status-stage select option {
   white-space: normal;
   font-size: 15px;
