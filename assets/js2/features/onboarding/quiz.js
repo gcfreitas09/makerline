@@ -5,6 +5,8 @@ import { trackEvent } from '../../core/gamification.js?v=20260301h';
 
 /* â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
+const TOOLTIP_SNOOZE_MS = 2 * 60 * 60 * 1000;
+
 const ensureOnboardingQuiz = () => {
   if (!state.progress) state.progress = {};
   if (!state.progress.onboarding || typeof state.progress.onboarding !== 'object') {
@@ -16,7 +18,8 @@ const ensureOnboardingQuiz = () => {
   if (ob.campaignCount === undefined) ob.campaignCount = null;
   if (ob.firstCampaignCreated === undefined) ob.firstCampaignCreated = false;
   if (ob.tooltipsDone === undefined) ob.tooltipsDone = false;
-  if (ob.ctaTipDismissed === undefined) ob.ctaTipDismissed = false;
+  if (ob.tooltipsDismissedUntil === undefined) ob.tooltipsDismissedUntil = 0;
+  if (ob.tooltipCampaignId === undefined) ob.tooltipCampaignId = '';
   if (ob.targetBrandType === undefined) ob.targetBrandType = null;
   if (ob.weeklyOutreachGoal === undefined) ob.weeklyOutreachGoal = null;
   return ob;
@@ -32,7 +35,30 @@ const isOnboardingComplete = () => {
   return ob.quizDone === true && ob.firstCampaignCreated === true && ob.tooltipsDone === true;
 };
 
-/* â”€â”€ quiz overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const areOnboardingTooltipsSnoozed = () => {
+  const ob = ensureOnboardingQuiz();
+  const dismissedUntil = Number(ob.tooltipsDismissedUntil) || 0;
+  if (!dismissedUntil) return false;
+  if (Date.now() < dismissedUntil) return true;
+  ob.tooltipsDismissedUntil = 0;
+  saveState();
+  return false;
+};
+
+const dismissOnboardingTooltips = () => {
+  const ob = ensureOnboardingQuiz();
+  ob.tooltipsDismissedUntil = Date.now() + TOOLTIP_SNOOZE_MS;
+  if (tooltipCampaignId) ob.tooltipCampaignId = tooltipCampaignId;
+  saveState();
+  tooltipCampaignId = null;
+  clearAllTooltips();
+  clearFieldTooltips();
+  removeCampaignHighlight();
+  const header = document.getElementById('campaign-onboarding-header');
+  if (header) header.remove();
+};
+
+/* ── quiz overlay ───────────────────────────────────────────── */
 
 let currentScreen = 1;
 
@@ -272,35 +298,25 @@ const convertModelToReal = (campaignId) => {
 
 const startCampaignHighlight = () => {
   const ob = ensureOnboardingQuiz();
-  if ((ob.firstCampaignCreated && ob.tooltipsDone) || ob.ctaTipDismissed) return;
+  if (ob.firstCampaignCreated || ob.tooltipsDone || areOnboardingTooltipsSnoozed()) return;
 
   setTimeout(() => {
     const btn = document.querySelector('[data-action="new-campaign"]');
     if (!btn) return;
-    if (ob.firstCampaignCreated || ob.ctaTipDismissed) return;
+    if (ob.firstCampaignCreated || ob.tooltipsDone || areOnboardingTooltipsSnoozed()) return;
 
     btn.classList.add('onboarding-glow');
     const tip = document.createElement('div');
     tip.className = 'onboarding-tooltip';
     tip.innerHTML = `
       <span class="onboarding-tooltip-text">Comece por aqui.</span>
-      <button class="onboarding-tooltip-close" type="button" aria-label="Fechar dica">×</button>
+      <button class="onboarding-tooltip-close" type="button" aria-label="Fechar mensagem">&times;</button>
     `;
-    tip.addEventListener('click', (event) => {
+    tip.querySelector('.onboarding-tooltip-close')?.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
+      dismissOnboardingTooltips();
     });
-    const closeBtn = tip.querySelector('.onboarding-tooltip-close');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const onboarding = ensureOnboardingQuiz();
-        onboarding.ctaTipDismissed = true;
-        saveState();
-        removeCampaignHighlight();
-      });
-    }
     btn.style.position = 'relative';
     btn.appendChild(tip);
   }, 400);
@@ -321,15 +337,17 @@ let tooltipCampaignId = null;
 
 const startPostCreationTooltips = (campaignId) => {
   const ob = ensureOnboardingQuiz();
-  if (ob.tooltipsDone) return;
+  if (ob.tooltipsDone || areOnboardingTooltipsSnoozed()) return;
   tooltipCampaignId = campaignId;
+  ob.tooltipCampaignId = campaignId || ob.tooltipCampaignId || '';
+  saveState();
   tooltipStep = 0;
   setTimeout(() => showNextTooltip(), 600);
 };
 
 const showNextTooltip = () => {
   clearAllTooltips();
-  if (!tooltipCampaignId) return;
+  if (areOnboardingTooltipsSnoozed() || !tooltipCampaignId) return;
   const row = document.querySelector(`tr[data-campaign-id="${tooltipCampaignId}"]`);
   if (!row) return;
 
@@ -371,11 +389,17 @@ const attachTooltip = (anchor, text, btnText, onDismiss) => {
   const tip = document.createElement('div');
   tip.className = 'onboarding-tip-bubble';
   tip.innerHTML = `
+    <button class="onboarding-tip-close" type="button" aria-label="Fechar mensagem">&times;</button>
     <span class="onboarding-tip-arrow"></span>
     <p>${text}</p>
     <button class="btn btn-primary btn-small" type="button">${btnText}</button>
   `;
-  tip.querySelector('button').addEventListener('click', (e) => {
+  tip.querySelector('.onboarding-tip-close')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dismissOnboardingTooltips();
+  });
+  tip.querySelector('.btn').addEventListener('click', (e) => {
     e.stopPropagation();
     tip.remove();
     if (onDismiss) onDismiss();
@@ -404,6 +428,8 @@ const completeOnboarding = () => {
   clearAllTooltips();
   const ob = ensureOnboardingQuiz();
   ob.tooltipsDone = true;
+  ob.tooltipsDismissedUntil = 0;
+  ob.tooltipCampaignId = '';
   saveState();
 };
 
@@ -419,6 +445,7 @@ const initOnboardingListeners = () => {
 
     if (reason === 'create' && !ob.firstCampaignCreated) {
       ob.firstCampaignCreated = true;
+      ob.tooltipCampaignId = campaignId || ob.tooltipCampaignId || '';
       saveState();
       removeCampaignHighlight();
       clearFieldTooltips();
@@ -428,7 +455,9 @@ const initOnboardingListeners = () => {
 
       setTimeout(() => {
         renderAll();
-        setTimeout(() => startPostCreationTooltips(campaignId), 500);
+        if (!areOnboardingTooltipsSnoozed()) {
+          setTimeout(() => startPostCreationTooltips(campaignId), 500);
+        }
       }, 300);
     }
   });
@@ -438,7 +467,7 @@ const initOnboardingListeners = () => {
 
 const injectOnboardingHeader = () => {
   const ob = ensureOnboardingQuiz();
-  if (ob.firstCampaignCreated || ob.tooltipsDone || isOnboardingComplete()) return;
+  if (ob.firstCampaignCreated || ob.tooltipsDone || isOnboardingComplete() || areOnboardingTooltipsSnoozed()) return;
 
   const modal = document.getElementById('campaign-modal');
   if (!modal) return;
@@ -470,14 +499,14 @@ const fieldTooltipDefs = [
 
 const startFieldTooltips = () => {
   const ob = ensureOnboardingQuiz();
-  if (ob.firstCampaignCreated || ob.tooltipsDone || isOnboardingComplete()) return;
+  if (ob.firstCampaignCreated || ob.tooltipsDone || isOnboardingComplete() || areOnboardingTooltipsSnoozed()) return;
   fieldTooltipStep = 0;
   showFieldTooltip();
 };
 
 const showFieldTooltip = () => {
   clearFieldTooltips();
-  if (fieldTooltipStep >= fieldTooltipDefs.length) return;
+  if (fieldTooltipStep >= fieldTooltipDefs.length || areOnboardingTooltipsSnoozed()) return;
 
   const def = fieldTooltipDefs[fieldTooltipStep];
   const form = document.getElementById('campaign-form');
@@ -491,19 +520,39 @@ const showFieldTooltip = () => {
 
   const bubble = document.createElement('div');
   bubble.className = 'onboarding-field-tip';
-  bubble.innerHTML = `<span>${def.text}</span>`;
+  bubble.innerHTML = `
+    <span class="onboarding-field-tip-text">${def.text}</span>
+    <button class="onboarding-field-tip-close" type="button" aria-label="Fechar mensagem">&times;</button>
+  `;
 
   const wrapper = el.closest('.form-row') || el.parentElement;
   wrapper.style.position = 'relative';
   wrapper.appendChild(bubble);
 
+  let finished = false;
+  let handler = null;
+  const finishStep = () => {
+    if (finished) return;
+    finished = true;
+    if (def.event && handler) el.removeEventListener(def.event, handler);
+    el.classList.remove('onboarding-highlight');
+    bubble.remove();
+    fieldTooltipStep++;
+    setTimeout(() => showFieldTooltip(), 350);
+  };
+
+  bubble.querySelector('.onboarding-field-tip-close')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (def.event && handler) el.removeEventListener(def.event, handler);
+    el.classList.remove('onboarding-highlight');
+    bubble.remove();
+    dismissOnboardingTooltips();
+  });
+
   if (def.event) {
-    const handler = () => {
-      el.removeEventListener(def.event, handler);
-      el.classList.remove('onboarding-highlight');
-      bubble.remove();
-      fieldTooltipStep++;
-      setTimeout(() => showFieldTooltip(), 350);
+    handler = () => {
+      finishStep();
     };
     el.addEventListener(def.event, handler);
   }
@@ -568,6 +617,11 @@ const initOnboardingQuiz = () => {
   if (!isOnboardingComplete()) {
     if (!ob.firstCampaignCreated) {
       startCampaignHighlight();
+      return;
+    }
+
+    if (!areOnboardingTooltipsSnoozed() && ob.tooltipCampaignId) {
+      startPostCreationTooltips(ob.tooltipCampaignId);
     }
   }
 };

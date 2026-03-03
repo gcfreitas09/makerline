@@ -1,7 +1,7 @@
 ﻿import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
-import { setActivePage, showToast } from './ui.js?v=20260301h';
-import { trackEvent } from './gamification.js?v=20260301h';
-import { renderAll } from './renderers.js?v=20260301p';
+import { setActivePage, showToast } from './ui.js?v=20260301x';
+import { trackEvent } from './gamification.js?v=20260301u';
+import { renderAll } from './renderers.js?v=20260301z';
 
 import {
   closeCampaignModal,
@@ -51,6 +51,7 @@ const applyMoneyMask = (input) => {
 };
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
+const isPipelineModalViewport = () => Boolean(window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
 
 const getBrandActionModal = () => ({
   modal: document.getElementById('brand-action-modal'),
@@ -303,17 +304,41 @@ const handleActionClick = (event) => {
     return;
   }
 
+  if (action === 'toggle-dashboard-pipeline-panel') {
+    const pipelineFilter = String(actionEl.dataset.pipelineFilter || '').trim();
+    if (!pipelineFilter) return;
+    state.ui.dashboardPipelineOpen = isPipelineModalViewport()
+      ? pipelineFilter
+      : state.ui.dashboardPipelineOpen === pipelineFilter
+        ? ''
+        : pipelineFilter;
+    saveState();
+    renderAll();
+    return;
+  }
+
+  if (action === 'close-dashboard-pipeline-modal') {
+    state.ui.dashboardPipelineOpen = '';
+    saveState();
+    renderAll();
+    return;
+  }
+
   if (action === 'open-dashboard-pipeline-filter') {
     const pipelineFilter = String(actionEl.dataset.pipelineFilter || '').trim();
     const statusByPipelineFilter = {
-      negociacao: 'prospeccao',
+      prospeccao: 'prospeccao',
       producao: 'producao',
+      finalizacao: 'finalizacao',
+      concluida: 'concluida',
+      negociacao: 'prospeccao',
       aprovacao: 'producao',
       concluidas: 'concluida'
     };
     if (!pipelineFilter) return;
     state.ui.campaignDashboardFilter = pipelineFilter;
     state.ui.campaignFilter = statusByPipelineFilter[pipelineFilter] || 'all';
+    state.ui.dashboardPipelineOpen = pipelineFilter;
     saveState();
     setActivePage('campaigns');
     renderAll();

@@ -11,7 +11,8 @@
   brandStatuses,
   formatCurrency,
   formatPercent,
-  badgeCatalog
+  badgeCatalog,
+  getBadgeById
 } from './state.js';
 import { setScriptOutput } from './ui.js';
 
@@ -218,6 +219,102 @@ const renderChallenges = () => {
    DASHBOARD – Ações, Financeiro, Pipeline e Meta
    ════════════════════════════════════════════ */
 
+const dashboardFilterMeta = {
+  prospeccao: { label: 'Campanhas em prospecção' },
+  producao: { label: 'Campanhas em produção' },
+  finalizacao: { label: 'Campanhas em finalização' },
+  concluida: { label: 'Campanhas concluídas' },
+  negociacao: { label: 'Campanhas em negociação' },
+  aprovacao: { label: 'Aguardando aprovação' },
+  concluidas: { label: 'Campanhas concluídas' }
+};
+
+const dashboardPipelineStages = [
+  { key: 'prospeccao', label: 'Prospecção' },
+  { key: 'producao', label: 'Produção' },
+  { key: 'finalizacao', label: 'Finalização' },
+  { key: 'concluida', label: 'Concluído' }
+];
+
+const formatDateFullBR = (value) => {
+  const safe = String(value || '').trim();
+  if (!safe) return 'Sem prazo';
+  const parts = safe.split('-');
+  if (parts.length !== 3) return safe;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+};
+
+const matchesDashboardCampaignFilter = (campaign, key) => {
+  if (!key) return true;
+  if (!campaign || campaign.archived) return false;
+  switch (key) {
+    case 'prospeccao':
+      return campaign.status === 'prospeccao';
+    case 'producao':
+      return campaign.status === 'producao';
+    case 'finalizacao':
+      return campaign.status === 'finalizacao';
+    case 'concluida':
+    case 'concluidas':
+      return campaign.status === 'concluida';
+    case 'negociacao':
+      return campaign.status === 'prospeccao' && campaign.stage === 'negociacao';
+    case 'aprovacao':
+      return ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage);
+    default:
+      return true;
+  }
+};
+
+const getDashboardPipelineDetailHtml = (pipelineStage) => {
+  if (!pipelineStage) {
+    return `
+      <div class="dashboard-pipeline-panel dashboard-pipeline-panel--empty">
+        <p class="muted">Clique em um status da pipeline para ver as campanhas dessa fase.</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="dashboard-pipeline-panel">
+      <div class="dashboard-pipeline-panel-header">
+        <div>
+          <p class="dashboard-pipeline-panel-overline">${pipelineStage.count} campanha${pipelineStage.count === 1 ? '' : 's'} em andamento</p>
+          <h3 class="dashboard-pipeline-panel-title">${pipelineStage.label}</h3>
+        </div>
+        <button
+          class="btn btn-ghost btn-small"
+          data-action="open-dashboard-pipeline-filter"
+          data-pipeline-filter="${pipelineStage.key}"
+          type="button"
+        >
+          Ver na aba campanhas
+        </button>
+      </div>
+      <div class="dashboard-pipeline-panel-list">
+        ${
+          pipelineStage.items.length
+            ? pipelineStage.items
+                .map((item) => `
+                  <article class="dashboard-pipeline-panel-item">
+                    <div class="dashboard-pipeline-panel-main">
+                      <strong>${escapeHtml(item.title)}</strong>
+                      <div class="dashboard-pipeline-panel-sub">${escapeHtml(item.brand)}</div>
+                    </div>
+                    <div class="dashboard-pipeline-panel-meta">
+                      <span>${escapeHtml(item.stageLabel)}</span>
+                      <strong>${escapeHtml(formatDateFullBR(item.dueDate))}</strong>
+                    </div>
+                  </article>
+                `)
+                .join('')
+            : '<p class="muted">Nenhuma campanha nesse status agora.</p>'
+        }
+      </div>
+    </div>
+  `;
+};
+
 const computeDashboardFinance = () => {
   const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
   const brands = Array.isArray(state.brands) ? state.brands : [];
@@ -291,7 +388,7 @@ const computeDashboardFinance = () => {
       source: 'brand',
       id: brand.id,
       title: brand.name || 'Marca',
-      subtitle: brand.contact ? `Contato: ${brand.contact}` : 'Marca',
+      subtitle: brand.contact ? `Contato: ${brand.contact}` : '',
       actionLabel: getNextActionLabel(brand.nextActionType, brand.nextActionCustomType),
       date: brand.nextActionDate,
       note: brand.nextActionNote || '',
@@ -349,12 +446,30 @@ const computeDashboardFinance = () => {
     recebidoNoMes: sumValues(receivedThisMonth)
   };
 
-  const pipeline = {
-    negociacao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'prospeccao' && campaign.stage === 'negociacao').length,
-    producao: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'producao').length,
-    aprovacao: campaigns.filter((campaign) => campaign && !campaign.archived && ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage)).length,
-    concluidas: campaigns.filter((campaign) => campaign && !campaign.archived && campaign.status === 'concluida').length
-  };
+  const pipeline = dashboardPipelineStages.map((stage) => {
+    const items = campaigns
+      .filter((campaign) => matchesDashboardCampaignFilter(campaign, stage.key))
+      .slice()
+      .sort((a, b) => {
+        const dueA = String(a?.dueDate || '9999-12-31');
+        const dueB = String(b?.dueDate || '9999-12-31');
+        if (dueA !== dueB) return dueA.localeCompare(dueB);
+        return (Number(b?.value) || 0) - (Number(a?.value) || 0);
+      })
+      .map((campaign) => ({
+        id: campaign.id,
+        title: campaign.title || campaign.brand || 'Campanha',
+        brand: campaign.brand || 'Sem marca',
+        stageLabel: getCampaignStageLabel(campaign.status, campaign.stage) || statusLabels[campaign.status] || 'Etapa não definida',
+        dueDate: campaign.dueDate || ''
+      }));
+
+    return {
+      ...stage,
+      count: items.length,
+      items
+    };
+  });
 
   return {
     todayKey,
@@ -374,11 +489,16 @@ const computeDashboardFinance = () => {
 const renderDashboardFinancials = () => {
   const financialContainer = document.querySelector('[data-dashboard-financial]');
   const pipelineContainer = document.querySelector('[data-dashboard-pipeline]');
+  const pipelineDetailContainer = document.querySelector('[data-dashboard-pipeline-detail]');
+  const pipelineModal = document.getElementById('dashboard-pipeline-modal');
+  const pipelineModalBody = document.querySelector('[data-dashboard-pipeline-modal-body]');
+  const pipelineModalTitle = document.querySelector('[data-dashboard-pipeline-modal-title]');
+  const pipelineModalSubtitle = document.querySelector('[data-dashboard-pipeline-modal-subtitle]');
   const goalContainer = document.querySelector('[data-dashboard-goal]');
   const followupsContainer = document.querySelector('[data-dashboard-followups]');
   const deadlinesContainer = document.querySelector('[data-dashboard-deadlines]');
   const paymentsContainer = document.querySelector('[data-dashboard-payments]');
-  if (!financialContainer || !pipelineContainer || !goalContainer || !followupsContainer || !deadlinesContainer || !paymentsContainer) return;
+  if (!financialContainer || !pipelineContainer || !pipelineDetailContainer || !goalContainer || !followupsContainer || !deadlinesContainer || !paymentsContainer) return;
 
   const d = computeDashboardFinance();
 
@@ -478,24 +598,43 @@ const renderDashboardFinancials = () => {
     </div>
   `;
 
+  const activePipelineKey = d.pipeline.some((item) => item.key === state.ui.dashboardPipelineOpen)
+    ? state.ui.dashboardPipelineOpen
+    : '';
+  const activePipeline = d.pipeline.find((item) => item.key === activePipelineKey) || null;
+  const isMobilePipeline = Boolean(window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
+  const detailHtml = getDashboardPipelineDetailHtml(activePipeline);
+  const shouldShowPipelineModal = Boolean(isMobilePipeline && activePipeline && state.ui.activePage === 'dashboard');
+
   pipelineContainer.innerHTML = `
-    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="negociacao" type="button">
-      <span class="dashboard-pipeline-label">Leads em negociação</span>
-      <strong class="dashboard-pipeline-value">${d.pipeline.negociacao}</strong>
-    </button>
-    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="producao" type="button">
-      <span class="dashboard-pipeline-label">Campanhas em produção</span>
-      <strong class="dashboard-pipeline-value">${d.pipeline.producao}</strong>
-    </button>
-    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="aprovacao" type="button">
-      <span class="dashboard-pipeline-label">Aguardando aprovação</span>
-      <strong class="dashboard-pipeline-value">${d.pipeline.aprovacao}</strong>
-    </button>
-    <button class="dashboard-pipeline-item" data-action="open-dashboard-pipeline-filter" data-pipeline-filter="concluidas" type="button">
-      <span class="dashboard-pipeline-label">Campanhas concluídas</span>
-      <strong class="dashboard-pipeline-value">${d.pipeline.concluidas}</strong>
-    </button>
+    <div class="dashboard-pipeline-track">
+      ${d.pipeline
+        .map((item) => `
+          <button
+            class="dashboard-pipeline-step ${item.key === activePipelineKey ? 'is-active' : ''}"
+            data-action="toggle-dashboard-pipeline-panel"
+            data-pipeline-filter="${item.key}"
+            type="button"
+          >
+            <span class="dashboard-pipeline-step-count">${item.count} campanha${item.count === 1 ? '' : 's'}</span>
+            <span class="dashboard-pipeline-step-label">${item.label}</span>
+          </button>
+        `)
+        .join('')}
+    </div>
   `;
+
+  pipelineDetailContainer.innerHTML = isMobilePipeline ? '' : detailHtml;
+
+  if (pipelineModal && pipelineModalBody && pipelineModalTitle && pipelineModalSubtitle) {
+    pipelineModalTitle.textContent = activePipeline ? activePipeline.label : 'Pipeline';
+    pipelineModalSubtitle.textContent = activePipeline
+      ? `Veja as campanhas que estão em ${activePipeline.label.toLowerCase()}.`
+      : 'Veja as campanhas dessa fase sem sair do dashboard.';
+    pipelineModalBody.innerHTML = activePipeline ? detailHtml : '';
+    pipelineModal.classList.toggle('open', shouldShowPipelineModal);
+    pipelineModal.setAttribute('aria-hidden', shouldShowPipelineModal ? 'false' : 'true');
+  }
 
   goalContainer.innerHTML = `
     <div class="dashboard-metric">
@@ -550,29 +689,6 @@ const renderCampaigns = () => {
   const filter = state.ui.campaignFilter || 'all';
   const dashboardFilter = String(state.ui.campaignDashboardFilter || '').trim();
   const sortBy = state.ui.campaignSort || 'updatedAt';
-  const dashboardFilterMeta = {
-    negociacao: { label: 'Leads em negociação' },
-    producao: { label: 'Campanhas em produção' },
-    aprovacao: { label: 'Aguardando aprovação' },
-    concluidas: { label: 'Campanhas concluídas' }
-  };
-  const matchesDashboardCampaignFilter = (campaign, key) => {
-    if (!key) return true;
-    if (!campaign || campaign.archived) return false;
-    switch (key) {
-      case 'negociacao':
-        return campaign.status === 'prospeccao' && campaign.stage === 'negociacao';
-      case 'producao':
-        return campaign.status === 'producao';
-      case 'aprovacao':
-        return ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage);
-      case 'concluidas':
-        return campaign.status === 'concluida';
-      default:
-        return true;
-    }
-  };
-
   const escapeHtml = (value) =>
     String(value ?? '')
       .replace(/&/g, '&amp;')
@@ -638,22 +754,6 @@ const renderCampaigns = () => {
       tags.push({ label: 'Ticket baixo', cls: 'ind-warning' });
     }
     return tags;
-  };
-
-  /* Brand insight */
-  const getBrandInsight = (campaign) => {
-    const brand = campaign.brand;
-    if (!brand) return '';
-    const brandDone = allCampaignsAll.filter(c => c.brand === brand && c.status === 'concluida');
-    if (brandDone.length < 2) return '';
-    const brandAvg = Math.round(brandDone.reduce((s, c) => s + (c.value || 0), 0) / brandDone.length);
-    const allDone = allCampaignsAll.filter(c => c.status === 'concluida' && c.value > 0);
-    const userAvg = allDone.length ? Math.round(allDone.reduce((s, c) => s + c.value, 0) / allDone.length) : 0;
-    if (userAvg <= 0) return '';
-    const pctDiff = Math.round(((brandAvg - userAvg) / userAvg) * 100);
-    if (pctDiff > 5) return `<span class="campaign-insight campaign-insight--good">${escapeHtml(brand)} paga ${pctDiff}% acima da sua m\u00e9dia</span>`;
-    if (pctDiff < -5) return `<span class="campaign-insight campaign-insight--bad">${escapeHtml(brand)} paga ${Math.abs(pctDiff)}% abaixo da sua m\u00e9dia</span>`;
-    return '';
   };
 
   document.querySelectorAll('.filter-btn').forEach((btn) => {
@@ -785,8 +885,6 @@ const renderCampaigns = () => {
               const rateCls = getHourlyClass(rate);
               const indicators = getIndicators(campaign);
               const indicatorHtml = indicators.map(i => `<span class="campaign-ind ${i.cls}">${i.label}</span>`).join('');
-              const insightHtml = getBrandInsight(campaign);
-
               return `
                 <tr data-campaign-id="${campaign.id}" class="${isPriority ? 'campaign-priority' : ''}${isModel ? ' campaign-model' : ''}">
                   <td data-label="Marca">
@@ -798,7 +896,6 @@ const renderCampaigns = () => {
                       ${isModel ? '<span class="badge-model">MODELO</span>' : ''}
                       ${indicatorHtml}
                     </div>
-                    ${insightHtml}
                   </td>
                   <td data-label="Prazo">${isModel ? '<span class="model-locked">—</span>' : escapeHtml(formatDateShortBR(campaign.dueDate))}</td>
                   <td data-label="Preço">${isModel ? '<span class="model-locked">—</span>' : escapeHtml(getValueLabel(campaign))}</td>
@@ -874,14 +971,6 @@ const renderBrands = () => {
     const safe = String(value || '').trim();
     if (!safe) return 'Sem follow-up';
     return formatDateShort(safe);
-  };
-  const todayKey = new Date().toISOString().slice(0, 10);
-  const getFollowupTone = (value) => {
-    const safe = String(value || '').trim();
-    if (!safe) return 'empty';
-    if (safe < todayKey) return 'overdue';
-    if (safe === todayKey) return 'today';
-    return 'upcoming';
   };
 
   const brandSummaries = brands.map((brand) => {
@@ -1654,7 +1743,6 @@ const renderAll = () => {
   renderDashboardFinancials();
   renderCampaigns();
   renderBrands();
-  renderPerformance();
   renderSettings();
   setScriptOutput('');
 };

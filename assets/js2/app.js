@@ -1,8 +1,8 @@
   import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-  import { renderAll } from './core/renderers.js?v=20260301p';
-  import { setActivePage } from './core/ui.js?v=20260301h';
-  import { initActions } from './core/actions.js?v=20260301p';
-  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260301s';
+  import { renderAll } from './core/renderers.js?v=20260301aa';
+  import { setActivePage } from './core/ui.js?v=20260301x';
+  import { initActions } from './core/actions.js?v=20260301z';
+  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260301x';
   import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260217b';
 
   const sessionToken = sessionStorage.getItem('ugcQuestToken') || '';
@@ -21,7 +21,7 @@
     saveState();
   };
 
-const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'settings']);
+const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'settings']);
 
 const getSafeProfileName = () => {
   const safeName = String(state.profile?.name || sessionStorage.getItem('ugcQuestUserName') || 'Criador').trim();
@@ -30,14 +30,12 @@ const getSafeProfileName = () => {
 
 const getSafeProfileInitial = () => getSafeProfileName().charAt(0).toUpperCase() || 'C';
 
-const sanitizeActiveUiState = () => {
+  const sanitizeActiveUiState = () => {
   if (!state.ui || typeof state.ui !== 'object') state.ui = {};
   const activePage = String(state.ui.activePage || 'dashboard').trim();
   state.ui.activePage = ACTIVE_PAGES.has(activePage) ? activePage : 'dashboard';
   if (typeof state.ui.campaignDashboardFilter !== 'string') state.ui.campaignDashboardFilter = '';
-  const financeRangeDays = Number(state.ui.financeRangeDays);
-  state.ui.financeRangeDays = [0, 15, 30, 45, 90].includes(financeRangeDays) ? financeRangeDays : 30;
-  if (typeof state.ui.financeExpandedCampaignId !== 'string') state.ui.financeExpandedCampaignId = '';
+  if (typeof state.ui.dashboardPipelineOpen !== 'string') state.ui.dashboardPipelineOpen = '';
 };
 
 const enforceModernShell = () => {
@@ -213,7 +211,7 @@ const hydrateStateFromServer = async () => {
     const hasValidRemoteData = (
       (remoteState.campaigns && remoteState.campaigns.length > 0) ||
       (remoteState.brands && remoteState.brands.length > 0) ||
-      (remoteState.settings && typeof remoteState.settings === 'object')
+      Boolean(String(remoteState.meta?.updatedAt || '').trim())
     );
 
     // Se o estado remoto tem dados válidos, usar ele
@@ -236,6 +234,9 @@ const hydrateStateFromServer = async () => {
   // Renderizar imediatamente se houver sessão
   if (hasSession) {
     initProfileFromSession();
+    sanitizeActiveUiState();
+    enforceModernShell();
+    startShellGuard();
     renderAll();
     setActivePage('dashboard');
     initAdminTrackerCard();
@@ -251,6 +252,9 @@ const hydrateStateFromServer = async () => {
 
       // Habilitar salvamento remoto somente após hidratação
       enableRemoteSave();
+      sanitizeActiveUiState();
+      enforceModernShell();
+      startShellGuard();
       
 >>>>>>> Stashed changes
       // Inicializar quiz de onboarding

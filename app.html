@@ -27,16 +27,10 @@
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-    <link rel="stylesheet" href="assets/css/app2.css?v=20260301t" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260301t">
+    <link rel="stylesheet" href="assets/css/app2.css?v=20260301z" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260301z">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="assets/js2/core/customSelect.js?v=20260228p"></script>
-=======
-    <link rel="stylesheet" href="assets/css/app2.css?v=20260228r" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260228r">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="assets/js2/core/customSelect.js?v=20260228r"></script>
->>>>>>> Stashed changes
+  <script src="assets/js2/core/customSelect.js?v=20260228m"></script>
 </head>
 <body>
   <div class="page-shell">
@@ -117,86 +111,85 @@
         </div>
 
         <div class="dashboard-layout">
-          <div class="dashboard-primary">
-            <div class="card dashboard-card dashboard-card--actions">
-              <div class="dashboard-card-header">
+          <div class="card dashboard-card dashboard-card--actions">
+            <div class="dashboard-card-header">
+              <div>
+                <p class="dashboard-eyebrow">Maior prioridade</p>
+                <h2 class="dashboard-card-title">Ações de hoje</h2>
+              </div>
+            </div>
+
+            <div class="dashboard-action-group">
+              <div class="dashboard-group-header">
                 <div>
-                  <p class="dashboard-eyebrow">Maior prioridade</p>
-                  <h2 class="dashboard-card-title">Ações de hoje</h2>
+                  <h3 class="dashboard-group-title">Follow-ups pendentes</h3>
+                  <p class="dashboard-group-subtitle">Próximas ações de marcas e campanhas.</p>
+                </div>
+                <button class="btn btn-ghost btn-small" data-action="open-brand-action-modal" type="button">Nova ação de marca</button>
+              </div>
+              <div class="dashboard-list" data-dashboard-followups>
+                <p class="muted">Nenhum follow-up pendente.</p>
+              </div>
+            </div>
+
+            <div class="dashboard-action-group">
+              <div class="dashboard-group-header">
+                <div>
+                  <h3 class="dashboard-group-title">Prazos próximos</h3>
+                  <p class="dashboard-group-subtitle">Campanhas que vencem em até 3 dias ou já atrasaram.</p>
                 </div>
               </div>
+              <div class="dashboard-list" data-dashboard-deadlines>
+                <p class="muted">Nenhum prazo próximo.</p>
+              </div>
+            </div>
 
-              <div class="dashboard-action-group">
-                <div class="dashboard-group-header">
-                  <div>
-                    <h3 class="dashboard-group-title">Follow-ups pendentes</h3>
-                    <p class="dashboard-group-subtitle">Próximas ações de marcas e campanhas.</p>
-                  </div>
-                  <button class="btn btn-ghost btn-small" data-action="open-brand-action-modal" type="button">Nova ação de marca</button>
-                </div>
-                <div class="dashboard-list" data-dashboard-followups>
-                  <p class="muted">Nenhum follow-up pendente.</p>
+            <div class="dashboard-action-group">
+              <div class="dashboard-group-header">
+                <div>
+                  <h3 class="dashboard-group-title">Pagamentos pendentes</h3>
+                  <p class="dashboard-group-subtitle">Campanhas em aguardando pagamento.</p>
                 </div>
               </div>
-
-              <div class="dashboard-action-group">
-                <div class="dashboard-group-header">
-                  <div>
-                    <h3 class="dashboard-group-title">Prazos próximos</h3>
-                    <p class="dashboard-group-subtitle">Campanhas que vencem em até 3 dias ou já atrasaram.</p>
-                  </div>
-                </div>
-                <div class="dashboard-list" data-dashboard-deadlines>
-                  <p class="muted">Nenhum prazo próximo.</p>
-                </div>
-              </div>
-
-              <div class="dashboard-action-group">
-                <div class="dashboard-group-header">
-                  <div>
-                    <h3 class="dashboard-group-title">Pagamentos pendentes</h3>
-                    <p class="dashboard-group-subtitle">Campanhas em aguardando pagamento.</p>
-                  </div>
-                </div>
-                <div class="dashboard-list" data-dashboard-payments>
-                  <p class="muted">Nenhum pagamento pendente.</p>
-                </div>
+              <div class="dashboard-list" data-dashboard-payments>
+                <p class="muted">Nenhum pagamento pendente.</p>
               </div>
             </div>
           </div>
 
-          <div class="dashboard-sidebar">
-            <div class="card dashboard-card dashboard-card--finance">
-              <div class="dashboard-card-header dashboard-card-header--interactive">
-                <div>
-                  <p class="dashboard-eyebrow">Financeiro</p>
-                  <h2 class="dashboard-card-title">Financeiro</h2>
-                </div>
+          <div class="card dashboard-card dashboard-card--pipeline">
+            <div class="dashboard-card-header">
+              <div>
+                <p class="dashboard-eyebrow">Operação</p>
+                <h2 class="dashboard-card-title">Pipeline</h2>
               </div>
-              <div class="dashboard-metric-stack" data-dashboard-financial></div>
+              <button class="btn btn-ghost btn-small" data-action="goto-campaigns" type="button">Ver campanhas</button>
             </div>
-
-            <div class="card dashboard-card dashboard-card--pipeline">
-              <div class="dashboard-card-header">
-                <div>
-                  <p class="dashboard-eyebrow">Operação</p>
-                  <h2 class="dashboard-card-title">Pipeline</h2>
-                </div>
-                <button class="btn btn-ghost btn-small" data-action="goto-campaigns" type="button">Ver campanhas</button>
-              </div>
+            <div class="dashboard-pipeline-shell">
               <div class="dashboard-pipeline-grid" data-dashboard-pipeline></div>
+              <div class="dashboard-pipeline-detail" data-dashboard-pipeline-detail></div>
             </div>
+          </div>
 
-            <div class="card dashboard-card dashboard-card--goal">
-              <div class="dashboard-card-header">
-                <div>
-                  <p class="dashboard-eyebrow">Fechamento</p>
-                  <h2 class="dashboard-card-title">Meta do mês</h2>
-                </div>
-                <button class="btn btn-ghost btn-small" data-action="edit-monthly-goal" type="button">Editar meta</button>
+          <div class="card dashboard-card dashboard-card--finance">
+            <div class="dashboard-card-header dashboard-card-header--interactive">
+              <div>
+                <p class="dashboard-eyebrow">Financeiro</p>
+                <h2 class="dashboard-card-title">Financeiro</h2>
               </div>
-              <div class="dashboard-metric-stack" data-dashboard-goal></div>
             </div>
+            <div class="dashboard-metric-stack" data-dashboard-financial></div>
+          </div>
+
+          <div class="card dashboard-card dashboard-card--goal">
+            <div class="dashboard-card-header">
+              <div>
+                <p class="dashboard-eyebrow">Fechamento</p>
+                <h2 class="dashboard-card-title">Meta do mês</h2>
+              </div>
+              <button class="btn btn-ghost btn-small" data-action="edit-monthly-goal" type="button">Editar meta</button>
+            </div>
+            <div class="dashboard-metric-stack" data-dashboard-goal></div>
           </div>
         </div>
       </section>
@@ -970,7 +963,21 @@
     </div>
   </div>
 
-  <script type="module" src="assets/js2/app.js?v=20260301t"></script>
+  <div class="modal" id="dashboard-pipeline-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-dashboard-pipeline-modal"></div>
+    <div class="modal-panel card dashboard-pipeline-modal-panel">
+      <div class="modal-header">
+        <div>
+          <h3 data-dashboard-pipeline-modal-title>Pipeline</h3>
+          <p class="muted" data-dashboard-pipeline-modal-subtitle>Veja as campanhas dessa fase sem sair do dashboard.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-dashboard-pipeline-modal" type="button">Fechar</button>
+      </div>
+      <div class="dashboard-pipeline-modal-body" data-dashboard-pipeline-modal-body></div>
+    </div>
+  </div>
+
+  <script type="module" src="assets/js2/app.js?v=20260301x"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

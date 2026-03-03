@@ -196,6 +196,7 @@ const defaultState = {
     activePage: 'dashboard',
     campaignFilter: 'all',
     campaignDashboardFilter: '',
+    dashboardPipelineOpen: '',
     campaignPaymentFilter: 'all',
     campaignSort: 'updatedAt',
     campaignSortDir: 'desc',
@@ -247,7 +248,7 @@ const campaignStagesByStatus = {
   concluida: [{ id: 'pago', label: 'Pago' }]
 };
 
-const activePages = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'settings']);
+const activePages = new Set(['dashboard', 'brands', 'campaigns', 'settings']);
 
 const getCampaignStageOptions = (status) => campaignStagesByStatus[String(status || '').trim()] || [];
 
@@ -403,9 +404,7 @@ const normalizeUiState = (currentState) => {
   currentState.ui.campaignFilter = ['all', ...campaignStatusOrder].includes(campaignFilter) ? campaignFilter : 'all';
 
   if (typeof currentState.ui.campaignDashboardFilter !== 'string') currentState.ui.campaignDashboardFilter = '';
-  const financeRangeDays = Number(currentState.ui.financeRangeDays);
-  currentState.ui.financeRangeDays = [0, 15, 30, 45, 90].includes(financeRangeDays) ? financeRangeDays : 30;
-  if (typeof currentState.ui.financeExpandedCampaignId !== 'string') currentState.ui.financeExpandedCampaignId = '';
+  if (typeof currentState.ui.dashboardPipelineOpen !== 'string') currentState.ui.dashboardPipelineOpen = '';
   if (typeof currentState.ui.campaignPaymentFilter !== 'string') currentState.ui.campaignPaymentFilter = 'all';
   if (typeof currentState.ui.campaignSort !== 'string') currentState.ui.campaignSort = 'updatedAt';
   if (typeof currentState.ui.campaignSortDir !== 'string') currentState.ui.campaignSortDir = 'desc';
@@ -731,6 +730,7 @@ const loadState = () => {
   normalizeCampaignContractFields(nextState);
   normalizeCampaignHistory(nextState);
   normalizeBrandActionFields(nextState);
+  normalizeUiState(nextState);
   return nextState;
 };
 
@@ -852,6 +852,7 @@ const replaceState = (nextState) => {
   normalizeCampaignContractFields(merged);
   normalizeCampaignHistory(merged);
   normalizeBrandActionFields(merged);
+  normalizeUiState(merged);
   state = merged;
 };
 
