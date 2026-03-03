@@ -1,4 +1,25 @@
-const awardXp = () => 0;
+import {
+  saveState,
+  state,
+  xpForLevel,
+  missionPool,
+  weeklyChallengePool,
+  focusPool,
+  todayKey,
+  weekKey,
+  campaignStatusOrder,
+  getCampaignStageOptions,
+  isCampaignActive,
+  achievementCatalog,
+  achievementOptionsByLevel,
+  getAchievementById,
+  hairItems,
+  outfitItems,
+  shoeItems
+} from './state.js';
+import { showToast } from './ui.js';
+
+const showXpToast = () => {};
 
 const updateMission = () => {};
 

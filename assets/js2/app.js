@@ -1,15 +1,15 @@
   import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-  import { renderAll } from './core/renderers.js?v=20260228q';
+<<<<<<< Updated upstream
+  import { renderAll } from './core/renderers.js?v=20260228o';
   import { setActivePage, requestNotificationPermission } from './core/ui.js';
-  import { initActions } from './core/actions.js?v=20260228q';
-  import {
-    ensureDailyMissions,
-    ensureWeeklyChallenges,
-    ensureWeeklyFocus,
-    ensureOnboarding,
-    syncAchievements
-  } from './core/gamification.js';
-  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260228q';
+  import { initActions } from './core/actions.js?v=20260228o';
+  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260228p';
+=======
+  import { renderAll } from './core/renderers.js?v=20260228r';
+  import { setActivePage, requestNotificationPermission } from './core/ui.js';
+  import { initActions } from './core/actions.js?v=20260228r';
+  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260228r';
+>>>>>>> Stashed changes
   import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260217b';
 
   const sessionToken = sessionStorage.getItem('ugcQuestToken') || '';
@@ -220,7 +220,7 @@ const hydrateStateFromServer = async () => {
     const hasValidRemoteData = (
       (remoteState.campaigns && remoteState.campaigns.length > 0) ||
       (remoteState.brands && remoteState.brands.length > 0) ||
-      Boolean(String(remoteState.meta?.updatedAt || '').trim())
+      (remoteState.settings && typeof remoteState.settings === 'object')
     );
 
     // Se o estado remoto tem dados válidos, usar ele
@@ -243,9 +243,6 @@ const hydrateStateFromServer = async () => {
   // Renderizar imediatamente se houver sessão
   if (hasSession) {
     initProfileFromSession();
-    sanitizeActiveUiState();
-    enforceModernShell();
-    startShellGuard();
     renderAll();
     setActivePage('dashboard');
     initAdminTrackerCard();
@@ -261,10 +258,12 @@ const hydrateStateFromServer = async () => {
 
       // Habilitar salvamento remoto somente após hidratação
       enableRemoteSave();
-      sanitizeActiveUiState();
-      enforceModernShell();
-      startShellGuard();
+
+      // Recalcular streak e missões com o estado do servidor
+<<<<<<< Updated upstream
+=======
       
+>>>>>>> Stashed changes
       // Inicializar quiz de onboarding
       initOnboardingQuiz();
       

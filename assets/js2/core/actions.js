@@ -1,6 +1,6 @@
 import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions } from './state.js';
 import { setActivePage, showToast } from './ui.js';
-import { trackEvent, awardXp } from './gamification.js';
+import { trackEvent } from './gamification.js';
 import { renderAll } from './renderers.js';
 
 import {
@@ -30,7 +30,6 @@ import {
   openScriptDeleteModal
 } from '../features/scripts/delete.js';
 import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js';
-import { closeFocusModal, confirmFocusModal, openFocusModal } from '../features/focus/modal.js';
 import { initAccountForm } from '../features/settings/account.js';
 import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260217b';
 import { syncWeeklySetting } from '../features/settings/weekly.js';
@@ -168,21 +167,7 @@ const handleBrandActionSubmit = (event) => {
 };
 
 /* Posi\u00e7\u00e3o global de (status, stage) no pipeline.
-   Total: 15 posi\u00e7\u00f5es, 14 transi\u00e7\u00f5es â†’ 100 XP para pipeline completo. */
-const getGlobalStagePos = (status, stage) => {
-  let pos = 0;
-  for (const s of campaignStatusOrder) {
-    const stages = getCampaignStageOptions(s);
-    if (s === status) {
-      const idx = stages.findIndex(opt => opt.id === stage);
-      return pos + Math.max(0, idx);
-    }
-    pos += stages.length;
-  }
-  return pos;
-};
-const TOTAL_TRANSITIONS = 14;
-
+   Total: 15 posi\u00e7\u00f5es, 14 transi\u00e7\u00f5es → 100 XP para pipeline completo. */
 const copyText = (text, doneMessage) => {
   const value = String(text || '').trim();
   if (!value) return;
@@ -565,7 +550,7 @@ const handleActionClick = (event) => {
       });
       saveState();
       renderAll();
-      showToast(`Avan?ou: ${nextStage.label}`);
+      showToast(`Avançou: ${nextStage.label}`);
     } else if (!isLastStatus) {
       const previousStatus = campaign.status;
       const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
@@ -591,7 +576,7 @@ const handleActionClick = (event) => {
       }
       saveState();
       renderAll();
-      showToast(`Avan?ou: ${statusLabels[campaign.status] || campaign.status}`);
+      showToast(`Avançou: ${statusLabels[campaign.status] || campaign.status}`);
     }
     return;
   }
@@ -640,21 +625,6 @@ const handleActionClick = (event) => {
 
   if (action === 'close-script-delete-modal') {
     closeScriptDeleteModal();
-    return;
-  }
-
-  if (action === 'open-focus-modal') {
-    openFocusModal();
-    return;
-  }
-
-  if (action === 'close-focus-modal') {
-    closeFocusModal();
-    return;
-  }
-
-  if (action === 'confirm-focus-modal') {
-    confirmFocusModal();
     return;
   }
 
@@ -810,10 +780,11 @@ const handleChange = (event) => {
     const previousStatus = campaign.status;
     const previousStage = campaign.stage;
     const newStatus = target.value;
-    const oldPos = getGlobalStagePos(previousStatus, previousStage);
-    const newPos = getGlobalStagePos(newStatus, getDefaultCampaignStage(newStatus));
-    const delta = newPos - oldPos;
     
+    const currentStatusIndex = campaignStatusOrder.indexOf(previousStatus);
+    const newStatusIndex = campaignStatusOrder.indexOf(newStatus);
+    
+    // XP proporcional: 5 XP por cada posição de etapa percorrida
     campaign.status = newStatus;
     campaign.stage = getDefaultCampaignStage(campaign.status);
     campaign.updatedAt = new Date().toISOString();
@@ -875,13 +846,9 @@ const handleChange = (event) => {
     const previousStage = campaign.stage;
     const nextStage = target.value;
     if (nextStage === previousStage) return;
+
     const options = getCampaignStageOptions(campaign.status);
-    const previousStageIndex = options.findIndex((opt) => opt.id === previousStage);
-    const nextStageIndex = options.findIndex((opt) => opt.id === nextStage);
-    const stageOldPos = getGlobalStagePos(campaign.status, previousStage);
-    const stageNewPos = getGlobalStagePos(campaign.status, nextStage);
-    const stageDelta = stageNewPos - stageOldPos;
-    
+
     const isValid = options.some((opt) => opt.id === nextStage);
     campaign.stage = isValid ? nextStage : getDefaultCampaignStage(campaign.status);
     campaign.updatedAt = new Date().toISOString();

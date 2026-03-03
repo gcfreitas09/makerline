@@ -11,8 +11,7 @@
   brandStatuses,
   formatCurrency,
   formatPercent,
-  badgeCatalog,
-  getBadgeById
+  badgeCatalog
 } from './state.js';
 import { setScriptOutput } from './ui.js';
 
@@ -76,41 +75,38 @@ const iconSvg = (name) => ICONS[name] || '';
 const renderProfile = () => {
   const greetings = document.querySelectorAll('[data-greeting]');
   const profileName = document.querySelectorAll('[data-profile-name]');
-  const profileAvatar = document.querySelectorAll('[data-profile-avatar]');
-  const profileMiniAvatar = document.querySelectorAll('[data-profile-mini-avatar]');
+  const profileNameSidebar = document.querySelectorAll('[data-profile-name-sidebar]');
+  const profileInitial = document.querySelectorAll('[data-profile-initial]');
   const dashboardNarrative = document.querySelectorAll('[data-dashboard-narrative]');
 
   const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
   const brands = Array.isArray(state.brands) ? state.brands : [];
-  const now = new Date();
-  const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  const overdue = campaigns.filter((campaign) => campaign && !campaign.archived && campaign.dueDate && campaign.dueDate < todayKey).length;
-  const pendingPayments = campaigns.filter((campaign) => campaign && !campaign.archived && campaign.stage === 'aguardando_pagamento' && (Number(campaign.paymentPercent) || 0) < 100).length;
+  const followUps = campaigns.filter((campaign) => campaign.nextActionType && campaign.nextActionDate).length +
+    brands.filter((brand) => brand.nextActionType && brand.nextActionDate).length;
+  const pendingPayments = campaigns.filter((campaign) => campaign.stage === 'aguardando_pagamento' && Number(campaign.paymentPercent || 0) < 100).length;
 
   const hour = now.getHours();
   const greeting = hour >= 5 && hour < 12 ? 'Bom dia' : hour >= 12 && hour < 18 ? 'Boa tarde' : 'Boa noite';
-  const safeName = String(state.profile.name || 'Criador').trim() || 'Criador';
-  const firstLetter = safeName.charAt(0).toUpperCase() || 'C';
+  const safeName = String(state.profile.name || 'criador').trim() || 'criador';
+  const initial = safeName.charAt(0).toUpperCase() || 'M';
   let narrative = '';
 
-  if (!brands.length && !campaigns.length) {
-    narrative = 'Comece cadastrando uma marca ou campanha para organizar sua operação.';
+  if (!campaigns.length) {
+    narrative = 'Crie sua primeira campanha para começar a organizar o pipeline com clareza.';
   } else if (!brands.length) {
-    narrative = 'Cadastre suas marcas para centralizar follow-ups, histórico e campanhas.';
-  } else if (!campaigns.length) {
-    narrative = 'Crie sua próxima campanha para alimentar o pipeline e o financeiro.';
-  } else if (overdue > 0) {
-    narrative = `${overdue} campanha(s) com prazo vencido pedem atenção hoje.`;
+    narrative = 'Cadastre suas marcas para concentrar contato, follow-up e histórico comercial no mesmo lugar.';
+  } else if (followUps > 0) {
+    narrative = `${followUps} follow-up${followUps > 1 ? 's' : ''} pedem atenção no seu painel hoje.`;
   } else if (pendingPayments > 0) {
-    narrative = `${pendingPayments} campanha(s) aguardam pagamento e impactam o fechamento do mês.`;
+    narrative = `${pendingPayments} pagamento${pendingPayments > 1 ? 's' : ''} ainda ${pendingPayments > 1 ? 'estão' : 'está'} pendente${pendingPayments > 1 ? 's' : ''}.`;
   } else {
-    narrative = 'Seu dashboard está em dia. Use os blocos abaixo para mover a operação.';
+    narrative = 'Seu painel está organizado. Use as campanhas e marcas para manter o fluxo comercial atualizado.';
   }
 
   greetings.forEach((el) => (el.textContent = greeting));
   profileName.forEach((el) => (el.textContent = safeName));
-  profileAvatar.forEach((el) => (el.textContent = firstLetter));
-  profileMiniAvatar.forEach((el) => (el.textContent = firstLetter));
+  profileNameSidebar.forEach((el) => (el.textContent = safeName));
+  profileInitial.forEach((el) => (el.textContent = initial));
   dashboardNarrative.forEach((el) => (el.textContent = narrative));
 };
 
@@ -1003,12 +999,11 @@ const renderBrands = () => {
           .map((item) => {
             const isActive = item.brand.id === selectedBrand.id;
             const isDormant = ['inativa', 'perdida'].includes(item.brand.status);
-            const followupTone = getFollowupTone(item.nextFollowup);
             const actionChip = item.pendingAction
-              ? `<span class="chip chip-pill chip-brand-pending chip-brand-pending--${followupTone}">${escapeHtml(item.nextActionLabel || 'Pendente')}</span>`
+              ? `<span class="chip chip-pill chip-brand-pending">${escapeHtml(item.nextActionLabel || 'Pendente')}</span>`
               : '<span class="chip chip-pill chip-brand-neutral">Sem pendência</span>';
             return `
-              <div class="brand-table-row brand-table-row--${escapeHtml(item.brand.status)} ${item.pendingAction ? 'has-pending' : 'is-clear'} ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
+              <div class="brand-table-row ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
                 <div class="brand-table-cell brand-table-cell--primary" data-label="Marca">
                   <strong>${escapeHtml(item.brand.name || 'Marca')}</strong>
                   <span class="muted">${escapeHtml(item.brand.contact || item.brand.instagram || item.brand.email || 'Sem contato principal')}</span>
@@ -1020,16 +1015,16 @@ const renderBrands = () => {
                   ${actionChip}
                 </div>
                 <div class="brand-table-cell brand-table-cell--next" data-label="Próximo follow-up">
-                  <span class="brand-date-badge brand-date-badge--${followupTone}">${formatRelativeAction(item.nextFollowup)}</span>
+                  <span>${formatRelativeAction(item.nextFollowup)}</span>
                 </div>
                 <div class="brand-table-cell brand-table-cell--money" data-label="Total faturado">
-                  <strong class="brand-metric-badge brand-metric-badge--money">${formatCurrency(item.totalFaturado)}</strong>
+                  <strong>${formatCurrency(item.totalFaturado)}</strong>
                 </div>
                 <div class="brand-table-cell brand-table-cell--count" data-label="Campanhas">
-                  <strong class="brand-metric-badge brand-metric-badge--count">${item.campaignCount}</strong>
+                  <strong>${item.campaignCount}</strong>
                 </div>
                 <div class="brand-table-cell brand-table-cell--date" data-label="Último contato">
-                  <span class="brand-date-badge brand-date-badge--last">${item.lastContact ? formatDateShort(item.lastContact) : '—'}</span>
+                  <span>${item.lastContact ? formatDateShort(item.lastContact) : '—'}</span>
                 </div>
                 <div class="brand-table-cell brand-table-cell--actions" data-label="Ações">
                   <div class="brand-row-actions">
