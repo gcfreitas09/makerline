@@ -1,5 +1,5 @@
 import { state, todayKey } from '../../core/state.js';
-import { showToast } from '../../core/ui.js?v=20260301g';
+import { showToast } from '../../core/ui.js?v=20260302f';
 
 const ALERTS_KEY = (() => {
   try {

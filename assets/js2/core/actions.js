@@ -1,41 +1,41 @@
 ﻿import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
-import { setActivePage, showToast } from './ui.js?v=20260301x';
-import { trackEvent } from './gamification.js?v=20260301u';
-import { renderAll } from './renderers.js?v=20260301aj';
+import { setActivePage, showToast } from './ui.js?v=20260302g';
+import { trackEvent } from './gamification.js?v=20260302g';
+import { renderAll } from './renderers.js?v=20260302g';
 
 import {
   closeCampaignModal,
   initCampaignForm,
   openCampaignModal
-} from '../features/campaigns/modal.js';
+} from '../features/campaigns/modal.js?v=20260302f';
 import {
   closeBrandModal,
   initBrandForm,
   openBrandModal
-} from '../features/brands/modal.js';
+} from '../features/brands/modal.js?v=20260302f';
 import {
   closeBrandDeleteModal,
   initBrandDeleteFeature,
   openBrandDeleteModal
-} from '../features/brands/delete.js';
+} from '../features/brands/delete.js?v=20260302f';
 import {
   closeCampaignDeleteModal,
   initCampaignDeleteFeature,
   openCampaignDeleteModal
-} from '../features/campaigns/delete.js';
-import { initScriptFlow } from '../features/scripts/flow.js';
+} from '../features/campaigns/delete.js?v=20260302f';
+import { initScriptFlow } from '../features/scripts/flow.js?v=20260302f';
 import {
   closeScriptDeleteModal,
   initScriptDeleteFeature,
   openScriptDeleteModal
-} from '../features/scripts/delete.js';
-import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js';
-import { initAccountForm } from '../features/settings/account.js';
+} from '../features/scripts/delete.js?v=20260302f';
+import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js?v=20260302f';
+import { initAccountForm } from '../features/settings/account.js?v=20260302f';
 import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260217b';
-import { syncWeeklySetting } from '../features/settings/weekly.js';
-import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js';
-import { sendWeeklySummaryNow } from '../features/settings/weekly_summary.js';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js';
+import { syncWeeklySetting } from '../features/settings/weekly.js?v=20260302f';
+import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
+import { sendWeeklySummaryNow } from '../features/settings/weekly_summary.js?v=20260302f';
+import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260302f';
 
 /* â”€â”€ Money mask helper â”€â”€ */
 const formatMoneyInput = (raw) => {
@@ -277,6 +277,32 @@ const handleActionClick = (event) => {
 
   if (action === 'close-menu') {
     document.body.classList.remove('sidebar-open');
+    return;
+  }
+
+  if (action === 'close-focus-modal') {
+    const modal = document.getElementById('focus-modal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    const msg = document.getElementById('focus-modal-msg');
+    if (msg) msg.textContent = '';
+    return;
+  }
+
+  if (action === 'confirm-focus-modal') {
+    if (state.focus && typeof state.focus === 'object') {
+      const current = Number(state.focus.current) || 0;
+      const target = Number(state.focus.target) || 0;
+      state.focus.current = target > 0 ? Math.min(current + 1, target) : current + 1;
+      saveState();
+      renderAll();
+    }
+    const modal = document.getElementById('focus-modal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
     return;
   }
 
@@ -854,7 +880,7 @@ const handleChange = (event) => {
 
   if (target.matches('[data-finance-range]')) {
     const range = Number(target.value);
-    state.ui.financeRangeDays = [0, 15, 30, 60, 90].includes(range) ? range : 30;
+    state.ui.financeRangeDays = [0, 15, 30, 45, 90].includes(range) ? range : 30;
     state.ui.financeExpandedCampaignId = '';
     saveState();
     renderAll();
@@ -1068,14 +1094,22 @@ const handleChange = (event) => {
 };
 
 const initActions = () => {
-  initScriptFlow();
-  initScriptDeleteFeature();
-  initBrandForm();
-  initBrandDeleteFeature();
-  initCampaignForm();
-  initCampaignDeleteFeature();
-  initAccountForm();
-  initAdminTrackerCard();
+  const safeInit = (label, fn) => {
+    try {
+      fn();
+    } catch (error) {
+      console.warn(`[initActions] ${label} falhou`, error);
+    }
+  };
+
+  safeInit('initScriptFlow', initScriptFlow);
+  safeInit('initScriptDeleteFeature', initScriptDeleteFeature);
+  safeInit('initBrandForm', initBrandForm);
+  safeInit('initBrandDeleteFeature', initBrandDeleteFeature);
+  safeInit('initCampaignForm', initCampaignForm);
+  safeInit('initCampaignDeleteFeature', initCampaignDeleteFeature);
+  safeInit('initAccountForm', initAccountForm);
+  safeInit('initAdminTrackerCard', initAdminTrackerCard);
 
   const brandActionForm = document.getElementById('brand-action-form');
   if (brandActionForm && brandActionForm.dataset.bound !== '1') {
@@ -1101,18 +1135,21 @@ const initActions = () => {
   // Expose modal functions for quiz convert-to-real flow
   window.__ugcModals = { openCampaignModal };
 
-  document.body.addEventListener('click', handleActionClick);
-  document.body.addEventListener('click', handleNavClick);
-  document.body.addEventListener('click', handleFilterClick);
-  document.body.addEventListener('change', handleChange);
-  document.body.addEventListener('submit', handleBrandInteractionSubmit);
-  document.body.addEventListener('keydown', (event) => {
-    const actionCard = event.target.closest('[data-dashboard-card-link]');
-    if (!actionCard) return;
-    if (event.key !== 'Enter' && event.key !== ' ') return;
-    event.preventDefault();
-    actionCard.click();
-  });
+  if (document.body.dataset.actionsBound !== '1') {
+    document.body.dataset.actionsBound = '1';
+    document.body.addEventListener('click', handleActionClick);
+    document.body.addEventListener('click', handleNavClick);
+    document.body.addEventListener('click', handleFilterClick);
+    document.body.addEventListener('change', handleChange);
+    document.body.addEventListener('submit', handleBrandInteractionSubmit);
+    document.body.addEventListener('keydown', (event) => {
+      const actionCard = event.target.closest('[data-dashboard-card-link]');
+      if (!actionCard) return;
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      actionCard.click();
+    });
+  }
 
   /* Money mask for meta modal input */
   const metaInput = document.getElementById('meta-modal-input');

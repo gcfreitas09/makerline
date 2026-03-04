@@ -89,7 +89,9 @@ const renderProfile = () => {
 
   const hour = now.getHours();
   const greeting = hour >= 5 && hour < 12 ? 'Bom dia' : hour >= 12 && hour < 18 ? 'Boa tarde' : 'Boa noite';
-  const safeName = String(state.profile.name || 'Criador').trim() || 'Criador';
+  const sessionName = typeof sessionStorage !== 'undefined' ? String(sessionStorage.getItem('ugcQuestUserName') || '').trim() : '';
+  const persistedName = String(state.profile?.name || '').trim();
+  const safeName = persistedName && persistedName.toLowerCase() !== 'criador' ? persistedName : (sessionName || 'Criador');
   const firstLetter = safeName.charAt(0).toUpperCase() || 'C';
   let narrative = '';
 

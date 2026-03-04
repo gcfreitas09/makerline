@@ -1,9 +1,9 @@
-  import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-import { renderAll } from './core/renderers.js?v=20260301aj';
-  import { setActivePage } from './core/ui.js?v=20260301x';
-import { initActions } from './core/actions.js?v=20260301aj';
-  import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260301y';
-  import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260217b';
+import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
+import { renderAll } from './core/renderers.js?v=20260302g';
+import { setActivePage } from './core/ui.js?v=20260302g';
+import { initActions } from './core/actions.js?v=20260302g';
+import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260302h';
+import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260217b';
 
   const sessionToken = sessionStorage.getItem('ugcQuestToken') || '';
   const sessionUserId = sessionStorage.getItem('ugcQuestUserId') || '';
@@ -24,11 +24,21 @@ import { initActions } from './core/actions.js?v=20260301aj';
 const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'settings']);
 
 const getSafeProfileName = () => {
-  const safeName = String(state.profile?.name || sessionStorage.getItem('ugcQuestUserName') || 'Criador').trim();
-  return safeName || 'Criador';
+  const sessionName = String(sessionStorage.getItem('ugcQuestUserName') || '').trim();
+  const persistedName = String(state.profile?.name || '').trim();
+  if (persistedName && persistedName.toLowerCase() !== 'criador') return persistedName;
+  return sessionName || 'Criador';
 };
 
 const getSafeProfileInitial = () => getSafeProfileName().charAt(0).toUpperCase() || 'C';
+
+const safeRun = (label, fn) => {
+  try {
+    fn();
+  } catch (error) {
+    console.warn(`[app] ${label} falhou`, error);
+  }
+};
 
   const sanitizeActiveUiState = () => {
   if (!state.ui || typeof state.ui !== 'object') state.ui = {};
@@ -37,7 +47,7 @@ const getSafeProfileInitial = () => getSafeProfileName().charAt(0).toUpperCase()
   if (typeof state.ui.campaignDashboardFilter !== 'string') state.ui.campaignDashboardFilter = '';
   if (typeof state.ui.dashboardPipelineOpen !== 'string') state.ui.dashboardPipelineOpen = '';
   const financeRangeDays = Number(state.ui.financeRangeDays);
-  state.ui.financeRangeDays = [0, 15, 30, 60, 90].includes(financeRangeDays) ? financeRangeDays : 30;
+  state.ui.financeRangeDays = [0, 15, 30, 45, 90].includes(financeRangeDays) ? financeRangeDays : 30;
   if (typeof state.ui.financeExpandedCampaignId !== 'string') state.ui.financeExpandedCampaignId = '';
 };
 
@@ -225,6 +235,7 @@ const hydrateStateFromServer = async () => {
         marcas: remoteState.brands?.length || 0
       });
       replaceState(remoteState);
+      initProfileFromSession();
       sanitizeActiveUiState();
     } else {
       console.log('[Sync] Estado remoto vazio, mantendo estado local');
@@ -236,47 +247,49 @@ const hydrateStateFromServer = async () => {
 
   // Renderizar imediatamente se houver sessão
   if (hasSession) {
-    initProfileFromSession();
-    sanitizeActiveUiState();
-    enforceModernShell();
-    startShellGuard();
-    renderAll();
-    setActivePage('dashboard');
-    initAdminTrackerCard();
+    safeRun('initProfileFromSession', initProfileFromSession);
+    safeRun('sanitizeActiveUiState', sanitizeActiveUiState);
+    safeRun('enforceModernShell', enforceModernShell);
+    safeRun('startShellGuard', startShellGuard);
+    safeRun('renderAll', renderAll);
+    safeRun('setActivePage(dashboard)', () => setActivePage('dashboard'));
+    safeRun('initActions', initActions);
+    safeRun('initAdminTrackerCard', initAdminTrackerCard);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     if (!hasSession) return;
-    initSessionTimeTracking();
+    safeRun('initSessionTimeTracking', initSessionTimeTracking);
     
     (async () => {
+      safeRun('initActions', initActions);
       // Carregar estado do servidor APÓS inicialização
       await hydrateStateFromServer();
 
       // Habilitar salvamento remoto somente após hidratação
-      enableRemoteSave();
-      sanitizeActiveUiState();
-      enforceModernShell();
-      startShellGuard();
-      
->>>>>>> Stashed changes
+      safeRun('enableRemoteSave', enableRemoteSave);
+      safeRun('sanitizeActiveUiState', sanitizeActiveUiState);
+      safeRun('enforceModernShell', enforceModernShell);
+      safeRun('startShellGuard', startShellGuard);
+
       // Inicializar quiz de onboarding
-      initOnboardingQuiz();
+      safeRun('initOnboardingQuiz', initOnboardingQuiz);
       
       // Re-renderizar com dados do servidor
-      enforceModernShell();
-      renderAll();
+      safeRun('initProfileFromSession', initProfileFromSession);
+      safeRun('enforceModernShell', enforceModernShell);
+      safeRun('renderAll', renderAll);
       
       // Debug
       window.state = state;
       console.log('[App] Estado do servidor carregado');
       
       // Inicializar features
-      setActivePage('dashboard');
-      initActions();
+      safeRun('setActivePage(dashboard)', () => setActivePage('dashboard'));
+      safeRun('initAdminTrackerCard', initAdminTrackerCard);
     })();
-  window.__ugcAppLoaded = true;
-});
+    window.__ugcAppLoaded = true;
+  });
 
 window.addEventListener('pageshow', () => {
   if (sessionStorage.getItem('ugcQuestLoggedIn') !== '1') {

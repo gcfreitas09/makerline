@@ -1,5 +1,5 @@
 import { state, saveState } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js';
+import { renderAll } from '../../core/renderers.js?v=20260302f';
 
 const initAccountForm = () => {
   const accountForm = document.getElementById('account-form');

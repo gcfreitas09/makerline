@@ -1,5 +1,7 @@
 import { saveState, state } from './state.js';
 
+const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'settings']);
+
 const setActivePage = (page) => {
   const navItems = document.querySelectorAll('.nav-item[data-target]');
   const sections = document.querySelectorAll('.page-section');

@@ -1,7 +1,7 @@
 ﻿import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js';
-import { setActivePage, showToast } from '../../core/ui.js?v=20260301h';
-import { trackEvent } from '../../core/gamification.js?v=20260301h';
+import { renderAll } from '../../core/renderers.js?v=20260302f';
+import { setActivePage, showToast } from '../../core/ui.js?v=20260302f';
+import { trackEvent } from '../../core/gamification.js?v=20260302f';
 
 /* â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
@@ -194,8 +194,8 @@ const createModelCampaign = (brandType, outreachGoal) => {
 
   const campaign = {
     id: `c-model-${Date.now()}`,
-    title: `ProspecÃ§Ã£o â€“ ${brandLabel}`,
-    brand: `ProspecÃ§Ã£o â€“ ${brandLabel}`,
+    title: `Prospecção - ${brandLabel}`,
+    brand: `Prospecção - ${brandLabel}`,
     status: 'prospeccao',
     stage: getDefaultCampaignStage('prospeccao'),
     value: 0,
@@ -366,7 +366,7 @@ const showNextTooltip = () => {
     const statusSelect = row.querySelector('[data-campaign-status]');
     if (statusSelect) {
       statusSelect.classList.add('onboarding-highlight');
-      attachTooltip(statusSelect, 'VocÃª pode mudar o status conforme a campanha avanÃ§a.', 'Entendi', () => {
+      attachTooltip(statusSelect, 'Você pode mudar o status conforme a campanha avança.', 'Entendi', () => {
         statusSelect.classList.remove('onboarding-highlight');
         tooltipStep = 1;
         showNextTooltip();
@@ -376,7 +376,7 @@ const showNextTooltip = () => {
     const stageSelect = row.querySelector('[data-campaign-stage]');
     if (stageSelect) {
       stageSelect.classList.add('onboarding-highlight');
-      attachTooltip(stageSelect, 'E aqui vocÃª define exatamente em que etapa estÃ¡.', 'PrÃ³ximo', () => {
+      attachTooltip(stageSelect, 'E aqui você define exatamente em que etapa está.', 'Próximo', () => {
         stageSelect.classList.remove('onboarding-highlight');
         tooltipStep = 2;
         showNextTooltip();
@@ -490,7 +490,7 @@ const injectOnboardingHeader = () => {
   const header = document.createElement('div');
   header.id = 'campaign-onboarding-header';
   header.className = 'onboarding-modal-header';
-  header.innerHTML = '<span>Passo 1 de 3 â€“ Registrar campanha</span>';
+  header.innerHTML = '<span>Passo 1 de 3 - Registrar campanha</span>';
   panel.insertBefore(header, panel.firstChild);
 
   setTimeout(() => startFieldTooltips(), 500);
@@ -502,8 +502,8 @@ let fieldTooltipStep = 0;
 
 const fieldTooltipDefs = [
   { selector: 'input[name="brand"]', text: 'Comece digitando o nome da marca aqui.', event: 'input' },
-  { selector: 'select[name="startMethod"]', text: 'Selecione como essa campanha comeÃ§ou.', event: 'change' },
-  { selector: 'input[name="value"]', text: 'Quanto vocÃª vai receber? Se for permuta, pode deixar R$ 0.', event: 'input' },
+  { selector: 'select[name="startMethod"]', text: 'Selecione como essa campanha começou.', event: 'change' },
+  { selector: 'input[name="value"]', text: 'Quanto você vai receber? Se for permuta, pode deixar R$ 0.', event: 'input' },
   { selector: 'input[name="dueDate"]', text: 'Defina um prazo pra nunca perder o deadline.', event: 'change' },
   { selector: '#campaign-form button[type="submit"]', text: 'Tudo pronto? Clique aqui para salvar! ðŸš€', event: null }
 ];

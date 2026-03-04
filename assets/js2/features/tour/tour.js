@@ -1,4 +1,4 @@
-import { setActivePage } from '../../core/ui.js?v=20260301g';
+import { setActivePage } from '../../core/ui.js?v=20260302f';
 
 const STEPS = [
   {

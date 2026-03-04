@@ -1,6 +1,6 @@
 import { state, saveState } from '../../core/state.js';
-import { showToast } from '../../core/ui.js?v=20260301g';
-import { renderAll } from '../../core/renderers.js';
+import { showToast } from '../../core/ui.js?v=20260302f';
+import { renderAll } from '../../core/renderers.js?v=20260302f';
 
 const syncWeeklySetting = async (enabled) => {
   const token = (() => {

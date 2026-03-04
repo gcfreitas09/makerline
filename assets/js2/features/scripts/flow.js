@@ -1,7 +1,7 @@
 import { state, saveState, typeLabels } from '../../core/state.js';
-import { setScriptOutput, showToast } from '../../core/ui.js?v=20260301g';
-import { trackEvent } from '../../core/gamification.js?v=20260301g';
-import { renderAll } from '../../core/renderers.js';
+import { setScriptOutput, showToast } from '../../core/ui.js?v=20260302f';
+import { trackEvent } from '../../core/gamification.js?v=20260302f';
+import { renderAll } from '../../core/renderers.js?v=20260302f';
 import { generateScript } from '../../core/scripts.js';
 
 const getCampaignLabel = (campaign) => campaign?.title || campaign?.brand || 'Campanha';
