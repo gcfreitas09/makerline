@@ -27,8 +27,8 @@
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-  <link rel="stylesheet" href="assets/css/app2.css?v=20260302h" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260302h">
+  <link rel="stylesheet" href="assets/css/app2.css?v=20260304b" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260304b">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="assets/js2/core/customSelect.js?v=20260228m"></script>
 </head>
@@ -83,6 +83,15 @@
             <path d="M17 6H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6" />
           </svg>
           Financeiro
+        </button>
+        <button class="nav-item" data-target="metrics" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19V9" />
+            <path d="M10 19V5" />
+            <path d="M16 19V12" />
+            <path d="M22 19V7" />
+          </svg>
+          Métricas
         </button>
         <button class="nav-item" data-target="settings" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -170,7 +179,7 @@
                 <p class="dashboard-eyebrow">Operação</p>
                 <h2 class="dashboard-card-title">Pipeline</h2>
               </div>
-              <button class="btn btn-ghost btn-small" data-action="goto-campaigns" type="button">Ver campanhas</button>
+              <button class="btn btn-ghost dashboard-campaigns-btn" data-action="goto-campaigns" type="button">Ver campanhas</button>
             </div>
             <div class="dashboard-pipeline-shell">
               <div class="dashboard-pipeline-grid" data-dashboard-pipeline></div>
@@ -338,6 +347,75 @@
                 </div>
                 <div class="finance-indicators-grid" data-finance-indicators></div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section" data-section="metrics">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Métricas</h1>
+            <p class="section-subtitle">Leia performance comercial, funil e previsões com base nas campanhas.</p>
+          </div>
+          <div class="section-actions">
+            <label class="metrics-page-filter">
+              <span>Período</span>
+              <select class="select select--compact" data-metrics-range aria-label="Filtrar período de métricas">
+                <option value="15">15 dias</option>
+                <option value="30" selected>30 dias</option>
+                <option value="45">45 dias</option>
+                <option value="90">90 dias</option>
+                <option value="0">Todo histórico</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="metrics-page">
+          <div class="card metrics-overview-card">
+            <div class="section-header section-header--tight">
+              <div>
+                <h3>Visão geral</h3>
+                <p class="section-subtitle">Resumo rápido da operação com foco em entrada, aberto e atraso.</p>
+              </div>
+            </div>
+            <div class="metrics-overview-grid" data-metrics-overview></div>
+          </div>
+
+          <div class="card metrics-funnel-card">
+            <div class="section-header section-header--tight">
+              <div>
+                <h3>Funil comercial</h3>
+                <p class="section-subtitle">Clique em um status para abrir as campanhas dessa fase.</p>
+              </div>
+            </div>
+            <div class="metrics-funnel-grid" data-metrics-funnel></div>
+            <div class="metrics-status-list" data-metrics-status-list></div>
+          </div>
+
+          <div class="metrics-bottom-grid">
+            <div class="card metrics-monthly-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Evolução mensal</h3>
+                  <p class="section-subtitle">Recebido versus previsto nos últimos 6 meses.</p>
+                </div>
+              </div>
+              <div class="metrics-chart-wrap">
+                <canvas id="metrics-monthly-chart" aria-label="Gráfico de evolução mensal"></canvas>
+              </div>
+            </div>
+
+            <div class="card metrics-insights-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Indicadores</h3>
+                  <p class="section-subtitle">Leitura de qualidade da operação na janela selecionada.</p>
+                </div>
+              </div>
+              <div class="metrics-indicators-grid" data-metrics-indicators></div>
             </div>
           </div>
         </div>
@@ -568,7 +646,7 @@
       <div class="modal-header">
         <div>
           <h3>Excluir campanha?</h3>
-          <p class="muted">Só pra confirmar: digita <strong>EXCLUIR</strong> aí embaixo.</p>
+          <p class="muted">Essa ação remove a campanha de forma permanente.</p>
         </div>
         <button class="btn btn-ghost btn-small" data-action="close-campaign-delete-modal" type="button">Fechar</button>
       </div>
@@ -576,14 +654,10 @@
       <div class="muted" id="campaign-delete-title"></div>
 
       <form class="form-grid" id="campaign-delete-form" style="margin-top: 12px;">
-        <div class="form-row">
-          <label>Confirmação</label>
-          <input class="input" id="campaign-delete-input" type="text" placeholder="Digite EXCLUIR" autocomplete="off" />
-          <div class="muted">Isso apaga a campanha (não tem como desfazer).</div>
-        </div>
+        <div class="muted">Isso apaga a campanha e não pode ser desfeito.</div>
         <div class="modal-actions">
           <button class="btn btn-ghost" data-action="close-campaign-delete-modal" type="button">Cancelar</button>
-          <button class="btn btn-danger" id="campaign-delete-confirm" type="submit" disabled>Excluir</button>
+          <button class="btn btn-danger" id="campaign-delete-confirm" type="submit">Excluir</button>
         </div>
         <div class="muted" id="campaign-delete-msg"></div>
       </form>
@@ -673,7 +747,7 @@
       <div class="modal-header">
         <div>
           <h3>Excluir marca?</h3>
-          <p class="muted">Digite <strong>EXCLUIR</strong> para confirmar. Se ainda existirem campanhas vinculadas, a exclusão será bloqueada.</p>
+          <p class="muted">Se ainda existirem campanhas vinculadas, a exclusão será bloqueada.</p>
         </div>
         <button class="btn btn-ghost btn-small" data-action="close-brand-delete-modal" type="button">Fechar</button>
       </div>
@@ -681,14 +755,10 @@
       <div class="muted" id="brand-delete-title"></div>
 
       <form class="form-grid" id="brand-delete-form" style="margin-top: 12px;">
-        <div class="form-row">
-          <label>Confirmação</label>
-          <input class="input" id="brand-delete-input" type="text" placeholder="Digite EXCLUIR" autocomplete="off" />
-          <div class="muted">Isso apaga a marca e o histórico de interações dela.</div>
-        </div>
+        <div class="muted">Isso apaga a marca e o histórico de interações dela.</div>
         <div class="modal-actions">
           <button class="btn btn-ghost" data-action="close-brand-delete-modal" type="button">Cancelar</button>
-          <button class="btn btn-danger" id="brand-delete-confirm" type="submit" disabled>Excluir</button>
+          <button class="btn btn-danger" id="brand-delete-confirm" type="submit">Excluir</button>
         </div>
         <div class="muted" id="brand-delete-msg"></div>
       </form>
@@ -701,7 +771,7 @@
       <div class="modal-header">
         <div>
           <h3>Excluir roteiro?</h3>
-          <p class="muted">Só pra confirmar: digita <strong>EXCLUIR</strong> aí embaixo.</p>
+          <p class="muted">Essa ação remove o roteiro de forma permanente.</p>
         </div>
         <button class="btn btn-ghost btn-small" data-action="close-script-delete-modal" type="button">Fechar</button>
       </div>
@@ -709,14 +779,10 @@
       <div class="muted" id="script-delete-title"></div>
 
       <form class="form-grid" id="script-delete-form" style="margin-top: 12px;">
-        <div class="form-row">
-          <label>Confirmação</label>
-          <input class="input" id="script-delete-input" type="text" placeholder="Digite EXCLUIR" autocomplete="off" />
-          <div class="muted">Isso apaga do histórico (não tem como desfazer).</div>
-        </div>
+        <div class="muted">Isso apaga do histórico e não pode ser desfeito.</div>
         <div class="modal-actions">
           <button class="btn btn-ghost" data-action="close-script-delete-modal" type="button">Cancelar</button>
-          <button class="btn btn-danger" id="script-delete-confirm" type="submit" disabled>Excluir</button>
+          <button class="btn btn-danger" id="script-delete-confirm" type="submit">Excluir</button>
         </div>
         <div class="muted" id="script-delete-msg"></div>
       </form>
@@ -986,7 +1052,21 @@
     </div>
   </div>
 
-  <script type="module" src="assets/js2/app.js?v=20260302h"></script>
+  <div class="modal" id="metrics-status-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-metrics-status-modal"></div>
+    <div class="modal-panel card metrics-status-modal-panel">
+      <div class="modal-header">
+        <div>
+          <h3 data-metrics-status-modal-title>Status</h3>
+          <p class="muted" data-metrics-status-modal-subtitle>Veja as campanhas dessa fase.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-metrics-status-modal" type="button">Fechar</button>
+      </div>
+      <div class="metrics-status-modal-body" data-metrics-status-modal-body></div>
+    </div>
+  </div>
+
+  <script type="module" src="assets/js2/app.js?v=20260304e"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

@@ -1,7 +1,7 @@
 import { state, saveState, getDefaultCampaignStage, nextActionOptions } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js?v=20260302f';
-import { showToast } from '../../core/ui.js?v=20260302f';
-import { trackEvent } from '../../core/gamification.js?v=20260302f';
+import { renderAll } from '../../core/renderers.js?v=20260304c';
+import { showToast } from '../../core/ui.js?v=20260304b';
+import { trackEvent } from '../../core/gamification.js?v=20260302g';
 import { populateCampaignBrandSelect } from '../brands/modal.js';
 
 const getCampaignModal = () => ({
@@ -189,6 +189,15 @@ const openCampaignModal = (campaignId) => {
   }
 
   state.ui.pendingCampaignBrandId = null;
+
+  try {
+    document.dispatchEvent(new CustomEvent('ugc:campaign-modal-opened', {
+      detail: {
+        campaignId: campaignId || '',
+        mode: campaignId ? 'edit' : 'create'
+      }
+    }));
+  } catch (error) {}
 
   if (brandSelect) brandSelect.focus();
 };

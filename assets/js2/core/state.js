@@ -199,6 +199,8 @@ const defaultState = {
     dashboardPipelineOpen: '',
     financeRangeDays: 30,
     financeExpandedCampaignId: '',
+    metricsRangeDays: 30,
+    metricsStatusOpen: '',
     campaignPaymentFilter: 'all',
     campaignSort: 'updatedAt',
     campaignSortDir: 'desc',
@@ -250,7 +252,7 @@ const campaignStagesByStatus = {
   concluida: [{ id: 'pago', label: 'Pago' }]
 };
 
-const activePages = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'settings']);
+const activePages = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'metrics', 'settings']);
 
 const getCampaignStageOptions = (status) => campaignStagesByStatus[String(status || '').trim()] || [];
 
@@ -410,6 +412,12 @@ const normalizeUiState = (currentState) => {
   const financeRangeDays = Number(currentState.ui.financeRangeDays);
   currentState.ui.financeRangeDays = [0, 15, 30, 45, 90].includes(financeRangeDays) ? financeRangeDays : 30;
   if (typeof currentState.ui.financeExpandedCampaignId !== 'string') currentState.ui.financeExpandedCampaignId = '';
+  const metricsRangeDays = Number(currentState.ui.metricsRangeDays);
+  currentState.ui.metricsRangeDays = [0, 15, 30, 45, 90].includes(metricsRangeDays) ? metricsRangeDays : 30;
+  const metricsStatusOpen = String(currentState.ui.metricsStatusOpen || '').trim();
+  currentState.ui.metricsStatusOpen = ['prospeccao', 'producao', 'finalizacao', 'concluida'].includes(metricsStatusOpen)
+    ? metricsStatusOpen
+    : '';
   if (typeof currentState.ui.campaignPaymentFilter !== 'string') currentState.ui.campaignPaymentFilter = 'all';
   if (typeof currentState.ui.campaignSort !== 'string') currentState.ui.campaignSort = 'updatedAt';
   if (typeof currentState.ui.campaignSortDir !== 'string') currentState.ui.campaignSortDir = 'desc';

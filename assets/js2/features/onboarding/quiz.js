@@ -1,7 +1,7 @@
 ﻿import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js?v=20260302f';
-import { setActivePage, showToast } from '../../core/ui.js?v=20260302f';
-import { trackEvent } from '../../core/gamification.js?v=20260302f';
+import { renderAll } from '../../core/renderers.js?v=20260304c';
+import { setActivePage, showToast } from '../../core/ui.js?v=20260304b';
+import { trackEvent } from '../../core/gamification.js?v=20260302g';
 
 /* â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
@@ -313,7 +313,7 @@ const startCampaignHighlight = () => {
     tip.className = 'onboarding-tooltip';
     tip.dataset.tooltipFor = 'new-campaign';
     tip.innerHTML = `
-      <span class="onboarding-tooltip-text">Comece por aqui.</span>
+      <span class="onboarding-tooltip-text">Passo 1: clique em Nova campanha para iniciar seu cadastro.</span>
       <button class="onboarding-tooltip-close" type="button" aria-label="Fechar mensagem">&times;</button>
     `;
     tip.querySelector('.onboarding-tooltip-close')?.addEventListener('click', (event) => {
@@ -386,7 +386,7 @@ const showNextTooltip = () => {
     const advanceBtn = row.querySelector('[data-action="advance-stage"]');
     if (advanceBtn) {
       advanceBtn.classList.add('onboarding-highlight');
-      attachTooltip(advanceBtn, 'Quando a campanha evoluir, clique aqui para avan?ar para a pr?xima etapa.', 'Finalizar', () => {
+      attachTooltip(advanceBtn, 'Quando a campanha evoluir, clique aqui para avançar para a próxima etapa.', 'Finalizar', () => {
         advanceBtn.classList.remove('onboarding-highlight');
         completeOnboarding();
       });
@@ -472,6 +472,14 @@ const initOnboardingListeners = () => {
       }, 300);
     }
   });
+
+  document.addEventListener('ugc:campaign-modal-opened', (e) => {
+    const ob = ensureOnboardingQuiz();
+    if (ob.firstCampaignCreated || ob.tooltipsDone || isOnboardingComplete() || areOnboardingTooltipsSnoozed()) return;
+    const mode = String(e?.detail?.mode || '').trim();
+    if (mode && mode !== 'create') return;
+    setTimeout(() => injectOnboardingHeader(), 120);
+  });
 };
 
 /* â”€â”€ campaign modal onboarding header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -490,7 +498,7 @@ const injectOnboardingHeader = () => {
   const header = document.createElement('div');
   header.id = 'campaign-onboarding-header';
   header.className = 'onboarding-modal-header';
-  header.innerHTML = '<span>Passo 1 de 3 - Registrar campanha</span>';
+  header.innerHTML = '<span>Passo a passo: configure sua primeira campanha</span>';
   panel.insertBefore(header, panel.firstChild);
 
   setTimeout(() => startFieldTooltips(), 500);
@@ -501,11 +509,12 @@ const injectOnboardingHeader = () => {
 let fieldTooltipStep = 0;
 
 const fieldTooltipDefs = [
-  { selector: 'input[name="brand"]', text: 'Comece digitando o nome da marca aqui.', event: 'input' },
-  { selector: 'select[name="startMethod"]', text: 'Selecione como essa campanha começou.', event: 'change' },
-  { selector: 'input[name="value"]', text: 'Quanto você vai receber? Se for permuta, pode deixar R$ 0.', event: 'input' },
-  { selector: 'input[name="dueDate"]', text: 'Defina um prazo pra nunca perder o deadline.', event: 'change' },
-  { selector: '#campaign-form button[type="submit"]', text: 'Tudo pronto? Clique aqui para salvar! ðŸš€', event: null }
+  { selector: 'select[name="brandId"]', text: 'Escolha a marca dessa campanha.', event: 'change' },
+  { selector: 'select[name="startMethod"]', text: 'Selecione como esse projeto começou.', event: 'change' },
+  { selector: 'input[name="value"]', text: 'Informe o valor em dinheiro (se for permuta, pode deixar R$ 0).', event: 'input' },
+  { selector: 'input[name="dueDate"]', text: 'Defina o prazo principal da entrega.', event: 'change' },
+  { selector: 'select[name="nextActionType"]', text: 'Defina a próxima ação para não perder o follow-up.', event: 'change' },
+  { selector: '#campaign-form button[type="submit"]', text: 'Tudo certo? Clique para salvar a campanha.', event: null }
 ];
 
 const startFieldTooltips = () => {
@@ -531,8 +540,9 @@ const showFieldTooltip = () => {
 
   const bubble = document.createElement('div');
   bubble.className = 'onboarding-field-tip';
+  const stepLabel = `Passo ${fieldTooltipStep + 1}/${fieldTooltipDefs.length}: `;
   bubble.innerHTML = `
-    <span class="onboarding-field-tip-text">${def.text}</span>
+    <span class="onboarding-field-tip-text"><strong>${stepLabel}</strong>${def.text}</span>
     <button class="onboarding-field-tip-close" type="button" aria-label="Fechar mensagem">&times;</button>
   `;
 

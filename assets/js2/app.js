@@ -1,9 +1,9 @@
 import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-import { renderAll } from './core/renderers.js?v=20260302g';
-import { setActivePage } from './core/ui.js?v=20260302g';
-import { initActions } from './core/actions.js?v=20260302g';
-import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260302h';
-import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260217b';
+import { renderAll } from './core/renderers.js?v=20260304c';
+import { setActivePage } from './core/ui.js?v=20260304b';
+import { initActions } from './core/actions.js?v=20260304d';
+import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260304d';
+import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260304c';
 
   const sessionToken = sessionStorage.getItem('ugcQuestToken') || '';
   const sessionUserId = sessionStorage.getItem('ugcQuestUserId') || '';
@@ -21,7 +21,7 @@ import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=202
     saveState();
   };
 
-const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'settings']);
+const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'metrics', 'settings']);
 
 const getSafeProfileName = () => {
   const sessionName = String(sessionStorage.getItem('ugcQuestUserName') || '').trim();
@@ -49,6 +49,9 @@ const safeRun = (label, fn) => {
   const financeRangeDays = Number(state.ui.financeRangeDays);
   state.ui.financeRangeDays = [0, 15, 30, 45, 90].includes(financeRangeDays) ? financeRangeDays : 30;
   if (typeof state.ui.financeExpandedCampaignId !== 'string') state.ui.financeExpandedCampaignId = '';
+  const metricsRangeDays = Number(state.ui.metricsRangeDays);
+  state.ui.metricsRangeDays = [0, 15, 30, 45, 90].includes(metricsRangeDays) ? metricsRangeDays : 30;
+  if (typeof state.ui.metricsStatusOpen !== 'string') state.ui.metricsStatusOpen = '';
 };
 
 const enforceModernShell = () => {

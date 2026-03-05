@@ -435,6 +435,14 @@ textarea {
   font-size: 10px;
 }
 
+.dashboard-campaigns-btn {
+  min-height: 40px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .chip {
   display: inline-flex;
   align-items: center;
@@ -1595,6 +1603,260 @@ textarea {
   text-align: center;
 }
 
+.metrics-page-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.metrics-page {
+  display: grid;
+  gap: 20px;
+}
+
+.metrics-overview-card,
+.metrics-funnel-card,
+.metrics-monthly-card,
+.metrics-insights-card {
+  padding: 22px;
+}
+
+.metrics-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metrics-stat-card {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: linear-gradient(150deg, rgba(13, 26, 42, 0.9), rgba(10, 20, 32, 0.76));
+}
+
+.metrics-stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--muted);
+}
+
+.metrics-stat-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.metrics-stat-value--accent {
+  color: var(--accent);
+}
+
+.metrics-stat-value--danger {
+  color: #f87171;
+}
+
+.metrics-stat-value--success {
+  color: #6ee7b7;
+}
+
+.metrics-stat-note {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.metrics-funnel-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metrics-funnel-step {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: linear-gradient(160deg, rgba(16, 28, 45, 0.88), rgba(10, 19, 31, 0.78));
+  border-radius: 18px;
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+
+.metrics-funnel-step:hover {
+  transform: translateY(-1px);
+  border-color: rgba(125, 211, 252, 0.38);
+}
+
+.metrics-funnel-step.is-active {
+  border-color: rgba(56, 189, 248, 0.55);
+  background: linear-gradient(160deg, rgba(12, 43, 63, 0.86), rgba(10, 26, 40, 0.84));
+}
+
+.metrics-funnel-count {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.metrics-funnel-label {
+  font-size: 18px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.metrics-status-list {
+  margin-top: 18px;
+}
+
+.metrics-status-panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: linear-gradient(150deg, rgba(13, 26, 42, 0.88), rgba(10, 20, 32, 0.74));
+}
+
+.metrics-status-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.metrics-status-panel-overline {
+  margin: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.metrics-status-panel-title {
+  margin: 8px 0 0;
+  font-size: 32px;
+  line-height: 1;
+  font-family: var(--font-heading);
+  letter-spacing: -0.04em;
+}
+
+.metrics-status-panel-list {
+  display: grid;
+  gap: 10px;
+}
+
+.metrics-status-panel-link {
+  width: 100%;
+  justify-content: center;
+}
+
+.metrics-status-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(12, 22, 36, 0.86);
+}
+
+.metrics-status-item-main {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.metrics-status-item-main strong {
+  font-size: 22px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.metrics-status-item-main span {
+  color: var(--muted);
+}
+
+.metrics-status-item-meta {
+  display: grid;
+  justify-items: end;
+  align-content: center;
+  gap: 2px;
+  text-align: right;
+}
+
+.metrics-status-item-meta span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.metrics-status-item-meta strong {
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.metrics-bottom-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.metrics-chart-wrap {
+  height: 300px;
+  position: relative;
+}
+
+.metrics-indicators-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metrics-indicator-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: linear-gradient(150deg, rgba(13, 26, 42, 0.88), rgba(10, 20, 32, 0.74));
+}
+
+.metrics-indicator-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.metrics-indicator-value {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.metrics-indicator-value--text {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.metrics-indicator-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .dashboard-layout {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1978,6 +2240,14 @@ textarea {
   display: grid;
 }
 
+.metrics-status-modal-panel {
+  width: min(720px, 100%);
+}
+
+.metrics-status-modal-body {
+  display: grid;
+}
+
 .dashboard-pipeline-panel {
   display: grid;
   gap: 14px;
@@ -2342,6 +2612,39 @@ select[data-campaign-stage]:focus {
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 16px;
+}
+
+.campaign-onboarding-card {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(34, 211, 238, 0.24);
+  background: linear-gradient(160deg, rgba(10, 29, 45, 0.88), rgba(9, 19, 34, 0.86));
+}
+
+.campaign-onboarding-title {
+  font-size: 1.2rem;
+  margin-top: 4px;
+}
+
+.campaign-onboarding-list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.campaign-onboarding-list li {
+  line-height: 1.45;
+}
+
+.campaign-onboarding-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .campaign-table {
@@ -4776,6 +5079,13 @@ button[data-action="bonus-xp"] {
 .onboarding-field-tip-text {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.onboarding-field-tip-text strong {
+  color: #e7f8ff;
+  font-weight: 800;
 }
 
 .onboarding-field-tip-close {

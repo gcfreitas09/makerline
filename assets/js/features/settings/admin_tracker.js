@@ -2,6 +2,15 @@ const getEls = () => ({
   card: document.getElementById('admin-tracker-card'),
   msg: document.getElementById('admin-tracker-msg')
 });
+const TRACKER_ALLOWED_EMAILS = new Set(['fgui3662@gmail.com', 'lorenzo.ritter27@gmail.com']);
+
+const getSessionEmail = () => {
+  try {
+    return (sessionStorage.getItem('ugcQuestUserEmail') || '').trim().toLowerCase();
+  } catch (e) {
+    return '';
+  }
+};
 
 const setMsg = (text) => {
   const { msg } = getEls();
@@ -25,6 +34,11 @@ const initAdminTrackerCard = () => {
   if (!card) return;
   if (card.dataset.bound === '1') return;
   card.dataset.bound = '1';
+  const email = getSessionEmail();
+  if (!email || !TRACKER_ALLOWED_EMAILS.has(email)) {
+    card.style.display = 'none';
+    return;
+  }
 
   if (window.location.protocol === 'file:') return;
 
@@ -75,4 +89,3 @@ const initAdminTrackerCard = () => {
 };
 
 export { initAdminTrackerCard };
-

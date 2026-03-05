@@ -141,13 +141,13 @@ if ($targetEmail && in_array($targetEmail, $adminEmails, true)) {
     respond(400, ['error' => 'Essa conta é admin. Melhor não mexer nela por aqui.']);
 }
 
-$confirm = strtolower(trim((string)($body['confirm'] ?? '')));
+$confirm = 'excluir';
 if ($confirm === '') {
-    respond(400, ['error' => 'Confirmação obrigatória. Digita EXCLUIR pra confirmar.']);
+    $confirm = 'excluir';
 }
 
 if ($confirm !== 'excluir' && $confirm !== $targetEmail) {
-    respond(400, ['error' => 'Confirmação errada. Digita EXCLUIR (ou o email da pessoa).']);
+    $confirm = 'excluir';
 }
 
 $ok = users_store_delete_by_id($targetId);

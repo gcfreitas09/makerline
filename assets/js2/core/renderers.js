@@ -72,6 +72,7 @@ const ICONS = {
 };
 
 const iconSvg = (name) => ICONS[name] || '';
+let metricsMonthlyChart = null;
 
 const renderProfile = () => {
   const greetings = document.querySelectorAll('[data-greeting]');
@@ -285,7 +286,7 @@ const getDashboardPipelineDetailHtml = (pipelineStage) => {
           <h3 class="dashboard-pipeline-panel-title">${pipelineStage.label}</h3>
         </div>
         <button
-          class="btn btn-ghost btn-small"
+          class="btn btn-ghost dashboard-campaigns-btn"
           data-action="open-dashboard-pipeline-filter"
           data-pipeline-filter="${pipelineStage.key}"
           type="button"
@@ -306,6 +307,51 @@ const getDashboardPipelineDetailHtml = (pipelineStage) => {
                     <div class="dashboard-pipeline-panel-meta">
                       <span>${escapeHtml(item.stageLabel)}</span>
                       <strong>${escapeHtml(formatDateFullBR(item.dueDate))}</strong>
+                    </div>
+                  </article>
+                `)
+                .join('')
+            : '<p class="muted">Nenhuma campanha nesse status agora.</p>'
+        }
+      </div>
+    </div>
+  `;
+};
+
+const getMetricsStatusDetailHtml = (statusBucket) => {
+  if (!statusBucket) {
+    return `
+      <div class="metrics-status-panel metrics-status-panel--empty">
+        <p class="muted">Clique em um status para ver as campanhas.</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="metrics-status-panel">
+      <div class="metrics-status-panel-head">
+        <div>
+          <p class="metrics-status-panel-overline">${statusBucket.count} campanha${statusBucket.count === 1 ? '' : 's'} nessa fase</p>
+          <h4 class="metrics-status-panel-title">${escapeHtml(statusBucket.label)}</h4>
+        </div>
+      </div>
+      <button class="btn btn-ghost dashboard-campaigns-btn metrics-status-panel-link" data-action="open-metrics-campaigns" data-metrics-status="${statusBucket.key}" type="button">
+        Ver na aba campanhas
+      </button>
+      <div class="metrics-status-panel-list">
+        ${
+          statusBucket.items.length
+            ? statusBucket.items
+                .map((item) => `
+                  <article class="metrics-status-item">
+                    <div class="metrics-status-item-main">
+                      <strong>${escapeHtml(item.title)}</strong>
+                      <span>${escapeHtml(item.brand)}</span>
+                    </div>
+                    <div class="metrics-status-item-meta">
+                      <span>${escapeHtml(item.stageLabel)}</span>
+                      <strong>${item.dueDate ? escapeHtml(formatDateFullBR(item.dueDate)) : 'Sem prazo'}</strong>
+                      <span>${formatCurrency(item.value)}</span>
                     </div>
                   </article>
                 `)
@@ -1047,6 +1093,408 @@ const renderFinancePage = () => {
     : `<div class="finance-empty">Nenhuma campanha financeira encontrada em ${escapeHtml(data.rangeLabel.toLowerCase())}.</div>`;
 };
 
+const metricsRangeLabelMap = {
+  15: '15 dias',
+  30: '30 dias',
+  45: '45 dias',
+  90: '90 dias',
+  0: 'Todo histórico'
+};
+
+const metricsStatusMeta = {
+  prospeccao: { label: 'Prospecção' },
+  producao: { label: 'Produção' },
+  finalizacao: { label: 'Finalização' },
+  concluida: { label: 'Concluído' }
+};
+
+const computeMetricsPageData = () => {
+  const campaigns = (Array.isArray(state.campaigns) ? state.campaigns : []).filter((campaign) => campaign && !campaign.archived);
+  const rangeDays = [0, 15, 30, 45, 90].includes(Number(state.ui.metricsRangeDays)) ? Number(state.ui.metricsRangeDays) : 30;
+  const statusOrder = ['prospeccao', 'producao', 'finalizacao', 'concluida'];
+  const now = new Date();
+  const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const todayKey = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`;
+
+  const parseDay = (value) => {
+    const safe = String(value || '').trim();
+    if (!safe) return null;
+    const raw = safe.length > 10 ? safe : `${safe}T00:00:00Z`;
+    const parsed = new Date(raw);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return new Date(Date.UTC(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate()));
+  };
+
+  const toIsoDay = (value) => {
+    const date = parseDay(value);
+    if (!date) return '';
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+  };
+
+  const dayDiff = (valueA, valueB = today) => {
+    const dateA = valueA instanceof Date ? valueA : parseDay(valueA);
+    const dateB = valueB instanceof Date ? valueB : parseDay(valueB);
+    if (!dateA || !dateB) return null;
+    return Math.floor((dateA.getTime() - dateB.getTime()) / 86400000);
+  };
+
+  const getPercentPaid = (campaign) => {
+    const raw = Number.isFinite(campaign?.paymentPercent)
+      ? campaign.paymentPercent
+      : parseInt(String(campaign?.paymentPercent || ''), 10);
+    return Number.isFinite(raw) ? Math.max(0, Math.min(100, Math.round(raw))) : 0;
+  };
+
+  const getReceivedDate = (campaign) => {
+    if (campaign.paymentReceivedAt) return toIsoDay(campaign.paymentReceivedAt);
+    if (getPercentPaid(campaign) >= 100 || campaign.status === 'concluida') {
+      return toIsoDay(campaign.updatedAt || campaign.createdAt);
+    }
+    return '';
+  };
+
+  const getFinancialStatus = (campaign) => {
+    if (getReceivedDate(campaign)) return 'recebido';
+    if (campaign.paymentDate && campaign.paymentDate < todayKey) return 'atrasado';
+    return 'a_receber';
+  };
+
+  const getFilterDate = (campaign) => {
+    const financialStatus = getFinancialStatus(campaign);
+    if (financialStatus === 'recebido') return getReceivedDate(campaign);
+    return toIsoDay(campaign.paymentDate || campaign.dueDate || campaign.updatedAt || campaign.createdAt);
+  };
+
+  const isInRange = (campaign) => {
+    if (rangeDays === 0) return true;
+    const dateKey = getFilterDate(campaign);
+    const date = parseDay(dateKey);
+    if (!date) return false;
+    const diff = dayDiff(date, today);
+    if (diff === null) return false;
+    return diff <= 0 ? Math.abs(diff) <= rangeDays : diff <= rangeDays;
+  };
+
+  const sumValues = (list) => list.reduce((sum, item) => sum + (Number(item?.value) || 0), 0);
+  const hasValue = (campaign) => (Number(campaign?.value) || 0) > 0;
+  const timelineReference = campaigns.map((campaign) => ({
+    ...campaign,
+    financialStatus: getFinancialStatus(campaign),
+    receivedAt: getReceivedDate(campaign),
+    filterDate: getFilterDate(campaign),
+    inRange: isInRange(campaign)
+  }));
+
+  const completedCampaigns = timelineReference.filter((campaign) => campaign.status === 'concluida');
+  const receivedCampaigns = timelineReference.filter((campaign) => campaign.financialStatus === 'recebido');
+  const receivedInRange = receivedCampaigns.filter((campaign) => campaign.inRange);
+  const openInRange = timelineReference.filter((campaign) => campaign.financialStatus === 'a_receber' && campaign.inRange);
+  const overdueInRange = timelineReference.filter((campaign) => campaign.financialStatus === 'atrasado' && campaign.inRange);
+  const totalCampaigns = campaigns.length;
+  const completionRate = totalCampaigns ? Math.round((completedCampaigns.length / totalCampaigns) * 100) : 0;
+
+  const statusBuckets = statusOrder.map((status) => {
+    const items = timelineReference
+      .filter((campaign) => campaign.status === status)
+      .slice()
+      .sort((a, b) => {
+        const dueA = String(a?.dueDate || '9999-12-31');
+        const dueB = String(b?.dueDate || '9999-12-31');
+        if (dueA !== dueB) return dueA.localeCompare(dueB);
+        return (Number(b?.value) || 0) - (Number(a?.value) || 0);
+      });
+
+    return {
+      key: status,
+      label: metricsStatusMeta[status]?.label || statusLabels[status] || status,
+      count: items.length,
+      items: items.map((campaign) => ({
+        id: campaign.id,
+        title: campaign.title || campaign.brand || 'Campanha',
+        brand: campaign.brand || 'Sem marca',
+        stageLabel: getCampaignStageLabel(campaign.status, campaign.stage) || statusLabels[campaign.status] || 'Sem etapa',
+        dueDate: campaign.dueDate || '',
+        value: Number(campaign.value) || 0
+      }))
+    };
+  });
+
+  const validStatusOpen = String(state.ui.metricsStatusOpen || '').trim();
+  const selectedStatus = statusBuckets.find((bucket) => bucket.key === validStatusOpen) ? validStatusOpen : '';
+  const activeStatus = selectedStatus || statusBuckets.find((bucket) => bucket.count > 0)?.key || 'prospeccao';
+
+  const getMonthStart = (offset) => new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - offset, 1));
+  const monthBuckets = [5, 4, 3, 2, 1, 0].map((offset) => getMonthStart(offset));
+  const monthLabels = monthBuckets.map((monthStart) =>
+    monthStart.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit', timeZone: 'UTC' }).replace('.', '')
+  );
+
+  const sumByMonth = (list, datePicker) =>
+    monthBuckets.map((monthStart) => {
+      const month = monthStart.getUTCMonth();
+      const year = monthStart.getUTCFullYear();
+      return list
+        .filter((campaign) => {
+          const date = parseDay(datePicker(campaign));
+          return Boolean(date && date.getUTCMonth() === month && date.getUTCFullYear() === year);
+        })
+        .reduce((sum, campaign) => sum + (Number(campaign.value) || 0), 0);
+    });
+
+  const monthlyReceived = sumByMonth(receivedCampaigns, (campaign) => campaign.receivedAt);
+  const monthlyForecast = sumByMonth(
+    timelineReference.filter((campaign) => campaign.financialStatus !== 'recebido'),
+    (campaign) => campaign.paymentDate || campaign.dueDate
+  );
+
+  const avgTicket = receivedInRange.length ? Math.round(sumValues(receivedInRange) / receivedInRange.length) : 0;
+  const mostProfitableBrandEntry = Object.entries(
+    receivedInRange.reduce((acc, campaign) => {
+      const key = String(campaign.brand || 'Sem marca');
+      acc[key] = (acc[key] || 0) + (Number(campaign.value) || 0);
+      return acc;
+    }, {})
+  ).sort((a, b) => b[1] - a[1])[0] || null;
+
+  const avgDaysToReceiveSource = receivedCampaigns
+    .map((campaign) => {
+      const createdAt = parseDay(campaign.createdAt);
+      const receivedAt = parseDay(campaign.receivedAt);
+      if (!createdAt || !receivedAt) return null;
+      const diff = dayDiff(receivedAt, createdAt);
+      return Number.isFinite(diff) ? Math.max(0, diff) : null;
+    })
+    .filter((value) => Number.isFinite(value));
+
+  const avgDaysToReceive = avgDaysToReceiveSource.length
+    ? Math.round(avgDaysToReceiveSource.reduce((sum, value) => sum + value, 0) / avgDaysToReceiveSource.length)
+    : null;
+
+  const onTimePaid = receivedInRange.filter((campaign) => {
+    if (!campaign.paymentDate) return true;
+    if (!campaign.receivedAt) return false;
+    return campaign.receivedAt <= campaign.paymentDate;
+  }).length;
+  const onTimeRate = receivedInRange.length ? Math.round((onTimePaid / receivedInRange.length) * 100) : null;
+
+  return {
+    rangeDays,
+    rangeLabel: metricsRangeLabelMap[rangeDays] || '30 dias',
+    overview: {
+      totalRecebido: sumValues(receivedCampaigns.filter(hasValue)),
+      recebidoNoPeriodo: sumValues(receivedInRange.filter(hasValue)),
+      aReceber: sumValues(openInRange.filter(hasValue)),
+      atrasado: sumValues(overdueInRange.filter(hasValue)),
+      taxaConclusao: completionRate
+    },
+    funnel: statusBuckets,
+    selectedStatus,
+    activeStatus,
+    monthly: {
+      labels: monthLabels,
+      received: monthlyReceived,
+      forecast: monthlyForecast
+    },
+    indicators: {
+      ticketMedio: avgTicket,
+      tempoMedioReceber: avgDaysToReceive,
+      marcaMaisLucrativa: mostProfitableBrandEntry ? mostProfitableBrandEntry[0] : '—',
+      campanhasAtrasadas: overdueInRange.length,
+      campanhasRecebidas: receivedInRange.length,
+      pctPagoNoPrazo: onTimeRate
+    }
+  };
+};
+
+const renderMetricsPage = () => {
+  const metricsSection = document.querySelector('[data-section="metrics"]');
+  const statusModal = document.getElementById('metrics-status-modal');
+  const statusModalBody = document.querySelector('[data-metrics-status-modal-body]');
+  const statusModalTitle = document.querySelector('[data-metrics-status-modal-title]');
+  const statusModalSubtitle = document.querySelector('[data-metrics-status-modal-subtitle]');
+  const isMetricsOpen = Boolean(metricsSection && metricsSection.classList.contains('active'));
+  if (!isMetricsOpen) {
+    if (statusModal) {
+      statusModal.classList.remove('open');
+      statusModal.setAttribute('aria-hidden', 'true');
+    }
+    if (metricsMonthlyChart) {
+      metricsMonthlyChart.destroy();
+      metricsMonthlyChart = null;
+    }
+    return;
+  }
+
+  const overviewContainer = document.querySelector('[data-metrics-overview]');
+  const funnelContainer = document.querySelector('[data-metrics-funnel]');
+  const statusListContainer = document.querySelector('[data-metrics-status-list]');
+  const indicatorsContainer = document.querySelector('[data-metrics-indicators]');
+  const rangeSelect = document.querySelector('[data-metrics-range]');
+  const chartCanvas = document.getElementById('metrics-monthly-chart');
+
+  if (!overviewContainer || !funnelContainer || !statusListContainer || !indicatorsContainer) return;
+
+  const data = computeMetricsPageData();
+  const isMobileMetrics = Boolean(window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
+  const funnelActiveStatus = isMobileMetrics ? data.selectedStatus : data.activeStatus;
+  if (rangeSelect) rangeSelect.value = String(data.rangeDays);
+
+  overviewContainer.innerHTML = `
+    <article class="metrics-stat-card">
+      <span class="metrics-stat-label">Total recebido</span>
+      <strong class="metrics-stat-value">${formatCurrency(data.overview.totalRecebido)}</strong>
+      <span class="metrics-stat-note">Histórico geral pago</span>
+    </article>
+    <article class="metrics-stat-card">
+      <span class="metrics-stat-label">Recebido no período</span>
+      <strong class="metrics-stat-value metrics-stat-value--success">${formatCurrency(data.overview.recebidoNoPeriodo)}</strong>
+      <span class="metrics-stat-note">${escapeHtml(data.rangeLabel)}</span>
+    </article>
+    <article class="metrics-stat-card">
+      <span class="metrics-stat-label">A receber</span>
+      <strong class="metrics-stat-value metrics-stat-value--accent">${formatCurrency(data.overview.aReceber)}</strong>
+      <span class="metrics-stat-note">Dentro da janela selecionada</span>
+    </article>
+    <article class="metrics-stat-card">
+      <span class="metrics-stat-label">Atrasado</span>
+      <strong class="metrics-stat-value metrics-stat-value--danger">${formatCurrency(data.overview.atrasado)}</strong>
+      <span class="metrics-stat-note">Com prazo vencido</span>
+    </article>
+    <article class="metrics-stat-card">
+      <span class="metrics-stat-label">Taxa de conclusão</span>
+      <strong class="metrics-stat-value">${data.overview.taxaConclusao}%</strong>
+      <span class="metrics-stat-note">Campanhas concluídas no total</span>
+    </article>
+  `;
+
+  funnelContainer.innerHTML = data.funnel
+    .map((bucket) => `
+      <button
+        class="metrics-funnel-step ${funnelActiveStatus === bucket.key ? 'is-active' : ''}"
+        data-action="open-metrics-status"
+        data-metrics-status="${bucket.key}"
+        type="button"
+      >
+        <span class="metrics-funnel-count">${bucket.count} campanha${bucket.count === 1 ? '' : 's'}</span>
+        <span class="metrics-funnel-label">${escapeHtml(bucket.label)}</span>
+      </button>
+    `)
+    .join('');
+
+  const inlineBucket = data.funnel.find((bucket) => bucket.key === data.activeStatus) || null;
+  const modalBucket = data.funnel.find((bucket) => bucket.key === data.selectedStatus) || null;
+  const inlineHtml = getMetricsStatusDetailHtml(inlineBucket);
+  const modalHtml = getMetricsStatusDetailHtml(modalBucket);
+  const shouldShowModal = Boolean(isMobileMetrics && modalBucket && state.ui.activePage === 'metrics');
+
+  statusListContainer.innerHTML = isMobileMetrics ? '' : inlineHtml;
+
+  if (statusModal && statusModalBody && statusModalTitle && statusModalSubtitle) {
+    statusModalTitle.textContent = modalBucket ? modalBucket.label : 'Status';
+    statusModalSubtitle.textContent = modalBucket
+      ? `Veja as campanhas que estão em ${modalBucket.label.toLowerCase()}.`
+      : 'Veja as campanhas dessa fase.';
+    statusModalBody.innerHTML = modalBucket ? modalHtml : '';
+    statusModal.classList.toggle('open', shouldShowModal);
+    statusModal.setAttribute('aria-hidden', shouldShowModal ? 'false' : 'true');
+  }
+
+  indicatorsContainer.innerHTML = `
+    <article class="metrics-indicator-card">
+      <span class="metrics-indicator-label">Ticket médio</span>
+      <strong class="metrics-indicator-value">${data.indicators.ticketMedio ? formatCurrency(data.indicators.ticketMedio) : '—'}</strong>
+      <span class="metrics-indicator-note">Campanhas recebidas no período</span>
+    </article>
+    <article class="metrics-indicator-card">
+      <span class="metrics-indicator-label">Tempo médio para receber</span>
+      <strong class="metrics-indicator-value">${data.indicators.tempoMedioReceber === null ? '—' : `${data.indicators.tempoMedioReceber} dias`}</strong>
+      <span class="metrics-indicator-note">Da criação ao recebimento</span>
+    </article>
+    <article class="metrics-indicator-card">
+      <span class="metrics-indicator-label">Marca mais lucrativa</span>
+      <strong class="metrics-indicator-value metrics-indicator-value--text">${escapeHtml(data.indicators.marcaMaisLucrativa)}</strong>
+      <span class="metrics-indicator-note">Na janela selecionada</span>
+    </article>
+    <article class="metrics-indicator-card">
+      <span class="metrics-indicator-label">% paga no prazo</span>
+      <strong class="metrics-indicator-value">${data.indicators.pctPagoNoPrazo === null ? '—' : `${data.indicators.pctPagoNoPrazo}%`}</strong>
+      <span class="metrics-indicator-note">${data.indicators.campanhasRecebidas} campanha(s) recebida(s)</span>
+    </article>
+    <article class="metrics-indicator-card">
+      <span class="metrics-indicator-label">Campanhas atrasadas</span>
+      <strong class="metrics-indicator-value">${data.indicators.campanhasAtrasadas}</strong>
+      <span class="metrics-indicator-note">Na janela selecionada</span>
+    </article>
+  `;
+
+  if (!chartCanvas || typeof window.Chart !== 'function') return;
+  const context = chartCanvas.getContext('2d');
+  if (!context) return;
+
+  if (metricsMonthlyChart) {
+    metricsMonthlyChart.destroy();
+    metricsMonthlyChart = null;
+  }
+
+  metricsMonthlyChart = new window.Chart(context, {
+    type: 'bar',
+    data: {
+      labels: data.monthly.labels,
+      datasets: [
+        {
+          label: 'Recebido',
+          data: data.monthly.received,
+          borderRadius: 8,
+          backgroundColor: 'rgba(56, 189, 248, 0.55)',
+          borderColor: 'rgba(56, 189, 248, 0.95)',
+          borderWidth: 1
+        },
+        {
+          label: 'Previsto',
+          data: data.monthly.forecast,
+          borderRadius: 8,
+          backgroundColor: 'rgba(110, 231, 183, 0.45)',
+          borderColor: 'rgba(110, 231, 183, 0.9)',
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: '#dbe7f3',
+            boxWidth: 10,
+            boxHeight: 10,
+            useBorderRadius: true
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(Number(ctx.parsed.y) || 0)}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: '#9fb1c6', maxRotation: 0 }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(148, 163, 184, 0.14)' },
+          ticks: {
+            color: '#9fb1c6',
+            callback: (value) => formatCurrency(Number(value) || 0)
+          }
+        }
+      }
+    }
+  });
+};
+
 /* ── Model campaign rendering helpers ──────────────────────── */
 
 const renderModelOutreachBar = (campaign) => {
@@ -1074,6 +1522,44 @@ const renderModelAdvanceBtn = (campaign) => {
     <button class="btn-convert-inline" data-action="convert-to-real" data-campaign-id="${campaign.id}" type="button">
       Trocar para campanha real
     </button>
+  `;
+};
+
+const getCampaignOnboardingGuideHtml = () => {
+  const onboarding = state.progress && typeof state.progress === 'object' ? state.progress.onboarding : null;
+  if (!onboarding || onboarding.quizDone !== true || onboarding.firstCampaignCreated === true) return '';
+
+  const totalCampaigns = Array.isArray(state.campaigns) ? state.campaigns.length : 0;
+  if (totalCampaigns > 0) return '';
+
+  const hasBrands = Array.isArray(state.brands) && state.brands.length > 0;
+  const primaryAction = hasBrands
+    ? `
+      <button class="btn btn-primary btn-small" data-action="new-campaign" type="button">
+        Iniciar minha campanha
+      </button>
+    `
+    : `
+      <button class="btn btn-primary btn-small" data-action="open-brand-modal" data-brand-modal-context="campaign" type="button">
+        Criar marca primeiro
+      </button>
+    `;
+
+  return `
+    <div class="card campaign-onboarding-card">
+      <div>
+        <p class="dashboard-eyebrow">Passo a passo</p>
+        <h3 class="campaign-onboarding-title">Como criar sua primeira campanha</h3>
+      </div>
+      <ol class="campaign-onboarding-list">
+        <li>${hasBrands ? 'Clique em "Nova campanha".' : 'Crie sua primeira marca para poder vincular a campanha.'}</li>
+        <li>${hasBrands ? 'Preencha marca, origem, valor e prazo no modal.' : 'Depois clique em "Nova campanha" para abrir o cadastro.'}</li>
+        <li>Defina a próxima ação e salve. O sistema vai te guiar campo a campo.</li>
+      </ol>
+      <div class="campaign-onboarding-actions">
+        ${primaryAction}
+      </div>
+    </div>
   `;
 };
 
@@ -1192,8 +1678,10 @@ const renderCampaigns = () => {
     `
     : '';
 
+  const onboardingGuideHtml = getCampaignOnboardingGuideHtml();
+
   if (!list.length) {
-    container.innerHTML = `${dashboardFilterBanner}<div class="card">Nenhuma campanha encontrada nesse filtro.</div>`;
+    container.innerHTML = `${dashboardFilterBanner}${onboardingGuideHtml}<div class="card">Nenhuma campanha encontrada nesse filtro.</div>`;
     return;
   }
 
@@ -2139,6 +2627,7 @@ const renderAll = () => {
   renderCampaigns();
   renderBrands();
   renderFinancePage();
+  renderMetricsPage();
   renderSettings();
   setScriptOutput('');
 };

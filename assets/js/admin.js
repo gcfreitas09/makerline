@@ -56,7 +56,6 @@ const getEls = () => ({
   deleteModal: document.getElementById('admin-delete-modal'),
   deleteTitle: document.getElementById('admin-delete-title'),
   deleteSubtitle: document.getElementById('admin-delete-subtitle'),
-  deleteConfirm: document.getElementById('admin-delete-confirm'),
   deleteMsg: document.getElementById('admin-delete-msg')
 });
 
@@ -275,7 +274,7 @@ const setDeleteMessage = (text) => {
 };
 
 const openDeleteModal = (userId) => {
-  const { deleteModal, deleteTitle, deleteSubtitle, deleteConfirm } = getEls();
+  const { deleteModal, deleteTitle, deleteSubtitle } = getEls();
   if (!deleteModal) return;
 
   const target = state.users.find((u) => String(u.id) === String(userId));
@@ -296,28 +295,18 @@ const openDeleteModal = (userId) => {
   }
 
   setDeleteMessage('');
-  if (deleteConfirm) deleteConfirm.value = '';
 
   deleteModal.classList.add('open');
   deleteModal.setAttribute('aria-hidden', 'false');
-
-  if (deleteConfirm) {
-    setTimeout(() => {
-      try {
-        deleteConfirm.focus();
-      } catch (e) {}
-    }, 0);
-  }
 };
 
 const closeDeleteModal = () => {
-  const { deleteModal, deleteConfirm } = getEls();
+  const { deleteModal } = getEls();
   if (!deleteModal) return;
   deleteModal.classList.remove('open');
   deleteModal.setAttribute('aria-hidden', 'true');
   state.deleteUserId = null;
   setDeleteMessage('');
-  if (deleteConfirm) deleteConfirm.value = '';
 };
 
 const confirmDeleteUser = async () => {
@@ -325,20 +314,13 @@ const confirmDeleteUser = async () => {
   if (!sessionToken) return;
   if (!state.deleteUserId) return;
 
-  const { deleteConfirm } = getEls();
-  const confirm = String(deleteConfirm?.value || '').trim();
-  if (!confirm) {
-    setDeleteMessage('Digita EXCLUIR pra confirmar.');
-    return;
-  }
-
   setDeleteMessage('Excluindo...');
 
   try {
     const res = await fetch('api/admin_delete_user.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: sessionToken, userId: state.deleteUserId, confirm })
+      body: JSON.stringify({ token: sessionToken, userId: state.deleteUserId })
     });
 
     const data = await res.json().catch(() => null);

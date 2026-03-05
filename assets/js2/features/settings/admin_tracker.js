@@ -3,6 +3,7 @@ const ADMIN_USERS_CACHE_TTL_MS = 5 * 60 * 1000;
 
 let trackerRequest = null;
 let trackerLoaded = false;
+const TRACKER_ALLOWED_EMAILS = new Set(['fgui3662@gmail.com', 'lorenzo.ritter27@gmail.com']);
 
 const getEls = () => ({
   card: document.getElementById('admin-tracker-card'),
@@ -89,9 +90,26 @@ const getSessionUserId = () => {
   }
 };
 
+const getSessionEmail = () => {
+  try {
+    return (sessionStorage.getItem('ugcQuestUserEmail') || '').trim().toLowerCase();
+  } catch (e) {
+    return '';
+  }
+};
+
+const isTrackerAllowedUser = () => {
+  const email = getSessionEmail();
+  return Boolean(email && TRACKER_ALLOWED_EMAILS.has(email));
+};
+
 const initAdminTrackerCard = () => {
   const { card } = getEls();
   if (!card) return;
+  if (!isTrackerAllowedUser()) {
+    card.style.display = 'none';
+    return;
+  }
   if (window.location.protocol === 'file:') return;
 
   const token = getSessionToken();

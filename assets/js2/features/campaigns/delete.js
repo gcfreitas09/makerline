@@ -5,7 +5,6 @@ import { showToast } from '../../core/ui.js?v=20260302f';
 const getCampaignDeleteModal = () => ({
   modal: document.getElementById('campaign-delete-modal'),
   form: document.getElementById('campaign-delete-form'),
-  input: document.getElementById('campaign-delete-input'),
   title: document.getElementById('campaign-delete-title'),
   msg: document.getElementById('campaign-delete-msg'),
   confirm: document.getElementById('campaign-delete-confirm')
@@ -19,8 +18,8 @@ const formatCampaignTitle = (campaign) => {
 };
 
 const openCampaignDeleteModal = (campaignId) => {
-  const { modal, input, title, msg, confirm } = getCampaignDeleteModal();
-  if (!modal || !input) return;
+  const { modal, title, msg, confirm } = getCampaignDeleteModal();
+  if (!modal) return;
 
   const campaign = (Array.isArray(state.campaigns) ? state.campaigns : []).find((item) => item.id === campaignId);
   if (!campaign) return;
@@ -28,41 +27,32 @@ const openCampaignDeleteModal = (campaignId) => {
   modal.dataset.campaignId = campaignId;
   if (title) title.textContent = `Campanha: ${formatCampaignTitle(campaign)}`;
   if (msg) msg.textContent = '';
-  input.value = '';
-  if (confirm) confirm.disabled = true;
+  if (confirm) confirm.disabled = false;
 
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
-  window.setTimeout(() => input.focus(), 0);
+  if (confirm) window.setTimeout(() => confirm.focus(), 0);
 };
 
 const closeCampaignDeleteModal = () => {
-  const { modal, input, title, msg, confirm } = getCampaignDeleteModal();
+  const { modal, title, msg, confirm } = getCampaignDeleteModal();
   if (!modal) return;
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
   modal.dataset.campaignId = '';
-  if (input) input.value = '';
   if (title) title.textContent = '';
   if (msg) msg.textContent = '';
-  if (confirm) confirm.disabled = true;
+  if (confirm) confirm.disabled = false;
 };
 
 const handleCampaignDeleteSubmit = (event) => {
   event.preventDefault();
-  const { modal, input, msg } = getCampaignDeleteModal();
-  if (!modal || !input) return;
+  const { modal } = getCampaignDeleteModal();
+  if (!modal) return;
 
   const id = modal.dataset.campaignId;
   if (!id) {
     closeCampaignDeleteModal();
-    return;
-  }
-
-  const typed = String(input.value || '').trim().toLowerCase();
-  if (typed !== 'excluir') {
-    if (msg) msg.textContent = 'Digita EXCLUIR pra confirmar.';
-    input.focus();
     return;
   }
 
@@ -81,19 +71,12 @@ const handleCampaignDeleteSubmit = (event) => {
 };
 
 const initCampaignDeleteFeature = () => {
-  const { form, input, confirm, msg, modal } = getCampaignDeleteModal();
+  const { form, modal } = getCampaignDeleteModal();
   if (!form || !modal) return;
   if (form.dataset.bound === '1') return;
   form.dataset.bound = '1';
 
   form.addEventListener('submit', handleCampaignDeleteSubmit);
-
-  if (input && confirm) {
-    input.addEventListener('input', () => {
-      if (msg) msg.textContent = '';
-      confirm.disabled = String(input.value || '').trim().toLowerCase() !== 'excluir';
-    });
-  }
 };
 
 export { initCampaignDeleteFeature, openCampaignDeleteModal, closeCampaignDeleteModal };

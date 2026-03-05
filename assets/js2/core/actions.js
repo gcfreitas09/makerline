@@ -1,41 +1,41 @@
 ﻿import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
-import { setActivePage, showToast } from './ui.js?v=20260302g';
+import { setActivePage, showToast } from './ui.js?v=20260304b';
 import { trackEvent } from './gamification.js?v=20260302g';
-import { renderAll } from './renderers.js?v=20260302g';
+import { renderAll } from './renderers.js?v=20260304c';
 
 import {
   closeCampaignModal,
   initCampaignForm,
   openCampaignModal
-} from '../features/campaigns/modal.js?v=20260302f';
+} from '../features/campaigns/modal.js?v=20260304d';
 import {
   closeBrandModal,
   initBrandForm,
   openBrandModal
-} from '../features/brands/modal.js?v=20260302f';
+} from '../features/brands/modal.js?v=20260304d';
 import {
   closeBrandDeleteModal,
   initBrandDeleteFeature,
   openBrandDeleteModal
-} from '../features/brands/delete.js?v=20260302f';
+} from '../features/brands/delete.js?v=20260304c';
 import {
   closeCampaignDeleteModal,
   initCampaignDeleteFeature,
   openCampaignDeleteModal
-} from '../features/campaigns/delete.js?v=20260302f';
+} from '../features/campaigns/delete.js?v=20260304c';
 import { initScriptFlow } from '../features/scripts/flow.js?v=20260302f';
 import {
   closeScriptDeleteModal,
   initScriptDeleteFeature,
   openScriptDeleteModal
-} from '../features/scripts/delete.js?v=20260302f';
+} from '../features/scripts/delete.js?v=20260304c';
 import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js?v=20260302f';
 import { initAccountForm } from '../features/settings/account.js?v=20260302f';
-import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260217b';
+import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260304c';
 import { syncWeeklySetting } from '../features/settings/weekly.js?v=20260302f';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
 import { sendWeeklySummaryNow } from '../features/settings/weekly_summary.js?v=20260302f';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260302f';
+import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260304d';
 
 /* â”€â”€ Money mask helper â”€â”€ */
 const formatMoneyInput = (raw) => {
@@ -312,7 +312,9 @@ const handleActionClick = (event) => {
   }
 
   if (action === 'goto-metrics' || action === 'goto-performance') {
-    setActivePage('dashboard');
+    setActivePage('metrics');
+    saveState();
+    renderAll();
     return;
   }
 
@@ -357,6 +359,13 @@ const handleActionClick = (event) => {
     return;
   }
 
+  if (action === 'close-metrics-status-modal') {
+    state.ui.metricsStatusOpen = '';
+    saveState();
+    renderAll();
+    return;
+  }
+
   if (action === 'open-dashboard-pipeline-filter') {
     const pipelineFilter = String(actionEl.dataset.pipelineFilter || '').trim();
     const statusByPipelineFilter = {
@@ -372,6 +381,27 @@ const handleActionClick = (event) => {
     state.ui.campaignDashboardFilter = pipelineFilter;
     state.ui.campaignFilter = statusByPipelineFilter[pipelineFilter] || 'all';
     state.ui.dashboardPipelineOpen = pipelineFilter;
+    saveState();
+    setActivePage('campaigns');
+    renderAll();
+    return;
+  }
+
+  if (action === 'open-metrics-status') {
+    const status = String(actionEl.dataset.metricsStatus || '').trim();
+    if (!['prospeccao', 'producao', 'finalizacao', 'concluida'].includes(status)) return;
+    state.ui.metricsStatusOpen = state.ui.metricsStatusOpen === status ? '' : status;
+    saveState();
+    renderAll();
+    return;
+  }
+
+  if (action === 'open-metrics-campaigns') {
+    const status = String(actionEl.dataset.metricsStatus || '').trim();
+    if (!status) return;
+    state.ui.campaignDashboardFilter = '';
+    state.ui.campaignFilter = ['prospeccao', 'producao', 'finalizacao', 'concluida'].includes(status) ? status : 'all';
+    state.ui.metricsStatusOpen = '';
     saveState();
     setActivePage('campaigns');
     renderAll();
@@ -850,6 +880,10 @@ const handleNavClick = (event) => {
     saveState();
     renderAll();
   }
+  if (target === 'metrics') {
+    saveState();
+    renderAll();
+  }
 };
 
 const handleFilterClick = (event) => {
@@ -882,6 +916,14 @@ const handleChange = (event) => {
     const range = Number(target.value);
     state.ui.financeRangeDays = [0, 15, 30, 45, 90].includes(range) ? range : 30;
     state.ui.financeExpandedCampaignId = '';
+    saveState();
+    renderAll();
+    return;
+  }
+
+  if (target.matches('[data-metrics-range]')) {
+    const range = Number(target.value);
+    state.ui.metricsRangeDays = [0, 15, 30, 45, 90].includes(range) ? range : 30;
     saveState();
     renderAll();
     return;

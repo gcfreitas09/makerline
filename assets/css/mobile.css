@@ -177,6 +177,15 @@ ampaign-status-stage select option {
     grid-template-columns: 1fr;
   }
 
+  .metrics-overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metrics-funnel-grid,
+  .metrics-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
   .dashboard-pipeline-track {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px 14px;
@@ -231,6 +240,52 @@ ampaign-status-stage select option {
   .finance-indicators-grid,
   .finance-campaign-details-grid {
     grid-template-columns: 1fr;
+  }
+
+  .metrics-page-filter {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .metrics-overview-card,
+  .metrics-funnel-card,
+  .metrics-monthly-card,
+  .metrics-insights-card {
+    padding: 18px;
+  }
+
+  .metrics-overview-grid,
+  .metrics-funnel-grid,
+  .metrics-indicators-grid,
+  .metrics-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-status-list {
+    display: none;
+  }
+
+  .metrics-chart-wrap {
+    height: 240px;
+  }
+
+  .metrics-status-panel-title {
+    font-size: 25px;
+  }
+
+  .metrics-status-panel-head,
+  .metrics-status-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .metrics-status-item-main strong {
+    font-size: 18px;
+  }
+
+  .metrics-status-item-meta {
+    justify-items: start;
+    text-align: left;
   }
 
   .finance-campaign-summary {
@@ -323,6 +378,18 @@ ampaign-status-stage select option {
     max-height: min(88vh, 720px);
   }
 
+  .metrics-status-modal-panel {
+    width: min(560px, 100%);
+    max-height: min(88vh, 720px);
+  }
+
+  .dashboard-campaigns-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+    font-size: 14px;
+  }
+
   .dashboard-metric-value {
     font-size: 28px;
   }
@@ -350,10 +417,25 @@ ampaign-status-stage select option {
     gap: 14px;
     width: 100%;
     min-width: 0;
+    padding: 16px 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: linear-gradient(165deg, rgba(10, 24, 41, 0.94), rgba(7, 16, 30, 0.88));
+    box-shadow: 0 10px 24px rgba(2, 8, 23, 0.24);
+  }
+
+  .brand-table-body {
+    display: grid;
+    gap: 14px;
+  }
+
+  .brand-table-row.is-active {
+    border-color: rgba(34, 211, 238, 0.45);
+    box-shadow: 0 12px 28px rgba(6, 23, 42, 0.32);
   }
 
   .brand-table-cell {
-    gap: 4px;
+    gap: 6px;
   }
 
   .brand-table-cell::before {
@@ -404,6 +486,125 @@ ampaign-status-stage select option {
   .campaign-context-banner {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .campaign-onboarding-card {
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .campaign-onboarding-title {
+    font-size: 1.06rem;
+  }
+
+  .campaign-onboarding-list {
+    padding-left: 18px;
+    gap: 7px;
+    font-size: 0.9rem;
+  }
+
+  .campaign-onboarding-actions .btn {
+    width: 100%;
+  }
+
+  .campaign-table {
+    border-spacing: 0 14px;
+  }
+
+  .campaign-table tr {
+    padding: 14px 14px 12px;
+    margin-bottom: 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: linear-gradient(165deg, rgba(10, 20, 36, 0.96), rgba(8, 16, 29, 0.9));
+    box-shadow: 0 10px 24px rgba(2, 8, 23, 0.24);
+  }
+
+  .campaign-table td {
+    padding: 8px 0;
+    border: none;
+    background: transparent;
+  }
+
+  .campaign-table td + td {
+    border-top: none;
+  }
+
+  .campaign-table td::before {
+    margin-bottom: 5px;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+
+  .campaign-table td[data-label="Prazo"],
+  .campaign-table td[data-label="Preço"],
+  .campaign-table td[data-label="PreÃ§o"] {
+    grid-column: span 1;
+  }
+
+  .campaign-table td[data-label="Status"],
+  .campaign-table td[data-label="Etapa"] {
+    margin-top: 2px;
+  }
+
+  .campaign-table td[data-label="Avançar"],
+  .campaign-table td[data-label="AvanÃ§ar"] {
+    margin-top: 4px;
+    padding-top: 8px;
+  }
+
+  .campaign-table td[data-label="Ações"],
+  .campaign-table td[data-label="AÃ§Ãµes"] {
+    margin-top: 6px;
+    padding-top: 8px;
+  }
+
+  .campaign-table .campaign-priority {
+    border: 1.5px solid rgba(245, 158, 11, 0.88) !important;
+    border-radius: 20px !important;
+    background: linear-gradient(165deg, rgba(44, 32, 10, 0.9), rgba(26, 20, 10, 0.84)) !important;
+    box-shadow: inset 0 0 16px rgba(245, 158, 11, 0.12), 0 10px 24px rgba(2, 8, 23, 0.22) !important;
+  }
+
+  .campaign-table .campaign-priority::after {
+    display: none !important;
+  }
+
+  .campaign-table .campaign-priority td {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Fallback for correctly encoded data-label values on mobile */
+  .campaign-table td[data-label="Pre\00e7o"] {
+    grid-column: span 1;
+  }
+
+  .campaign-table td[data-label="Avan\00e7ar"] {
+    margin-top: 4px;
+    padding-top: 8px;
+  }
+
+  .campaign-table td[data-label="A\00e7\00f5es"] {
+    margin-top: 6px;
+    padding-top: 8px;
+  }
+
+  .campaign-action-btns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+  }
+
+  .campaign-action-btns .btn-action {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+    border-radius: 12px;
+    font-size: 12.5px;
+    padding: 8px 10px;
   }
 
 }
