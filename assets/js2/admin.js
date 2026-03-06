@@ -135,7 +135,7 @@ const render = () => {
 	    .map((user) => {
       const weekly = user.weeklySummary ? 'Ativo' : 'Off';
       const isSelf = String(user.id) === String(sessionUserId);
-      const canDelete = !isSelf && !user.weeklySummary;
+      const canDelete = !isSelf;
 	      return `
 	        <tr>
 	          <td>${user.email || '-'}</td>
