@@ -4779,7 +4779,7 @@ button[data-action="bonus-xp"] {
   left: 50%;
   transform: translateX(-50%);
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   background: var(--bg-700);
   color: var(--text);
@@ -4788,18 +4788,23 @@ button[data-action="bonus-xp"] {
   padding: 8px 12px;
   border-radius: var(--radius-sm);
   border: 1px solid rgba(45, 212, 191, 0.3);
-  white-space: nowrap;
+  white-space: normal;
+  width: max-content;
+  max-width: min(360px, calc(100vw - 24px));
+  box-sizing: border-box;
   pointer-events: auto;
   z-index: 80;
   animation: onbTooltipFade 0.3s ease;
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
 }
 
 .onboarding-tooltip-text {
-  display: inline-flex;
-  align-items: center;
+  display: block;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .onboarding-tooltip-close {

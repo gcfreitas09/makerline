@@ -35,7 +35,7 @@ import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20
 import { syncWeeklySetting } from '../features/settings/weekly.js?v=20260302f';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
 import { sendWeeklySummaryNow } from '../features/settings/weekly_summary.js?v=20260302f';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260304d';
+import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260306b';
 
 /* â”€â”€ Money mask helper â”€â”€ */
 const formatMoneyInput = (raw) => {

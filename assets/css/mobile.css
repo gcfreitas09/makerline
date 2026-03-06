@@ -507,6 +507,12 @@ ampaign-status-stage select option {
     width: 100%;
   }
 
+  .onboarding-tooltip {
+    max-width: calc(100vw - 20px);
+    font-size: 11px;
+    padding: 7px 10px;
+  }
+
   .campaign-table {
     border-spacing: 0 14px;
   }

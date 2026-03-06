@@ -326,9 +326,23 @@ const startCampaignHighlight = () => {
       host.style.position = 'relative';
     }
 
+    const dismissOnFollow = () => {
+      removeCampaignHighlight();
+    };
+    btn.addEventListener('click', dismissOnFollow, { once: true });
+
     tip.style.top = `${btn.offsetTop + btn.offsetHeight + 10}px`;
     tip.style.left = `${btn.offsetLeft + btn.offsetWidth / 2}px`;
     host.appendChild(tip);
+
+    const hostRect = host.getBoundingClientRect();
+    const tipRect = tip.getBoundingClientRect();
+    const horizontalPad = 10;
+    const minCenter = horizontalPad + tipRect.width / 2;
+    const maxCenter = window.innerWidth - horizontalPad - tipRect.width / 2;
+    const rawCenter = hostRect.left + btn.offsetLeft + btn.offsetWidth / 2;
+    const safeCenter = Math.max(minCenter, Math.min(maxCenter, rawCenter));
+    tip.style.left = `${safeCenter - hostRect.left}px`;
   }, 400);
 };
 
