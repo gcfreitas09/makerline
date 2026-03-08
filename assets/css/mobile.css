@@ -156,7 +156,7 @@
   }
 }
 
-ampaign-status-stage select option {
+.campaign-status-stage select option {
   white-space: normal;
   font-size: 15px;
   background: #181829;
@@ -508,9 +508,9 @@ ampaign-status-stage select option {
   }
 
   .onboarding-tooltip {
-    max-width: calc(100vw - 20px);
-    font-size: 11px;
-    padding: 7px 10px;
+    max-width: calc(100vw - 24px);
+    font-size: 10.5px;
+    padding: 6px 9px;
   }
 
   .campaign-table {
@@ -618,5 +618,24 @@ ampaign-status-stage select option {
 @media (max-width: 520px) {
   .finance-overview-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .campaign-wizard-progress {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-wizard-actions,
+  .campaign-submit-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .campaign-wizard-actions .btn,
+  .campaign-submit-actions .btn {
+    width: 100%;
+    min-width: 0;
   }
 }

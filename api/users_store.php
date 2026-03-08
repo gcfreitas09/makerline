@@ -952,8 +952,11 @@ function users_store_delete_by_id($id)
             users_store_set_error((string)($res['error'] ?? 'Falha ao excluir usuário no Supabase.'));
             return false;
         }
-        if (is_array($res['data']) && count($res['data']) < 1) {
-            users_store_set_error('Usuário não encontrado.');
+        // Em alguns cenários o Supabase retorna 204/sem payload mesmo quando remove.
+        // Confirma por leitura: se não existir mais, considera sucesso.
+        $remaining = users_store_find_by_id($id);
+        if (is_array($remaining) && !empty($remaining)) {
+            users_store_set_error('Usuário não encontrado ou não foi possível excluir.');
             return false;
         }
         return true;

@@ -10,10 +10,6 @@ header('Expires: 0');
 
 $adminsFile = __DIR__ . '/../storage/admins.json';
 $adminsExampleFile = __DIR__ . '/../storage/admins.example.json';
-$internalOwnerEmails = [
-    'fgui3662@gmail.com',
-    'lorenzo.ritter27@gmail.com'
-];
 
 function respond($status, $data = [])
 {
@@ -154,26 +150,41 @@ function loadCampaignCountsByUserIds($userIds)
     $ids = array_keys($ids);
     if (!$ids) return [];
 
-    $counts = loadCampaignCountsFromLocalStateFiles($ids);
-    $missing = [];
-    foreach ($ids as $id) {
-        if (!array_key_exists($id, $counts)) $missing[] = $id;
-    }
-    if ($missing) {
-        $remoteCounts = loadCampaignCountsFromSupabase($missing);
+    $counts = [];
+    $isSupabaseStates = function_exists('states_store_backend') && states_store_backend() === 'supabase';
+
+    if ($isSupabaseStates) {
+        // Fonte de verdade quando states está no Supabase: evita usar arquivo local desatualizado.
+        $remoteCounts = loadCampaignCountsFromSupabase($ids);
         foreach ($remoteCounts as $id => $count) {
-            $counts[$id] = (int)$count;
+            $counts[(string)$id] = (int)$count;
+        }
+
+        // Fallback local somente para IDs que não vieram do Supabase.
+        $missing = [];
+        foreach ($ids as $id) {
+            if (!array_key_exists($id, $counts)) $missing[] = $id;
+        }
+        if ($missing) {
+            $localCounts = loadCampaignCountsFromLocalStateFiles($missing);
+            foreach ($localCounts as $id => $count) {
+                $counts[(string)$id] = (int)$count;
+            }
+        }
+    } else {
+        $localCounts = loadCampaignCountsFromLocalStateFiles($ids);
+        foreach ($localCounts as $id => $count) {
+            $counts[(string)$id] = (int)$count;
+        }
+    }
+
+    // Garante retorno consistente para todos IDs.
+    foreach ($ids as $id) {
+        if (!array_key_exists($id, $counts)) {
+            $counts[$id] = 0;
         }
     }
     return $counts;
-}
-
-function filterClients($users, $internalOwnerEmails)
-{
-    return array_filter($users, function ($user) use ($internalOwnerEmails) {
-        $email = strtolower(trim((string)($user['email'] ?? '')));
-        return $email !== '' && !in_array($email, $internalOwnerEmails, true);
-    });
 }
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -208,20 +219,18 @@ if ($expires && $expires < $now) {
 }
 
 $adminEmails = loadAdmins($adminsFile, $adminsExampleFile);
-$internalEmails = array_values(array_unique(array_merge($adminEmails, $internalOwnerEmails)));
 $currentEmail = strtolower(trim((string)($foundUser['email'] ?? '')));
 if (!$currentEmail || !in_array($currentEmail, $adminEmails, true)) {
     respond(403, ['error' => 'Sem permissao pra ver isso.']);
 }
 
 $users = users_store_load_all();
-$users = filterClients($users, $internalOwnerEmails);
 
 $list = [];
 $userIds = [];
 foreach ($users as $user) {
     $email = strtolower(trim((string)($user['email'] ?? '')));
-    if ($email === '' || in_array($email, $internalEmails, true)) {
+    if ($email === '') {
         continue;
     }
 

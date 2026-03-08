@@ -625,7 +625,7 @@ const renderDashboardFinancials = () => {
             </div>
           </div>
           <div class="dashboard-item-actions">
-            <button class="btn btn-primary btn-small" data-action="mark-payment-received" data-campaign-id="${item.id}" type="button">Marcar como recebido</button>
+            <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${item.id}" type="button">Abrir campanha</button>
           </div>
         </article>
       `).join('')
@@ -1079,11 +1079,7 @@ const renderFinancePage = () => {
                     <span>Etapa atual</span>
                     <strong>${escapeHtml(item.stageLabel)}</strong>
                   </div>
-                  ${
-                    item.statusKey !== 'recebido'
-                      ? `<button class="btn btn-primary btn-small" data-action="mark-payment-received" data-campaign-id="${item.id}" type="button">Marcar como recebido</button>`
-                      : ''
-                  }
+                  <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${item.id}" type="button">Abrir campanha</button>
                 </div>
               </div>
             </article>
@@ -1960,8 +1956,8 @@ const renderBrands = () => {
   listContainer.innerHTML = `
     <div class="brand-list-table">
       <div class="brand-table-head">
-        <span>Marca</span>
         <span>Status</span>
+        <span>Marca</span>
         <span>Ação pendente</span>
         <span>Próximo follow-up</span>
         <span>Total faturado</span>
@@ -1979,12 +1975,12 @@ const renderBrands = () => {
               : '<span class="chip chip-pill chip-brand-neutral">Sem pendência</span>';
             return `
               <div class="brand-table-row ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
+                <div class="brand-table-cell brand-table-cell--status" data-label="Status">
+                  <span class="chip chip-pill chip-brand-status chip-brand-status--${escapeHtml(item.brand.status)}">${escapeHtml(brandStatuses[item.brand.status] || item.brand.status)}</span>
+                </div>
                 <div class="brand-table-cell brand-table-cell--primary" data-label="Marca">
                   <strong>${escapeHtml(item.brand.name || 'Marca')}</strong>
                   <span class="muted">${escapeHtml(item.brand.contact || item.brand.instagram || item.brand.email || 'Sem contato principal')}</span>
-                </div>
-                <div class="brand-table-cell brand-table-cell--status" data-label="Status">
-                  <span class="chip chip-pill chip-brand-status chip-brand-status--${escapeHtml(item.brand.status)}">${escapeHtml(brandStatuses[item.brand.status] || item.brand.status)}</span>
                 </div>
                 <div class="brand-table-cell brand-table-cell--pending" data-label="Ação pendente">
                   ${actionChip}

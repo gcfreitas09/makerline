@@ -433,13 +433,6 @@
         <div class="settings-grid">
           <div class="toggle">
             <div>
-              <div>Resumo semanal</div>
-              <p class="muted">Receba um resumão por e-mail.</p>
-            </div>
-            <input type="checkbox" data-setting="weekly" />
-          </div>
-          <div class="toggle">
-            <div>
               <div>Alertas de campanha</div>
               <p class="muted">Lembretes de entregas e revisões.</p>
             </div>
@@ -455,24 +448,6 @@
         </div>
 
 
-
-        <div style="margin-top: 18px;"></div>
-        <div class="card">
-          <div class="section-header" style="margin-bottom: 12px;">
-            <div>
-              <h3>Resumo semanal</h3>
-              <p class="section-subtitle">Receba um resumo completo da sua semana por e-mail.</p>
-            </div>
-            <button class="btn btn-ghost" data-action="send-weekly-summary" type="button">Enviar agora</button>
-          </div>
-          <div class="muted" id="weekly-summary-msg"></div>
-          <div class="script-output" id="weekly-summary-preview" style="margin-top: 12px; display: none;"></div>
-          <div id="weekly-summary-actions" style="margin-top: 12px; display: none; align-items: center; gap: 10px;">
-            <button class="btn btn-ghost btn-small" data-action="copy-weekly-preview" type="button">Copiar texto</button>
-            <a class="auth-link" href="api/email_log.php" target="_blank" rel="noopener">Abrir log</a>
-            <a class="auth-link" href="api/smtp_example.php" target="_blank" rel="noopener">Ver exemplo SMTP</a>
-          </div>
-        </div>
 
         <div style="margin-top: 18px;"></div>
         <div class="card">
@@ -529,7 +504,14 @@
 
       <form class="form-grid" id="campaign-form">
         <input type="hidden" name="id" />
-        <div class="form-row">
+
+        <div class="campaign-wizard-progress" data-campaign-wizard-progress>
+          <span class="campaign-wizard-step is-active" data-step="1">1. Base</span>
+          <span class="campaign-wizard-step" data-step="2">2. Financeiro</span>
+          <span class="campaign-wizard-step" data-step="3">3. Entrega</span>
+        </div>
+
+        <div class="form-row" data-campaign-step="1">
           <label>Marca</label>
           <div class="form-split">
             <select class="select" name="brandId" data-campaign-brand-select required>
@@ -539,7 +521,7 @@
           </div>
           <div class="muted">Toda campanha precisa estar vinculada a uma marca.</div>
         </div>
-        <div class="form-row">
+        <div class="form-row" data-campaign-step="1">
           <label>Como começou</label>
           <select class="select" name="startMethod">
             <option value="">Escolher...</option>
@@ -553,11 +535,22 @@
           </select>
         </div>
 
-        <div class="form-row" id="campaign-start-other-row" style="display:none;">
+        <div class="form-row" id="campaign-start-other-row" style="display:none;" data-campaign-step="1">
           <label>Conta mais (opcional)</label>
           <input class="input" name="startMethodOther" type="text" placeholder="Ex: indicação, evento, agência..." />
         </div>
-        <div class="form-row">
+
+        <div class="form-row" data-campaign-step="1">
+          <label>Contato da marca</label>
+          <input class="input" name="contactName" type="text" placeholder="Ex: Ana / João" />
+        </div>
+
+        <div class="form-row" data-campaign-step="1">
+          <label>Email de contato</label>
+          <input class="input" name="contactEmail" type="email" placeholder="contato@marca.com" />
+        </div>
+
+        <div class="form-row" data-campaign-step="2">
           <label>Valor recebido (R$)</label>
           <div class="form-split">
             <input class="input" name="value" type="text" inputmode="numeric" placeholder="R$ 0" data-money />
@@ -573,32 +566,25 @@
           </div>
           <div class="muted">Pode ser dinheiro, permuta ou os dois. Se não recebeu em dinheiro, deixa R$ 0.</div>
         </div>
-        <div class="form-row">
+
+        <div class="form-row" data-campaign-step="2">
           <label>Quando irá receber? (opcional)</label>
           <input class="input" name="paymentDate" type="date" />
         </div>
-        <div class="form-row">
+
+        <div class="form-row" data-campaign-step="2">
           <label>Recebido em (opcional)</label>
           <input class="input" name="paymentReceivedAt" type="date" />
           <div class="muted">Se já recebeu, essa data ajuda a fechar o financeiro do mês.</div>
         </div>
-        <div class="form-row">
-          <label>Contato da marca</label>
-          <input class="input" name="contactName" type="text" placeholder="Ex: Ana / João" />
-        </div>
-        <div class="form-row">
-          <label>Email de contato</label>
-          <div class="form-split">
-            <input class="input" name="contactEmail" type="email" placeholder="contato@marca.com" style="flex:1" />
-            <a class="btn btn-ghost btn-small" id="campaign-mailto-btn" href="#" style="display:none" target="_blank" rel="noopener">Enviar email</a>
-          </div>
-        </div>
-        <div class="form-row">
+
+        <div class="form-row" data-campaign-step="3">
           <label>Prazo</label>
           <input class="input" name="dueDate" type="date" />
           <div class="muted">Pra não deixar nada escapar.</div>
         </div>
-        <div class="form-row">
+
+        <div class="form-row" data-campaign-step="3">
           <label>Próxima ação</label>
           <select class="select" name="nextActionType">
             <option value="">Sem ação pendente</option>
@@ -613,19 +599,23 @@
             <option value="outro">Outro</option>
           </select>
         </div>
-        <div class="form-row" id="campaign-next-action-custom-row" style="display:none;">
+
+        <div class="form-row" id="campaign-next-action-custom-row" style="display:none;" data-campaign-step="3">
           <label>Tipo personalizado</label>
           <input class="input" name="nextActionCustomType" type="text" maxlength="80" placeholder="Ex: reenviar briefing" />
         </div>
-        <div class="form-row">
+
+        <div class="form-row" data-campaign-step="3">
           <label>Data da próxima ação</label>
           <input class="input" name="nextActionDate" type="date" />
         </div>
-        <div class="form-row">
+
+        <div class="form-row" data-campaign-step="3">
           <label>Observação curta</label>
           <input class="input" name="nextActionNote" type="text" maxlength="140" placeholder="Ex: cobrar retorno da Ana até 17h" />
         </div>
-        <div class="form-row">
+
+        <div class="form-row" data-campaign-step="3">
           <label>Estado</label>
           <select class="select" name="lifecycle">
             <option value="active">Ativa</option>
@@ -633,8 +623,17 @@
             <option value="archived">Arquivada</option>
           </select>
         </div>
-        <button class="btn btn-primary" type="submit">Salvar campanha</button>
-        <button class="btn btn-danger" type="button" id="campaign-delete-inline-btn" data-action="delete-campaign" style="display:none;">Excluir campanha</button>
+
+        <div class="campaign-wizard-actions" data-campaign-wizard-actions>
+          <button class="btn btn-ghost" id="campaign-step-prev-btn" type="button">Voltar</button>
+          <button class="btn btn-primary" id="campaign-step-next-btn" type="button">Próximo</button>
+        </div>
+
+        <div class="campaign-submit-actions" data-campaign-step="3">
+          <button class="btn btn-primary" type="submit">Salvar campanha</button>
+          <button class="btn btn-danger" type="button" id="campaign-delete-inline-btn" data-action="delete-campaign" style="display:none;">Excluir campanha</button>
+        </div>
+
         <div class="muted" id="campaign-msg"></div>
       </form>
     </div>

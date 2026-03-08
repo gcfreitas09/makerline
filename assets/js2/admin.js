@@ -190,7 +190,10 @@ const openDeleteModal = (userId) => {
   if (!deleteModal) return;
 
   const target = state.users.find((u) => String(u.id) === String(userId));
-  if (!target) return;
+  if (!target) {
+    showMessage('Conta não encontrada na lista atual.');
+    return;
+  }
 
   if (String(target.id) === String(sessionUserId)) {
     showMessage('Essa e sua conta. Melhor nao apagar por aqui.');
@@ -226,13 +229,14 @@ const confirmDeleteUser = async () => {
   if (!sessionToken) return;
   if (!state.deleteUserId) return;
 
+  const deletingUserId = String(state.deleteUserId);
   setDeleteMessage('Excluindo...');
 
   try {
     const res = await fetch('api/admin_delete_user.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: sessionToken, userId: state.deleteUserId })
+      body: JSON.stringify({ token: sessionToken, userId: deletingUserId })
     });
 
     const data = await res.json().catch(() => null);
@@ -242,16 +246,23 @@ const confirmDeleteUser = async () => {
     }
 
     if (!res.ok || !data || data.ok !== true) {
-      setDeleteMessage(data?.error || 'Nao consegui excluir agora.');
+      const err = data?.error || 'Não consegui excluir agora.';
+      setDeleteMessage(err);
+      showMessage(err);
       return;
     }
 
+    state.users = state.users.filter((u) => String(u.id) !== deletingUserId);
+    if (String(state.selectedUserId) === deletingUserId) {
+      state.selectedUserId = null;
+    }
+    render();
     closeDeleteModal();
-    state.selectedUserId = null;
-    showMessage('Conta excluida.');
+    showMessage('Conta excluída com sucesso.');
     await loadUsers({ skipMigration: true });
   } catch (e) {
     setDeleteMessage('Deu ruim ao excluir. Tenta de novo.');
+    showMessage('Deu ruim ao excluir. Tenta de novo.');
   }
 };
 

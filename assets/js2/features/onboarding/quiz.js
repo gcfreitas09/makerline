@@ -332,17 +332,23 @@ const startCampaignHighlight = () => {
     btn.addEventListener('click', dismissOnFollow, { once: true });
 
     tip.style.top = `${btn.offsetTop + btn.offsetHeight + 10}px`;
-    tip.style.left = `${btn.offsetLeft + btn.offsetWidth / 2}px`;
     host.appendChild(tip);
 
     const hostRect = host.getBoundingClientRect();
-    const tipRect = tip.getBoundingClientRect();
+    const viewportWidth = Math.max(document.documentElement?.clientWidth || 0, window.innerWidth || 0);
     const horizontalPad = 10;
-    const minCenter = horizontalPad + tipRect.width / 2;
-    const maxCenter = window.innerWidth - horizontalPad - tipRect.width / 2;
+    const maxTooltipWidth = Math.max(120, viewportWidth - horizontalPad * 2);
+    tip.style.maxWidth = `${maxTooltipWidth}px`;
+
+    const tipWidth = tip.offsetWidth;
     const rawCenter = hostRect.left + btn.offsetLeft + btn.offsetWidth / 2;
-    const safeCenter = Math.max(minCenter, Math.min(maxCenter, rawCenter));
-    tip.style.left = `${safeCenter - hostRect.left}px`;
+    let safeLeft = rawCenter - tipWidth / 2;
+    const minLeft = horizontalPad;
+    const maxLeft = Math.max(minLeft, viewportWidth - horizontalPad - tipWidth);
+    if (safeLeft < minLeft) safeLeft = minLeft;
+    if (safeLeft > maxLeft) safeLeft = maxLeft;
+
+    tip.style.left = `${safeLeft - hostRect.left}px`;
   }, 400);
 };
 
@@ -523,12 +529,12 @@ const injectOnboardingHeader = () => {
 let fieldTooltipStep = 0;
 
 const fieldTooltipDefs = [
-  { selector: 'select[name="brandId"]', text: 'Escolha a marca dessa campanha.', event: 'change' },
-  { selector: 'select[name="startMethod"]', text: 'Selecione como esse projeto começou.', event: 'change' },
-  { selector: 'input[name="value"]', text: 'Informe o valor em dinheiro (se for permuta, pode deixar R$ 0).', event: 'input' },
-  { selector: 'input[name="dueDate"]', text: 'Defina o prazo principal da entrega.', event: 'change' },
-  { selector: 'select[name="nextActionType"]', text: 'Defina a próxima ação para não perder o follow-up.', event: 'change' },
-  { selector: '#campaign-form button[type="submit"]', text: 'Tudo certo? Clique para salvar a campanha.', event: null }
+  { step: 1, selector: 'select[name="brandId"]', text: 'Escolha a marca dessa campanha.', event: 'change' },
+  { step: 1, selector: 'select[name="startMethod"]', text: 'Selecione como esse projeto começou.', event: 'change' },
+  { step: 2, selector: 'input[name="value"]', text: 'Informe o valor em dinheiro (se for permuta, pode deixar R$ 0).', event: 'input' },
+  { step: 3, selector: 'input[name="dueDate"]', text: 'Defina o prazo principal da entrega.', event: 'change' },
+  { step: 3, selector: 'select[name="nextActionType"]', text: 'Defina a próxima ação para não perder o follow-up.', event: 'change' },
+  { step: 3, selector: '#campaign-form button[type="submit"]', text: 'Tudo certo? Clique para salvar a campanha.', event: null }
 ];
 
 const startFieldTooltips = () => {
@@ -545,6 +551,12 @@ const showFieldTooltip = () => {
   const def = fieldTooltipDefs[fieldTooltipStep];
   const form = document.getElementById('campaign-form');
   if (!form) return;
+
+  try {
+    if (def.step && window.__ugcCampaignWizard?.isEnabled?.()) {
+      window.__ugcCampaignWizard.setStep(def.step);
+    }
+  } catch (error) {}
 
   const el = form.querySelector(def.selector);
   if (!el) { fieldTooltipStep++; showFieldTooltip(); return; }

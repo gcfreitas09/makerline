@@ -3297,6 +3297,54 @@ select[data-campaign-stage]:focus {
   gap: 10px;
 }
 
+.campaign-step-hidden {
+  display: none !important;
+}
+
+.campaign-wizard-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.campaign-wizard-step {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.5);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.campaign-wizard-step.is-active {
+  border-color: rgba(34, 211, 238, 0.44);
+  background: rgba(8, 44, 62, 0.52);
+  color: #e6fbff;
+}
+
+.campaign-wizard-step.is-done {
+  border-color: rgba(94, 234, 212, 0.3);
+  color: rgba(191, 248, 239, 0.95);
+}
+
+.campaign-wizard-actions,
+.campaign-submit-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.campaign-wizard-actions .btn,
+.campaign-submit-actions .btn {
+  min-width: 130px;
+}
+
 .form-split {
   display: flex;
   align-items: center;
@@ -4776,112 +4824,29 @@ button[data-action="bonus-xp"] {
 .onboarding-tooltip {
   position: absolute;
   top: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-flex;
+  left: 0;
+  display: flex;
   align-items: flex-start;
-  gap: 10px;
-  background: var(--bg-700);
-  color: var(--text);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 8px 12px;
+  gap: 8px;
+  width: min(360px, calc(100vw - 28px));
+  max-width: calc(100vw - 28px);
+  padding: 7px 10px;
   border-radius: var(--radius-sm);
   border: 1px solid rgba(45, 212, 191, 0.3);
+  background: var(--bg-700);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
   white-space: normal;
-  width: max-content;
-  max-width: min(360px, calc(100vw - 24px));
+  word-break: break-word;
+  overflow-wrap: anywhere;
   box-sizing: border-box;
   pointer-events: auto;
   z-index: 80;
-  animation: onbTooltipFade 0.3s ease;
-  display: inline-flex;
-  align-items: flex-start;
-  gap: 10px;
+  animation: onbTooltipFade 0.25s ease;
 }
 
-.onboarding-tooltip-text {
-  display: block;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-.onboarding-tooltip-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: rgba(226, 232, 240, 0.82);
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-  border-radius: 999px;
-  transition: background 0.18s ease, color 0.18s ease;
-}
-
-.onboarding-tooltip-close:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-}
-
-.onboarding-tooltip-text {
-  display: inline-flex;
-  align-items: center;
-}
-
-.onboarding-tooltip-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: rgba(226, 232, 240, 0.82);
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-  border-radius: 999px;
-  transition: background 0.18s ease, color 0.18s ease;
-}
-
-.onboarding-tooltip-close:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-}
-
-.onboarding-tooltip-text {
-  display: inline-flex;
-  align-items: center;
-}
-
-.onboarding-tooltip-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: rgba(226, 232, 240, 0.82);
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-  border-radius: 999px;
-  transition: background 0.18s ease, color 0.18s ease;
-}
-
-.onboarding-tooltip-close:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-}
 .onboarding-tooltip::before {
   content: '';
   position: absolute;
@@ -4893,12 +4858,19 @@ button[data-action="bonus-xp"] {
 }
 
 .onboarding-tooltip-text {
-  line-height: 1;
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .onboarding-tooltip-close {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
   padding: 0;
   border: none;
   border-radius: 999px;
@@ -4907,7 +4879,7 @@ button[data-action="bonus-xp"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
@@ -4919,8 +4891,8 @@ button[data-action="bonus-xp"] {
 }
 
 @keyframes onbTooltipFade {
-  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Post-creation highlight & tip bubble ─────────────────── */
@@ -5421,11 +5393,17 @@ button[data-action="bonus-xp"] {
   padding: 5px 10px;
   border-radius: 6px;
   border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.03);
+  background: rgba(10, 20, 36, 0.9);
   color: var(--text);
   font-size: 0.8rem;
 }
 .select--compact:focus { outline: none; border-color: var(--accent); }
+
+[data-campaign-sort] option,
+.select option {
+  background: #0d1a2d;
+  color: #e7eefb;
+}
 
 /* Brands section */
 .section-actions {
@@ -5441,7 +5419,7 @@ button[data-action="bonus-xp"] {
 
 .brands-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1.72fr) minmax(320px, 0.82fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   align-items: start;
 }
@@ -5524,9 +5502,9 @@ button[data-action="bonus-xp"] {
   min-width: 0;
   width: 100%;
   max-width: 100%;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
-  padding-bottom: 8px;
+  padding-bottom: 0;
   scrollbar-width: thin;
   scrollbar-color: rgba(34, 211, 238, 0.28) rgba(15, 23, 42, 0.22);
 }
@@ -5548,12 +5526,12 @@ button[data-action="bonus-xp"] {
 .brand-table-head,
 .brand-table-row {
   display: grid;
-  grid-template-columns: minmax(240px, 2.7fr) minmax(138px, 0.95fr) minmax(150px, 1.05fr) minmax(140px, 0.92fr) minmax(138px, 0.9fr) minmax(84px, 0.58fr) minmax(140px, 0.9fr) minmax(176px, 0.96fr);
+  grid-template-columns: 0.84fr 1.9fr 0.98fr 0.9fr 0.86fr 0.52fr 0.9fr 1.26fr;
   gap: 16px;
   align-items: center;
-  width: max-content;
-  min-width: 100%;
-  max-width: none;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .brand-table-head {
@@ -5569,6 +5547,7 @@ button[data-action="bonus-xp"] {
   display: flex;
   align-items: center;
   min-height: 34px;
+  min-width: 0;
 }
 
 .brand-table-row {
@@ -5591,6 +5570,11 @@ button[data-action="bonus-xp"] {
   border-color: rgba(103, 232, 249, 0.44);
   background: linear-gradient(180deg, rgba(11, 28, 43, 0.92), rgba(11, 21, 36, 0.8));
   box-shadow: 0 18px 38px rgba(6, 15, 29, 0.36);
+}
+
+.brand-table-body {
+  display: grid;
+  gap: 10px;
 }
 
 .brand-table-cell {
@@ -5632,6 +5616,9 @@ button[data-action="bonus-xp"] {
 .brand-table-cell--count strong,
 .brand-table-cell--date span {
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .brand-table-cell--money strong,
@@ -5655,10 +5642,10 @@ button[data-action="bonus-xp"] {
 .brand-row-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
+  gap: 8px;
   width: 100%;
   min-width: 0;
-  max-width: 176px;
+  max-width: 100%;
 }
 
 .brand-row-btn {
@@ -5668,10 +5655,10 @@ button[data-action="bonus-xp"] {
   width: 100%;
   min-width: 0;
   min-height: 42px;
-  padding: 0 12px;
+  padding: 0 8px;
   border-radius: 14px;
   border: 1px solid rgba(148, 163, 184, 0.16);
-  font-size: 0.79rem;
+  font-size: 0.74rem;
   font-weight: 760;
   letter-spacing: 0.015em;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 18px rgba(2, 8, 23, 0.18);
@@ -5839,8 +5826,8 @@ button[data-action="bonus-xp"] {
 .brand-detail-card {
   display: grid;
   gap: 18px;
-  position: sticky;
-  top: 24px;
+  position: static;
+  top: auto;
   width: 100%;
   max-width: 100%;
 }

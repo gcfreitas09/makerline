@@ -52,6 +52,67 @@ const setModalMode = ({ mode, campaign }) => {
   form.dataset.campaignId = campaign?.id || '';
 };
 
+const CAMPAIGN_WIZARD_TOTAL = 3;
+let campaignWizardEnabled = false;
+let campaignWizardStep = 1;
+
+const getCampaignWizardRefs = () => {
+  const form = document.getElementById('campaign-form');
+  return {
+    form,
+    steps: form ? Array.from(form.querySelectorAll('[data-campaign-step]')) : [],
+    progress: form ? form.querySelector('[data-campaign-wizard-progress]') : null,
+    progressSteps: form ? Array.from(form.querySelectorAll('.campaign-wizard-step')) : [],
+    nav: form ? form.querySelector('[data-campaign-wizard-actions]') : null,
+    prevBtn: document.getElementById('campaign-step-prev-btn'),
+    nextBtn: document.getElementById('campaign-step-next-btn')
+  };
+};
+
+const applyCampaignWizardStep = () => {
+  const { form, steps, progress, progressSteps, nav, prevBtn, nextBtn } = getCampaignWizardRefs();
+  if (!form) return;
+
+  steps.forEach((row) => {
+    const step = Number(row.dataset.campaignStep || 1);
+    row.classList.toggle('campaign-step-hidden', campaignWizardEnabled && step !== campaignWizardStep);
+  });
+
+  if (progress) progress.style.display = campaignWizardEnabled ? '' : 'none';
+  if (nav) nav.style.display = campaignWizardEnabled ? '' : 'none';
+
+  progressSteps.forEach((item) => {
+    const step = Number(item.dataset.step || 0);
+    item.classList.toggle('is-active', campaignWizardEnabled && step === campaignWizardStep);
+    item.classList.toggle('is-done', campaignWizardEnabled && step < campaignWizardStep);
+  });
+
+  if (prevBtn) prevBtn.style.visibility = campaignWizardEnabled && campaignWizardStep > 1 ? 'visible' : 'hidden';
+  if (nextBtn) {
+    if (!campaignWizardEnabled) {
+      nextBtn.style.display = 'none';
+    } else {
+      nextBtn.style.display = '';
+      nextBtn.textContent = campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL ? 'Revisar dados' : 'Próximo';
+      nextBtn.disabled = campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL;
+    }
+  }
+};
+
+const setCampaignWizardMode = (mode) => {
+  campaignWizardEnabled = mode === 'create';
+  campaignWizardStep = 1;
+  applyCampaignWizardStep();
+};
+
+const setCampaignWizardStep = (step) => {
+  if (!campaignWizardEnabled) return false;
+  const next = Math.max(1, Math.min(CAMPAIGN_WIZARD_TOTAL, Number(step) || 1));
+  campaignWizardStep = next;
+  applyCampaignWizardStep();
+  return true;
+};
+
 const openCampaignModal = (campaignId) => {
   const { modal, form, msg } = getCampaignModal();
   if (!modal || !form) return;
@@ -79,14 +140,12 @@ const openCampaignModal = (campaignId) => {
   const contactNameInput = form.querySelector('input[name="contactName"]');
   const contactEmailInput = form.querySelector('input[name="contactEmail"]');
   const brandSelect = form.querySelector('select[name="brandId"]');
-  const mailtoBtn = document.getElementById('campaign-mailto-btn');
   const nextActionTypeSelect = form.querySelector('select[name="nextActionType"]');
   const nextActionDateInput = form.querySelector('input[name="nextActionDate"]');
   const nextActionNoteInput = form.querySelector('input[name="nextActionNote"]');
   const nextActionCustomInput = form.querySelector('input[name="nextActionCustomType"]');
   if (contactNameInput) contactNameInput.value = '';
   if (contactEmailInput) contactEmailInput.value = '';
-  if (mailtoBtn) mailtoBtn.style.display = 'none';
   if (nextActionTypeSelect) nextActionTypeSelect.value = '';
   if (nextActionDateInput) nextActionDateInput.value = '';
   if (nextActionNoteInput) nextActionNoteInput.value = '';
@@ -138,10 +197,6 @@ const openCampaignModal = (campaignId) => {
       // Contato
       if (contactNameInput) contactNameInput.value = campaign.contactName || '';
       if (contactEmailInput) contactEmailInput.value = campaign.contactEmail || '';
-      if (mailtoBtn && campaign.contactEmail) {
-        mailtoBtn.href = `mailto:${encodeURIComponent(campaign.contactEmail)}`;
-        mailtoBtn.style.display = '';
-      }
       if (nextActionTypeSelect) nextActionTypeSelect.value = campaign.nextActionType || '';
       if (nextActionDateInput) nextActionDateInput.value = campaign.nextActionDate || '';
       if (nextActionNoteInput) nextActionNoteInput.value = campaign.nextActionNote || '';
@@ -165,13 +220,11 @@ const openCampaignModal = (campaignId) => {
       if (selectedBrand) {
         if (contactNameInput && !contactNameInput.value) contactNameInput.value = selectedBrand.contact || '';
         if (contactEmailInput && !contactEmailInput.value) contactEmailInput.value = selectedBrand.email || '';
-        if (mailtoBtn && selectedBrand.email) {
-          mailtoBtn.href = `mailto:${encodeURIComponent(selectedBrand.email)}`;
-          mailtoBtn.style.display = '';
-        }
       }
     }
   }
+
+  setCampaignWizardMode(campaignId ? 'edit' : 'create');
 
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
@@ -213,6 +266,9 @@ const closeCampaignModal = () => {
     delete form.dataset.mode;
     delete form.dataset.campaignId;
   }
+  campaignWizardEnabled = false;
+  campaignWizardStep = 1;
+  applyCampaignWizardStep();
 };
 
 const applyLifecycle = (campaign, lifecycle) => {
@@ -425,31 +481,38 @@ const initCampaignForm = () => {
       const selectedBrand = getBrandById(brandSelect.value);
       const contactNameInput = campaignForm.querySelector('input[name="contactName"]');
       const contactEmailInput = campaignForm.querySelector('input[name="contactEmail"]');
-      const mailtoBtn = document.getElementById('campaign-mailto-btn');
       if (!selectedBrand) {
-        if (mailtoBtn) mailtoBtn.style.display = 'none';
         return;
       }
       if (contactNameInput && !contactNameInput.value.trim()) contactNameInput.value = selectedBrand.contact || '';
       if (contactEmailInput && !contactEmailInput.value.trim()) contactEmailInput.value = selectedBrand.email || '';
-      if (mailtoBtn && (contactEmailInput?.value || selectedBrand.email)) {
-        mailtoBtn.href = `mailto:${encodeURIComponent(contactEmailInput?.value || selectedBrand.email)}`;
-        mailtoBtn.style.display = (contactEmailInput?.value || selectedBrand.email) ? '' : 'none';
-      }
     });
   }
 
-  const contactEmailInput = campaignForm.querySelector('input[name="contactEmail"]');
-  const mailtoBtn = document.getElementById('campaign-mailto-btn');
-  if (contactEmailInput && mailtoBtn) {
-    contactEmailInput.addEventListener('input', () => {
-      const email = contactEmailInput.value.trim();
-      if (email) {
-        mailtoBtn.href = `mailto:${encodeURIComponent(email)}`;
-        mailtoBtn.style.display = '';
-      } else {
-        mailtoBtn.style.display = 'none';
+  const prevStepBtn = document.getElementById('campaign-step-prev-btn');
+  const nextStepBtn = document.getElementById('campaign-step-next-btn');
+  if (prevStepBtn && prevStepBtn.dataset.bound !== '1') {
+    prevStepBtn.dataset.bound = '1';
+    prevStepBtn.addEventListener('click', () => {
+      if (!campaignWizardEnabled) return;
+      setCampaignWizardStep(campaignWizardStep - 1);
+    });
+  }
+  if (nextStepBtn && nextStepBtn.dataset.bound !== '1') {
+    nextStepBtn.dataset.bound = '1';
+    nextStepBtn.addEventListener('click', () => {
+      if (!campaignWizardEnabled) return;
+
+      if (campaignWizardStep === 1 && brandSelect && !brandSelect.value) {
+        const { msg } = getCampaignModal();
+        if (msg) msg.textContent = 'Escolha uma marca para continuar.';
+        brandSelect.focus();
+        return;
       }
+
+      const { msg } = getCampaignModal();
+      if (msg) msg.textContent = '';
+      setCampaignWizardStep(campaignWizardStep + 1);
     });
   }
 
@@ -482,6 +545,12 @@ const initCampaignForm = () => {
       if (brandSelect && selectedId) brandSelect.value = selectedId;
     });
   } catch (error) {}
+
+  if (!window.__ugcCampaignWizard || typeof window.__ugcCampaignWizard !== 'object') {
+    window.__ugcCampaignWizard = {};
+  }
+  window.__ugcCampaignWizard.setStep = (step) => setCampaignWizardStep(step);
+  window.__ugcCampaignWizard.isEnabled = () => campaignWizardEnabled;
 };
 
 export { openCampaignModal, closeCampaignModal, initCampaignForm };
