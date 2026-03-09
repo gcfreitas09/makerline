@@ -118,6 +118,23 @@
 }
 
 @media (max-width: 768px) {
+  .filter-row {
+    padding-bottom: 8px;
+  }
+
+  .filter-row .custom-select,
+  .filter-row [data-campaign-sort] {
+    flex: 0 0 auto;
+    width: 168px;
+    min-width: 168px;
+  }
+
+  .filter-row .custom-select-display {
+    width: 100%;
+    min-width: 0;
+    padding-right: 30px;
+  }
+
   .page-section[data-section="dashboard"] > .section-header > [data-action="new-campaign"] {
     margin-right: 0;
   }
