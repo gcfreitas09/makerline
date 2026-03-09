@@ -316,6 +316,10 @@ textarea {
   margin-bottom: 24px;
 }
 
+.page-section[data-section="dashboard"] > .section-header > [data-action="new-campaign"] {
+  margin-right: clamp(10px, 2vw, 28px);
+}
+
 .section-title-block {
   display: grid;
   gap: 6px;
@@ -4828,8 +4832,8 @@ button[data-action="bonus-xp"] {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  width: min(360px, calc(100vw - 28px));
-  max-width: calc(100vw - 28px);
+  width: min(360px, calc(100vw - 40px));
+  max-width: calc(100vw - 40px);
   padding: 7px 10px;
   border-radius: var(--radius-sm);
   border: 1px solid rgba(45, 212, 191, 0.3);

@@ -336,7 +336,7 @@ const startCampaignHighlight = () => {
 
     const hostRect = host.getBoundingClientRect();
     const viewportWidth = Math.max(document.documentElement?.clientWidth || 0, window.innerWidth || 0);
-    const horizontalPad = 10;
+    const horizontalPad = 16;
     const maxTooltipWidth = Math.max(120, viewportWidth - horizontalPad * 2);
     tip.style.maxWidth = `${maxTooltipWidth}px`;
 

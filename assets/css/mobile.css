@@ -118,6 +118,10 @@
 }
 
 @media (max-width: 768px) {
+  .page-section[data-section="dashboard"] > .section-header > [data-action="new-campaign"] {
+    margin-right: 0;
+  }
+
   .finance-page-filter {
     width: 100%;
     justify-content: space-between;
@@ -508,7 +512,7 @@
   }
 
   .onboarding-tooltip {
-    max-width: calc(100vw - 24px);
+    max-width: calc(100vw - 32px);
     font-size: 10.5px;
     padding: 6px 9px;
   }
