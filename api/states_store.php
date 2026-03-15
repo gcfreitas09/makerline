@@ -26,6 +26,11 @@ function states_store_supabase_table()
     return $table !== '' ? $table : UGC_USER_STATES_TABLE_FALLBACK;
 }
 
+function states_store_supabase_eq($value)
+{
+    return 'eq.' . (string)$value;
+}
+
 function states_store_supabase_ready()
 {
     static $checked = false;
@@ -84,7 +89,7 @@ function states_store_load_by_user_id($userId)
     $res = supabase_client_request(
         'GET',
         $table,
-        ['select' => 'state,updated_at', 'user_id' => "eq.{$userId}", 'limit' => 1],
+        ['select' => 'state,updated_at', 'user_id' => states_store_supabase_eq($userId), 'limit' => 1],
         null
     );
 
@@ -155,11 +160,10 @@ function states_store_delete_by_user_id($userId)
     }
 
     $table = states_store_supabase_table();
-    $res = supabase_client_request('DELETE', $table, ['user_id' => "eq.{$userId}"], null, ['Prefer' => 'return=minimal']);
+    $res = supabase_client_request('DELETE', $table, ['user_id' => states_store_supabase_eq($userId)], null, ['Prefer' => 'return=minimal']);
     if (!is_array($res) || empty($res['ok'])) {
         states_store_set_error((string)($res['error'] ?? 'Falha ao excluir state no Supabase.'));
         return false;
     }
     return true;
 }
-

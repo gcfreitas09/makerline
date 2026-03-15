@@ -7,12 +7,12 @@ import {
   closeCampaignModal,
   initCampaignForm,
   openCampaignModal
-} from '../features/campaigns/modal.js?v=20260304d';
+} from '../features/campaigns/modal.js?v=20260314a';
 import {
   closeBrandModal,
   initBrandForm,
   openBrandModal
-} from '../features/brands/modal.js?v=20260304d';
+} from '../features/brands/modal.js?v=20260314a';
 import {
   closeBrandDeleteModal,
   initBrandDeleteFeature,
@@ -35,7 +35,7 @@ import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20
 import { syncWeeklySetting } from '../features/settings/weekly.js?v=20260302f';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
 import { sendWeeklySummaryNow } from '../features/settings/weekly_summary.js?v=20260302f';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260306b';
+import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260314b';
 
 /* â”€â”€ Money mask helper â”€â”€ */
 const formatMoneyInput = (raw) => {

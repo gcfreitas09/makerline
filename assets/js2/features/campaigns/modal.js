@@ -2,7 +2,7 @@ import { state, saveState, getDefaultCampaignStage, nextActionOptions } from '..
 import { renderAll } from '../../core/renderers.js?v=20260304c';
 import { showToast } from '../../core/ui.js?v=20260304b';
 import { trackEvent } from '../../core/gamification.js?v=20260302g';
-import { populateCampaignBrandSelect } from '../brands/modal.js';
+import { populateCampaignBrandSelect } from '../brands/modal.js?v=20260314a';
 
 const getCampaignModal = () => ({
   modal: document.getElementById('campaign-modal'),
@@ -28,6 +28,34 @@ const parseMoneyBRL = (raw) => {
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
 const getBrandById = (brandId) => (Array.isArray(state.brands) ? state.brands : []).find((brand) => brand.id === brandId) || null;
+
+const getCampaignBrandValue = (select) => {
+  if (!select) return '';
+
+  let value = String(select.value || '').trim();
+  if (!value) {
+    const selectedOption = select.options[select.selectedIndex] || null;
+    value = String(selectedOption?.value || '').trim();
+  }
+
+  if (!value) {
+    const pendingId = String(state.ui.pendingCampaignBrandId || '').trim();
+    if (pendingId && Array.from(select.options).some((option) => String(option.value || '').trim() === pendingId)) {
+      select.value = pendingId;
+      value = pendingId;
+    }
+  }
+
+  if (!value) {
+    const nonEmptyOptions = Array.from(select.options).filter((option) => String(option.value || '').trim() !== '');
+    if (nonEmptyOptions.length === 1) {
+      value = String(nonEmptyOptions[0].value || '').trim();
+      select.value = value;
+    }
+  }
+
+  return value;
+};
 
 const toggleNextActionCustomRow = (form, value) => {
   const customRow = document.getElementById('campaign-next-action-custom-row');
@@ -165,6 +193,7 @@ const openCampaignModal = (campaignId) => {
       if (brandSelect) {
         populateCampaignBrandSelect(campaign.brandId || state.ui.pendingCampaignBrandId || '');
         brandSelect.value = campaign.brandId || state.ui.pendingCampaignBrandId || '';
+        getCampaignBrandValue(brandSelect);
       }
 
       if (valueInput) valueInput.value = formatMoneyBRL(campaign.value) || 'R$ 0';
@@ -215,8 +244,8 @@ const openCampaignModal = (campaignId) => {
     if (idInput) idInput.value = '';
     if (brandSelect) {
       populateCampaignBrandSelect(state.ui.pendingCampaignBrandId || '');
-      brandSelect.value = state.ui.pendingCampaignBrandId || '';
-      const selectedBrand = getBrandById(brandSelect.value);
+      const selectedBrandId = getCampaignBrandValue(brandSelect);
+      const selectedBrand = getBrandById(selectedBrandId);
       if (selectedBrand) {
         if (contactNameInput && !contactNameInput.value) contactNameInput.value = selectedBrand.contact || '';
         if (contactEmailInput && !contactEmailInput.value) contactEmailInput.value = selectedBrand.email || '';
@@ -478,7 +507,7 @@ const initCampaignForm = () => {
   }
   if (brandSelect) {
     brandSelect.addEventListener('change', () => {
-      const selectedBrand = getBrandById(brandSelect.value);
+      const selectedBrand = getBrandById(getCampaignBrandValue(brandSelect));
       const contactNameInput = campaignForm.querySelector('input[name="contactName"]');
       const contactEmailInput = campaignForm.querySelector('input[name="contactEmail"]');
       if (!selectedBrand) {
@@ -503,7 +532,8 @@ const initCampaignForm = () => {
     nextStepBtn.addEventListener('click', () => {
       if (!campaignWizardEnabled) return;
 
-      if (campaignWizardStep === 1 && brandSelect && !brandSelect.value) {
+      const selectedBrandId = getCampaignBrandValue(brandSelect);
+      if (campaignWizardStep === 1 && brandSelect && !selectedBrandId) {
         const { msg } = getCampaignModal();
         if (msg) msg.textContent = 'Escolha uma marca para continuar.';
         brandSelect.focus();

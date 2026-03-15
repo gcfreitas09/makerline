@@ -1,8 +1,8 @@
 import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
 import { renderAll } from './core/renderers.js?v=20260304c';
 import { setActivePage } from './core/ui.js?v=20260304b';
-import { initActions } from './core/actions.js?v=20260304d';
-import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260306b';
+import { initActions } from './core/actions.js?v=20260314a';
+import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260314b';
 import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260304c';
 
   const sessionToken = sessionStorage.getItem('ugcQuestToken') || '';

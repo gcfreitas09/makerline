@@ -39,6 +39,14 @@ const populateCampaignBrandSelect = (selectedId = '') => {
 
   if (selectedId && brands.some((brand) => brand.id === selectedId)) {
     select.value = selectedId;
+  } else if (!select.value && brands.length === 1) {
+    select.value = brands[0].id;
+  }
+
+  if (typeof window.enableCustomSelects === 'function') {
+    try {
+      window.enableCustomSelects(select);
+    } catch (error) {}
   }
 };
 

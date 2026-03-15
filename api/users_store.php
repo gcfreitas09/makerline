@@ -5,6 +5,7 @@ require_once __DIR__ . '/supabase_client.php';
 
 const UGC_USERS_FILE_PATH = __DIR__ . '/../storage/users.json';
 const UGC_USERS_TABLE_FALLBACK = 'ugc_users';
+const UGC_DELETED_EMAILS_FILE_PATH = __DIR__ . '/../storage/deleted_emails.json';
 
 $GLOBALS['UGC_USERS_STORE_LAST_ERROR'] = null;
 
@@ -67,6 +68,13 @@ function users_store_supabase_table()
     $table = is_array($cfg) ? (string)($cfg['table_users'] ?? '') : '';
     $table = trim($table);
     return $table !== '' ? $table : UGC_USERS_TABLE_FALLBACK;
+}
+
+function users_store_supabase_eq($value)
+{
+    // PostgREST expects filters like eq.value here. Quoting the whole value
+    // breaks matches for emails/ids and causes false "not found" responses.
+    return 'eq.' . (string)$value;
 }
 
 function users_store_supabase_ready()
@@ -219,6 +227,27 @@ function users_store_list_state_files()
     }));
 }
 
+function users_store_load_deleted_emails_map()
+{
+    $file = UGC_DELETED_EMAILS_FILE_PATH;
+    if (!is_file($file)) return [];
+
+    $raw = @file_get_contents($file);
+    if ($raw === false || trim((string)$raw) === '') return [];
+
+    $data = json_decode((string)$raw, true);
+    if (!is_array($data)) return [];
+
+    $map = [];
+    foreach ($data as $email) {
+        $e = trim(strtolower((string)$email));
+        if ($e === '') continue;
+        if (!filter_var($e, FILTER_VALIDATE_EMAIL)) continue;
+        $map[$e] = true;
+    }
+    return $map;
+}
+
 function users_store_user_from_state_file($path)
 {
     $raw = @file_get_contents($path);
@@ -291,6 +320,7 @@ function users_store_merge_missing_from_state_files($users)
 
     $merged = $users;
     $added = 0;
+    $deletedEmails = users_store_load_deleted_emails_map();
 
     foreach ($stateFiles as $path) {
         $candidate = users_store_user_from_state_file($path);
@@ -298,6 +328,7 @@ function users_store_merge_missing_from_state_files($users)
         $id = (string)($candidate['id'] ?? '');
         $email = trim(strtolower((string)($candidate['email'] ?? '')));
         if ($id === '' || $email === '') continue;
+        if (isset($deletedEmails[$email])) continue;
         if (isset($byId[$id]) || isset($byEmail[$email])) continue;
 
         $merged[] = $candidate;
@@ -565,7 +596,7 @@ function users_store_find_by_email($email)
     }
     if ($backend === 'supabase') {
         $table = users_store_supabase_table();
-        $res = supabase_client_request('GET', $table, ['select' => '*', 'email' => "eq.{$email}", 'limit' => 1], null);
+        $res = supabase_client_request('GET', $table, ['select' => '*', 'email' => users_store_supabase_eq($email), 'limit' => 1], null);
         if (is_array($res) && !empty($res['ok']) && is_array($res['data']) && count($res['data']) > 0) {
             return users_store_row_to_user(is_array($res['data'][0]) ? $res['data'][0] : null);
         }
@@ -590,7 +621,7 @@ function users_store_find_by_email($email)
             }
 
             if ($ok) {
-                $res2 = supabase_client_request('GET', $table, ['select' => '*', 'email' => "eq.{$email}", 'limit' => 1], null);
+                $res2 = supabase_client_request('GET', $table, ['select' => '*', 'email' => users_store_supabase_eq($email), 'limit' => 1], null);
                 if (is_array($res2) && !empty($res2['ok']) && is_array($res2['data']) && count($res2['data']) > 0) {
                     return users_store_row_to_user(is_array($res2['data'][0]) ? $res2['data'][0] : null);
                 }
@@ -632,7 +663,7 @@ function users_store_find_by_session_token_hash($tokenHash)
         $res = supabase_client_request(
             'GET',
             $table,
-            ['select' => '*', 'session_token_hash' => "eq.{$tokenHash}", 'limit' => 1],
+            ['select' => '*', 'session_token_hash' => users_store_supabase_eq($tokenHash), 'limit' => 1],
             null
         );
         if (is_array($res) && !empty($res['ok']) && is_array($res['data']) && count($res['data']) > 0) {
@@ -669,7 +700,7 @@ function users_store_find_by_reset_token_hash($tokenHash)
     }
     if ($backend === 'supabase') {
         $table = users_store_supabase_table();
-        $res = supabase_client_request('GET', $table, ['select' => '*', 'reset_token_hash' => "eq.{$tokenHash}", 'limit' => 1], null);
+        $res = supabase_client_request('GET', $table, ['select' => '*', 'reset_token_hash' => users_store_supabase_eq($tokenHash), 'limit' => 1], null);
         if (is_array($res) && !empty($res['ok']) && is_array($res['data']) && count($res['data']) > 0) {
             return users_store_row_to_user(is_array($res['data'][0]) ? $res['data'][0] : null);
         }
@@ -829,7 +860,7 @@ function users_store_update_by_id($id, $fields)
 
         if (!$payload) return true;
 
-        $res = supabase_client_request('PATCH', $table, ['id' => "eq.{$id}"], $payload, ['Prefer' => 'return=minimal']);
+        $res = supabase_client_request('PATCH', $table, ['id' => users_store_supabase_eq($id)], $payload, ['Prefer' => 'return=minimal']);
         if (!is_array($res) || empty($res['ok'])) {
             users_store_set_error((string)($res['error'] ?? 'Falha ao atualizar usuário no Supabase.'));
             return false;
@@ -911,7 +942,7 @@ function users_store_find_by_id($id)
     $backend = users_store_backend();
     if ($backend === 'supabase') {
         $table = users_store_supabase_table();
-        $res = supabase_client_request('GET', $table, ['select' => '*', 'id' => "eq.{$id}", 'limit' => 1], null);
+        $res = supabase_client_request('GET', $table, ['select' => '*', 'id' => users_store_supabase_eq($id), 'limit' => 1], null);
         if (is_array($res) && !empty($res['ok']) && is_array($res['data']) && count($res['data']) > 0) {
             return users_store_row_to_user(is_array($res['data'][0]) ? $res['data'][0] : null);
         }
@@ -947,7 +978,7 @@ function users_store_delete_by_id($id)
     $backend = users_store_backend();
     if ($backend === 'supabase') {
         $table = users_store_supabase_table();
-        $res = supabase_client_request('DELETE', $table, ['id' => "eq.{$id}"], null, ['Prefer' => 'return=representation']);
+        $res = supabase_client_request('DELETE', $table, ['id' => users_store_supabase_eq($id)], null, ['Prefer' => 'return=representation']);
         if (!is_array($res) || empty($res['ok'])) {
             users_store_set_error((string)($res['error'] ?? 'Falha ao excluir usuário no Supabase.'));
             return false;

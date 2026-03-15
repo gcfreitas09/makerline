@@ -406,7 +406,7 @@ const showNextTooltip = () => {
     const advanceBtn = row.querySelector('[data-action="advance-stage"]');
     if (advanceBtn) {
       advanceBtn.classList.add('onboarding-highlight');
-      attachTooltip(advanceBtn, 'Quando a campanha evoluir, clique aqui para avançar para a próxima etapa.', 'Finalizar', () => {
+      attachTooltip(advanceBtn, 'Quando a campanha avançar, clique aqui para seguir para a próxima etapa.', 'Entendi', () => {
         advanceBtn.classList.remove('onboarding-highlight');
         completeOnboarding();
       });

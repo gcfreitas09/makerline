@@ -233,6 +233,10 @@ foreach ($users as $user) {
     if ($email === '') {
         continue;
     }
+    // Tracker deve mostrar apenas clientes; admins (vocês) ficam ocultos da lista.
+    if (in_array($email, $adminEmails, true)) {
+        continue;
+    }
 
     $id = (string)($user['id'] ?? '');
     if ($id !== '') $userIds[] = $id;
