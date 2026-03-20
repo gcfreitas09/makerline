@@ -40,11 +40,33 @@ function loadAdmins($adminsFile, $exampleFile)
     return array_values(array_unique($clean));
 }
 
-function countCampaignsFromState($state)
+function summarizeCampaignsFromState($state)
 {
-    if (!is_array($state)) return 0;
+    $summary = [
+        'campaignCount' => 0,
+        'activeCampaignCount' => 0,
+    ];
+
+    if (!is_array($state)) return $summary;
     $campaigns = $state['campaigns'] ?? null;
-    return is_array($campaigns) ? count($campaigns) : 0;
+    if (!is_array($campaigns)) return $summary;
+
+    $summary['campaignCount'] = count($campaigns);
+
+    foreach ($campaigns as $campaign) {
+        if (!is_array($campaign)) continue;
+
+        $archived = !empty($campaign['archived']);
+        $paused = !empty($campaign['paused']);
+        $status = strtolower(trim((string)($campaign['status'] ?? '')));
+
+        if ($archived || $paused) continue;
+        if ($status === 'concluida') continue;
+
+        $summary['activeCampaignCount']++;
+    }
+
+    return $summary;
 }
 
 function sanitizeStateFileUserId($userId)
@@ -67,7 +89,7 @@ function countCampaignsFromLocalStateFile($userId)
     if (!is_array($payload)) return null;
 
     $state = is_array($payload['state'] ?? null) ? $payload['state'] : null;
-    return countCampaignsFromState($state);
+    return summarizeCampaignsFromState($state);
 }
 
 function loadCampaignCountsFromLocalStateFiles($userIds)
@@ -78,7 +100,10 @@ function loadCampaignCountsFromLocalStateFiles($userIds)
         if ($id === '') continue;
         $count = countCampaignsFromLocalStateFile($id);
         if ($count === null) continue;
-        $counts[$id] = (int)$count;
+        $counts[$id] = is_array($count) ? $count : [
+            'campaignCount' => (int)$count,
+            'activeCampaignCount' => 0,
+        ];
     }
     return $counts;
 }
@@ -132,7 +157,7 @@ function loadCampaignCountsFromSupabase($userIds)
                 if (is_array($decoded)) $rawState = $decoded;
             }
             $state = is_array($rawState) ? $rawState : null;
-            $counts[$rowUserId] = countCampaignsFromState($state);
+            $counts[$rowUserId] = summarizeCampaignsFromState($state);
         }
     }
 
@@ -157,7 +182,10 @@ function loadCampaignCountsByUserIds($userIds)
         // Fonte de verdade quando states está no Supabase: evita usar arquivo local desatualizado.
         $remoteCounts = loadCampaignCountsFromSupabase($ids);
         foreach ($remoteCounts as $id => $count) {
-            $counts[(string)$id] = (int)$count;
+            $counts[(string)$id] = is_array($count) ? $count : [
+                'campaignCount' => (int)$count,
+                'activeCampaignCount' => 0,
+            ];
         }
 
         // Fallback local somente para IDs que não vieram do Supabase.
@@ -168,20 +196,29 @@ function loadCampaignCountsByUserIds($userIds)
         if ($missing) {
             $localCounts = loadCampaignCountsFromLocalStateFiles($missing);
             foreach ($localCounts as $id => $count) {
-                $counts[(string)$id] = (int)$count;
+                $counts[(string)$id] = is_array($count) ? $count : [
+                    'campaignCount' => (int)$count,
+                    'activeCampaignCount' => 0,
+                ];
             }
         }
     } else {
         $localCounts = loadCampaignCountsFromLocalStateFiles($ids);
         foreach ($localCounts as $id => $count) {
-            $counts[(string)$id] = (int)$count;
+            $counts[(string)$id] = is_array($count) ? $count : [
+                'campaignCount' => (int)$count,
+                'activeCampaignCount' => 0,
+            ];
         }
     }
 
     // Garante retorno consistente para todos IDs.
     foreach ($ids as $id) {
         if (!array_key_exists($id, $counts)) {
-            $counts[$id] = 0;
+            $counts[$id] = [
+                'campaignCount' => 0,
+                'activeCampaignCount' => 0,
+            ];
         }
     }
     return $counts;
@@ -251,14 +288,23 @@ foreach ($users as $user) {
         'lastAccessAt' => (string)($user['lastAccessAt'] ?? ''),
         'lastLoginAt' => (string)($user['lastLoginAt'] ?? ''),
         'lastSeenAt' => (string)($user['lastSeenAt'] ?? ''),
-        'campaignCount' => 0
+        'campaignCount' => 0,
+        'activeCampaignCount' => 0
     ];
 }
 
 $campaignCounts = loadCampaignCountsByUserIds($userIds);
 for ($i = 0; $i < count($list); $i++) {
     $id = (string)($list[$i]['id'] ?? '');
-    $list[$i]['campaignCount'] = (int)($campaignCounts[$id] ?? 0);
+    $summary = $campaignCounts[$id] ?? ['campaignCount' => 0, 'activeCampaignCount' => 0];
+    if (!is_array($summary)) {
+        $summary = [
+            'campaignCount' => (int)$summary,
+            'activeCampaignCount' => 0,
+        ];
+    }
+    $list[$i]['campaignCount'] = (int)($summary['campaignCount'] ?? 0);
+    $list[$i]['activeCampaignCount'] = (int)($summary['activeCampaignCount'] ?? 0);
 }
 
 usort($list, function ($a, $b) {

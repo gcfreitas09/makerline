@@ -1,5 +1,5 @@
 import { state, saveState, nextActionOptions } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js?v=20260302f';
+import { renderAll } from '../../core/renderers.js?v=20260318b';
 import { showToast } from '../../core/ui.js?v=20260302f';
 import { trackEvent } from '../../core/gamification.js?v=20260302f';
 
@@ -88,6 +88,9 @@ const openBrandModal = (brandId = '', options = {}) => {
   if (subtitle) subtitle.textContent = brand
     ? 'Atualize os dados comerciais e mantenha o histórico organizado.'
     : 'Crie a marca uma vez e use ela em campanhas, follow-ups e histórico.';
+  form.querySelectorAll('[data-brand-create-only]').forEach((element) => {
+    element.style.display = brand ? 'none' : '';
+  });
 
   if (deleteBtn) {
     if (brand) {

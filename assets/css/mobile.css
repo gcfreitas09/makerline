@@ -481,6 +481,12 @@
     width: 100%;
   }
 
+  .brand-inline-select,
+  .brand-inline-action .chip,
+  .campaign-inline-trigger {
+    width: 100%;
+  }
+
   .brand-row-btn {
     width: 100%;
   }
@@ -608,6 +614,10 @@
     grid-column: span 1;
   }
 
+  .campaign-table td[data-label="Valor"] {
+    grid-column: span 1;
+  }
+
   .campaign-table td[data-label="Avan\00e7ar"] {
     margin-top: 4px;
     padding-top: 8px;
@@ -634,6 +644,11 @@
     padding: 8px 10px;
   }
 
+  .dashboard-goal-topline,
+  .campaign-peek-grid {
+    grid-template-columns: 1fr;
+  }
+
 }
 
 @media (max-width: 520px) {
@@ -643,6 +658,15 @@
 }
 
 @media (max-width: 768px) {
+  .account-form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .account-form-actions .btn {
+    width: 100%;
+  }
+
   .campaign-wizard-progress {
     display: grid;
     grid-template-columns: 1fr;

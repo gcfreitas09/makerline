@@ -1,8 +1,8 @@
 import { state, saveState, getDefaultCampaignStage, nextActionOptions } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js?v=20260304c';
+import { renderAll } from '../../core/renderers.js?v=20260318b';
 import { showToast } from '../../core/ui.js?v=20260304b';
 import { trackEvent } from '../../core/gamification.js?v=20260302g';
-import { populateCampaignBrandSelect } from '../brands/modal.js?v=20260314a';
+import { populateCampaignBrandSelect } from '../brands/modal.js?v=20260318b';
 
 const getCampaignModal = () => ({
   modal: document.getElementById('campaign-modal'),
@@ -78,6 +78,9 @@ const setModalMode = ({ mode, campaign }) => {
   if (!form) return;
   form.dataset.mode = mode || 'create';
   form.dataset.campaignId = campaign?.id || '';
+  form.querySelectorAll('[data-campaign-create-only]').forEach((element) => {
+    element.style.display = isEdit ? 'none' : '';
+  });
 };
 
 const CAMPAIGN_WIZARD_TOTAL = 3;

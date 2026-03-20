@@ -27,8 +27,8 @@
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-  <link rel="stylesheet" href="assets/css/app2.css?v=20260306a" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260306a">
+  <link rel="stylesheet" href="assets/css/app2.css?v=20260318e" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260318e">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="assets/js2/core/customSelect.js?v=20260228m"></script>
 </head>
@@ -187,26 +187,15 @@
             </div>
           </div>
 
-          <div class="card dashboard-card dashboard-card--finance">
-            <div class="dashboard-card-header dashboard-card-header--interactive">
-              <div>
-                <p class="dashboard-eyebrow">Financeiro</p>
-                <h2 class="dashboard-card-title">Financeiro</h2>
-              </div>
-              <button class="btn btn-ghost btn-small" data-action="goto-finance" type="button">Abrir financeiro</button>
-            </div>
-            <div class="dashboard-metric-stack" data-dashboard-financial></div>
-          </div>
-
           <div class="card dashboard-card dashboard-card--goal">
             <div class="dashboard-card-header">
               <div>
                 <p class="dashboard-eyebrow">Fechamento</p>
-                <h2 class="dashboard-card-title">Meta do mês</h2>
+                <h2 class="dashboard-card-title">Meta financeira do mês</h2>
               </div>
               <button class="btn btn-ghost btn-small" data-action="edit-monthly-goal" type="button">Editar meta</button>
             </div>
-            <div class="dashboard-metric-stack" data-dashboard-goal></div>
+            <div class="dashboard-goal-progress" data-dashboard-goal></div>
           </div>
         </div>
       </section>
@@ -276,9 +265,6 @@
               </div>
               <div data-brands></div>
             </div>
-          </div>
-
-          <div class="brands-detail-column">
             <div class="card brand-detail-card" data-brand-detail></div>
           </div>
         </div>
@@ -465,7 +451,10 @@
               <input class="input" name="newPassword" type="password" placeholder="Nova senha" />
               <div class="muted">Pra continuar seguro, tenta usar pelo menos 6 caracteres.</div>
             </div>
-            <button class="btn btn-primary" type="submit">Salvar conta</button>
+            <div class="account-form-actions">
+              <button class="btn btn-primary" type="submit">Salvar conta</button>
+              <button class="btn btn-danger" id="account-delete-btn" type="button">Excluir conta</button>
+            </div>
             <div class="muted" id="account-msg"></div>
           </form>
         </div>
@@ -504,6 +493,7 @@
 
       <form class="form-grid" id="campaign-form">
         <input type="hidden" name="id" />
+        <input type="hidden" name="lifecycle" value="active" />
 
         <div class="campaign-wizard-progress" data-campaign-wizard-progress>
           <span class="campaign-wizard-step is-active" data-step="1">1. Base</span>
@@ -551,9 +541,11 @@
         </div>
 
         <div class="form-row" data-campaign-step="2">
-          <label>Valor recebido (R$)</label>
+          <label>Valor (R$)</label>
           <div class="form-split">
-            <input class="input" name="value" type="text" inputmode="numeric" placeholder="R$ 0" data-money />
+            <div class="campaign-form-inline-field" data-campaign-create-only="value">
+              <input class="input" name="value" type="text" inputmode="numeric" placeholder="R$ 0" data-money />
+            </div>
             <select class="select" name="paymentPreset" aria-label="Atalho de pagamento">
               <option value="0">Pago: 0%</option>
               <option value="50">Pago: 50%</option>
@@ -564,24 +556,24 @@
               <option value="1">Permuta: sim</option>
             </select>
           </div>
-          <div class="muted">Pode ser dinheiro, permuta ou os dois. Se não recebeu em dinheiro, deixa R$ 0.</div>
+          <div class="muted" data-campaign-create-only="value-help">Pode ser dinheiro, permuta ou os dois. Se não recebeu em dinheiro, deixa R$ 0.</div>
         </div>
 
-        <div class="form-row" data-campaign-step="2">
+        <div class="form-row" data-campaign-step="2" data-campaign-create-only="payment-date">
           <label>Quando irá receber? (opcional)</label>
           <input class="input" name="paymentDate" type="date" />
         </div>
 
-        <div class="form-row" data-campaign-step="2">
+        <div class="form-row" data-campaign-step="2" data-campaign-create-only="payment-received">
           <label>Recebido em (opcional)</label>
           <input class="input" name="paymentReceivedAt" type="date" />
-          <div class="muted">Se já recebeu, essa data ajuda a fechar o financeiro do mês.</div>
+          <div class="muted" data-campaign-create-only="payment-received-help">Se já recebeu, essa data ajuda a fechar o financeiro do mês.</div>
         </div>
 
-        <div class="form-row" data-campaign-step="3">
+        <div class="form-row" data-campaign-step="3" data-campaign-create-only="due-date">
           <label>Prazo</label>
           <input class="input" name="dueDate" type="date" />
-          <div class="muted">Pra não deixar nada escapar.</div>
+          <div class="muted" data-campaign-create-only="due-date-help">Pra não deixar nada escapar.</div>
         </div>
 
         <div class="form-row" data-campaign-step="3">
@@ -613,15 +605,6 @@
         <div class="form-row" data-campaign-step="3">
           <label>Observação curta</label>
           <input class="input" name="nextActionNote" type="text" maxlength="140" placeholder="Ex: cobrar retorno da Ana até 17h" />
-        </div>
-
-        <div class="form-row" data-campaign-step="3">
-          <label>Estado</label>
-          <select class="select" name="lifecycle">
-            <option value="active">Ativa</option>
-            <option value="paused">Pausada</option>
-            <option value="archived">Arquivada</option>
-          </select>
         </div>
 
         <div class="campaign-wizard-actions" data-campaign-wizard-actions>
@@ -663,6 +646,74 @@
     </div>
   </div>
 
+  <div class="modal" id="campaign-due-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-campaign-due-modal"></div>
+    <div class="modal-panel card modal-panel--compact">
+      <div class="modal-header">
+        <div>
+          <h3>Editar prazo</h3>
+          <p class="muted">Atualize só a data dessa campanha.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-campaign-due-modal" type="button">Fechar</button>
+      </div>
+      <form class="form-grid" id="campaign-due-form">
+        <input type="hidden" name="campaignId" />
+        <div class="form-row">
+          <label>Prazo</label>
+          <input class="input" name="dueDate" type="date" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-campaign-due-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar prazo</button>
+        </div>
+        <div class="muted" id="campaign-due-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="campaign-value-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-campaign-value-modal"></div>
+    <div class="modal-panel card modal-panel--compact">
+      <div class="modal-header">
+        <div>
+          <h3>Editar valor</h3>
+          <p class="muted">Atualize o valor financeiro sem abrir o card completo.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-campaign-value-modal" type="button">Fechar</button>
+      </div>
+      <form class="form-grid" id="campaign-value-form">
+        <input type="hidden" name="campaignId" />
+        <div class="form-row">
+          <label>Valor (R$)</label>
+          <input class="input" name="value" type="text" inputmode="numeric" placeholder="R$ 0" data-money />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-campaign-value-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar valor</button>
+        </div>
+        <div class="muted" id="campaign-value-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="campaign-peek-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-campaign-peek-modal"></div>
+    <div class="modal-panel card campaign-peek-modal-panel">
+      <div class="modal-header">
+        <div>
+          <h3 data-campaign-peek-title>Campanha</h3>
+          <p class="muted" data-campaign-peek-subtitle>Resumo rápido do cadastro.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-campaign-peek-modal" type="button">Fechar</button>
+      </div>
+      <div class="campaign-peek-grid" data-campaign-peek-body></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" data-action="close-campaign-peek-modal" type="button">Fechar</button>
+        <button class="btn btn-primary" data-action="edit-campaign-from-peek" type="button">Editar campanha</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal" id="brand-modal" aria-hidden="true">
     <div class="modal-scrim" data-action="close-brand-modal"></div>
     <div class="modal-panel card">
@@ -692,7 +743,7 @@
           <label>Contato principal (opcional)</label>
           <input class="input" name="contact" type="text" placeholder="Ex: Ana / João" maxlength="80" />
         </div>
-        <div class="form-row">
+        <div class="form-row" data-brand-create-only="status">
           <label>Status inicial</label>
           <select class="select" name="status">
             <option value="lead">Lead</option>
@@ -703,7 +754,7 @@
             <option value="perdida">Perdida</option>
           </select>
         </div>
-        <div class="form-row">
+        <div class="form-row" data-brand-create-only="next-action">
           <label>Próxima ação</label>
           <select class="select" name="nextActionType">
             <option value="">Sem ação pendente</option>
@@ -718,15 +769,15 @@
             <option value="outro">Outro</option>
           </select>
         </div>
-        <div class="form-row" id="brand-next-action-custom-row" style="display:none;">
+        <div class="form-row" id="brand-next-action-custom-row" style="display:none;" data-brand-create-only="next-action">
           <label>Tipo personalizado</label>
           <input class="input" name="nextActionCustomType" type="text" maxlength="80" placeholder="Ex: reativar contato no email" />
         </div>
-        <div class="form-row">
+        <div class="form-row" data-brand-create-only="next-action">
           <label>Data da próxima ação</label>
           <input class="input" name="nextActionDate" type="date" />
         </div>
-        <div class="form-row">
+        <div class="form-row" data-brand-create-only="next-action">
           <label>Observação curta</label>
           <input class="input" name="nextActionNote" type="text" maxlength="140" placeholder="Ex: mandar proposta até quinta" />
         </div>
@@ -1065,7 +1116,7 @@
     </div>
   </div>
 
-  <script type="module" src="assets/js2/app.js?v=20260314b"></script>
+  <script type="module" src="assets/js2/app.js?v=20260318e"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

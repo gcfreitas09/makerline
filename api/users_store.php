@@ -206,6 +206,11 @@ function users_store_load_all_json()
     // Se o arquivo foi sobrescrito num deploy (ficou com poucos/nenhum usuário),
     // tenta recuperar os cadastros a partir dos states existentes.
     if (is_array($data)) {
+        $filtered = users_store_filter_deleted_users($data);
+        if (count($filtered) !== count($data)) {
+            $data = $filtered;
+            users_store_save_all_json($data);
+        }
         $data = users_store_merge_missing_from_state_files($data);
     }
 
@@ -248,6 +253,52 @@ function users_store_load_deleted_emails_map()
     return $map;
 }
 
+function users_store_is_deleted_email($email)
+{
+    $email = trim(strtolower((string)$email));
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) return false;
+
+    $deletedEmails = users_store_load_deleted_emails_map();
+    return isset($deletedEmails[$email]);
+}
+
+function users_store_filter_deleted_users($users)
+{
+    if (!is_array($users) || !$users) {
+        return is_array($users) ? $users : [];
+    }
+
+    $deletedEmails = users_store_load_deleted_emails_map();
+    if (!$deletedEmails) return $users;
+
+    return array_values(array_filter($users, function ($user) use ($deletedEmails) {
+        $email = trim(strtolower((string)($user['email'] ?? '')));
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) return true;
+        return !isset($deletedEmails[$email]);
+    }));
+}
+
+function users_store_purge_legacy_user($id, $email = '')
+{
+    $id = trim((string)$id);
+    $email = trim(strtolower((string)$email));
+
+    $users = users_store_load_legacy_users_json();
+    if (!is_array($users)) return true;
+
+    $filtered = array_values(array_filter($users, function ($user) use ($id, $email) {
+        $userId = trim((string)($user['id'] ?? ''));
+        $userEmail = trim(strtolower((string)($user['email'] ?? '')));
+
+        if ($id !== '' && $userId === $id) return false;
+        if ($email !== '' && $userEmail === $email) return false;
+        return true;
+    }));
+
+    if (count($filtered) === count($users)) return true;
+    return users_store_save_all_json($filtered);
+}
+
 function users_store_user_from_state_file($path)
 {
     $raw = @file_get_contents($path);
@@ -262,6 +313,7 @@ function users_store_user_from_state_file($path)
     $profile = is_array($state['profile'] ?? null) ? $state['profile'] : [];
     $email = trim(strtolower((string)($profile['email'] ?? '')));
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) return null;
+    if (users_store_is_deleted_email($email)) return null;
 
     $name = trim((string)($profile['name'] ?? ''));
     if ($name === '') {
@@ -523,7 +575,7 @@ function users_store_load_legacy_users_json()
     if (!file_exists($file)) return [];
     $raw = @file_get_contents($file);
     $data = json_decode((string)$raw, true);
-    return is_array($data) ? $data : [];
+    return users_store_filter_deleted_users(is_array($data) ? $data : []);
 }
 
 function users_store_payload_from_legacy($row)
@@ -566,6 +618,7 @@ function users_store_find_by_email($email)
     if ($backend === 'mysql') {
         $user = users_store_find_by_email_mysql($email);
         if ($user) return $user;
+        if (users_store_is_deleted_email($email)) return null;
 
         // Migração suave: se o usuário só existe no JSON antigo, puxa pro MySQL e segue o jogo.
         $legacyUsers = users_store_load_legacy_users_json();
@@ -600,6 +653,7 @@ function users_store_find_by_email($email)
         if (is_array($res) && !empty($res['ok']) && is_array($res['data']) && count($res['data']) > 0) {
             return users_store_row_to_user(is_array($res['data'][0]) ? $res['data'][0] : null);
         }
+        if (users_store_is_deleted_email($email)) return null;
 
         // Migração suave: se o usuário só existe no JSON antigo, puxa pro Supabase e segue o jogo.
         $legacyUsers = users_store_load_legacy_users_json();

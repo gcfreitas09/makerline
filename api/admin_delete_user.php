@@ -156,6 +156,8 @@ if (!$ok) {
 }
 
 // Se o state estiver no Supabase, tenta remover também (não bloqueia se falhar).
+users_store_purge_legacy_user($targetId, $targetEmail);
+
 if (states_store_backend() === 'supabase') {
     states_store_delete_by_user_id($targetId);
 }

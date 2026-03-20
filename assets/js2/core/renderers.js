@@ -535,7 +535,6 @@ const computeDashboardFinance = () => {
 };
 
 const renderDashboardFinancials = () => {
-  const financialContainer = document.querySelector('[data-dashboard-financial]');
   const pipelineContainer = document.querySelector('[data-dashboard-pipeline]');
   const pipelineDetailContainer = document.querySelector('[data-dashboard-pipeline-detail]');
   const pipelineModal = document.getElementById('dashboard-pipeline-modal');
@@ -546,7 +545,7 @@ const renderDashboardFinancials = () => {
   const followupsContainer = document.querySelector('[data-dashboard-followups]');
   const deadlinesContainer = document.querySelector('[data-dashboard-deadlines]');
   const paymentsContainer = document.querySelector('[data-dashboard-payments]');
-  if (!financialContainer || !pipelineContainer || !pipelineDetailContainer || !goalContainer || !followupsContainer || !deadlinesContainer || !paymentsContainer) return;
+  if (!pipelineContainer || !pipelineDetailContainer || !goalContainer || !followupsContainer || !deadlinesContainer || !paymentsContainer) return;
 
   const d = computeDashboardFinance();
 
@@ -631,21 +630,6 @@ const renderDashboardFinancials = () => {
       `).join('')
     : renderEmpty('Nenhum pagamento pendente.');
 
-  financialContainer.innerHTML = `
-    <div class="dashboard-metric">
-      <span class="dashboard-metric-label">A receber</span>
-      <strong class="dashboard-metric-value">${formatCurrency(d.financeiro.aReceber)}</strong>
-    </div>
-    <div class="dashboard-metric">
-      <span class="dashboard-metric-label">Atrasado</span>
-      <strong class="dashboard-metric-value dashboard-metric-value--danger">${formatCurrency(d.financeiro.atrasado)}</strong>
-    </div>
-    <div class="dashboard-metric">
-      <span class="dashboard-metric-label">Recebido no mês</span>
-      <strong class="dashboard-metric-value dashboard-metric-value--accent">${formatCurrency(d.financeiro.recebidoNoMes)}</strong>
-    </div>
-  `;
-
   const activePipelineKey = d.pipeline.some((item) => item.key === state.ui.dashboardPipelineOpen)
     ? state.ui.dashboardPipelineOpen
     : '';
@@ -684,18 +668,30 @@ const renderDashboardFinancials = () => {
     pipelineModal.setAttribute('aria-hidden', shouldShowPipelineModal ? 'false' : 'true');
   }
 
+  const goalValue = Number(d.meta.metaMensal) || 0;
+  const confirmedValue = Number(d.meta.receitaConfirmada) || 0;
+  const progress = goalValue > 0 ? Math.min(100, Math.round((confirmedValue / goalValue) * 100)) : 0;
+  const remaining = Math.max(goalValue - confirmedValue, 0);
+
   goalContainer.innerHTML = `
-    <div class="dashboard-metric">
-      <span class="dashboard-metric-label">Meta mensal</span>
-      <strong class="dashboard-metric-value">${formatCurrency(d.meta.metaMensal)}</strong>
-    </div>
-    <div class="dashboard-metric">
-      <span class="dashboard-metric-label">Receita confirmada</span>
-      <strong class="dashboard-metric-value dashboard-metric-value--accent">${formatCurrency(d.meta.receitaConfirmada)}</strong>
-    </div>
-    <div class="dashboard-metric">
-      <span class="dashboard-metric-label">Receita prevista</span>
-      <strong class="dashboard-metric-value">${formatCurrency(d.meta.receitaPrevista)}</strong>
+    <div class="dashboard-goal-shell">
+      <div class="dashboard-goal-topline">
+        <div class="dashboard-goal-copy">
+          <span class="dashboard-goal-label">Meta mensal</span>
+          <strong class="dashboard-goal-value">${formatCurrency(goalValue)}</strong>
+        </div>
+        <div class="dashboard-goal-copy dashboard-goal-copy--accent">
+          <span class="dashboard-goal-label">Confirmado</span>
+          <strong class="dashboard-goal-value">${formatCurrency(confirmedValue)}</strong>
+        </div>
+      </div>
+      <div class="dashboard-goal-bar" aria-label="Progresso da meta mensal">
+        <span style="width:${progress}%"></span>
+      </div>
+      <div class="dashboard-goal-bottomline">
+        <span>${progress}% da meta concluída</span>
+        <span>${remaining > 0 ? `${formatCurrency(remaining)} para fechar o mês` : 'Meta batida neste mês'}</span>
+      </div>
     </div>
   `;
 };
@@ -1697,7 +1693,7 @@ const renderCampaigns = () => {
           <tr>
             <th>Marca</th>
             <th>Prazo</th>
-            <th>Pre\u00e7o</th>
+            <th>Valor</th>
             <th>Status</th>
             <th>Etapa</th>
             <th>Avan\u00e7ar</th>
@@ -1765,7 +1761,12 @@ const renderCampaigns = () => {
               const indicators = getIndicators(campaign);
               const indicatorHtml = indicators.map(i => `<span class="campaign-ind ${i.cls}">${i.label}</span>`).join('');
               return `
-                <tr data-campaign-id="${campaign.id}" class="${isPriority ? 'campaign-priority' : ''}${isModel ? ' campaign-model' : ''}">
+                <tr
+                  data-campaign-id="${campaign.id}"
+                  data-campaign-row="1"
+                  tabindex="0"
+                  class="campaign-row ${isPriority ? 'campaign-priority' : ''}${isModel ? ' campaign-model' : ''}"
+                >
                   <td data-label="Marca">
                     <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
                       <button class="btn-priority ${isPriority ? 'active' : ''}" data-action="toggle-priority" data-campaign-id="${campaign.id}" type="button" title="${isPriority ? 'Remover prioridade' : 'Marcar como prioridade'}">
@@ -1776,8 +1777,20 @@ const renderCampaigns = () => {
                       ${indicatorHtml}
                     </div>
                   </td>
-                  <td data-label="Prazo">${isModel ? '<span class="model-locked">—</span>' : escapeHtml(formatDateShortBR(campaign.dueDate))}</td>
-                  <td data-label="Preço">${isModel ? '<span class="model-locked">—</span>' : escapeHtml(getValueLabel(campaign))}</td>
+                  <td data-label="Prazo">
+                    ${
+                      isModel
+                        ? '<span class="model-locked">—</span>'
+                        : `<button class="campaign-inline-trigger" data-action="open-campaign-due-modal" data-campaign-id="${campaign.id}" type="button">${escapeHtml(formatDateShortBR(campaign.dueDate))}</button>`
+                    }
+                  </td>
+                  <td data-label="Valor">
+                    ${
+                      isModel
+                        ? '<span class="model-locked">—</span>'
+                        : `<button class="campaign-inline-trigger campaign-inline-trigger--value" data-action="open-campaign-value-modal" data-campaign-id="${campaign.id}" type="button">${escapeHtml(getValueLabel(campaign))}</button>`
+                    }
+                  </td>
                   <td data-label="Status">
                     ${isModel
                       ? `<span class="select select-compact status-${statusSafe} model-select-locked">${statusLabels[statusSafe] || statusSafe}</span>`
@@ -1851,6 +1864,11 @@ const renderBrands = () => {
     if (!safe) return 'Sem follow-up';
     return formatDateShort(safe);
   };
+  const brandStatusOrder = ['lead', 'negociando', 'cliente_ativo', 'cliente_recorrente', 'inativa', 'perdida'];
+  const renderBrandStatusOptions = (current) =>
+    brandStatusOrder
+      .map((statusKey) => `<option value="${statusKey}" ${statusKey === current ? 'selected' : ''}>${escapeHtml(brandStatuses[statusKey] || statusKey)}</option>`)
+      .join('');
 
   const brandSummaries = brands.map((brand) => {
     const linkedCampaigns = campaigns
@@ -1976,14 +1994,18 @@ const renderBrands = () => {
             return `
               <div class="brand-table-row ${isActive ? 'is-active' : ''}" data-action="select-brand" data-brand-id="${item.brand.id}">
                 <div class="brand-table-cell brand-table-cell--status" data-label="Status">
-                  <span class="chip chip-pill chip-brand-status chip-brand-status--${escapeHtml(item.brand.status)}">${escapeHtml(brandStatuses[item.brand.status] || item.brand.status)}</span>
+                  <select class="select select-compact brand-inline-select brand-inline-select--${escapeHtml(item.brand.status)}" data-brand-status data-brand-id="${item.brand.id}">
+                    ${renderBrandStatusOptions(item.brand.status)}
+                  </select>
                 </div>
                 <div class="brand-table-cell brand-table-cell--primary" data-label="Marca">
                   <strong>${escapeHtml(item.brand.name || 'Marca')}</strong>
                   <span class="muted">${escapeHtml(item.brand.contact || item.brand.instagram || item.brand.email || 'Sem contato principal')}</span>
                 </div>
                 <div class="brand-table-cell brand-table-cell--pending" data-label="Ação pendente">
-                  ${actionChip}
+                  <button class="brand-inline-action ${item.pendingAction ? 'brand-inline-action--active' : 'brand-inline-action--idle'}" data-action="edit-brand-action" data-brand-id="${item.brand.id}" type="button">
+                    ${actionChip}
+                  </button>
                 </div>
                 <div class="brand-table-cell brand-table-cell--next" data-label="Próximo follow-up">
                   <span>${formatRelativeAction(item.nextFollowup)}</span>

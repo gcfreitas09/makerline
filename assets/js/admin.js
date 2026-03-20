@@ -91,9 +91,12 @@ const renderSelectedUser = () => {
   const campaignCount = Number.isFinite(selected.campaignCount)
     ? selected.campaignCount
     : parseInt(selected.campaignCount, 10) || 0;
+  const activeCampaignCount = Number.isFinite(selected.activeCampaignCount)
+    ? selected.activeCampaignCount
+    : parseInt(selected.activeCampaignCount, 10) || 0;
 
   const avgSeconds = accessCount > 0 ? Math.round(timeSpentSeconds / accessCount) : 0;
-  summarySubtitle.textContent = `Campanhas: ${campaignCount} | Acessos: ${accessCount} | Tempo no app: ${formatDuration(
+  summarySubtitle.textContent = `Campanhas: ${campaignCount} | Ativas: ${activeCampaignCount} | Acessos: ${accessCount} | Tempo no app: ${formatDuration(
     timeSpentSeconds
   )} | Média: ${formatDuration(
     avgSeconds
@@ -130,7 +133,7 @@ const renderSelectedUser = () => {
     userKpi.innerHTML = `
       <div class="admin-user-kpi-label">Campanhas criadas</div>
       <div class="admin-user-kpi-value">${campaignCount}</div>
-      <div class="admin-user-kpi-sub">Total cadastrado por esse cliente.</div>
+      <div class="admin-user-kpi-sub">${activeCampaignCount} ativa(s) no momento.</div>
     `;
   }
 };

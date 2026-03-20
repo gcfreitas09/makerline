@@ -1,18 +1,19 @@
 ﻿import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
 import { setActivePage, showToast } from './ui.js?v=20260304b';
+import { formatCurrency } from './state.js';
 import { trackEvent } from './gamification.js?v=20260302g';
-import { renderAll } from './renderers.js?v=20260304c';
+import { renderAll } from './renderers.js?v=20260318b';
 
 import {
   closeCampaignModal,
   initCampaignForm,
   openCampaignModal
-} from '../features/campaigns/modal.js?v=20260314a';
+} from '../features/campaigns/modal.js?v=20260318b';
 import {
   closeBrandModal,
   initBrandForm,
   openBrandModal
-} from '../features/brands/modal.js?v=20260314a';
+} from '../features/brands/modal.js?v=20260318b';
 import {
   closeBrandDeleteModal,
   initBrandDeleteFeature,
@@ -30,7 +31,7 @@ import {
   openScriptDeleteModal
 } from '../features/scripts/delete.js?v=20260304c';
 import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js?v=20260302f';
-import { initAccountForm } from '../features/settings/account.js?v=20260302f';
+import { initAccountForm } from '../features/settings/account.js?v=20260318e';
 import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260304c';
 import { syncWeeklySetting } from '../features/settings/weekly.js?v=20260302f';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
@@ -50,8 +51,169 @@ const applyMoneyMask = (input) => {
   input.value = formatMoneyInput(input.value);
 };
 
+const parseMoneyInput = (raw) => parseInt(String(raw || '').replace(/\D/g, ''), 10) || 0;
+
 const todayIso = () => new Date().toISOString().slice(0, 10);
 const isPipelineModalViewport = () => Boolean(window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
+const formatDateBR = (value) => {
+  const safe = String(value || '').trim();
+  if (!safe) return 'Sem prazo';
+  const match = safe.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : safe;
+};
+const getCampaignById = (campaignId) => (Array.isArray(state.campaigns) ? state.campaigns : []).find((item) => item.id === campaignId) || null;
+const getCampaignStageLabel = (campaign) => {
+  if (!campaign) return 'Sem etapa';
+  const option = getCampaignStageOptions(campaign.status).find((item) => item.id === campaign.stage);
+  return option?.label || campaign.stage || 'Sem etapa';
+};
+const campaignStartLabels = {
+  ugc_platform: 'Plataforma de UGC',
+  inbound: 'Inbound',
+  outbound: 'Outbound',
+  instagram: 'Instagram',
+  agencia: 'Agência',
+  comunidade: 'Grupo / Comunidade',
+  other: 'Outro'
+};
+const getCampaignStartLabel = (campaign) => {
+  const key = String(campaign?.startMethod || '').trim();
+  if (!key) return 'Não informado';
+  if (key === 'other' && String(campaign?.startMethodOther || '').trim()) return String(campaign.startMethodOther).trim();
+  return campaignStartLabels[key] || key;
+};
+const getBrandActionTypeLabel = (brand) => {
+  const type = String(brand?.nextActionType || '').trim();
+  if (!type) return 'Sem pendência';
+  const option = nextActionOptions.includes(type) ? type : '';
+  if (!option) return 'Sem pendência';
+  const labels = {
+    followup: 'Follow-up',
+    enviar_proposta: 'Enviar proposta',
+    cobrar_resposta: 'Cobrar resposta',
+    enviar_roteiro: 'Enviar roteiro',
+    cobrar_aprovacao: 'Cobrar aprovação',
+    entregar_conteudo: 'Entregar conteúdo',
+    revisar_ajustes: 'Revisar ajustes',
+    cobrar_pagamento: 'Cobrar pagamento',
+    outro: brand?.nextActionCustomType || 'Outro'
+  };
+  return labels[option] || 'Sem pendência';
+};
+
+const getCampaignDueModal = () => ({
+  modal: document.getElementById('campaign-due-modal'),
+  form: document.getElementById('campaign-due-form'),
+  msg: document.getElementById('campaign-due-msg')
+});
+
+const getCampaignValueModal = () => ({
+  modal: document.getElementById('campaign-value-modal'),
+  form: document.getElementById('campaign-value-form'),
+  msg: document.getElementById('campaign-value-msg')
+});
+
+const getCampaignPeekModal = () => ({
+  modal: document.getElementById('campaign-peek-modal'),
+  body: document.querySelector('[data-campaign-peek-body]'),
+  title: document.querySelector('[data-campaign-peek-title]'),
+  subtitle: document.querySelector('[data-campaign-peek-subtitle]'),
+  editButton: document.querySelector('[data-action="edit-campaign-from-peek"]')
+});
+
+const openCampaignDueModal = (campaignId) => {
+  const campaign = getCampaignById(campaignId);
+  const { modal, form, msg } = getCampaignDueModal();
+  if (!campaign || !modal || !form) return;
+  form.reset();
+  form.elements.campaignId.value = campaign.id;
+  form.elements.dueDate.value = campaign.dueDate || '';
+  if (msg) msg.textContent = '';
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  form.elements.dueDate.focus();
+};
+
+const closeCampaignDueModal = () => {
+  const { modal, form, msg } = getCampaignDueModal();
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (form) form.reset();
+  if (msg) msg.textContent = '';
+};
+
+const openCampaignValueModal = (campaignId) => {
+  const campaign = getCampaignById(campaignId);
+  const { modal, form, msg } = getCampaignValueModal();
+  if (!campaign || !modal || !form) return;
+  form.reset();
+  form.elements.campaignId.value = campaign.id;
+  form.elements.value.value = formatMoneyInput(campaign.value || 0) || 'R$ 0';
+  if (msg) msg.textContent = '';
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  form.elements.value.focus();
+};
+
+const closeCampaignValueModal = () => {
+  const { modal, form, msg } = getCampaignValueModal();
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (form) form.reset();
+  if (msg) msg.textContent = '';
+};
+
+const openCampaignPeekModal = (campaignId) => {
+  const campaign = getCampaignById(campaignId);
+  const { modal, body, title, subtitle, editButton } = getCampaignPeekModal();
+  if (!campaign || !modal || !body || !title || !subtitle || !editButton) return;
+
+  title.textContent = campaign.title || campaign.brand || 'Campanha';
+  subtitle.textContent = campaign.brand ? `${campaign.brand} · resumo rápido do cadastro` : 'Resumo rápido do cadastro';
+  editButton.dataset.campaignId = campaign.id;
+
+  const paidPercent = Number.isFinite(campaign.paymentPercent) ? campaign.paymentPercent : parseInt(String(campaign.paymentPercent || '0'), 10) || 0;
+  const paymentLabel = campaign.paymentReceivedAt
+    ? `Recebido em ${formatDateBR(campaign.paymentReceivedAt)}`
+    : campaign.paymentDate
+      ? `Previsto para ${formatDateBR(campaign.paymentDate)}`
+      : 'Sem data definida';
+  const metaItems = [
+    { label: 'De onde veio', value: getCampaignStartLabel(campaign) },
+    { label: 'Permuta', value: campaign.barter ? 'Sim' : 'Não' },
+    { label: '% já pago', value: `${paidPercent}%` },
+    { label: 'Data de pagamento', value: paymentLabel },
+    { label: 'Etapa atual', value: getCampaignStageLabel(campaign) },
+    { label: 'Prazo', value: formatDateBR(campaign.dueDate) }
+  ];
+
+  body.innerHTML = metaItems
+    .map(
+      (item) => `
+        <article class="campaign-peek-item">
+          <span class="campaign-peek-item-label">${item.label}</span>
+          <strong class="campaign-peek-item-value">${item.value}</strong>
+        </article>
+      `
+    )
+    .join('');
+
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+};
+
+const closeCampaignPeekModal = () => {
+  const { modal, body, title, subtitle, editButton } = getCampaignPeekModal();
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (body) body.innerHTML = '';
+  if (title) title.textContent = 'Campanha';
+  if (subtitle) subtitle.textContent = 'Resumo rápido do cadastro.';
+  if (editButton) delete editButton.dataset.campaignId;
+};
 
 const getBrandActionModal = () => ({
   modal: document.getElementById('brand-action-modal'),
@@ -107,7 +269,7 @@ const openBrandActionModal = (brandId = '') => {
   if (noteInput) noteInput.value = brand?.nextActionNote || '';
   setBrandActionCustomVisibility(brand?.nextActionType || '');
 
-  if (title) title.textContent = brand?.nextActionType ? 'Editar aÃ§Ã£o de marca' : 'Nova aÃ§Ã£o de marca';
+  if (title) title.textContent = brand?.nextActionType ? 'Editar ação de marca' : 'Nova ação de marca';
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   if (select) select.focus();
@@ -165,6 +327,44 @@ const handleBrandActionSubmit = (event) => {
   renderAll();
   closeBrandActionModal();
   showToast('AÃ§Ã£o da marca salva.');
+};
+
+const handleCampaignDueSubmit = (event) => {
+  event.preventDefault();
+  const { form, msg } = getCampaignDueModal();
+  if (!form) return;
+
+  const campaign = getCampaignById(String(form.elements.campaignId.value || '').trim());
+  if (!campaign) {
+    if (msg) msg.textContent = 'Campanha não encontrada.';
+    return;
+  }
+
+  campaign.dueDate = String(form.elements.dueDate.value || '').trim();
+  campaign.updatedAt = new Date().toISOString();
+  saveState();
+  renderAll();
+  closeCampaignDueModal();
+  showToast('Prazo atualizado.');
+};
+
+const handleCampaignValueSubmit = (event) => {
+  event.preventDefault();
+  const { form, msg } = getCampaignValueModal();
+  if (!form) return;
+
+  const campaign = getCampaignById(String(form.elements.campaignId.value || '').trim());
+  if (!campaign) {
+    if (msg) msg.textContent = 'Campanha não encontrada.';
+    return;
+  }
+
+  campaign.value = Math.max(0, parseMoneyInput(form.elements.value.value));
+  campaign.updatedAt = new Date().toISOString();
+  saveState();
+  renderAll();
+  closeCampaignValueModal();
+  showToast('Valor atualizado.');
 };
 
 /* Posi\u00e7\u00e3o global de (status, stage) no pipeline.
@@ -240,6 +440,36 @@ const handleBrandInteractionSubmit = (event) => {
   saveState();
   renderAll();
   showToast('InteraÃ§Ã£o registrada.');
+};
+
+const isInteractiveCampaignTarget = (target) => {
+  if (!(target instanceof Element)) return false;
+  return Boolean(
+    target.closest(
+      'button, select, input, textarea, label, a, [data-action], .custom-select, .custom-select-dropdown, .custom-select-option'
+    )
+  );
+};
+
+const handleCampaignRowClick = (event) => {
+  const row = event.target.closest('[data-campaign-row]');
+  if (!row || isInteractiveCampaignTarget(event.target)) return;
+
+  const campaignId = String(row.dataset.campaignId || '').trim();
+  if (!campaignId) return;
+  openCampaignPeekModal(campaignId);
+};
+
+const handleCampaignRowKeydown = (event) => {
+  const row = event.target.closest('[data-campaign-row]');
+  if (!row) return;
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  if (isInteractiveCampaignTarget(event.target)) return;
+
+  event.preventDefault();
+  const campaignId = String(row.dataset.campaignId || '').trim();
+  if (!campaignId) return;
+  openCampaignPeekModal(campaignId);
 };
 
 const handleActionClick = (event) => {
@@ -517,6 +747,40 @@ const handleActionClick = (event) => {
     return;
   }
 
+  if (action === 'open-campaign-due-modal') {
+    const campaignId = String(actionEl.dataset.campaignId || '').trim();
+    if (campaignId) openCampaignDueModal(campaignId);
+    return;
+  }
+
+  if (action === 'close-campaign-due-modal') {
+    closeCampaignDueModal();
+    return;
+  }
+
+  if (action === 'open-campaign-value-modal') {
+    const campaignId = String(actionEl.dataset.campaignId || '').trim();
+    if (campaignId) openCampaignValueModal(campaignId);
+    return;
+  }
+
+  if (action === 'close-campaign-value-modal') {
+    closeCampaignValueModal();
+    return;
+  }
+
+  if (action === 'close-campaign-peek-modal') {
+    closeCampaignPeekModal();
+    return;
+  }
+
+  if (action === 'edit-campaign-from-peek') {
+    const campaignId = String(actionEl.dataset.campaignId || '').trim();
+    closeCampaignPeekModal();
+    if (campaignId) openCampaignModal(campaignId);
+    return;
+  }
+
   if (action === 'open-campaign') {
     const id = actionEl.dataset.campaignId;
     if (id) {
@@ -628,6 +892,7 @@ const handleActionClick = (event) => {
   if (action === 'edit-campaign') {
     const id = actionEl.dataset.campaignId;
     if (!id) return;
+    closeCampaignPeekModal();
     openCampaignModal(id);
     return;
   }
@@ -1174,6 +1439,32 @@ const initActions = () => {
     }
   }
 
+  const campaignDueForm = document.getElementById('campaign-due-form');
+  if (campaignDueForm && campaignDueForm.dataset.bound !== '1') {
+    campaignDueForm.dataset.bound = '1';
+    campaignDueForm.addEventListener('submit', handleCampaignDueSubmit);
+  }
+
+  const campaignValueForm = document.getElementById('campaign-value-form');
+  if (campaignValueForm && campaignValueForm.dataset.bound !== '1') {
+    campaignValueForm.dataset.bound = '1';
+    campaignValueForm.addEventListener('submit', handleCampaignValueSubmit);
+
+    const valueInput = campaignValueForm.querySelector('input[data-money]');
+    if (valueInput) {
+      valueInput.addEventListener('input', () => applyMoneyMask(valueInput));
+      valueInput.addEventListener('blur', () => {
+        valueInput.value = formatMoneyInput(valueInput.value) || 'R$ 0';
+      });
+      valueInput.addEventListener('focus', () => {
+        if (!String(valueInput.value || '').trim()) valueInput.value = 'R$ 0';
+        try {
+          valueInput.setSelectionRange(valueInput.value.length, valueInput.value.length);
+        } catch (error) {}
+      });
+    }
+  }
+
   // Expose modal functions for quiz convert-to-real flow
   window.__ugcModals = { openCampaignModal };
 
@@ -1182,8 +1473,10 @@ const initActions = () => {
     document.body.addEventListener('click', handleActionClick);
     document.body.addEventListener('click', handleNavClick);
     document.body.addEventListener('click', handleFilterClick);
+    document.body.addEventListener('click', handleCampaignRowClick);
     document.body.addEventListener('change', handleChange);
     document.body.addEventListener('submit', handleBrandInteractionSubmit);
+    document.body.addEventListener('keydown', handleCampaignRowKeydown);
     document.body.addEventListener('keydown', (event) => {
       const actionCard = event.target.closest('[data-dashboard-card-link]');
       if (!actionCard) return;
