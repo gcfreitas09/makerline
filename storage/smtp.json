@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "host": "smtp.gmail.com",
+  "port": 587,
+  "secure": "tls",
+  "username": "seu_email@gmail.com",
+  "password": "SENHA_DE_APP",
+  "from_email": "seu_email@gmail.com",
+  "from_name": "Makerline"
+}

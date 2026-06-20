@@ -1,0 +1,211 @@
+- generic [active] [ref=e1]:
+  - link "Pular para o conteúdo" [ref=e2] [cursor=pointer]:
+    - /url: "#conteudo"
+  - banner "Navegação principal" [ref=e3]:
+    - link "Makerline" [ref=e4] [cursor=pointer]:
+      - /url: landing.html
+      - generic [ref=e5]: Makerline
+    - navigation "Seções da landing" [ref=e6]:
+      - link "Produto" [ref=e7] [cursor=pointer]:
+        - /url: "#produto"
+      - link "Recursos" [ref=e8] [cursor=pointer]:
+        - /url: "#recursos"
+      - link "Planos" [ref=e9] [cursor=pointer]:
+        - /url: "#planos"
+      - link "FAQ" [ref=e10] [cursor=pointer]:
+        - /url: "#faq"
+    - generic [ref=e11]:
+      - link "Entrar" [ref=e12] [cursor=pointer]:
+        - /url: index.html
+      - link "Começar agora" [ref=e13] [cursor=pointer]:
+        - /url: index.html
+  - main [ref=e14]:
+    - region "O controle que faltava entre a DM da marca e o pagamento recebido." [ref=e15]:
+      - generic [ref=e17]:
+        - complementary [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e20]: G
+            - strong [ref=e21]: Creator UGC
+            - generic [ref=e22]: Plano anual
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: Seu painel agora
+            - button [ref=e31]: Nova campanha
+          - generic [ref=e32]:
+            - generic [ref=e33]: Sua prioridade agora
+            - strong [ref=e34]: Convecso
+            - paragraph [ref=e35]: Finalização · Aguardando pagamento
+            - generic [ref=e36]:
+              - emphasis [ref=e37]: Prazo 23/03
+              - emphasis [ref=e38]: Atrasada
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]: Próximo follow-up
+              - strong [ref=e42]: Enviar proposta
+            - generic [ref=e43]:
+              - generic [ref=e44]: Dinheiro no radar
+              - strong [ref=e45]: R$ 500
+            - generic [ref=e46]:
+              - generic [ref=e47]: Pagamentos pendentes
+              - strong [ref=e48]: 1 recebimento
+          - generic [ref=e49]:
+            - generic [ref=e50]: Prospecção
+            - generic [ref=e51]: Avaliando
+            - generic [ref=e52]: Recebido
+            - generic [ref=e53]: Atrasado
+      - generic [ref=e54]:
+        - paragraph [ref=e55]: Painel comercial para creators UGC
+        - heading "O controle que faltava entre a DM da marca e o pagamento recebido." [level=1] [ref=e56]
+        - paragraph [ref=e57]: Organize marcas, campanhas, propostas, prazos, pagamentos e métricas em uma operação clara, sem planilhas soltas e sem perder follow-up.
+        - generic [ref=e58]:
+          - link "Começar agora" [ref=e59] [cursor=pointer]:
+            - /url: index.html
+          - link "Ver como funciona" [ref=e60] [cursor=pointer]:
+            - /url: "#produto"
+        - generic "Resumo do produto" [ref=e61]:
+          - generic [ref=e62]:
+            - term [ref=e63]: 4 áreas
+            - definition [ref=e64]: campanhas, marcas, financeiro e métricas
+          - generic [ref=e65]:
+            - term [ref=e66]: 15 dias
+            - definition [ref=e67]: teste inicial antes do plano pago
+          - generic [ref=e68]:
+            - term [ref=e69]: 1 painel
+            - definition [ref=e70]: tudo que move sua operação UGC
+    - region "Criado para a rotina real de creators que negociam, entregam e cobram." [ref=e71]:
+      - generic [ref=e72]:
+        - paragraph [ref=e73]: Produto
+        - heading "Criado para a rotina real de creators que negociam, entregam e cobram." [level=2] [ref=e74]
+        - paragraph [ref=e75]: O Makerline junta CRM, pipeline, agenda de recebimentos e visão comercial em uma experiência direta para quem vive de campanhas UGC.
+      - generic [ref=e76]:
+        - article [ref=e77]:
+          - img [ref=e79]
+          - heading "Campanhas com contexto" [level=3] [ref=e81]
+          - paragraph [ref=e82]: Status, etapa, valor, prazo, produto, arquivos e próxima ação sempre no mesmo lugar.
+        - article [ref=e83]:
+          - img [ref=e85]
+          - heading "Marcas organizadas" [level=3] [ref=e87]
+          - paragraph [ref=e88]: Histórico de contato, status comercial, interações e campanhas vinculadas por marca.
+        - article [ref=e89]:
+          - img [ref=e91]
+          - heading "Prospecção acionável" [level=3] [ref=e93]
+          - paragraph [ref=e94]: Veja quem está pendente, avaliando, recusou ou respondeu com blocos coloridos e fáceis de priorizar.
+        - article [ref=e95]:
+          - img [ref=e97]
+          - heading "Financeiro no radar" [level=3] [ref=e99]
+          - paragraph [ref=e100]: Recebimentos pendentes, pagamentos atrasados, fluxo futuro e saúde financeira sem retrabalho.
+    - region "Saiba exatamente qual campanha precisa do seu próximo movimento." [ref=e101]:
+      - generic [ref=e102]:
+        - generic [ref=e103]:
+          - paragraph [ref=e104]: Fluxo comercial
+          - heading "Saiba exatamente qual campanha precisa do seu próximo movimento." [level=2] [ref=e105]
+          - paragraph [ref=e106]: O painel prioriza o que está atrasado, o que tem dinheiro pendente e o que precisa de follow-up. Menos memória, mais execução.
+          - list [ref=e107]:
+            - listitem [ref=e108]: Prioridade do dia com CTA direto para abrir campanha.
+            - listitem [ref=e109]: Pipeline com etapas reais de prospecção, produção e finalização.
+            - listitem [ref=e110]: Resumo financeiro sem esconder pagamento atrasado.
+          - link "Criar minha conta" [ref=e111] [cursor=pointer]:
+            - /url: index.html
+        - generic "Exemplo de fluxo Makerline" [ref=e112]:
+          - article [ref=e113]:
+            - generic [ref=e114]: Finalização
+            - strong [ref=e115]: Convecso
+            - paragraph [ref=e116]: Aguardando pagamento
+            - generic [ref=e117]: R$ 500 · atrasado
+          - article [ref=e118]:
+            - generic [ref=e119]: Produção
+            - strong [ref=e120]: Principal
+            - paragraph [ref=e121]: Aguardando produto
+            - generic [ref=e122]: Produto recebido é o próximo avanço
+          - article [ref=e123]:
+            - generic [ref=e124]: Prospecção
+            - strong [ref=e125]: Puma Disk
+            - paragraph [ref=e126]: Negociação
+            - generic [ref=e127]: Follow-up comercial hoje
+    - region "Um SaaS enxuto, com as partes que realmente movem a operação." [ref=e128]:
+      - generic [ref=e129]:
+        - paragraph [ref=e130]: Recursos
+        - heading "Um SaaS enxuto, com as partes que realmente movem a operação." [level=2] [ref=e131]
+      - generic [ref=e132]:
+        - article [ref=e133]:
+          - heading "Dashboard diário" [level=3] [ref=e134]
+          - paragraph [ref=e135]: Prioridade, dinheiro no radar, pagamentos pendentes e campanhas que precisam de atenção.
+        - article [ref=e136]:
+          - heading "Agenda de recebimentos" [level=3] [ref=e137]
+          - paragraph [ref=e138]: Veja valores, vencimentos e status financeiro sem procurar contrato por contrato.
+        - article [ref=e139]:
+          - heading "Métricas comerciais" [level=3] [ref=e140]
+          - paragraph [ref=e141]: Entenda etapa, gargalo, ticket médio, produtividade e evolução das campanhas.
+        - article [ref=e142]:
+          - heading "Configurações de conta" [level=3] [ref=e143]
+          - paragraph [ref=e144]: Gerencie assinatura, perfil, segurança e preferências de operação em um só lugar.
+        - article [ref=e145]:
+          - heading "Roteiros e arquivos" [level=3] [ref=e146]
+          - paragraph [ref=e147]: Centralize materiais importantes da campanha para manter entrega e revisão no contexto certo.
+        - article [ref=e148]:
+          - heading "Modo claro e escuro" [level=3] [ref=e149]
+          - paragraph [ref=e150]: Trabalhe no visual que combina com sua rotina, mantendo legibilidade e contraste.
+    - region "Troque ansiedade por uma rotina comercial visível." [ref=e151]:
+      - generic [ref=e152]:
+        - generic [ref=e153]:
+          - paragraph [ref=e154]: Visão operacional
+          - heading "Troque ansiedade por uma rotina comercial visível." [level=2] [ref=e155]
+          - paragraph [ref=e156]: Quando cada marca, proposta e pagamento tem status, o creator sabe o que fazer antes de perder prazo, dinheiro ou oportunidade.
+        - generic "Benefícios práticos" [ref=e157]:
+          - generic [ref=e158]:
+            - strong [ref=e159]: "0"
+            - generic [ref=e160]: campanhas esquecidas no inbox
+          - generic [ref=e161]:
+            - strong [ref=e162]: "1"
+            - generic [ref=e163]: lugar para marcas, prazos e recebimentos
+          - generic [ref=e164]:
+            - strong [ref=e165]: 100%
+            - generic [ref=e166]: do fluxo com próxima ação clara
+    - region "Comece simples e assine quando fizer sentido continuar." [ref=e167]:
+      - generic [ref=e168]:
+        - paragraph [ref=e169]: Planos
+        - heading "Comece simples e assine quando fizer sentido continuar." [level=2] [ref=e170]
+        - paragraph [ref=e171]: O Makerline foi pensado para ser acessível para creators em crescimento e completo para quem já opera várias marcas.
+      - generic [ref=e172]:
+        - article [ref=e173]:
+          - generic [ref=e174]: Flexível
+          - heading "Plano mensal" [level=3] [ref=e175]
+          - paragraph [ref=e176]: Para testar a rotina e manter sua operação organizada mês a mês.
+          - strong [ref=e177]: R$ 39,90
+          - generic [ref=e178]: por mês
+          - link "Assinar mensal" [ref=e179] [cursor=pointer]:
+            - /url: index.html
+        - article [ref=e180]:
+          - generic [ref=e181]: Mais escolhido
+          - heading "Plano anual" [level=3] [ref=e182]
+          - paragraph [ref=e183]: Para creators que querem manter previsibilidade e pagar menos no ciclo completo.
+          - strong [ref=e184]: R$ 349,90
+          - generic [ref=e185]: por ano
+          - link "Assinar anual" [ref=e186] [cursor=pointer]:
+            - /url: index.html
+    - region "Perguntas rápidas antes de entrar." [ref=e187]:
+      - generic [ref=e188]:
+        - generic [ref=e189]:
+          - paragraph [ref=e190]: FAQ
+          - heading "Perguntas rápidas antes de entrar." [level=2] [ref=e191]
+        - generic [ref=e192]:
+          - group [ref=e193]:
+            - generic "O Makerline substitui planilhas?" [ref=e194] [cursor=pointer]
+          - group [ref=e195]:
+            - generic "Serve para creator iniciante?" [ref=e196] [cursor=pointer]
+          - group [ref=e197]:
+            - generic "Preciso cadastrar uma marca antes da campanha?" [ref=e198] [cursor=pointer]
+    - region "Entre no Makerline e transforme follow-up, prazo e pagamento em rotina clara." [ref=e199]:
+      - generic [ref=e200]:
+        - paragraph [ref=e201]: Pronto para organizar sua operação?
+        - heading "Entre no Makerline e transforme follow-up, prazo e pagamento em rotina clara." [level=2] [ref=e202]
+        - link "Começar agora" [ref=e203] [cursor=pointer]:
+          - /url: index.html
+  - contentinfo [ref=e204]:
+    - generic [ref=e205]:
+      - link "Makerline" [ref=e206] [cursor=pointer]:
+        - /url: landing.html
+        - generic [ref=e207]: Makerline
+      - paragraph [ref=e208]: Makerline - Painel comercial para creators UGC.
+      - link "Entrar no app" [ref=e209] [cursor=pointer]:
+        - /url: index.html

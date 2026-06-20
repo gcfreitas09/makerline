@@ -1,0 +1,62 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - img "Makerline" [ref=e6]
+      - generic [ref=e8]: Makerline
+    - generic [ref=e9]:
+      - generic [ref=e10]: G
+      - generic [ref=e12]: Perfil
+    - navigation [ref=e13]:
+      - generic [ref=e14]:
+        - button "Dashboard" [ref=e15] [cursor=pointer]:
+          - img [ref=e16]
+          - text: Dashboard
+        - button "Marcas" [ref=e19] [cursor=pointer]:
+          - img [ref=e20]
+          - text: Marcas
+        - button "Campanhas" [ref=e23] [cursor=pointer]:
+          - img [ref=e24]
+          - text: Campanhas
+        - button "Prospecção" [ref=e29] [cursor=pointer]:
+          - img [ref=e30]
+          - text: Prospecção
+        - button "Financeiro" [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+          - text: Financeiro
+        - button "Métricas" [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+          - text: Métricas
+        - button "Configurações" [ref=e38] [cursor=pointer]:
+          - img [ref=e39]
+          - text: Configurações
+  - main [ref=e42]:
+    - generic [ref=e43]:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - heading "Boa tarde, Perfil!" [level=1] [ref=e46]
+          - paragraph
+        - button "Nova campanha" [ref=e47] [cursor=pointer]
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - paragraph [ref=e52]: Seu painel agora
+          - generic [ref=e53]:
+            - heading "Pagamentos pendentes" [level=3] [ref=e56]
+            - paragraph [ref=e58]: Nenhum recebimento pendente agora.
+          - generic [ref=e59]:
+            - heading "Prazos próximos" [level=3] [ref=e62]
+            - paragraph [ref=e64]: Nenhum prazo apertado por agora.
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - heading "Ações pendentes" [level=3] [ref=e68]
+              - button "Nova ação de marca" [ref=e69] [cursor=pointer]
+            - paragraph [ref=e71]: Nenhum follow-up pendente hoje.
+        - generic [ref=e73]:
+          - generic [ref=e74]:
+            - paragraph [ref=e75]: Fluxo do mês
+            - heading "Como suas campanhas estão andando" [level=2] [ref=e76]
+          - button "Ver campanhas" [ref=e77] [cursor=pointer]
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - paragraph [ref=e82]: Fechamento
+            - heading "Meta financeira do mês" [level=2] [ref=e83]
+          - button "Editar meta" [ref=e84] [cursor=pointer]

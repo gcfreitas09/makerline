@@ -1,0 +1,74 @@
+- generic [active] [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: A
+        - generic [ref=e14]:
+          - generic [ref=e15]: Auditoria Deploy
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - generic [ref=e494]:
+        - generic [ref=e495]:
+          - generic [ref=e496]:
+            - heading "Prospecção" [level=1] [ref=e497]
+            - paragraph [ref=e498]: Gerencie seus contatos com marcas e acompanhe o andamento de cada conversa.
+          - button "Nova prospecção" [ref=e499] [cursor=pointer]
+        - generic [ref=e501]:
+          - generic [ref=e503]:
+            - generic [ref=e547]: "Total: 1"
+            - generic [ref=e548]: "Pendentes: 0"
+            - generic [ref=e549]: "Com retorno: 0"
+          - searchbox "Buscar por marca ou tipo de contato..." [ref=e508]
+          - article [ref=e550]:
+            - generic [ref=e551]:
+              - button "Enviado Marca Prospecção Auditoria DM Instagram" [ref=e552] [cursor=pointer]:
+                - generic [ref=e553]: Enviado
+                - strong [ref=e554]: Marca Prospecção Auditoria
+                - generic [ref=e555]: DM Instagram
+              - paragraph [ref=e556]: Mensagem temporária da auditoria
+              - paragraph [ref=e557]: Registro temporário para teste funcional
+            - generic [ref=e558]:
+              - combobox "Status da prospecção" [ref=e559]:
+                - option "Pendente"
+                - option "Enviado" [selected]
+                - option "Respondeu"
+                - option "Fechou"
+                - option "Pediu E-mail"
+                - option "Pediu Portfólio"
+                - option "Em Conversa"
+                - option "Negociação"
+                - option "Não Respondeu"
+                - option "Recusou"
+              - generic [ref=e560]: Atualizado hoje
+              - button "Apagar prospecção" [ref=e561] [cursor=pointer]:
+                - img [ref=e562]
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓

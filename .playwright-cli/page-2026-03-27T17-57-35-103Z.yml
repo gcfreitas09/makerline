@@ -1,0 +1,146 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - img "Makerline" [ref=e6]
+      - generic [ref=e8]: Makerline
+    - generic [ref=e9]:
+      - generic [ref=e10]: C
+      - generic [ref=e12]: Codex
+    - navigation [ref=e13]:
+      - generic [ref=e14]:
+        - button "Dashboard" [ref=e15] [cursor=pointer]:
+          - img [ref=e16]
+          - text: Dashboard
+        - button "Marcas" [ref=e19] [cursor=pointer]:
+          - img [ref=e20]
+          - text: Marcas
+        - button "Campanhas" [ref=e23] [cursor=pointer]:
+          - img [ref=e24]
+          - text: Campanhas
+        - button "Financeiro" [active] [ref=e29] [cursor=pointer]:
+          - img [ref=e30]
+          - text: Financeiro
+        - button "Métricas" [ref=e32] [cursor=pointer]:
+          - img [ref=e33]
+          - text: Métricas
+        - button "Configurações" [ref=e34] [cursor=pointer]:
+          - img [ref=e35]
+          - text: Configurações
+      - button "Sair" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - text: Sair
+  - main [ref=e42]:
+    - generic [ref=e217]:
+      - generic [ref=e218]:
+        - generic [ref=e219]:
+          - heading "Financeiro" [level=1] [ref=e220]
+          - paragraph [ref=e221]: Acompanhe caixa, recebimentos, vencimentos e previsões da carteira.
+        - generic [ref=e223]:
+          - generic [ref=e224]: Período
+          - combobox "Filtrar período financeiro" [ref=e225]:
+            - option "15 dias"
+            - option "30 dias" [selected]
+            - option "45 dias"
+            - option "90 dias"
+            - option "Todo histórico"
+      - generic [ref=e226]:
+        - generic [ref=e227]:
+          - generic [ref=e228]:
+            - generic [ref=e230]:
+              - heading "Resumo de caixa" [level=3] [ref=e231]
+              - paragraph [ref=e232]: Leitura operacional do que entrou, do que ainda vence e do ritmo de recebimento.
+            - generic [ref=e233]:
+              - article [ref=e234]:
+                - generic [ref=e235]: Recebido
+                - strong [ref=e236]: R$ 0
+                - generic [ref=e237]: Na janela de 30 dias
+              - article [ref=e238]:
+                - generic [ref=e239]: A receber
+                - strong [ref=e240]: R$ 0
+                - generic [ref=e241]: 0 título(s) em aberto
+              - article [ref=e242]:
+                - generic [ref=e243]: Atrasado
+                - strong [ref=e244]: R$ 0
+                - generic [ref=e245]: 0 título(s) vencido(s)
+              - article [ref=e246]:
+                - generic [ref=e247]: Previsão 30 dias
+                - strong [ref=e248]: R$ 0
+                - generic [ref=e249]: Entradas previstas até o próximo ciclo
+              - article [ref=e250]:
+                - generic [ref=e251]: Prazo médio de recebimento
+                - strong [ref=e252]: —
+                - generic [ref=e253]: 0 campanha(s) recebida(s)
+          - generic [ref=e254]:
+            - generic [ref=e256]:
+              - heading "Fluxo futuro" [level=3] [ref=e257]
+              - paragraph [ref=e258]: Previsão de entrada e janelas mais críticas da carteira.
+            - generic [ref=e259]:
+              - generic [ref=e260]:
+                - generic [ref=e261]: Entrada prevista
+                - strong [ref=e262]: R$ 0
+                - paragraph [ref=e263]: 0 recebimento(s) previstos para os próximos 30 dias
+              - generic [ref=e264]:
+                - article [ref=e265]:
+                  - generic [ref=e266]:
+                    - generic [ref=e267]: Próximos 7 dias
+                    - strong [ref=e268]: R$ 0
+                  - generic [ref=e269]: Janela imediata
+                - article [ref=e270]:
+                  - generic [ref=e271]:
+                    - generic [ref=e272]: Próximos 15 dias
+                    - strong [ref=e273]: R$ 0
+                  - generic [ref=e274]: Metade do ciclo
+                - article [ref=e275]:
+                  - generic [ref=e276]:
+                    - generic [ref=e277]: Próximos 60 dias
+                    - strong [ref=e278]: R$ 0
+                  - generic [ref=e279]: Visão estendida
+        - generic [ref=e280]:
+          - generic [ref=e281]:
+            - generic [ref=e283]:
+              - heading "Carteira de recebimentos" [level=3] [ref=e284]
+              - paragraph [ref=e285]: Visão operacional da carteira com vencimento, status financeiro, atualização e ação.
+            - generic [ref=e286]:
+              - generic [ref=e287]:
+                - generic [ref=e288]: Campanha
+                - generic [ref=e289]: Marca
+                - generic [ref=e290]: Valor
+                - generic [ref=e291]: Vencimento
+                - generic [ref=e292]: Status financeiro
+                - generic [ref=e293]: Última atualização
+                - generic [ref=e294]: Ação
+              - generic [ref=e296]: Nenhuma campanha financeira encontrada em 30 dias.
+          - generic [ref=e297]:
+            - generic [ref=e299]:
+              - heading "Agenda de recebimentos" [level=3] [ref=e300]
+              - paragraph [ref=e301]: Próximos vencimentos e títulos que pedem ação imediata.
+            - generic [ref=e303]: Nenhum recebimento próximo ou vencido para acompanhar agora.
+        - generic [ref=e304]:
+          - generic [ref=e306]:
+            - heading "Saúde financeira" [level=3] [ref=e307]
+            - paragraph [ref=e308]: Indicadores estritamente financeiros para acompanhar cobrança, previsibilidade e pontualidade.
+          - generic [ref=e309]:
+            - article [ref=e310]:
+              - generic [ref=e311]: Carteira recebida
+              - strong [ref=e312]: 0%
+              - generic [ref=e313]: Do volume lido na janela
+            - article [ref=e314]:
+              - generic [ref=e315]: Carteira em atraso
+              - strong [ref=e316]: 0%
+              - generic [ref=e317]: Do aberto já vencido
+            - article [ref=e318]:
+              - generic [ref=e319]: Recebido no prazo
+              - strong [ref=e320]: —
+              - generic [ref=e321]: Entre os recebimentos da janela
+            - article [ref=e322]:
+              - generic [ref=e323]: Títulos em aberto
+              - strong [ref=e324]: "0"
+              - generic [ref=e325]: Entre a receber e atrasados
+            - article [ref=e326]:
+              - generic [ref=e327]: Próximos vencimentos
+              - strong [ref=e328]: "0"
+              - generic [ref=e329]: Títulos vencendo em 7 dias
+            - article [ref=e330]:
+              - generic [ref=e331]: Ticket médio recebido
+              - strong [ref=e332]: —
+              - generic [ref=e333]: Somente campanhas liquidadas

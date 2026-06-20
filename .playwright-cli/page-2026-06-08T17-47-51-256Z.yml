@@ -1,0 +1,134 @@
+- generic [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: A
+        - generic [ref=e14]:
+          - generic [ref=e15]: Auditoria Makerline
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - text: Marca Prazo Valor Status Etapa Avançar Ações Marca Prazo Valor Status Etapa Avançar Ações Status Marca Ação pendente Próximo follow-up Total faturado Campanhas Último contato Ações Status Marca Ação pendente Próximo follow-up Total faturado Campanhas Último contato Ações Campanha Marca Valor Vencimento Status financeiro Última atualização Ação
+      - generic [ref=e181]:
+        - generic [ref=e182]:
+          - generic [ref=e183]:
+            - button "Menu" [active] [ref=e184] [cursor=pointer]
+            - heading "Métricas" [level=1] [ref=e185]
+          - generic [ref=e187]:
+            - generic [ref=e188]: Período
+            - generic [ref=e189]:
+              - combobox "Filtrar período de métricas":
+                - option "15 dias"
+                - option "30 dias" [selected]
+                - option "45 dias"
+                - option "90 dias"
+                - option "Todo histórico"
+              - button "30 dias" [ref=e190] [cursor=pointer]
+        - generic [ref=e191]:
+          - generic [ref=e192]:
+            - heading "Visão geral" [level=3] [ref=e195]
+            - generic [ref=e196]:
+              - article [ref=e197]:
+                - generic [ref=e198]: Campanhas ativas
+                - strong [ref=e199]: "1"
+                - generic [ref=e200]: Campanhas acontecendo agora
+              - article [ref=e201]:
+                - generic [ref=e202]: Concluídas
+                - strong [ref=e203]: "0"
+                - generic [ref=e204]: Campanhas que já terminaram
+              - article [ref=e205]:
+                - generic [ref=e206]: "% que já terminou"
+                - strong [ref=e207]: 0%
+                - generic [ref=e208]: Do total de campanhas criadas
+              - article [ref=e209]:
+                - generic [ref=e210]: Valor médio por campanha
+                - strong [ref=e211]: —
+                - generic [ref=e212]: Média das concluídas em 30 dias
+              - article [ref=e213]:
+                - generic [ref=e214]: Tempo médio para concluir
+                - strong [ref=e215]: —
+                - generic [ref=e216]: Do início até o fim
+          - generic [ref=e218]:
+            - heading "Etapas das campanhas" [level=3] [ref=e221]
+            - generic [ref=e222]:
+              - button "1 Prospecção 100% do total Média de 0 dias Travando mais" [ref=e223] [cursor=pointer]:
+                - generic [ref=e224]: "1"
+                - generic [ref=e225]: Prospecção
+                - generic [ref=e226]: 100% do total
+                - generic [ref=e227]: Média de 0 dias
+                - generic [ref=e228]: Travando mais
+              - button "0 Produção 0% do total Sem média ainda" [ref=e229] [cursor=pointer]:
+                - generic [ref=e230]: "0"
+                - generic [ref=e231]: Produção
+                - generic [ref=e232]: 0% do total
+                - generic [ref=e233]: Sem média ainda
+              - button "0 Finalização 0% do total Sem média ainda" [ref=e234] [cursor=pointer]:
+                - generic [ref=e235]: "0"
+                - generic [ref=e236]: Finalização
+                - generic [ref=e237]: 0% do total
+                - generic [ref=e238]: Sem média ainda
+              - button "0 Concluído 0% do total Sem média ainda" [ref=e239] [cursor=pointer]:
+                - generic [ref=e240]: "0"
+                - generic [ref=e241]: Concluído
+                - generic [ref=e242]: 0% do total
+                - generic [ref=e243]: Sem média ainda
+          - generic [ref=e244]:
+            - generic [ref=e245]:
+              - heading "Evolução mensal" [level=3] [ref=e248]
+              - generic "Gráfico de evolução mensal" [ref=e250]
+            - generic [ref=e251]:
+              - heading "Como está o andamento" [level=3] [ref=e254]
+              - generic [ref=e255]:
+                - article [ref=e256]:
+                  - generic [ref=e257]: Etapa mais travada
+                  - strong [ref=e258]: Prospecção
+                  - generic [ref=e259]: Onde as campanhas mais demoram
+                - article [ref=e260]:
+                  - generic [ref=e261]: Tempo médio nas etapas abertas
+                  - strong [ref=e262]: 0 dias
+                  - generic [ref=e263]: Quanto tempo elas levam para andar
+                - article [ref=e264]:
+                  - generic [ref=e265]: Campanhas paradas
+                  - strong [ref=e266]: "0"
+                  - generic [ref=e267]: Sem avanço há 7+ dias
+                - article [ref=e268]:
+                  - generic [ref=e269]: Criadas no período
+                  - strong [ref=e270]: "1"
+                  - generic [ref=e271]: 30 dias
+                - article [ref=e272]:
+                  - generic [ref=e273]: Concluídas no período
+                  - strong [ref=e274]: "0"
+                  - generic [ref=e275]: Encerradas dentro da janela
+                - article [ref=e276]:
+                  - generic [ref=e277]: Com prazo chegando
+                  - strong [ref=e278]: "0"
+                  - generic [ref=e279]: Ativas com prazo nos próximos 7 dias
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓

@@ -1,0 +1,91 @@
+- generic [active] [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: A
+        - generic [ref=e14]:
+          - generic [ref=e15]: Auditoria Deploy
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - generic [ref=e224]:
+        - generic [ref=e225]:
+          - generic [ref=e226]:
+            - button "Menu" [ref=e227] [cursor=pointer]
+            - heading "Minhas campanhas" [level=1] [ref=e228]
+          - button "Nova campanha" [ref=e229] [cursor=pointer]
+        - generic [ref=e230]:
+          - button "Todas" [ref=e231] [cursor=pointer]
+          - button "Prospecção" [ref=e232] [cursor=pointer]
+          - button "Produção" [ref=e233] [cursor=pointer]
+          - button "Finalização" [ref=e234] [cursor=pointer]
+          - button "Concluída" [ref=e235] [cursor=pointer]
+          - combobox "Ordenar por" [ref=e236]:
+            - option "Recente" [selected]
+            - option "Valor"
+            - option "R$/hora"
+            - option "Prazo"
+            - option "Dias para vencer"
+            - option "Marca"
+            - option "Status"
+        - table [ref=e239]:
+          - rowgroup [ref=e240]:
+            - row "Marca Prazo Valor Status Etapa Avançar Ações" [ref=e241]:
+              - columnheader "Marca" [ref=e242]
+              - columnheader "Prazo" [ref=e243]
+              - columnheader "Valor" [ref=e244]
+              - columnheader "Status" [ref=e245]
+              - columnheader "Etapa" [ref=e246]
+              - columnheader "Avançar" [ref=e247]
+              - columnheader "Ações" [ref=e248]
+          - rowgroup [ref=e249]:
+            - 'row "Prospecção - Tech MODELO — — Prospecção Abordagem/Inscrição Trocar para campanha real Propostas: 0/5 + Enviei 1" [ref=e250] [cursor=pointer]':
+              - cell "Prospecção - Tech MODELO" [ref=e251]:
+                - generic [ref=e252]:
+                  - button "Marcar como prioridade" [ref=e253]:
+                    - img [ref=e254]
+                  - generic [ref=e256]: Prospecção - Tech
+                  - generic [ref=e257]: MODELO
+              - cell "—" [ref=e258]
+              - cell "—" [ref=e259]
+              - cell "Prospecção" [ref=e260]:
+                - generic: Prospecção
+              - cell "Abordagem/Inscrição" [ref=e261]:
+                - generic: Abordagem/Inscrição
+              - cell "Trocar para campanha real" [ref=e262]:
+                - button "Trocar para campanha real" [ref=e264]
+              - 'cell "Propostas: 0/5 + Enviei 1" [ref=e265]':
+                - generic [ref=e267]:
+                  - generic [ref=e268]:
+                    - text: "Propostas:"
+                    - strong [ref=e269]: 0/5
+                  - button "+ Enviei 1" [ref=e270]
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓

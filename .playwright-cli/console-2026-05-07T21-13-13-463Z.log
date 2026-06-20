@@ -1,0 +1,3 @@
+[      36ms] [ERROR] Failed to load resource: net::ERR_INTERNET_DISCONNECTED @ http://localhost/saas-ugc/assets/js2/core/customSelect.js?v=20260502c:0
+[      37ms] [ERROR] Failed to load resource: net::ERR_INTERNET_DISCONNECTED @ http://localhost/saas-ugc/assets/js2/app.js?v=20260507a:0
+[      60ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/app.html?section=dashboard&billing=success&session_id=cs_test_fake:0

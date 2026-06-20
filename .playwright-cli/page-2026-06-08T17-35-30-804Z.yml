@@ -1,0 +1,190 @@
+- generic [active] [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: A
+        - generic [ref=e14]:
+          - generic [ref=e15]: Auditoria Makerline
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - heading "Marcas" [level=1] [ref=e50]
+          - generic [ref=e51]:
+            - button "Nova campanha" [ref=e52] [cursor=pointer]
+            - button "Nova marca" [ref=e53] [cursor=pointer]
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - heading "Visão geral" [level=3] [ref=e59]
+            - generic [ref=e60]:
+              - generic [ref=e61]:
+                - generic [ref=e62]: Marcas registradas
+                - strong [ref=e63]: "2"
+                - generic [ref=e64]: 1 lead(s) em abertura
+              - generic [ref=e65]:
+                - generic [ref=e66]: Negociando
+                - strong [ref=e67]: "1"
+                - generic [ref=e68]: Conversas quentes no momento
+              - generic [ref=e69]:
+                - generic [ref=e70]: Clientes
+                - strong [ref=e71]: "0"
+                - generic [ref=e72]: Ativos e recorrentes
+              - generic [ref=e73]:
+                - generic [ref=e74]: Faturado total
+                - strong [ref=e75]: R$ 1250
+                - generic [ref=e76]: 1 com ação pendente
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - heading "Lista de marcas" [level=3] [ref=e80]
+              - button "Nova marca" [ref=e81] [cursor=pointer]
+            - generic [ref=e83]:
+              - generic [ref=e84]:
+                - generic [ref=e85]: Status
+                - generic [ref=e86]: Marca
+                - generic [ref=e87]: Ação pendente
+                - generic [ref=e88]: Próximo follow-up
+                - generic [ref=e89]: Total faturado
+                - generic [ref=e90]: Campanhas
+                - generic [ref=e91]: Último contato
+                - generic [ref=e92]: Ações
+              - generic [ref=e93]:
+                - generic [ref=e94] [cursor=pointer]:
+                  - combobox [ref=e96]:
+                    - option "Lead"
+                    - option "Negociando" [selected]
+                    - option "Cliente ativo"
+                    - option "Cliente recorrente"
+                    - option "Inativa"
+                    - option "Perdida"
+                  - generic [ref=e97]:
+                    - strong [ref=e98]: Marca Auditoria
+                    - generic [ref=e99]: Pessoa Teste
+                  - button "Follow-up" [ref=e101]:
+                    - generic [ref=e102]: Follow-up
+                  - generic [ref=e104]: 10/06/2026
+                  - strong [ref=e106]: R$ 1250
+                  - strong [ref=e108]: "1"
+                  - generic [ref=e110]: 08/06/2026
+                  - generic [ref=e112]:
+                    - button "Editar" [ref=e113]
+                    - button "Desativar" [ref=e114]
+                - generic [ref=e115] [cursor=pointer]:
+                  - combobox [ref=e117]:
+                    - option "Lead" [selected]
+                    - option "Negociando"
+                    - option "Cliente ativo"
+                    - option "Cliente recorrente"
+                    - option "Inativa"
+                    - option "Perdida"
+                  - generic [ref=e118]:
+                    - strong [ref=e119]: Prospecção - Beleza
+                    - generic [ref=e120]: Sem contato principal
+                  - button "Sem pendência" [ref=e122]:
+                    - generic [ref=e123]: Sem pendência
+                  - generic [ref=e125]: Sem follow-up
+                  - strong [ref=e127]: R$ 0
+                  - strong [ref=e129]: "1"
+                  - generic [ref=e131]: 08/06/2026
+                  - generic [ref=e133]:
+                    - button "Editar" [ref=e134]
+                    - button "Desativar" [ref=e135]
+          - generic [ref=e136]:
+            - generic [ref=e137]:
+              - generic [ref=e138]:
+                - paragraph [ref=e139]: Marca selecionada
+                - heading "Marca Auditoria" [level=2] [ref=e140]
+                - paragraph [ref=e141]: Pessoa Teste · contato@auditoria.test
+              - generic [ref=e142]:
+                - button "Editar marca" [ref=e143] [cursor=pointer]
+                - button "Nova campanha" [ref=e144] [cursor=pointer]
+            - generic [ref=e145]:
+              - generic [ref=e146]:
+                - generic [ref=e147]: Instagram
+                - strong [ref=e148]: "@marca_auditoria"
+              - generic [ref=e149]:
+                - generic [ref=e150]: Status
+                - strong [ref=e151]: Negociando
+              - generic [ref=e152]:
+                - generic [ref=e153]: Total faturado
+                - strong [ref=e154]: R$ 1250
+              - generic [ref=e155]:
+                - generic [ref=e156]: Ticket médio
+                - strong [ref=e157]: R$ 1250
+              - generic [ref=e158]:
+                - generic [ref=e159]: Nº campanhas
+                - strong [ref=e160]: "1"
+              - generic [ref=e161]:
+                - generic [ref=e162]: Último trabalho realizado
+                - strong [ref=e163]: Marca Auditoria
+            - generic [ref=e164]:
+              - generic [ref=e165]:
+                - generic [ref=e166]:
+                  - generic [ref=e167]:
+                    - heading "Próxima ação" [level=3] [ref=e168]
+                    - paragraph [ref=e169]: Follow-up atual dessa marca.
+                  - button "Editar ação" [ref=e170] [cursor=pointer]
+                - generic [ref=e171]:
+                  - generic [ref=e172]:
+                    - generic [ref=e173]: Próximo follow-up
+                    - strong [ref=e174]: 10/06/2026
+                  - generic [ref=e175]:
+                    - generic [ref=e176]: Tipo
+                    - strong [ref=e177]: Follow-up
+                  - generic [ref=e178]: Retornar contato de auditoria
+              - generic [ref=e179]:
+                - generic [ref=e181]:
+                  - heading "Interações" [level=3] [ref=e182]
+                  - paragraph [ref=e183]: Registre DMs, e-mails e ligações importantes.
+                - generic [ref=e184]:
+                  - combobox "Tipo de interação" [ref=e185]:
+                    - option "DM" [selected]
+                    - option "E-mail"
+                    - option "Ligação"
+                  - textbox "Data da interação" [ref=e186]: 2026-06-08
+                  - textbox "Observação da interação" [ref=e187]:
+                    - /placeholder: Resumo rápido do contato
+                  - button "Registrar" [ref=e188] [cursor=pointer]
+                - paragraph [ref=e190]: Nenhuma interação registrada para essa marca.
+              - generic [ref=e191]:
+                - generic [ref=e193]:
+                  - heading "Histórico de campanhas" [level=3] [ref=e194]
+                  - paragraph [ref=e195]: Campanhas vinculadas a essa marca.
+                - generic [ref=e197]:
+                  - generic [ref=e198]:
+                    - strong [ref=e199]: Marca Auditoria
+                    - generic [ref=e200]: Prospecção · Abordagem/Inscrição
+                  - generic [ref=e201]:
+                    - generic [ref=e202]: R$ 1250
+                    - generic [ref=e203]: Pagamento 15/06/2026
+                    - generic [ref=e204]: Prazo 20/06/2026
+                  - button "Abrir campanha" [ref=e205] [cursor=pointer]
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓

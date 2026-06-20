@@ -1,0 +1,11 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]: Status
+    - combobox "Status" [ref=e6]:
+      - option "Prospecção"
+      - option "Produção"
+      - option "Finalização"
+      - option "Concluída" [selected]
+  - generic [ref=e7]:
+    - button "Duplicar" [ref=e8]
+    - generic [ref=e9]: "cliques atrás: 0"

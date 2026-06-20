@@ -1,0 +1,35 @@
+AddDefaultCharset UTF-8
+DirectoryIndex landing.html index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^index\.html$ landing.html [L,QSA,NC]
+  RewriteRule ^app\.html$ - [L,NC]
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  RewriteRule ^$ landing.html [L]
+  RewriteRule ^app/?$ landing.html [L,QSA,NC]
+  RewriteRule ^(admin|intelligence|landing-insights|verify|reset)/?$ $1.html [L,QSA,NC]
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddCharset UTF-8 .html .php .css .js .json .svg
+</IfModule>
+
+# Desabilitar cache para arquivos JavaScript
+<FilesMatch "\.(js)$">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+  </IfModule>
+</FilesMatch>
+
+<FilesMatch "^(index|app|landing)\.html$">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+  </IfModule>
+</FilesMatch>

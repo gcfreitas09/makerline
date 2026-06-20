@@ -1,0 +1,159 @@
+- generic [active] [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: Q
+        - generic [ref=e14]:
+          - generic [ref=e15]: QA Brand
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Planos" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Planos
+          - button "Configurações" [ref=e45] [cursor=pointer]:
+            - img [ref=e46]
+            - text: Configurações
+    - main [ref=e49]:
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - heading "Marcas" [level=1] [ref=e53]
+          - generic [ref=e54]:
+            - button "Nova campanha" [ref=e55] [cursor=pointer]
+            - button "Nova marca" [ref=e56] [cursor=pointer]
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - heading "Visão geral" [level=3] [ref=e62]
+            - generic [ref=e63]:
+              - generic [ref=e137]:
+                - generic [ref=e138]: Marcas registradas
+                - strong [ref=e139]: "1"
+                - generic [ref=e140]: 1 lead(s) em abertura
+              - generic [ref=e141]:
+                - generic [ref=e142]: Negociando
+                - strong [ref=e143]: "0"
+                - generic [ref=e144]: Conversas quentes no momento
+              - generic [ref=e145]:
+                - generic [ref=e146]: Clientes
+                - strong [ref=e147]: "0"
+                - generic [ref=e148]: Ativos e recorrentes
+              - generic [ref=e149]:
+                - generic [ref=e150]: Faturado total
+                - strong [ref=e151]: R$ 0
+                - generic [ref=e152]: 0 com ação pendente
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - heading "Lista de marcas" [level=3] [ref=e83]
+              - button "Nova marca" [ref=e84] [cursor=pointer]
+            - generic [ref=e153]:
+              - generic [ref=e154]:
+                - generic [ref=e155]: Status
+                - generic [ref=e156]: Marca
+                - generic [ref=e157]: Ação pendente
+                - generic [ref=e158]: Próximo follow-up
+                - generic [ref=e159]: Total faturado
+                - generic [ref=e160]: Campanhas
+                - generic [ref=e161]: Último contato
+                - generic [ref=e162]: Ações
+              - generic [ref=e164] [cursor=pointer]:
+                - combobox [ref=e166]:
+                  - option "Lead" [selected]
+                  - option "Negociando"
+                  - option "Cliente ativo"
+                  - option "Cliente recorrente"
+                  - option "Inativa"
+                  - option "Perdida"
+                - generic [ref=e167]:
+                  - strong [ref=e168]: Teste Marca
+                  - generic [ref=e169]: Ana
+                - button "Sem pendência" [ref=e171]:
+                  - generic [ref=e172]: Sem pendência
+                - generic [ref=e174]: Sem follow-up
+                - strong [ref=e176]: R$ 0
+                - strong [ref=e178]: "0"
+                - generic [ref=e180]: —
+                - generic [ref=e182]:
+                  - button "Editar" [ref=e183]
+                  - button "Desativar" [ref=e184]
+          - generic [ref=e95]:
+            - generic [ref=e185]:
+              - generic [ref=e186]:
+                - paragraph [ref=e187]: Marca selecionada
+                - heading "Teste Marca" [level=2] [ref=e188]
+                - paragraph [ref=e189]: Ana · contato@testemarca.com
+              - generic [ref=e190]:
+                - button "Editar marca" [ref=e191] [cursor=pointer]
+                - button "Nova campanha" [ref=e192] [cursor=pointer]
+            - generic [ref=e193]:
+              - generic [ref=e194]:
+                - generic [ref=e195]: Instagram
+                - strong [ref=e196]: "@testemarca"
+              - generic [ref=e197]:
+                - generic [ref=e198]: Status
+                - strong [ref=e199]: Lead
+              - generic [ref=e200]:
+                - generic [ref=e201]: Total faturado
+                - strong [ref=e202]: R$ 0
+              - generic [ref=e203]:
+                - generic [ref=e204]: Ticket médio
+                - strong [ref=e205]: —
+              - generic [ref=e206]:
+                - generic [ref=e207]: Nº campanhas
+                - strong [ref=e208]: "0"
+              - generic [ref=e209]:
+                - generic [ref=e210]: Último trabalho realizado
+                - strong [ref=e211]: —
+            - generic [ref=e212]:
+              - generic [ref=e213]:
+                - generic [ref=e214]:
+                  - generic [ref=e215]:
+                    - heading "Próxima ação" [level=3] [ref=e216]
+                    - paragraph [ref=e217]: Follow-up atual dessa marca.
+                  - button "Editar ação" [ref=e218] [cursor=pointer]
+                - generic [ref=e219]:
+                  - strong [ref=e220]: Sem próxima ação definida
+                  - paragraph [ref=e221]: Defina um follow-up para essa marca e deixe o dashboard comercial sempre em dia.
+              - generic [ref=e222]:
+                - generic [ref=e224]:
+                  - heading "Interações" [level=3] [ref=e225]
+                  - paragraph [ref=e226]: Registre DMs, e-mails e ligações importantes.
+                - generic [ref=e227]:
+                  - combobox "Tipo de interação" [ref=e228]:
+                    - option "DM" [selected]
+                    - option "E-mail"
+                    - option "Ligação"
+                  - textbox "Data da interação" [ref=e229]: 2026-05-01
+                  - textbox "Observação da interação" [ref=e230]:
+                    - /placeholder: Resumo rápido do contato
+                  - button "Registrar" [ref=e231] [cursor=pointer]
+                - paragraph [ref=e233]: Nenhuma interação registrada para essa marca.
+              - generic [ref=e234]:
+                - generic [ref=e236]:
+                  - heading "Histórico de campanhas" [level=3] [ref=e237]
+                  - paragraph [ref=e238]: Campanhas vinculadas a essa marca.
+                - paragraph [ref=e240]: Nenhuma campanha vinculada a essa marca ainda.
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓

@@ -1,0 +1,5 @@
+[   69057ms] [LOG] [Sync] Carregando estado do servidor: {campanhas: 7, marcas: 7} @ http://localhost/saas-ugc/assets/js2/app.js?v=20260507b:583
+[   71172ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260507b:655
+[   72084ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[   73826ms] [WARNING] [Sync] Resposta inesperada do servidor: {ok: true, updatedAt: 2026-05-13T19:41:59+02:00, bytes: 18264, backend: supabase, warning: null} @ http://localhost/saas-ugc/assets/js2/core/state.js:973
+[  276067ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/track_time.php:0

@@ -1,0 +1,119 @@
+- generic [ref=e1]:
+  - button "Ativar tema claro" [active] [ref=e267] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: A
+        - generic [ref=e14]:
+          - generic [ref=e15]: Auditoria Makerline
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - generic [ref=e181]:
+        - generic [ref=e182]:
+          - generic [ref=e183]: Makerline Premium
+          - heading "Escolha o seu nível de operação comercial." [level=2] [ref=e184]
+          - paragraph [ref=e185]: Traga mais contexto, organização e previsibilidade para marcas, campanhas e receita dentro do mesmo painel.
+          - generic [ref=e186]:
+            - generic [ref=e187]: Free
+            - generic [ref=e188]: Plano anual
+            - generic [ref=e189]: Plano mensal
+          - generic [ref=e190]: Em teste · Próxima renovação em —.
+        - generic [ref=e191]:
+          - article [ref=e192]:
+            - generic [ref=e193]:
+              - heading "Free" [level=3] [ref=e194]
+              - paragraph [ref=e195]: Entrada leve para organizar a operação e começar no Makerline.
+            - generic [ref=e196]:
+              - strong [ref=e197]: R$ 0
+              - generic [ref=e198]: / conta
+            - list [ref=e199]:
+              - listitem [ref=e200]: ✓ Painel base para acompanhar a operação
+              - listitem [ref=e201]: ✓ Cadastro inicial de marcas e campanhas
+              - listitem [ref=e202]: ✓ Fluxo essencial para começar
+              - listitem [ref=e203]: ✓ Sem cobrança recorrente
+            - button "Disponível para todos" [disabled] [ref=e205]
+          - article [ref=e206]:
+            - generic [ref=e207]: Recomendado
+            - generic [ref=e208]:
+              - heading "Plano anual" [level=3] [ref=e209]
+              - paragraph [ref=e210]: Melhor custo para operar com menos atrito ao longo do ano.
+            - generic [ref=e211]:
+              - strong [ref=e212]: R$ 349,90
+              - generic [ref=e213]: / ano
+            - list [ref=e214]:
+              - listitem [ref=e215]: ✓ Todos os benefícios do mensal
+              - listitem [ref=e216]: ✓ Melhor valor no ciclo longo
+              - listitem [ref=e217]: ✓ Renovação com menos fricção
+              - listitem [ref=e218]: ✓ Prioridade em novidades selecionadas
+            - button "Plano ativo" [disabled] [ref=e220]
+          - article [ref=e221]:
+            - generic [ref=e222]:
+              - heading "Plano mensal" [level=3] [ref=e223]
+              - paragraph [ref=e224]: Mais recursos que o free, com flexibilidade para pagar mês a mês.
+            - generic [ref=e225]:
+              - strong [ref=e226]: R$ 39,90
+              - generic [ref=e227]: / mês
+            - list [ref=e228]:
+              - listitem [ref=e229]: ✓ Tudo que existe no free
+              - listitem [ref=e230]: ✓ Camada premium de gestão e contexto
+              - listitem [ref=e231]: ✓ Mais profundidade no acompanhamento
+              - listitem [ref=e232]: ✓ Gestão da assinatura pelo portal
+            - button "Plano ativo" [disabled] [ref=e234]
+        - generic [ref=e235]:
+          - heading "Comparação detalhada" [level=3] [ref=e237]
+          - table [ref=e239]:
+            - rowgroup [ref=e240]:
+              - row "Recurso Free Plano anual Plano mensal" [ref=e241]:
+                - columnheader "Recurso" [ref=e242]
+                - columnheader "Free" [ref=e243]
+                - columnheader "Plano anual" [ref=e244]
+                - columnheader "Plano mensal" [ref=e245]
+            - rowgroup [ref=e246]:
+              - row "Contexto operacional Base Avançado Expandido" [ref=e247]:
+                - cell "Contexto operacional" [ref=e248]
+                - cell "Base" [ref=e249]
+                - cell "Avançado" [ref=e250]
+                - cell "Expandido" [ref=e251]
+              - row "Marcas conectadas Entrada Estrutura expandida Mais espaço operacional" [ref=e252]:
+                - cell "Marcas conectadas" [ref=e253]
+                - cell "Entrada" [ref=e254]
+                - cell "Estrutura expandida" [ref=e255]
+                - cell "Mais espaço operacional" [ref=e256]
+              - row "Relatórios Essenciais Camada premium Premium" [ref=e257]:
+                - cell "Relatórios" [ref=e258]
+                - cell "Essenciais" [ref=e259]
+                - cell "Camada premium" [ref=e260]
+                - cell "Premium" [ref=e261]
+              - row "Assinatura Sem cobrança Prioritário Mensal flexível" [ref=e262]:
+                - cell "Assinatura" [ref=e263]
+                - cell "Sem cobrança" [ref=e264]
+                - cell "Prioritário" [ref=e265]
+                - cell "Mensal flexível" [ref=e266]

@@ -1,0 +1,306 @@
+{
+  "snapshots": [
+    {
+      "source": "tracker_online",
+      "source_url": "https://makerline.com.br/landing-insights.html",
+      "captured_at": "2026-06-07T14:55:11-03:00",
+      "traffic_started_at": "2026-05-28T00:00:00-03:00",
+      "events_count": 243,
+      "summary": {
+        "landing_page_views": 31,
+        "pre_registrations": 1,
+        "sessions": 40,
+        "visitors": 30,
+        "returning_visitors": 4,
+        "engaged_sessions": 17,
+        "cta_sessions": 6,
+        "form_start_sessions": 2,
+        "average_engagement_seconds": 322,
+        "average_scroll_depth": 41
+      },
+      "sources": [
+        {
+          "label": "Direto",
+          "sessions": 16,
+          "leads": 0
+        },
+        {
+          "label": "Parceiro: Keila Bragante",
+          "sessions": 13,
+          "leads": 0,
+          "partner_code": "keilabragante",
+          "partner_name": "Keila Bragante"
+        },
+        {
+          "label": "localhost",
+          "sessions": 1,
+          "leads": 0
+        },
+        {
+          "label": "ig / social",
+          "sessions": 1,
+          "leads": 0
+        }
+      ],
+      "devices": [
+        {
+          "label": "Mobile",
+          "sessions": 12,
+          "leads": 0
+        },
+        {
+          "label": "Tablet",
+          "sessions": 10,
+          "leads": 0
+        },
+        {
+          "label": "Desktop",
+          "sessions": 9,
+          "leads": 0
+        }
+      ],
+      "sections": [
+        {
+          "id": "hero",
+          "label": "Hero",
+          "sessions": 30
+        },
+        {
+          "id": "final-form",
+          "label": "Formulario final",
+          "sessions": 12
+        },
+        {
+          "id": "problem",
+          "label": "Problema",
+          "sessions": 10
+        },
+        {
+          "id": "social-proof",
+          "label": "Parceiros",
+          "sessions": 10
+        },
+        {
+          "id": "features",
+          "label": "Funcionalidades",
+          "sessions": 5
+        }
+      ],
+      "ctas": [
+        {
+          "id": "header_cta",
+          "label": "CTA do menu",
+          "location": "Header",
+          "clicks": 4,
+          "sessions": 4
+        },
+        {
+          "id": "hero_primary_cta",
+          "label": "CTA principal da hero",
+          "location": "Hero",
+          "clicks": 2,
+          "sessions": 2
+        }
+      ],
+      "series": [
+        { "date": "2026-05-28", "sessions": 5, "leads": 0 },
+        { "date": "2026-05-29", "sessions": 1, "leads": 0 },
+        { "date": "2026-05-30", "sessions": 1, "leads": 0 },
+        { "date": "2026-05-31", "sessions": 3, "leads": 0 },
+        { "date": "2026-06-01", "sessions": 6, "leads": 0 },
+        { "date": "2026-06-02", "sessions": 5, "leads": 0 },
+        { "date": "2026-06-03", "sessions": 3, "leads": 0 },
+        { "date": "2026-06-04", "sessions": 10, "leads": 0 },
+        { "date": "2026-06-05", "sessions": 1, "leads": 0 },
+        { "date": "2026-06-06", "sessions": 3, "leads": 0 },
+        { "date": "2026-06-07", "sessions": 1, "leads": 0 }
+      ],
+      "leads": [
+        {
+          "id": "wl_7cc373435e0794795eb45a8b",
+          "created_at": "2026-05-10T15:57:51+02:00",
+          "name": "Teste Landing",
+          "phone": "(11) 99999-8888",
+          "email": "teste-landing@example.com",
+          "source_label": "Direto",
+          "status": "new",
+          "is_test": true
+        }
+      ]
+    },
+    {
+      "source": "historico_keila_whatsapp",
+      "source_url": "whatsapp-web-local-evidence",
+      "captured_at": "2026-05-30T16:41:00-03:00",
+      "traffic_started_at": "2026-05-30T00:00:00-03:00",
+      "events_count": 51,
+      "summary": {
+        "landing_page_views": 51,
+        "pre_registrations": 5,
+        "sessions": 51,
+        "visitors": 51,
+        "returning_visitors": 0,
+        "engaged_sessions": 0,
+        "cta_sessions": 5,
+        "form_start_sessions": 5,
+        "average_engagement_seconds": 0,
+        "average_scroll_depth": 0
+      },
+      "sources": [
+        {
+          "label": "Parceiro: Keila Bragante",
+          "sessions": 51,
+          "leads": 5,
+          "referral_code": "keilabragante-15",
+          "partner_code": "keilabragante",
+          "partner_name": "Keila Bragante"
+        }
+      ],
+      "devices": [
+        {
+          "label": "Mobile",
+          "sessions": 35,
+          "leads": 3
+        },
+        {
+          "label": "Desktop",
+          "sessions": 16,
+          "leads": 2
+        }
+      ],
+      "sections": [
+        {
+          "id": "hero",
+          "label": "Hero",
+          "sessions": 51
+        },
+        {
+          "id": "social-proof",
+          "label": "Parceiros",
+          "sessions": 38
+        },
+        {
+          "id": "final-form",
+          "label": "Formulario final",
+          "sessions": 5
+        }
+      ],
+      "ctas": [
+        {
+          "id": "hero_primary_cta",
+          "label": "CTA principal da hero",
+          "location": "Hero",
+          "clicks": 5,
+          "sessions": 5
+        }
+      ],
+      "series": [
+        { "date": "2026-05-30", "sessions": 51, "leads": 5 }
+      ],
+      "leads": [
+        {
+          "id": "legacy-keila-20260530-1",
+          "created_at": "2026-05-30T16:25:00-03:00",
+          "name": "Lead historico sem identidade preservada #1",
+          "channel": "Indicacao",
+          "source_label": "Historico recuperado da divulgacao da Keila",
+          "referral_code": "keilabragante-15",
+          "partner_code": "keilabragante",
+          "partner_name": "Keila Bragante",
+          "campaign": "keila-divulgacao-2026-05-30",
+          "cta_id": "hero_primary_cta",
+          "cta_label": "CTA principal da hero",
+          "section_id": "final-form",
+          "section_label": "Formulario final",
+          "device_label": "Mobile",
+          "data_source": "historico_keila_whatsapp",
+          "is_partial": true
+        },
+        {
+          "id": "legacy-keila-20260530-2",
+          "created_at": "2026-05-30T16:28:00-03:00",
+          "name": "Lead historico sem identidade preservada #2",
+          "channel": "Indicacao",
+          "source_label": "Historico recuperado da divulgacao da Keila",
+          "referral_code": "keilabragante-15",
+          "partner_code": "keilabragante",
+          "partner_name": "Keila Bragante",
+          "campaign": "keila-divulgacao-2026-05-30",
+          "cta_id": "hero_primary_cta",
+          "cta_label": "CTA principal da hero",
+          "section_id": "final-form",
+          "section_label": "Formulario final",
+          "device_label": "Mobile",
+          "data_source": "historico_keila_whatsapp",
+          "is_partial": true
+        },
+        {
+          "id": "legacy-keila-20260530-3",
+          "created_at": "2026-05-30T16:31:00-03:00",
+          "name": "Lead historico sem identidade preservada #3",
+          "channel": "Indicacao",
+          "source_label": "Historico recuperado da divulgacao da Keila",
+          "referral_code": "keilabragante-15",
+          "partner_code": "keilabragante",
+          "partner_name": "Keila Bragante",
+          "campaign": "keila-divulgacao-2026-05-30",
+          "cta_id": "hero_primary_cta",
+          "cta_label": "CTA principal da hero",
+          "section_id": "final-form",
+          "section_label": "Formulario final",
+          "device_label": "Desktop",
+          "data_source": "historico_keila_whatsapp",
+          "is_partial": true
+        },
+        {
+          "id": "legacy-keila-20260530-4",
+          "created_at": "2026-05-30T16:34:00-03:00",
+          "name": "Lead historico sem identidade preservada #4",
+          "channel": "Indicacao",
+          "source_label": "Historico recuperado da divulgacao da Keila",
+          "referral_code": "keilabragante-15",
+          "partner_code": "keilabragante",
+          "partner_name": "Keila Bragante",
+          "campaign": "keila-divulgacao-2026-05-30",
+          "cta_id": "hero_primary_cta",
+          "cta_label": "CTA principal da hero",
+          "section_id": "final-form",
+          "section_label": "Formulario final",
+          "device_label": "Mobile",
+          "data_source": "historico_keila_whatsapp",
+          "is_partial": true
+        },
+        {
+          "id": "legacy-keila-20260530-5",
+          "created_at": "2026-05-30T16:37:00-03:00",
+          "name": "Lead historico sem identidade preservada #5",
+          "channel": "Indicacao",
+          "source_label": "Historico recuperado da divulgacao da Keila",
+          "referral_code": "keilabragante-15",
+          "partner_code": "keilabragante",
+          "partner_name": "Keila Bragante",
+          "campaign": "keila-divulgacao-2026-05-30",
+          "cta_id": "hero_primary_cta",
+          "cta_label": "CTA principal da hero",
+          "section_id": "final-form",
+          "section_label": "Formulario final",
+          "device_label": "Desktop",
+          "data_source": "historico_keila_whatsapp",
+          "is_partial": true
+        }
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "source": "whatsapp-web-local-copy",
+      "file": "%TEMP%/wa-leveldb-copy/016043.ldb",
+      "message": "na hora que a keila divulgou teve 5 cadastros insta"
+    },
+    {
+      "source": "whatsapp-web-local-copy",
+      "file": "%TEMP%/wa-leveldb-copy/016043.ldb",
+      "message": "olha o historico todo errado tambem, no dia q a keila divulgou teve mais de 50 views a lp"
+    }
+  ]
+}

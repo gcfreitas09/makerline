@@ -1,0 +1,6 @@
+[      30ms] [ERROR] [Sync] Falha ao salvar estado no servidor: TypeError: Failed to fetch
+    at flushRemoteSave (http://localhost/saas-ugc/assets/js2/core/state.js:961:23) @ http://localhost/saas-ugc/assets/js2/core/state.js:977
+[    1500ms] [LOG] [Sync] Carregando estado do servidor: {campanhas: 2, marcas: 2} @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:687
+[    2302ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:764
+[    3203ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[    5405ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971

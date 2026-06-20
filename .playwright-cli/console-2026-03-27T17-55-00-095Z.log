@@ -1,0 +1,15 @@
+[    3483ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/state.php:0
+[    6044ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/state.php:0
+[    6045ms] [ERROR] [Sync] Erro ao salvar estado: 401 Unauthorized @ http://localhost/saas-ugcBKP/assets/js2/core/state.js:887
+[   35827ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[   95091ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  122688ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  152458ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/state.php:0
+[  152458ms] [ERROR] [Sync] Erro ao salvar estado: 401 Unauthorized @ http://localhost/saas-ugcBKP/assets/js2/core/state.js:887
+[  152851ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  171543ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/state.php:0
+[  171543ms] [ERROR] [Sync] Erro ao salvar estado: 401 Unauthorized @ http://localhost/saas-ugcBKP/assets/js2/core/state.js:887
+[  182713ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  211534ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/state.php:0
+[  211535ms] [ERROR] [Sync] Erro ao salvar estado: 401 Unauthorized @ http://localhost/saas-ugcBKP/assets/js2/core/state.js:887
+[  212836ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0

@@ -1,0 +1,1466 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Makerline - UGC Quest</title>
+  <meta
+    name="description"
+    content="Gerencie campanhas, marcas e rotina comercial em um painel claro, direto e profissional."
+  />
+  <meta property="og:title" content="Makerline - UGC Quest" />
+  <meta
+    property="og:description"
+    content="Gerencie campanhas, marcas e rotina comercial em um painel claro, direto e profissional."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/img/share.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Makerline - UGC Quest" />
+  <meta
+    name="twitter:description"
+    content="Gerencie campanhas, marcas e rotina comercial em um painel claro, direto e profissional."
+  />
+  <meta name="twitter:image" content="assets/img/share.png" />
+  <link rel="icon" type="image/png" href="assets/img/logo.png" />
+  <link rel="apple-touch-icon" href="assets/img/logo.png" />
+  <link rel="stylesheet" href="assets/css/app2.css?v=20260507b" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260507b">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="assets/js2/core/customSelect.js?v=20260507b"></script>
+</head>
+<body>
+  <button class="theme-toggle" id="theme-toggle" data-theme-toggle type="button" aria-label="Alternar tema" hidden>
+    <span class="theme-toggle-icon theme-toggle-icon--sun" aria-hidden="true">☀</span>
+    <span class="theme-toggle-icon theme-toggle-icon--moon" aria-hidden="true">☾</span>
+  </button>
+  <div class="billing-success-toast" id="billing-success-toast" aria-live="polite" hidden>
+    <span class="billing-success-toast__pill">Plano ativo</span>
+    <strong class="billing-success-toast__title">Você agora faz parte do plano premium.</strong>
+  </div>
+  <div class="billing-confetti-layer" id="billing-confetti-layer" aria-hidden="true" hidden></div>
+  <div class="auth-body" id="auth-gate" hidden>
+    <div class="auth-card">
+      <div class="brand">
+        <div class="brand-icon">
+          <img src="assets/img/logo.png" alt="Makerline" />
+        </div>
+        <div>
+          <div class="brand-name">Makerline</div>
+          <div class="brand-tag">Painel comercial para creators</div>
+        </div>
+      </div>
+
+      <div>
+        <h2>UGC Quest</h2>
+        <p class="muted">Gerencie campanhas, marcas e entregas com uma operação mais clara e profissional.</p>
+      </div>
+
+      <div class="auth-tabs" role="tablist" aria-label="Entrar ou criar conta">
+        <button class="auth-tab active" id="auth-tab-login" data-auth-tab="login" type="button" role="tab" aria-selected="true">Entrar</button>
+        <button class="auth-tab" id="auth-tab-signup" data-auth-tab="signup" type="button" role="tab" aria-selected="false">Criar conta</button>
+      </div>
+
+      <form class="auth-form active" id="login-form">
+        <div class="form-row">
+          <label for="login-email">E-mail</label>
+          <input class="input" id="login-email" name="email" type="email" autocomplete="username" placeholder="voce@email.com" required />
+        </div>
+        <div class="form-row">
+          <label for="login-password">Senha</label>
+          <input class="input" id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Sua senha" required />
+        </div>
+        <button class="btn btn-primary" type="submit" id="login-submit">Entrar</button>
+        <div class="muted" id="login-msg" aria-live="polite"></div>
+        <div class="auth-links">
+          <button class="auth-link" id="forgot-password-btn" type="button">Esqueci minha senha</button>
+        </div>
+      </form>
+
+        <form class="auth-form" id="signup-form">
+          <div class="form-row">
+            <label for="signup-name">Nome</label>
+            <input class="input" id="signup-name" name="name" type="text" autocomplete="name" placeholder="Seu nome" required />
+          </div>
+          <div class="form-row">
+            <label for="signup-email">E-mail</label>
+            <input class="input" id="signup-email" name="email" type="email" autocomplete="email" placeholder="voce@email.com" required />
+          </div>
+        <div class="form-row">
+          <label for="signup-password">Senha</label>
+          <input class="input" id="signup-password" name="password" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres" required />
+        </div>
+        <button class="btn btn-primary" type="submit" id="signup-submit">Criar conta</button>
+        <div class="muted" id="signup-msg" aria-live="polite"></div>
+      </form>
+
+      <div class="auth-footer">Ao continuar, você entra no seu painel da Makerline.</div>
+    </div>
+  </div>
+
+  <div class="page-shell" id="app-shell" hidden>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">
+          <img src="assets/img/logo.png" alt="Makerline" />
+        </div>
+        <div>
+          <div class="brand-name">Makerline</div>
+        </div>
+      </div>
+
+        <div class="profile-card">
+          <div class="profile-avatar" data-profile-avatar>G</div>
+          <div class="profile-card-copy">
+            <div class="profile-card-name" data-profile-name>Perfil</div>
+            <div class="profile-card-plan" data-profile-plan>Plano</div>
+          </div>
+        </div>
+
+      <nav class="nav">
+        <div class="nav-scroll">
+        <button class="nav-item active" data-target="dashboard" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12l9-9 9 9" />
+            <path d="M5 10v10h14V10" />
+          </svg>
+          Dashboard
+        </button>
+        <button class="nav-item" data-target="brands" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 19V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11" />
+            <path d="M3 19h18" />
+            <path d="M9 6V4a3 3 0 0 1 6 0v2" />
+          </svg>
+          Marcas
+        </button>
+        <button class="nav-item" data-target="campaigns" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h6v6H4z" />
+            <path d="M14 4h6v6h-6z" />
+            <path d="M4 14h6v6H4z" />
+            <path d="M14 14h6v6h-6z" />
+          </svg>
+          Campanhas
+        </button>
+        <button class="nav-item" data-target="prospeccao" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13" />
+            <path d="M22 2l-7 20-4-9-9-4z" />
+          </svg>
+          Prospecção
+        </button>
+        <button class="nav-item" data-target="finance" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20" />
+            <path d="M17 6H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+          Financeiro
+        </button>
+        <button class="nav-item" data-target="metrics" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19V9" />
+            <path d="M10 19V5" />
+            <path d="M16 19V12" />
+            <path d="M22 19V7" />
+          </svg>
+          Métricas
+        </button>
+        <button class="nav-item" data-target="plans" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7h16" />
+            <path d="M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+            <path d="M8 12h8" />
+            <path d="M8 16h5" />
+          </svg>
+          Planos
+        </button>
+        <button class="nav-item" data-target="settings" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V22a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H2a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 0 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V2a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1H22a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+          </svg>
+          Configurações
+        </button>
+        </div>
+      </nav>
+    </aside>
+
+    <div class="sidebar-scrim" data-action="close-menu"></div>
+
+    <main class="main">
+      <section class="page-section active" data-section="dashboard">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title"><span data-greeting>Boa tarde</span>, <span data-profile-name>Perfil</span>!</h1>
+            <p class="section-subtitle" data-dashboard-narrative></p>
+          </div>
+          <button class="btn btn-primary" data-action="new-campaign" type="button">Nova campanha</button>
+        </div>
+
+        <div class="dashboard-upgrade-banner" data-dashboard-upgrade-banner>
+          <div class="dashboard-upgrade-copy">
+            <em class="dashboard-upgrade-kicker">Premium travado</em>
+            <strong>Desbloqueie recursos extras com um plano premium.</strong>
+            <span>Veja os planos disponíveis e escolha o ciclo que faz mais sentido para você.</span>
+          </div>
+          <button class="btn btn-primary" data-action="goto-plans" type="button">Ver planos</button>
+        </div>
+
+        <div class="dashboard-layout">
+          <div class="card dashboard-card dashboard-card--actions">
+            <div class="dashboard-card-header">
+              <div>
+                <p class="dashboard-eyebrow">Seu painel agora</p>
+              </div>
+            </div>
+
+            <div class="dashboard-priority-spot" data-dashboard-priority></div>
+            <div class="dashboard-momentum-grid" data-dashboard-momentum></div>
+
+          </div>
+
+          <div class="card dashboard-card dashboard-card--pipeline">
+            <div class="dashboard-card-header">
+              <div>
+                <p class="dashboard-eyebrow">Fluxo do mês</p>
+                <h2 class="dashboard-card-title">Como suas campanhas estão andando</h2>
+              </div>
+              <button class="btn btn-ghost dashboard-campaigns-btn" data-action="goto-campaigns" type="button">Ver campanhas</button>
+            </div>
+            <div class="dashboard-pipeline-shell">
+              <div class="dashboard-pipeline-grid" data-dashboard-pipeline></div>
+              <div class="dashboard-pipeline-detail" data-dashboard-pipeline-detail></div>
+            </div>
+          </div>
+
+          <div class="card dashboard-card dashboard-card--goal">
+            <div class="dashboard-card-header">
+              <div>
+                <p class="dashboard-eyebrow">Fechamento</p>
+                <h2 class="dashboard-card-title">Meta financeira do mês</h2>
+              </div>
+              <button class="btn btn-ghost btn-small" data-action="edit-monthly-goal" type="button">Editar meta</button>
+            </div>
+            <div class="dashboard-goal-progress" data-dashboard-goal></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section" data-section="campaigns">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Minhas campanhas</h1>
+          </div>
+          <button class="btn btn-primary" data-action="new-campaign" type="button">Nova campanha</button>
+        </div>
+
+        <div class="filter-row">
+          <button class="filter-btn active" data-filter="all" type="button">Todas</button>
+          <button class="filter-btn" data-filter="prospeccao" type="button">Prospecção</button>
+          <button class="filter-btn" data-filter="producao" type="button">Produção</button>
+          <button class="filter-btn" data-filter="finalizacao" type="button">Finalização</button>
+          <button class="filter-btn" data-filter="concluida" type="button">Concluída</button>
+          <select class="select select--compact" data-campaign-sort aria-label="Ordenar por">
+            <option value="updatedAt">Recente</option>
+            <option value="value">Valor</option>
+            <option value="hourlyRate">R$/hora</option>
+            <option value="dueDate">Prazo</option>
+            <option value="daysUntilDue">Dias para vencer</option>
+            <option value="brand">Marca</option>
+            <option value="status">Status</option>
+          </select>
+        </div>
+
+        <div class="campaign-list" data-campaigns></div>
+      </section>
+
+      <section class="page-section" data-section="prospeccao">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Prospecção</h1>
+            <p class="section-subtitle">Gerencie seus contatos com marcas e acompanhe o andamento de cada conversa.</p>
+          </div>
+          <button class="btn btn-primary" data-action="open-prospection-modal" type="button">Nova prospecção</button>
+        </div>
+
+        <div class="prospection-page">
+          <div class="card prospection-board-card">
+            <div class="prospection-board-top">
+              <div class="prospection-summary" data-prospection-summary></div>
+            </div>
+
+            <div class="prospection-search-row">
+              <input class="input" data-prospection-search type="search" placeholder="Buscar por marca ou tipo de contato..." />
+            </div>
+
+            <div class="prospection-list" data-prospection-list></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section" data-section="brands">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Marcas</h1>
+          </div>
+          <div class="section-actions">
+            <button class="btn btn-ghost" data-action="new-campaign" type="button">Nova campanha</button>
+            <button class="btn btn-primary" data-action="open-brand-modal" type="button">Nova marca</button>
+          </div>
+        </div>
+
+        <div class="brands-shell">
+          <div class="brands-main">
+            <div class="card brands-summary-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Visão geral</h3>
+                </div>
+              </div>
+              <div class="brands-stats" data-brand-stats></div>
+            </div>
+
+            <div class="card brands-list-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Lista de marcas</h3>
+                </div>
+                <button class="btn btn-ghost btn-small" data-action="open-brand-modal" type="button">Nova marca</button>
+              </div>
+              <div data-brands></div>
+            </div>
+            <div class="card brand-detail-card" data-brand-detail></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section" data-section="finance">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Financeiro</h1>
+          </div>
+          <div class="section-actions">
+            <label class="finance-page-filter">
+              <span>Período</span>
+              <select class="select select--compact" data-finance-range aria-label="Filtrar período financeiro">
+                <option value="15">15 dias</option>
+                <option value="30" selected>30 dias</option>
+                <option value="45">45 dias</option>
+                <option value="90">90 dias</option>
+                <option value="0">Todo histórico</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="finance-page">
+          <div class="finance-summary-grid">
+            <div class="card finance-overview-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Resumo de caixa</h3>
+                </div>
+              </div>
+              <div class="finance-overview-grid" data-finance-overview></div>
+            </div>
+          </div>
+
+          <div class="finance-operations-grid">
+            <div class="card finance-flow-card finance-flow-card--spotlight">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Fluxo futuro</h3>
+                </div>
+              </div>
+              <div class="finance-flow-list" data-finance-future></div>
+            </div>
+
+            <div class="card finance-calendar-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Agenda de recebimentos</h3>
+                </div>
+              </div>
+              <div class="finance-calendar-list" data-finance-calendar></div>
+            </div>
+          </div>
+
+          <div class="card finance-campaigns-card">
+            <div class="section-header section-header--tight">
+              <div>
+                <h3>Carteira de recebimentos</h3>
+              </div>
+            </div>
+            <div class="finance-ledger">
+              <div class="finance-ledger-head">
+                <span>Campanha</span>
+                <span>Marca</span>
+                <span>Valor</span>
+                <span>Vencimento</span>
+                <span>Status financeiro</span>
+                <span>Última atualização</span>
+                <span>Ação</span>
+              </div>
+              <div class="finance-campaign-list" data-finance-campaigns></div>
+            </div>
+          </div>
+
+          <div class="card finance-indicators-card">
+            <div class="section-header section-header--tight">
+              <div>
+                <h3>Saúde financeira</h3>
+              </div>
+            </div>
+            <div class="finance-indicators-grid" data-finance-indicators></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section" data-section="metrics">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Métricas</h1>
+          </div>
+          <div class="section-actions">
+            <label class="metrics-page-filter">
+              <span>Período</span>
+              <select class="select select--compact" data-metrics-range aria-label="Filtrar período de métricas">
+                <option value="15">15 dias</option>
+                <option value="30" selected>30 dias</option>
+                <option value="45">45 dias</option>
+                <option value="90">90 dias</option>
+                <option value="0">Todo histórico</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="metrics-page">
+          <div class="card metrics-overview-card">
+            <div class="section-header section-header--tight">
+              <div>
+                <h3>Visão geral</h3>
+              </div>
+            </div>
+            <div class="metrics-overview-grid" data-metrics-overview></div>
+          </div>
+
+          <div class="metrics-analysis-grid">
+            <div class="card metrics-funnel-card metrics-funnel-card--main">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Etapas das campanhas</h3>
+                </div>
+              </div>
+              <div class="metrics-funnel-grid" data-metrics-funnel></div>
+            </div>
+
+            <div class="card metrics-diagnostics-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Resumo da etapa</h3>
+                </div>
+              </div>
+              <div class="metrics-status-list" data-metrics-status-list></div>
+            </div>
+          </div>
+
+          <div class="metrics-bottom-grid">
+            <div class="card metrics-monthly-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Evolução mensal</h3>
+                </div>
+              </div>
+              <div class="metrics-chart-wrap">
+                <canvas id="metrics-monthly-chart" aria-label="Gráfico de evolução mensal"></canvas>
+              </div>
+            </div>
+
+            <div class="card metrics-insights-card">
+              <div class="section-header section-header--tight">
+                <div>
+                  <h3>Como está o andamento</h3>
+                </div>
+              </div>
+              <div class="metrics-indicators-grid" data-metrics-indicators></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section" data-section="settings">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Configurações</h1>
+            <p class="section-subtitle">Deixa tudo do seu jeito.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <div class="toggle">
+            <div>
+              <div>Alertas de campanha</div>
+              <p class="muted">Lembretes de entregas e revisões.</p>
+            </div>
+            <input type="checkbox" data-setting="alerts" />
+          </div>
+          <div class="toggle">
+            <div>
+              <div>Backup automático</div>
+              <p class="muted">Salva seu progresso aqui no navegador.</p>
+            </div>
+            <input type="checkbox" data-setting="backup" />
+          </div>
+          <button class="toggle settings-shortcut-card" data-action="goto-plans" type="button">
+            <div>
+              <div>Assinatura</div>
+              <p class="muted">Veja seu plano, assinatura e opções de upgrade.</p>
+            </div>
+            <span class="settings-shortcut-arrow">Abrir</span>
+          </button>
+        </div>
+
+
+
+        <div style="margin-top: 18px;"></div>
+        <div class="card settings-billing-card" data-settings-billing-card>
+          <div class="billing-card-head">
+            <div>
+              <h3>Assinatura</h3>
+              <p class="muted" data-settings-billing-text>Gerencie seu plano atual.</p>
+            </div>
+            <span class="billing-pill billing-pill--active" data-settings-billing-pill>Ativa</span>
+          </div>
+          <div class="billing-actions" style="margin-top: 14px;">
+            <button class="btn btn-primary" data-action="open-billing-portal" data-settings-billing-action type="button">Gerenciar plano</button>
+          </div>
+        </div>
+        <div style="margin-top: 18px;"></div>
+        <div class="card" id="admin-tracker-card" style="display: none;">
+          <div class="section-header" style="margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="brand-icon" style="width: 38px; height: 38px; border-radius: 12px;">
+                <img src="assets/img/logo.png" alt="Makerline" />
+              </div>
+              <div>
+                <h3>Makerline Private Analytics</h3>
+                <p class="section-subtitle">Painéis privados da operação do produto e da performance da landing.</p>
+              </div>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+              <a class="btn btn-ghost" href="intelligence.html">Abrir Intelligence</a>
+              <a class="btn btn-ghost" href="landing-insights.html">Abrir Landing Insights Privado</a>
+            </div>
+          </div>
+          <div class="muted" id="admin-tracker-msg"></div>
+          <div class="muted" style="margin-top: 8px;">Landing Insights mostra origem, UTM, scroll, CTA, formulario, erros e leads capturados com acesso via login privado.</div>
+        </div>
+
+        <div style="margin-top: 18px;"></div>
+        <button class="btn btn-ghost" data-action="logout" type="button" style="color: #f87171; font-size: 13px;">Sair da conta</button>
+      </section>
+
+      <section class="page-section" data-section="plans">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+          </div>
+        </div>
+
+        <div class="plans-page" data-billing-page>
+          <div class="card">
+            <h3>Assinatura</h3>
+            <p class="muted">Carregando seu status de cobrança...</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="modal" id="campaign-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-campaign-modal"></div>
+    <div class="modal-panel card">
+        <div class="modal-header">
+        <div>
+          <h3 data-campaign-modal-title>Nova campanha</h3>
+          <p class="muted" data-campaign-modal-subtitle>Só o básico para começar.</p>
+        </div>
+        <div class="modal-header-actions">
+          <button class="btn btn-ghost btn-small" id="campaign-assets-header-btn" data-action="open-campaign-assets-from-modal" type="button" style="display:none;">Arquivos</button>
+          <button class="btn btn-ghost btn-small" data-action="close-campaign-modal" type="button">Fechar</button>
+        </div>
+      </div>
+
+      <form class="form-grid" id="campaign-form">
+        <input type="hidden" name="id" />
+        <input type="hidden" name="lifecycle" value="active" />
+
+        <div class="campaign-wizard-progress" data-campaign-wizard-progress>
+          <span class="campaign-wizard-step is-active" data-step="1">1. Base</span>
+          <span class="campaign-wizard-step" data-step="2">2. Financeiro</span>
+          <span class="campaign-wizard-step" data-step="3">3. Entrega</span>
+        </div>
+
+        <div class="form-row" data-campaign-step="1">
+          <label>Marca</label>
+          <div class="form-split">
+            <select class="select" name="brandId" data-campaign-brand-select required>
+              <option value="">Escolher marca...</option>
+            </select>
+            <button class="btn btn-ghost btn-small" data-action="open-brand-modal" data-brand-modal-context="campaign" type="button">Nova marca</button>
+          </div>
+          <div class="muted">Toda campanha precisa estar vinculada a uma marca.</div>
+        </div>
+        <div class="form-row" data-campaign-step="1">
+          <label>Como começou</label>
+          <select class="select" name="startMethod">
+            <option value="">Escolher...</option>
+            <option value="ugc_platform">Plataforma de UGC</option>
+            <option value="inbound">(Inbound)</option>
+            <option value="outbound">(Outbound)</option>
+            <option value="instagram">Instagram</option>
+            <option value="agencia">Agência</option>
+            <option value="comunidade">Grupo / Comunidade</option>
+            <option value="other">Outro</option>
+          </select>
+        </div>
+
+        <div class="form-row" id="campaign-start-other-row" style="display:none;" data-campaign-step="1">
+          <label>Conta mais (opcional)</label>
+          <input class="input" name="startMethodOther" type="text" placeholder="Ex: indicação, evento, agência..." />
+        </div>
+
+        <div class="form-row" data-campaign-step="1">
+          <label>Contato da marca</label>
+          <input class="input" name="contactName" type="text" placeholder="Ex: Ana / João" />
+        </div>
+
+        <div class="form-row" data-campaign-step="1">
+          <label>E-mail de contato</label>
+          <input class="input" name="contactEmail" type="email" placeholder="contato@marca.com" />
+        </div>
+
+        <div class="form-row" data-campaign-step="2">
+          <label>Valor (R$)</label>
+          <div class="form-split">
+            <div class="campaign-form-inline-field" data-campaign-create-only="value">
+              <input class="input" name="value" type="text" inputmode="numeric" placeholder="R$ 0" data-money />
+            </div>
+            <select class="select" name="paymentPreset" aria-label="Atalho de pagamento">
+              <option value="0">Pago: 0%</option>
+              <option value="50">Pago: 50%</option>
+              <option value="100">Pago: 100%</option>
+            </select>
+            <select class="select" name="barter" aria-label="Permuta">
+              <option value="0">Permuta: não</option>
+              <option value="1">Permuta: sim</option>
+            </select>
+          </div>
+          <div class="muted" data-campaign-create-only="value-help">Pode ser dinheiro, permuta ou os dois. Se não recebeu em dinheiro, deixa R$ 0.</div>
+        </div>
+
+        <div class="form-row" data-campaign-step="2" data-campaign-create-only="payment-date">
+          <label>Quando irá receber (opcional)</label>
+          <input class="input" name="paymentDate" type="date" />
+        </div>
+
+        <div class="form-row" data-campaign-step="2" data-campaign-create-only="payment-received">
+          <label>Recebido em (opcional)</label>
+          <input class="input" name="paymentReceivedAt" type="date" />
+          <div class="muted" data-campaign-create-only="payment-received-help">Se já recebeu, essa data ajuda a fechar o financeiro do mês.</div>
+        </div>
+
+        <div class="form-row" data-campaign-step="3" data-campaign-create-only="due-date">
+          <label>Prazo</label>
+          <input class="input" name="dueDate" type="date" />
+          <div class="muted" data-campaign-create-only="due-date-help">Para não deixar nada escapar.</div>
+        </div>
+
+        <div class="form-row" data-campaign-step="3">
+          <label>Entregas previstas</label>
+          <div class="campaign-assets-form-grid">
+            <div class="form-row">
+              <label>Fotos</label>
+              <input class="input" name="photoCount" type="number" min="0" step="1" inputmode="numeric" placeholder="0" />
+            </div>
+
+            <div class="form-row">
+              <label>Vídeos</label>
+              <input class="input" name="videoCount" type="number" min="0" step="1" inputmode="numeric" placeholder="0" />
+            </div>
+          </div>
+          <div class="muted">Ex: fotos 3, vídeos 5.</div>
+        </div>
+
+        <div class="form-row" data-campaign-step="3">
+          <label>Próxima ação</label>
+          <select class="select" name="nextActionType">
+            <option value="">Sem ação pendente</option>
+            <option value="followup">Follow-up</option>
+            <option value="enviar_proposta">Enviar proposta</option>
+            <option value="cobrar_resposta">Cobrar resposta</option>
+            <option value="enviar_roteiro">Enviar roteiro</option>
+            <option value="cobrar_aprovacao">Cobrar aprovação</option>
+            <option value="entregar_conteudo">Entregar conteúdo</option>
+            <option value="revisar_ajustes">Revisar ajustes</option>
+            <option value="cobrar_pagamento">Cobrar pagamento</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+
+        <div class="form-row" id="campaign-next-action-custom-row" style="display:none;" data-campaign-step="3">
+          <label>Tipo personalizado</label>
+          <input class="input" name="nextActionCustomType" type="text" maxlength="80" placeholder="Ex: reenviar briefing" />
+        </div>
+
+        <div class="form-row" data-campaign-step="3">
+          <label>Data da próxima ação</label>
+          <input class="input" name="nextActionDate" type="date" />
+        </div>
+
+        <div class="form-row" data-campaign-step="3">
+          <label>Observação curta</label>
+          <input class="input" name="nextActionNote" type="text" maxlength="140" placeholder="Ex: cobrar retorno da Ana até 17h" />
+        </div>
+
+        <div class="form-row campaign-draft-assets-panel" data-campaign-step="3" data-campaign-create-only="assets">
+          <div class="campaign-draft-assets-header">
+            <label>Armazenador de arquivos</label>
+            <p class="muted">Suba briefing, roteiro e vídeos já no cadastro. Eles ficam salvos nessa campanha assim que você concluir a criação.</p>
+          </div>
+
+          <div class="campaign-assets-form-grid">
+            <div class="form-row">
+              <label>Categoria</label>
+              <select class="select" name="draftResourceCategory">
+                <option value="video">Vídeo</option>
+                <option value="roteiro">Roteiro</option>
+                <option value="briefing">Briefing</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label>Arquivos</label>
+              <input class="input" name="draftFiles" type="file" multiple accept="video/*,.pdf,.doc,.docx,.txt,.rtf,.md,.ppt,.pptx,.key,.pages" />
+            </div>
+          </div>
+
+          <div class="campaign-draft-assets-actions">
+            <button class="btn btn-ghost btn-small" id="campaign-draft-files-btn" type="button">Adicionar arquivos</button>
+          </div>
+
+          <div class="muted" id="campaign-draft-files-msg"></div>
+          <div class="campaign-assets-list" data-campaign-draft-list></div>
+        </div>
+
+        <div class="campaign-wizard-actions" data-campaign-wizard-actions>
+          <button class="btn btn-ghost" id="campaign-step-prev-btn" type="button">Voltar</button>
+          <button class="btn btn-primary" id="campaign-step-next-btn" type="button">Próximo</button>
+        </div>
+
+        <div class="campaign-submit-actions" data-campaign-step="3">
+          <button class="btn btn-primary" type="submit">Salvar campanha</button>
+          <button class="btn btn-danger" type="button" id="campaign-delete-inline-btn" data-action="delete-campaign" style="display:none;">Excluir campanha</button>
+        </div>
+
+        <div class="muted" id="campaign-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="campaign-delete-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-campaign-delete-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Excluir campanha</h3>
+          <p class="muted">Essa ação remove a campanha de forma permanente.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-campaign-delete-modal" type="button">Fechar</button>
+      </div>
+
+      <div class="muted" id="campaign-delete-title"></div>
+
+      <form class="form-grid" id="campaign-delete-form" style="margin-top: 12px;">
+        <div class="muted">Isso apaga a campanha e não pode ser desfeito.</div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-campaign-delete-modal" type="button">Cancelar</button>
+          <button class="btn btn-danger" id="campaign-delete-confirm" type="submit">Excluir</button>
+        </div>
+        <div class="muted" id="campaign-delete-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="campaign-due-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-campaign-due-modal"></div>
+    <div class="modal-panel card modal-panel--compact">
+      <div class="modal-header">
+        <div>
+          <h3>Editar prazo</h3>
+          <p class="muted">Atualize só a data dessa campanha.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-campaign-due-modal" type="button">Fechar</button>
+      </div>
+      <form class="form-grid" id="campaign-due-form">
+        <input type="hidden" name="campaignId" />
+        <div class="form-row">
+          <label>Prazo</label>
+          <input class="input" name="dueDate" type="date" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-campaign-due-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar prazo</button>
+        </div>
+        <div class="muted" id="campaign-due-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="campaign-value-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-campaign-value-modal"></div>
+    <div class="modal-panel card modal-panel--compact">
+      <div class="modal-header">
+        <div>
+          <h3>Editar valor</h3>
+          <p class="muted">Atualize o valor financeiro sem abrir o card completo.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-campaign-value-modal" type="button">Fechar</button>
+      </div>
+      <form class="form-grid" id="campaign-value-form">
+        <input type="hidden" name="campaignId" />
+        <div class="form-row">
+          <label>Valor (R$)</label>
+          <input class="input" name="value" type="text" inputmode="numeric" placeholder="R$ 0" data-money />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-campaign-value-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar valor</button>
+        </div>
+        <div class="muted" id="campaign-value-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="campaign-peek-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-campaign-peek-modal"></div>
+    <div class="modal-panel card campaign-peek-modal-panel">
+      <div class="modal-header">
+        <div>
+          <h3 data-campaign-peek-title>Campanha</h3>
+          <p class="muted" data-campaign-peek-subtitle>Resumo rápido do cadastro.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-campaign-peek-modal" type="button">Fechar</button>
+      </div>
+      <div class="campaign-peek-grid" data-campaign-peek-body></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" data-action="close-campaign-peek-modal" type="button">Fechar</button>
+        <button class="btn btn-ghost" data-action="open-campaign-assets-from-peek" type="button">Arquivos</button>
+        <button class="btn btn-primary" data-action="edit-campaign-from-peek" type="button">Editar campanha</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="campaign-assets-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-campaign-assets-modal"></div>
+    <div class="modal-panel card campaign-assets-modal-panel">
+      <div class="modal-header">
+        <div>
+          <h3 data-campaign-assets-title>Armazenador de arquivos</h3>
+          <p class="muted" data-campaign-assets-subtitle>Guarde vídeos, roteiros e briefings em um só lugar.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-campaign-assets-modal" type="button">Fechar</button>
+      </div>
+
+      <form class="form-grid campaign-assets-form" id="campaign-assets-form">
+        <input type="hidden" name="campaignId" />
+        <input type="hidden" name="resourceType" value="file" />
+
+        <div class="campaign-assets-form-grid">
+          <div class="form-row">
+            <label>Categoria</label>
+            <select class="select" name="resourceCategory">
+              <option value="video">Vídeo</option>
+              <option value="roteiro">Roteiro</option>
+              <option value="briefing">Briefing</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label>Arquivos</label>
+            <input class="input" name="file" type="file" multiple accept="video/*,.pdf,.doc,.docx,.txt,.rtf,.md,.ppt,.pptx,.key,.pages" />
+          </div>
+
+          <div class="form-row campaign-assets-form-grid-span">
+            <label>Observação curta</label>
+            <input class="input" name="note" type="text" maxlength="240" placeholder="Ex: versão final aprovada pela marca" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-campaign-assets-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Adicionar arquivos</button>
+        </div>
+        <div class="muted" id="campaign-assets-msg"></div>
+      </form>
+
+      <div class="campaign-assets-list" data-campaign-assets-list></div>
+    </div>
+  </div>
+
+  <div class="modal" id="prospection-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-prospection-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3 data-prospection-modal-title>Nova prospecção</h3>
+          <p class="muted">Registre a marca, o contato e acompanhe o status da conversa.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-prospection-modal" type="button">Fechar</button>
+      </div>
+
+      <form class="form-grid" id="prospection-form">
+        <input type="hidden" name="id" />
+        <div class="modal-wizard-progress" data-prospection-wizard-progress>
+          <span class="modal-wizard-step is-active" data-step="1">1. Contato</span>
+          <span class="modal-wizard-step" data-step="2">2. Status</span>
+          <span class="modal-wizard-step" data-step="3">3. Mensagem</span>
+        </div>
+        <div class="campaign-assets-form-grid" data-prospection-step="1">
+          <div class="form-row">
+            <label>Marca</label>
+            <input class="input" name="brand" type="text" placeholder="Ex: Nike" maxlength="120" required />
+          </div>
+
+          <div class="form-row">
+            <label>Tipo de contato</label>
+            <select class="select" name="contactType" required>
+              <option value="dm_instagram">DM Instagram</option>
+              <option value="email">E-mail</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="plataforma_ugc">Plataforma UGC</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row" data-prospection-step="2">
+          <label>Status</label>
+          <select class="select" name="status" required>
+            <option value="pendente">Pendente</option>
+            <option value="enviado">Enviado</option>
+            <option value="respondeu">Respondeu</option>
+            <option value="fechou">Fechou</option>
+            <option value="pediu_email">Pediu e-mail</option>
+            <option value="pediu_portfolio">Pediu Portfólio</option>
+            <option value="em_conversa">Em Conversa</option>
+            <option value="negociacao">Negociação</option>
+            <option value="nao_respondeu">Não respondeu</option>
+            <option value="recusou">Recusou</option>
+          </select>
+        </div>
+
+        <div class="form-row" data-prospection-step="3">
+          <label>Script/Mensagem</label>
+          <textarea class="input" name="script" rows="5" placeholder="Cole ou escreva seu script aqui..."></textarea>
+        </div>
+
+        <div class="form-row" data-prospection-step="3">
+          <label>Observações / Anotações</label>
+          <textarea class="input" name="notes" rows="4" placeholder="Respostas da marca, pedidos específicos e detalhes da conversa..."></textarea>
+        </div>
+
+        <div class="modal-wizard-actions" data-prospection-wizard-actions>
+          <button class="btn btn-primary" id="prospection-step-next-btn" data-action="prospection-step-next" type="button">Próximo</button>
+        </div>
+
+        <div class="modal-submit-actions" data-prospection-submit-actions>
+          <button class="btn btn-ghost" data-action="close-prospection-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar prospecção</button>
+        </div>
+        <button class="btn btn-danger" id="prospection-delete-inline-btn" data-action="delete-prospection" data-prospection-id="" type="button" style="display:none;" data-prospection-step="3">Excluir prospecção</button>
+        <div class="muted" id="prospection-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="brand-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-brand-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3 data-brand-modal-title>Nova marca</h3>
+          <p class="muted" data-brand-modal-subtitle>Registre o contato principal e defina o próximo passo comercial.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-brand-modal" type="button">Fechar</button>
+      </div>
+
+      <form class="form-grid" id="brand-form">
+        <input type="hidden" name="id" />
+        <div class="modal-wizard-progress" data-brand-wizard-progress>
+          <span class="modal-wizard-step is-active" data-step="1">1. Marca</span>
+          <span class="modal-wizard-step" data-step="2">2. Contato</span>
+          <span class="modal-wizard-step" data-step="3">3. Status</span>
+          <span class="modal-wizard-step" data-step="4">4. Ação</span>
+        </div>
+
+        <div class="form-row" data-brand-step="1">
+          <label>Nome da marca</label>
+          <input class="input" id="brand-name" name="name" type="text" placeholder="Ex: Nike" maxlength="80" required />
+        </div>
+        <div class="form-row" data-brand-step="1">
+          <label>Instagram (opcional)</label>
+          <input class="input" name="instagram" type="text" placeholder="@marca" maxlength="120" />
+        </div>
+        <div class="form-row" data-brand-step="2">
+          <label>E-mail (opcional)</label>
+          <input class="input" name="email" type="email" placeholder="contato@marca.com" maxlength="160" />
+        </div>
+        <div class="form-row" data-brand-step="2">
+          <label>Contato principal (opcional)</label>
+          <input class="input" name="contact" type="text" placeholder="Ex: Ana / João" maxlength="80" />
+        </div>
+        <div class="form-row" data-brand-create-only="status" data-brand-step="3">
+          <label>Status inicial</label>
+          <select class="select" name="status">
+            <option value="lead">Lead</option>
+            <option value="negociando">Negociando</option>
+            <option value="cliente_ativo">Cliente ativo</option>
+            <option value="cliente_recorrente">Cliente recorrente</option>
+            <option value="inativa">Inativa</option>
+            <option value="perdida">Perdida</option>
+          </select>
+        </div>
+        <div class="form-row" data-brand-create-only="next-action" data-brand-step="3">
+          <label>Próxima ação</label>
+          <select class="select" name="nextActionType">
+            <option value="">Sem ação pendente</option>
+            <option value="followup">Follow-up</option>
+            <option value="enviar_proposta">Enviar proposta</option>
+            <option value="cobrar_resposta">Cobrar resposta</option>
+            <option value="enviar_roteiro">Enviar roteiro</option>
+            <option value="cobrar_aprovacao">Cobrar aprovação</option>
+            <option value="entregar_conteudo">Entregar conteúdo</option>
+            <option value="revisar_ajustes">Revisar ajustes</option>
+            <option value="cobrar_pagamento">Cobrar pagamento</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-row" id="brand-next-action-custom-row" style="display:none;" data-brand-create-only="next-action" data-brand-step="4">
+          <label>Tipo personalizado</label>
+          <input class="input" name="nextActionCustomType" type="text" maxlength="80" placeholder="Ex: reativar contato por e-mail" />
+        </div>
+        <div class="form-row" data-brand-create-only="next-action" data-brand-step="4">
+          <label>Data da próxima ação</label>
+          <input class="input" name="nextActionDate" type="date" />
+        </div>
+        <div class="form-row" data-brand-create-only="next-action" data-brand-step="4">
+          <label>Observação curta</label>
+          <input class="input" name="nextActionNote" type="text" maxlength="140" placeholder="Ex: mandar proposta até quinta" />
+        </div>
+
+        <div class="modal-wizard-actions" data-brand-wizard-actions>
+          <button class="btn btn-primary" id="brand-step-next-btn" type="button">Próximo</button>
+        </div>
+
+        <div class="modal-submit-actions" data-brand-submit-actions>
+          <button class="btn btn-ghost" data-action="close-brand-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar marca</button>
+        </div>
+        <button class="btn btn-danger" id="brand-delete-inline-btn" data-action="delete-brand" data-brand-id="" type="button" style="display:none;" data-brand-step="4">Excluir marca</button>
+        <div class="muted" id="brand-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="brand-delete-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-brand-delete-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Excluir marca</h3>
+          <p class="muted">Se ainda existirem campanhas vinculadas, a exclusão será bloqueada.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-brand-delete-modal" type="button">Fechar</button>
+      </div>
+
+      <div class="muted" id="brand-delete-title"></div>
+
+      <form class="form-grid" id="brand-delete-form" style="margin-top: 12px;">
+        <div class="muted">Isso apaga a marca e o histórico de interações dela.</div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-brand-delete-modal" type="button">Cancelar</button>
+          <button class="btn btn-danger" id="brand-delete-confirm" type="submit">Excluir</button>
+        </div>
+        <div class="muted" id="brand-delete-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="script-delete-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-script-delete-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Excluir roteiro</h3>
+          <p class="muted">Essa ação remove o roteiro de forma permanente.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-script-delete-modal" type="button">Fechar</button>
+      </div>
+
+      <div class="muted" id="script-delete-title"></div>
+
+      <form class="form-grid" id="script-delete-form" style="margin-top: 12px;">
+        <div class="muted">Isso apaga do histórico e não pode ser desfeito.</div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-script-delete-modal" type="button">Cancelar</button>
+          <button class="btn btn-danger" id="script-delete-confirm" type="submit">Excluir</button>
+        </div>
+        <div class="muted" id="script-delete-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="focus-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-focus-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Confirmar foco</h3>
+          <p class="muted">Vai marcar +1 no seu foco da semana</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-focus-modal" type="button">Fechar</button>
+      </div>
+
+      <div class="card" style="margin-top: 12px;">
+        <div style="display: flex; justify-content: space-between; gap: 12px; align-items: flex-start;">
+          <div>
+            <div class="badge">Foco atual</div>
+            <h4 style="margin-top: 8px;" data-focus-modal-label></h4>
+            <p class="muted" style="margin-top: 6px;">Progresso: <span data-focus-modal-current>0</span> / <span data-focus-modal-target>0</span></p>
+          </div>
+          <span class="chip">Acompanhamento semanal</span>
+        </div>
+
+        <div class="progress-track" style="margin-top: 12px;">
+          <div class="progress-fill" data-focus-modal-bar style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 14px;">
+        <button class="btn btn-ghost" data-action="close-focus-modal" type="button">Cancelar</button>
+        <button class="btn btn-primary" data-action="confirm-focus-modal" type="button">Confirmar</button>
+      </div>
+
+      <div class="muted" id="focus-modal-msg"></div>
+    </div>
+  </div>
+
+  <!-- Onboarding Quiz -->
+  <div class="quiz-overlay" id="onboarding-quiz">
+    <div class="quiz-backdrop"></div>
+
+    <!-- Screen 1: Welcome -->
+    <div class="quiz-screen active" data-screen="1">
+      <div class="quiz-card">
+        <div class="quiz-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="8" width="40" height="32" rx="6" stroke="currentColor" stroke-width="2.5"/>
+            <path d="M16 28l4 4 12-12" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2 class="quiz-title">Bem-vindo ao Makerline</h2>
+        <p class="quiz-sub">Em menos de 1 minuto você registra sua primeira campanha.</p>
+        <button class="btn btn-primary quiz-cta" data-action="quiz-start" type="button">Começar</button>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot" data-dot="2"></span>
+          <span class="quiz-dot" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: Has campaign -->
+    <div class="quiz-screen" data-screen="2">
+      <div class="quiz-card">
+        <h2 class="quiz-title">Você tem alguma campanha ativa agora</h2>
+        <div class="quiz-options">
+          <button class="quiz-option" data-action="quiz-has-campaigns" data-value="yes" type="button">Sim, tenho</button>
+          <button class="quiz-option" data-action="quiz-has-campaigns" data-value="no" type="button">Não no momento</button>
+        </div>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot active" data-dot="2"></span>
+          <span class="quiz-dot" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: How many -->
+    <div class="quiz-screen" data-screen="3">
+      <div class="quiz-card">
+        <h2 class="quiz-title">Quantas campanhas estão ativas no momento</h2>
+        <div class="quiz-options quiz-options--grid">
+          <button class="quiz-option" data-action="quiz-campaign-count" data-value="0" type="button">0</button>
+          <button class="quiz-option" data-action="quiz-campaign-count" data-value="1-2" type="button">1–2</button>
+          <button class="quiz-option" data-action="quiz-campaign-count" data-value="3-5" type="button">3–5</button>
+          <button class="quiz-option" data-action="quiz-campaign-count" data-value="6+" type="button">6+</button>
+        </div>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot active" data-dot="2"></span>
+          <span class="quiz-dot active" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: Mini-wizard Step 1 – Brand type -->
+    <div class="quiz-screen" data-screen="4">
+      <div class="quiz-card">
+        <h2 class="quiz-title">Qual tipo de marca você quer fechar primeiro</h2>
+        <p class="quiz-sub">Isso ajuda a direcionar sua prospecção.</p>
+        <div class="quiz-options quiz-options--grid">
+          <button class="quiz-option" data-action="quiz-brand-type" data-value="beleza" type="button">Beleza</button>
+          <button class="quiz-option" data-action="quiz-brand-type" data-value="moda" type="button">Moda</button>
+          <button class="quiz-option" data-action="quiz-brand-type" data-value="tech" type="button">Tech</button>
+          <button class="quiz-option" data-action="quiz-brand-type" data-value="local" type="button">Local</button>
+          <button class="quiz-option" data-action="quiz-brand-type" data-value="outra" type="button">Outra</button>
+        </div>
+        <button class="btn btn-ghost quiz-cta-secondary" data-action="quiz-no-campaigns-skip" type="button" style="margin-top:8px">Pular</button>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot active" data-dot="2"></span>
+          <span class="quiz-dot" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: Mini-wizard Step 2 – Outreach goal -->
+    <div class="quiz-screen" data-screen="5">
+      <div class="quiz-card">
+        <h2 class="quiz-title">Quantas marcas você quer abordar essa semana</h2>
+        <p class="quiz-sub">Defina uma meta concreta para começar.</p>
+        <div class="quiz-options quiz-options--grid">
+          <button class="quiz-option" data-action="quiz-outreach-goal" data-value="5" type="button">5</button>
+          <button class="quiz-option" data-action="quiz-outreach-goal" data-value="10" type="button">10</button>
+          <button class="quiz-option" data-action="quiz-outreach-goal" data-value="15" type="button">15</button>
+          <button class="quiz-option" data-action="quiz-outreach-goal" data-value="20" type="button">20</button>
+        </div>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot active" data-dot="2"></span>
+          <span class="quiz-dot active" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 6: Mini-wizard Step 3 – Create prospection campaign -->
+    <div class="quiz-screen" data-screen="6">
+      <div class="quiz-card">
+        <div class="quiz-icon quiz-icon--small">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13"/>
+            <path d="M22 2l-7 20-4-9-9-4z"/>
+          </svg>
+        </div>
+        <h2 class="quiz-title">Vamos transformar isso em ação.</h2>
+        <p class="quiz-sub">Vamos criar uma campanha de prospecção com sua meta semanal. Você registra cada proposta enviada e acompanha o progresso.</p>
+        <button class="btn btn-primary quiz-cta" data-action="quiz-create-prospection" type="button">Criar campanha de prospecção</button>
+        <div class="quiz-dots">
+          <span class="quiz-dot active" data-dot="1"></span>
+          <span class="quiz-dot active" data-dot="2"></span>
+          <span class="quiz-dot active" data-dot="3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 8: Final CTA (for users with campaigns / skip) -->
+    <div class="quiz-screen" data-screen="8">
+      <div class="quiz-card">
+        <div class="quiz-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="24" r="20" stroke="var(--accent)" stroke-width="2.5"/>
+            <path d="M16 24l6 6 10-12" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2 class="quiz-title">Vamos colocar isso em prática.</h2>
+        <p class="quiz-sub">O valor do Makerline começa quando você registra sua primeira campanha.</p>
+        <button class="btn btn-primary quiz-cta" data-action="quiz-go-campaigns" type="button">Ir para Campanhas</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="brand-action-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-brand-action-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3 data-brand-action-title>Nova ação de marca</h3>
+          <p class="muted">Crie ou edite um follow-up comercial sem sair do dashboard.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-brand-action-modal" type="button">Fechar</button>
+      </div>
+
+      <form class="form-grid" id="brand-action-form">
+        <input type="hidden" name="brandId" />
+        <div class="form-row">
+          <label>Marca</label>
+          <select class="select" name="brandIdSelect">
+            <option value="">Escolher...</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Próxima ação</label>
+          <select class="select" name="nextActionType">
+            <option value="">Escolher...</option>
+            <option value="followup">Follow-up</option>
+            <option value="enviar_proposta">Enviar proposta</option>
+            <option value="cobrar_resposta">Cobrar resposta</option>
+            <option value="enviar_roteiro">Enviar roteiro</option>
+            <option value="cobrar_aprovacao">Cobrar aprovação</option>
+            <option value="entregar_conteudo">Entregar conteúdo</option>
+            <option value="revisar_ajustes">Revisar ajustes</option>
+            <option value="cobrar_pagamento">Cobrar pagamento</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-row" id="brand-action-custom-row" style="display:none;">
+          <label>Tipo personalizado</label>
+          <input class="input" name="nextActionCustomType" type="text" maxlength="80" placeholder="Ex: reenviar e-mail com proposta" />
+        </div>
+        <div class="form-row">
+          <label>Data da ação</label>
+          <input class="input" name="nextActionDate" type="date" />
+        </div>
+        <div class="form-row">
+          <label>Observação curta</label>
+          <input class="input" name="nextActionNote" type="text" maxlength="140" placeholder="Ex: falar com Joao sobre orçamento" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-action="close-brand-action-modal" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar ação</button>
+        </div>
+        <div class="muted" id="brand-action-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ---- MODAL: META MENSAL ---- -->
+  <div class="modal" id="meta-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-meta-modal"></div>
+    <div class="modal-panel card" style="width:min(400px,90vw);max-height:none;overflow:visible;">
+      <div class="modal-header">
+        <div>
+          <h3 style="display:flex;align-items:center;gap:8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent,#2dd4a8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+            Meta do mês
+          </h3>
+          <p class="muted">Defina quanto quer faturar este mês.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-meta-modal" type="button"></button>
+      </div>
+      <div style="margin-top:16px;">
+        <label style="display:block;margin-bottom:6px;font-size:13px;color:var(--text-muted,#8b8fa3);">Valor da meta (R$)</label>
+        <input class="input" id="meta-modal-input" type="text" inputmode="numeric" placeholder="R$ 0" style="font-size:20px;padding:14px 16px;text-align:center;letter-spacing:.5px;" />
+      </div>
+      <div class="modal-actions" style="margin-top:20px;">
+        <button class="btn btn-ghost" data-action="close-meta-modal" type="button">Cancelar</button>
+        <button class="btn btn-primary" data-action="save-meta-modal" type="button">Salvar meta</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="dashboard-pipeline-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-dashboard-pipeline-modal"></div>
+    <div class="modal-panel card dashboard-pipeline-modal-panel">
+      <div class="modal-header">
+        <div>
+          <h3 data-dashboard-pipeline-modal-title>Pipeline</h3>
+          <p class="muted" data-dashboard-pipeline-modal-subtitle>Veja as campanhas dessa fase sem sair do dashboard.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-dashboard-pipeline-modal" type="button">Fechar</button>
+      </div>
+      <div class="dashboard-pipeline-modal-body" data-dashboard-pipeline-modal-body></div>
+    </div>
+  </div>
+
+  <div class="modal" id="metrics-status-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-metrics-status-modal"></div>
+    <div class="modal-panel card metrics-status-modal-panel">
+      <div class="modal-header">
+        <div>
+          <h3 data-metrics-status-modal-title>Status</h3>
+          <p class="muted" data-metrics-status-modal-subtitle>Veja as campanhas dessa fase.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-metrics-status-modal" type="button">Fechar</button>
+      </div>
+      <div class="metrics-status-modal-body" data-metrics-status-modal-body></div>
+    </div>
+  </div>
+
+  <script type="module" src="assets/js2/app.js?v=20260607a"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        if (window.__ugcAppLoaded) return;
+
+        const navItems = document.querySelectorAll('.nav-item[data-target]');
+        const sections = document.querySelectorAll('.page-section');
+
+        const setActive = (page) => {
+          navItems.forEach((item) => {
+            item.classList.toggle('active', item.dataset.target === page);
+          });
+          sections.forEach((section) => {
+            section.classList.toggle('active', section.dataset.section === page);
+          });
+        };
+
+        navItems.forEach((item) => {
+          item.addEventListener('click', () => setActive(item.dataset.target));
+        });
+
+        const logoutBtn = document.querySelector('[data-action="logout"]');
+        if (logoutBtn) {
+           logoutBtn.addEventListener('click', () => {
+             try {
+               ['ugcQuestLoggedIn', 'ugcQuestToken', 'ugcQuestUserId', 'ugcQuestUserEmail', 'ugcQuestUserName'].forEach(
+                 (k) => sessionStorage.removeItem(k)
+               );
+             } catch (e) {}
+             try {
+               [
+                 'ugcQuestSessionLoggedIn',
+                 'ugcQuestSessionToken',
+                 'ugcQuestSessionUserId',
+                 'ugcQuestSessionUserEmail',
+                 'ugcQuestSessionUserName'
+               ].forEach((k) => localStorage.removeItem(k));
+             } catch (e) {}
+             window.location.replace('app.html');
+           });
+         }
+
+        setActive('dashboard');
+      }, 0);
+    });
+
+  </script>
+</body>
+</html>
+
+
+

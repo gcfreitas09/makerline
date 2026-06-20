@@ -1,0 +1,315 @@
+{
+    "userId": "u_6948bae198d5d4.84760048",
+    "updatedAt": "2026-02-04T20:33:49+01:00",
+    "state": {
+        "meta": {
+            "updatedAt": "2026-02-04T19:33:48.935Z"
+        },
+        "profile": {
+            "name": "GUILHERME FREITAS",
+            "email": "fgui3662@gmail.com",
+            "level": 9,
+            "xp": 330,
+            "streak": 3
+        },
+        "focus": {
+            "id": "f-scripts",
+            "week": "2026-W06",
+            "roll": 0,
+            "label": "Criar 2 roteiros caprichados",
+            "current": 0,
+            "target": 2,
+            "xp": 120
+        },
+        "missions": [
+            {
+                "id": "d-linked-script",
+                "label": "Criar 1 roteiro vinculado a uma campanha",
+                "total": 1,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            },
+            {
+                "id": "d-finish-script",
+                "label": "Finalizar 1 roteiro",
+                "total": 1,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            },
+            {
+                "id": "d-create-campaign",
+                "label": "Criar 1 nova campanha",
+                "total": 1,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            }
+        ],
+        "challenges": [
+            {
+                "id": "w-contacts",
+                "label": "Avanço comercial: registrar contato com 10 marcas",
+                "total": 10,
+                "xp": 250,
+                "type": "semanal",
+                "progress": 0
+            }
+        ],
+        "campaigns": [
+            {
+                "id": "c1",
+                "title": "Review Nike Air Max",
+                "brand": "Nike",
+                "status": "realizado",
+                "value": 800,
+                "pipeline": "entrega",
+                "updatedAt": "2025-12-28T03:59:28.108Z"
+            }
+        ],
+        "brands": [
+            {
+                "id": "b-1766544349853",
+                "name": "nike",
+                "contact": "akdokakcaoncoiacnioa",
+                "email": "aknoanjosano",
+                "status": "fechado"
+            },
+            {
+                "id": "b1",
+                "name": "Nike",
+                "contact": "Joao Silva",
+                "email": "joao@nike.com",
+                "status": "enviado"
+            },
+            {
+                "id": "b2",
+                "name": "Glossier",
+                "contact": "Maria Santos",
+                "email": "maria@glossier.com",
+                "status": "enviado"
+            },
+            {
+                "id": "b3",
+                "name": "Notion",
+                "contact": "Pedro Alves",
+                "email": "pedro@notion.so",
+                "status": "fechado"
+            }
+        ],
+        "scripts": [
+            {
+                "id": "s-1768913243131",
+                "text": "ROTEIRO REVIEW - adidas\nDuração: 15s | Tom: Leve e direto\nPúblico: público geral\nObjetivo: gerar vendas\n\nHOOK (0-3s)\n- Dor direta: \"público geral cansou de gerar vendas? Olha isso aqui.\"\nDESENVOLVIMENTO\n- Prova social + um dado simples.\n- Mantém o ritmo de 15s (cortes rápidos e sem enrolar).\nPROVA\n- Frase de review real (pode ser print).\nCTA\n- \"Me manda DM com 'ROTEIRO' que eu te passo o passo a passo.\"\nFINAL\n- Mostra o produto + lembrete visual do link\/benefício.",
+                "brand": "adidas",
+                "type": "review",
+                "campaignId": null,
+                "finalized": false,
+                "title": "Review - adidas"
+            }
+        ],
+        "metrics": {
+            "avgTime": 12,
+            "proposals": 24,
+            "responseRate": 0.42,
+            "steps": [
+                {
+                    "label": "Contato enviado",
+                    "value": 1
+                },
+                {
+                    "label": "Marca respondeu",
+                    "value": 1
+                },
+                {
+                    "label": "Negociacao",
+                    "value": 0
+                },
+                {
+                    "label": "Roteiro pronto",
+                    "value": 1
+                },
+                {
+                    "label": "Gravacao",
+                    "value": 0
+                },
+                {
+                    "label": "Edicao",
+                    "value": 1
+                }
+            ]
+        },
+        "settings": {
+            "weekly": true,
+            "alerts": true,
+            "backup": true,
+            "focus": false
+        },
+        "progress": {
+            "daily": {
+                "date": "2026-02-04",
+                "bonusDate": null,
+                "lastCompleteDate": null,
+                "unique": []
+            },
+            "weekly": {
+                "date": "2026-W06",
+                "challengeId": "w-contacts",
+                "dailyCompleteDays": [],
+                "campaignUpdateDays": [
+                    "2026-02-03"
+                ],
+                "organizedCampaignIds": [],
+                "finishedCampaignIds": []
+            },
+            "streak": {
+                "lastSeenDate": "2026-02-04"
+            },
+            "achievements": {
+                "version": 2,
+                "unlocked": [
+                    "ach-first-campaign",
+                    "ach-level5",
+                    "ach-production",
+                    "ach-finalizer",
+                    "ach-first-script",
+                    "ach-clean-pipeline"
+                ],
+                "active": [
+                    "ach-first-script",
+                    "ach-streak7",
+                    "ach-writer",
+                    "ach-production",
+                    "ach-level5",
+                    "ach-contact",
+                    "ach-finalizer",
+                    "ach-organizer",
+                    "ach-clean-pipeline",
+                    "ach-level10"
+                ]
+            }
+        },
+        "avatar": {
+            "premium": false,
+            "unlocked": [
+                "hair-classic",
+                "outfit-basic",
+                "shoe-default",
+                "hair-fade",
+                "outfit-tech",
+                "shoe-run",
+                "hair-wave",
+                "outfit-run",
+                "shoe-high"
+            ],
+            "selected": {
+                "hair": "hair-classic",
+                "outfit": "outfit-basic",
+                "shoes": "shoe-default"
+            }
+        },
+        "ui": {
+            "activePage": "dashboard",
+            "campaignFilter": "all",
+            "campaignPaymentFilter": "all",
+            "openScript": "s-1768913243131",
+            "brandComposer": {
+                "brandId": "b-1766544349853",
+                "type": "first",
+                "text": "Oi akdokakcaoncoiacnioa! Tudo certo?\n\nAqui é o GUILHERME FREITAS. Eu curti a nike e pensei em umas ideias de UGC que combinam com vocês.\n\nPosso te mandar 3 ideias rapidinhas e valores?",
+                "lastBrandId": "b-1766544349853",
+                "lastType": "first"
+            },
+            "missionDate": "2026-02-04",
+            "weeklyDate": "2026-W06",
+            "campaignLabelFilter": "all",
+            "platformCollapsed": {
+                "instagram": true,
+                "tiktok": true,
+                "youtube": true
+            }
+        },
+        "campaignMeta": {
+            "classifications": []
+        },
+        "platforms": [
+            {
+                "key": "instagram",
+                "label": "Instagram Reels",
+                "theme": "platform-instagram"
+            },
+            {
+                "key": "tiktok",
+                "label": "TikTok Videos",
+                "theme": "platform-tiktok"
+            },
+            {
+                "key": "youtube",
+                "label": "YouTube Shorts",
+                "theme": "platform-youtube"
+            }
+        ],
+        "organizer": {
+            "instagram": [
+                {
+                    "id": "f-1766246080489",
+                    "name": "teste",
+                    "open": false,
+                    "items": [
+                        {
+                            "id": "i-1766246104323",
+                            "type": "video",
+                            "name": "aa"
+                        }
+                    ]
+                },
+                {
+                    "id": "ig-1",
+                    "name": "Conteudos aprovados",
+                    "open": false,
+                    "items": [
+                        {
+                            "id": "ig-1-1",
+                            "type": "video",
+                            "name": "review-produto.mp4"
+                        },
+                        {
+                            "id": "ig-1-2",
+                            "type": "foto",
+                            "name": "thumb-campanha.jpg"
+                        }
+                    ]
+                },
+                {
+                    "id": "ig-2",
+                    "name": "Conteudos em revisao",
+                    "open": false,
+                    "items": []
+                }
+            ],
+            "tiktok": [
+                {
+                    "id": "tt-1",
+                    "name": "Campanhas ativas",
+                    "open": true,
+                    "items": [
+                        {
+                            "id": "tt-1-1",
+                            "type": "video",
+                            "name": "hook-tiktok.mp4"
+                        }
+                    ]
+                }
+            ],
+            "youtube": [
+                {
+                    "id": "yt-1",
+                    "name": "Shorts prontos",
+                    "open": true,
+                    "items": []
+                }
+            ]
+        }
+    }
+}

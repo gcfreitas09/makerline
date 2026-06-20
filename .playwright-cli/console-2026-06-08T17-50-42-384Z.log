@@ -1,0 +1,12 @@
+[   33325ms] [LOG] [Sync] Carregando estado do servidor: {campanhas: 2, marcas: 2} @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:687
+[   34099ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:764
+[   35003ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[   36360ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[  463325ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[  464847ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[  601345ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/track_time.php:0
+[  631387ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/track_time.php:0
+[  691382ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/track_time.php:0
+[  719839ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/state.php:0
+[  719952ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/billing_status.php:0
+[  719968ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:764

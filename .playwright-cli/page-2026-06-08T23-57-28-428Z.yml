@@ -1,0 +1,166 @@
+- generic [active] [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: A
+        - generic [ref=e14]:
+          - generic [ref=e15]: Auditoria Deploy
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - button "Menu" [ref=e50] [cursor=pointer]
+            - heading "Marcas" [level=1] [ref=e51]
+          - generic [ref=e52]:
+            - button "Nova campanha" [ref=e53] [cursor=pointer]
+            - button "Nova marca" [ref=e54] [cursor=pointer]
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - heading "Visão geral" [level=3] [ref=e60]
+            - generic [ref=e61]:
+              - generic [ref=e62]:
+                - generic [ref=e63]: Marcas registradas
+                - strong [ref=e64]: "1"
+                - generic [ref=e65]: 1 lead(s) em abertura
+              - generic [ref=e66]:
+                - generic [ref=e67]: Negociando
+                - strong [ref=e68]: "0"
+                - generic [ref=e69]: Conversas quentes no momento
+              - generic [ref=e70]:
+                - generic [ref=e71]: Clientes
+                - strong [ref=e72]: "0"
+                - generic [ref=e73]: Ativos e recorrentes
+              - generic [ref=e74]:
+                - generic [ref=e75]: Faturado total
+                - strong [ref=e76]: R$ 0
+                - generic [ref=e77]: 0 com ação pendente
+          - generic [ref=e78]:
+            - generic [ref=e79]:
+              - heading "Lista de marcas" [level=3] [ref=e81]
+              - button "Nova marca" [ref=e82] [cursor=pointer]
+            - generic [ref=e84]:
+              - generic [ref=e85]:
+                - generic [ref=e86]: Status
+                - generic [ref=e87]: Marca
+                - generic [ref=e88]: Ação pendente
+                - generic [ref=e89]: Próximo follow-up
+                - generic [ref=e90]: Total faturado
+                - generic [ref=e91]: Campanhas
+                - generic [ref=e92]: Último contato
+                - generic [ref=e93]: Ações
+              - generic [ref=e95] [cursor=pointer]:
+                - combobox [ref=e97]:
+                  - option "Lead" [selected]
+                  - option "Negociando"
+                  - option "Cliente ativo"
+                  - option "Cliente recorrente"
+                  - option "Inativa"
+                  - option "Perdida"
+                - generic [ref=e98]:
+                  - strong [ref=e99]: Prospecção - Tech
+                  - generic [ref=e100]: Sem contato principal
+                - button "Sem pendência" [ref=e102]:
+                  - generic [ref=e103]: Sem pendência
+                - generic [ref=e105]: Sem follow-up
+                - strong [ref=e107]: R$ 0
+                - strong [ref=e109]: "1"
+                - generic [ref=e111]: 08/06/2026
+                - generic [ref=e113]:
+                  - button "Editar" [ref=e114]
+                  - button "Desativar" [ref=e115]
+          - generic [ref=e116]:
+            - generic [ref=e117]:
+              - generic [ref=e118]:
+                - paragraph [ref=e119]: Marca selecionada
+                - heading "Prospecção - Tech" [level=2] [ref=e120]
+                - paragraph [ref=e121]: Sem contato principal · Sem canal principal
+              - generic [ref=e122]:
+                - button "Editar marca" [ref=e123] [cursor=pointer]
+                - button "Nova campanha" [ref=e124] [cursor=pointer]
+            - generic [ref=e125]:
+              - generic [ref=e126]:
+                - generic [ref=e127]: Instagram
+                - strong [ref=e128]: —
+              - generic [ref=e129]:
+                - generic [ref=e130]: Status
+                - strong [ref=e131]: Lead
+              - generic [ref=e132]:
+                - generic [ref=e133]: Total faturado
+                - strong [ref=e134]: R$ 0
+              - generic [ref=e135]:
+                - generic [ref=e136]: Ticket médio
+                - strong [ref=e137]: R$ 0
+              - generic [ref=e138]:
+                - generic [ref=e139]: Nº campanhas
+                - strong [ref=e140]: "1"
+              - generic [ref=e141]:
+                - generic [ref=e142]: Último trabalho realizado
+                - strong [ref=e143]: Prospecção - Tech
+            - generic [ref=e144]:
+              - generic [ref=e145]:
+                - generic [ref=e146]:
+                  - generic [ref=e147]:
+                    - heading "Próxima ação" [level=3] [ref=e148]
+                    - paragraph [ref=e149]: Follow-up atual dessa marca.
+                  - button "Editar ação" [ref=e150] [cursor=pointer]
+                - generic [ref=e151]:
+                  - strong [ref=e152]: Sem próxima ação definida
+                  - paragraph [ref=e153]: Defina um follow-up para essa marca e deixe o dashboard comercial sempre em dia.
+              - generic [ref=e154]:
+                - generic [ref=e156]:
+                  - heading "Interações" [level=3] [ref=e157]
+                  - paragraph [ref=e158]: Registre DMs, e-mails e ligações importantes.
+                - generic [ref=e159]:
+                  - combobox "Tipo de interação" [ref=e160]:
+                    - option "DM" [selected]
+                    - option "E-mail"
+                    - option "Ligação"
+                  - textbox "Data da interação" [ref=e161]: 2026-06-08
+                  - textbox "Observação da interação" [ref=e162]:
+                    - /placeholder: Resumo rápido do contato
+                  - button "Registrar" [ref=e163] [cursor=pointer]
+                - paragraph [ref=e165]: Nenhuma interação registrada para essa marca.
+              - generic [ref=e166]:
+                - generic [ref=e168]:
+                  - heading "Histórico de campanhas" [level=3] [ref=e169]
+                  - paragraph [ref=e170]: Campanhas vinculadas a essa marca.
+                - generic [ref=e172]:
+                  - generic [ref=e173]:
+                    - strong [ref=e174]: Prospecção - Tech
+                    - generic [ref=e175]: Prospecção · Abordagem/Inscrição
+                  - generic [ref=e176]:
+                    - generic [ref=e177]: R$ 0
+                    - generic [ref=e178]: Pagamento pendente
+                    - generic [ref=e179]: Prazo —
+                  - button "Abrir campanha" [ref=e180] [cursor=pointer]
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓

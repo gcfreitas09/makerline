@@ -1,0 +1,3 @@
+[   66836ms] [LOG] [App] Estado do servidor carregado @ http://127.0.0.1:8031/assets/js2/app.js?v=20260507b:655
+[   67747ms] [LOG] [Sync] Salvando estado no servidor... @ http://127.0.0.1:8031/assets/js2/core/state.js:959
+[   69152ms] [WARNING] [Sync] Resposta inesperada do servidor: {ok: true, updatedAt: 2026-05-13T18:28:23+02:00, bytes: 2266, backend: supabase, warning: null} @ http://127.0.0.1:8031/assets/js2/core/state.js:973

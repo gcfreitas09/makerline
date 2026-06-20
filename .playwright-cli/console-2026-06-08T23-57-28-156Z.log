@@ -1,0 +1,28 @@
+[    2002ms] [LOG] [Sync] Carregando estado do servidor: {campanhas: 1, marcas: 0} @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:687
+[    2781ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:764
+[    3690ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[    5716ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[   19946ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[   21628ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[  163827ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[  165907ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[  182215ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[  184633ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[  267105ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[  269290ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[  286530ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[  287952ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[  368028ms] [LOG] [Sync] Carregando estado do servidor: {campanhas: 2, marcas: 1} @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:687
+[  368840ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:764
+[  369741ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[  372714ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[  380083ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[  382491ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[  437872ms] [LOG] [Sync] Carregando estado do servidor: {campanhas: 2, marcas: 1} @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:687
+[  438624ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:764
+[  439531ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[  441337ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[  463443ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[  466171ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[  483084ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[  485494ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971

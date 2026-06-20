@@ -1,0 +1,122 @@
+- generic [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: A
+        - generic [ref=e14]:
+          - generic [ref=e15]: Auditoria Deploy
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - text: Marca Prazo Valor Status Etapa Avançar Ações Marca Prazo Valor Status Etapa Avançar Ações Status Marca Ação pendente Próximo follow-up Total faturado Campanhas Último contato Ações Campanha Marca Valor Vencimento Status financeiro Última atualização Ação
+      - generic [ref=e47]:
+        - button "Menu" [active] [ref=e50] [cursor=pointer]
+        - generic [ref=e138]:
+          - generic [ref=e139]:
+            - generic [ref=e140]: Makerline Premium
+            - heading "Escolha o seu nível de operação comercial." [level=2] [ref=e141]
+            - paragraph [ref=e142]: Traga mais contexto, organização e previsibilidade para marcas, campanhas e receita dentro do mesmo painel.
+            - generic [ref=e143]:
+              - generic [ref=e144]: Free
+              - generic [ref=e145]: Plano anual
+              - generic [ref=e146]: Plano mensal
+            - generic [ref=e147]: Em teste · Próxima renovação em —.
+          - generic [ref=e148]:
+            - article [ref=e149]:
+              - generic [ref=e150]:
+                - heading "Free" [level=3] [ref=e151]
+                - paragraph [ref=e152]: Entrada leve para organizar a operação e começar no Makerline.
+              - generic [ref=e153]:
+                - strong [ref=e154]: R$ 0
+                - generic [ref=e155]: / conta
+              - list [ref=e156]:
+                - listitem [ref=e157]: ✓ Painel base para acompanhar a operação
+                - listitem [ref=e158]: ✓ Cadastro inicial de marcas e campanhas
+                - listitem [ref=e159]: ✓ Fluxo essencial para começar
+                - listitem [ref=e160]: ✓ Sem cobrança recorrente
+              - button "Disponível para todos" [disabled] [ref=e162]
+            - article [ref=e163]:
+              - generic [ref=e164]: Recomendado
+              - generic [ref=e165]:
+                - heading "Plano anual" [level=3] [ref=e166]
+                - paragraph [ref=e167]: Melhor custo para operar com menos atrito ao longo do ano.
+              - generic [ref=e168]:
+                - strong [ref=e169]: R$ 349,90
+                - generic [ref=e170]: / ano
+              - list [ref=e171]:
+                - listitem [ref=e172]: ✓ Todos os benefícios do mensal
+                - listitem [ref=e173]: ✓ Melhor valor no ciclo longo
+                - listitem [ref=e174]: ✓ Renovação com menos fricção
+                - listitem [ref=e175]: ✓ Prioridade em novidades selecionadas
+              - button "Plano ativo" [disabled] [ref=e177]
+            - article [ref=e178]:
+              - generic [ref=e179]:
+                - heading "Plano mensal" [level=3] [ref=e180]
+                - paragraph [ref=e181]: Mais recursos que o free, com flexibilidade para pagar mês a mês.
+              - generic [ref=e182]:
+                - strong [ref=e183]: R$ 39,90
+                - generic [ref=e184]: / mês
+              - list [ref=e185]:
+                - listitem [ref=e186]: ✓ Tudo que existe no free
+                - listitem [ref=e187]: ✓ Camada premium de gestão e contexto
+                - listitem [ref=e188]: ✓ Mais profundidade no acompanhamento
+                - listitem [ref=e189]: ✓ Gestão da assinatura pelo portal
+              - button "Plano ativo" [disabled] [ref=e191]
+          - generic [ref=e192]:
+            - heading "Comparação detalhada" [level=3] [ref=e194]
+            - table [ref=e196]:
+              - rowgroup [ref=e197]:
+                - row "Recurso Free Plano anual Plano mensal" [ref=e198]:
+                  - columnheader "Recurso" [ref=e199]
+                  - columnheader "Free" [ref=e200]
+                  - columnheader "Plano anual" [ref=e201]
+                  - columnheader "Plano mensal" [ref=e202]
+              - rowgroup [ref=e203]:
+                - row "Contexto operacional Base Avançado Expandido" [ref=e204]:
+                  - cell "Contexto operacional" [ref=e205]
+                  - cell "Base" [ref=e206]
+                  - cell "Avançado" [ref=e207]
+                  - cell "Expandido" [ref=e208]
+                - row "Marcas conectadas Entrada Estrutura expandida Mais espaço operacional" [ref=e209]:
+                  - cell "Marcas conectadas" [ref=e210]
+                  - cell "Entrada" [ref=e211]
+                  - cell "Estrutura expandida" [ref=e212]
+                  - cell "Mais espaço operacional" [ref=e213]
+                - row "Relatórios Essenciais Camada premium Premium" [ref=e214]:
+                  - cell "Relatórios" [ref=e215]
+                  - cell "Essenciais" [ref=e216]
+                  - cell "Camada premium" [ref=e217]
+                  - cell "Premium" [ref=e218]
+                - row "Assinatura Sem cobrança Prioritário Mensal flexível" [ref=e219]:
+                  - cell "Assinatura" [ref=e220]
+                  - cell "Sem cobrança" [ref=e221]
+                  - cell "Prioritário" [ref=e222]
+                  - cell "Mensal flexível" [ref=e223]

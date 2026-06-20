@@ -1,0 +1,100 @@
+- generic [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: Q
+        - generic [ref=e14]:
+          - generic [ref=e15]: QA Brand
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Planos" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Planos
+          - button "Configurações" [ref=e45] [cursor=pointer]:
+            - img [ref=e46]
+            - text: Configurações
+    - main [ref=e49]:
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - heading "Marcas" [level=1] [ref=e53]
+          - generic [ref=e54]:
+            - button "Nova campanha" [ref=e55] [cursor=pointer]
+            - button "Nova marca" [ref=e56] [cursor=pointer]
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - heading "Visão geral" [level=3] [ref=e62]
+            - generic [ref=e63]:
+              - generic [ref=e64]:
+                - generic [ref=e65]: Marcas registradas
+                - strong [ref=e66]: "0"
+                - generic [ref=e67]: 0 lead(s) em abertura
+              - generic [ref=e68]:
+                - generic [ref=e69]: Negociando
+                - strong [ref=e70]: "0"
+                - generic [ref=e71]: Conversas quentes no momento
+              - generic [ref=e72]:
+                - generic [ref=e73]: Clientes
+                - strong [ref=e74]: "0"
+                - generic [ref=e75]: Ativos e recorrentes
+              - generic [ref=e76]:
+                - generic [ref=e77]: Faturado total
+                - strong [ref=e78]: R$ 0
+                - generic [ref=e79]: 0 com ação pendente
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - heading "Lista de marcas" [level=3] [ref=e83]
+              - button "Nova marca" [ref=e84] [cursor=pointer]
+            - generic [ref=e86]:
+              - img [ref=e88]
+              - generic [ref=e92]:
+                - heading "Nenhuma marca registrada" [level=3] [ref=e93]
+                - paragraph [ref=e94]: Crie sua primeira marca para organizar campanhas, follow-ups e histórico comercial no mesmo lugar.
+          - generic [ref=e96]:
+            - heading "Quando você adicionar uma marca, o detalhe aparece aqui." [level=3] [ref=e97]
+            - paragraph [ref=e98]: Você vai conseguir ver resumo, próxima ação e campanhas vinculadas no mesmo lugar.
+            - button "Criar primeira marca" [ref=e99] [cursor=pointer]
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓
+  - generic [ref=e102]:
+    - generic [ref=e103]:
+      - generic [ref=e104]:
+        - heading "Nova marca" [level=3] [ref=e105]
+        - paragraph [ref=e106]: Crie a marca uma vez e use ela em campanhas, follow-ups e histórico.
+      - button "Fechar" [ref=e107] [cursor=pointer]
+    - generic [ref=e108]:
+      - generic [ref=e109]:
+        - generic [ref=e110]: 1. Marca
+        - generic [ref=e111]: 2. Contato
+        - generic [ref=e112]: 3. Status
+        - generic [ref=e113]: 4. Ação
+      - generic [ref=e122]:
+        - generic [ref=e123]: E-mail (opcional)
+        - textbox "contato@marca.com" [ref=e124]
+      - generic [ref=e125]:
+        - generic [ref=e126]: Contato principal (opcional)
+        - 'textbox "Ex: Ana / João" [ref=e127]'
+      - button "Próximo" [active] [ref=e121] [cursor=pointer]

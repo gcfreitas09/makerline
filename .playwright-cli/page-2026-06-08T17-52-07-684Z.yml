@@ -1,0 +1,22 @@
+- main [ref=e2]:
+  - article [ref=e26]:
+    - generic [ref=e27]:
+      - img "Makerline" [ref=e29]
+      - generic [ref=e30]:
+        - paragraph [ref=e31]: Tracker privado
+        - heading "Landing Insights" [level=1] [ref=e32]
+        - paragraph [ref=e33]: Entre com sua conta autorizada para abrir o tracker privado da landing do Makerline.
+    - generic [ref=e34]: Acesso restrito aos socios autorizados.
+    - generic [ref=e35]:
+      - generic [ref=e36]:
+        - generic [ref=e37]: E-mail
+        - textbox "E-mail" [ref=e38]:
+          - /placeholder: voce@email.com
+      - generic [ref=e39]:
+        - generic [ref=e40]: Senha
+        - textbox "Senha" [ref=e41]:
+          - /placeholder: Sua senha
+      - generic [ref=e42]:
+        - button "Voltar para o app" [ref=e43] [cursor=pointer]
+        - button "Entrar no tracker" [ref=e44] [cursor=pointer]
+      - generic [ref=e45]: Este login nao tem acesso ao tracker privado.

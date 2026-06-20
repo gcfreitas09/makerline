@@ -1,0 +1,265 @@
+{
+    "userId": "u_69823facbdb3d4.76354269",
+    "updatedAt": "2026-02-03T17:20:28-03:00",
+    "state": {
+        "meta": {
+            "updatedAt": "2026-02-03T20:20:27.537Z"
+        },
+        "profile": {
+            "name": "Lorenzo Ritter",
+            "email": "lorenzo.ritter27@gmail.com",
+            "level": 1,
+            "xp": 20,
+            "streak": 1
+        },
+        "focus": {
+            "id": "f-short-videos",
+            "week": "2026-W06",
+            "roll": 0,
+            "label": "Postar 3 vídeos curtos",
+            "current": 0,
+            "target": 3,
+            "xp": 120
+        },
+        "missions": [
+            {
+                "id": "d-create-scripts",
+                "label": "Criar 2 roteiros",
+                "total": 2,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            },
+            {
+                "id": "d-create-campaign",
+                "label": "Criar 1 nova campanha",
+                "total": 1,
+                "xp": 20,
+                "type": "diária",
+                "progress": 1
+            },
+            {
+                "id": "d-brand-contacts",
+                "label": "Registrar contato com 3 marcas",
+                "total": 3,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            }
+        ],
+        "challenges": [
+            {
+                "id": "w-contacts",
+                "label": "Avanço comercial: registrar contato com 10 marcas",
+                "total": 10,
+                "xp": 250,
+                "type": "semanal",
+                "progress": 0
+            }
+        ],
+        "campaigns": [
+            {
+                "id": "c-1770150024425",
+                "title": "MensClub",
+                "brand": "MensClub",
+                "status": "negociando",
+                "value": 460,
+                "barter": false,
+                "dueDate": "",
+                "startMethod": "",
+                "startMethodOther": "",
+                "paymentPercent": 0,
+                "paymentDate": "",
+                "paused": false,
+                "archived": false,
+                "createdAt": "2026-02-03T20:20:24.425Z",
+                "updatedAt": "2026-02-03T20:20:27.537Z"
+            },
+            {
+                "id": "c-1770150000841",
+                "title": "YouCom",
+                "brand": "YouCom",
+                "status": "pendente",
+                "value": 650,
+                "barter": false,
+                "dueDate": "",
+                "startMethod": "",
+                "startMethodOther": "",
+                "paymentPercent": 0,
+                "paymentDate": "",
+                "paused": false,
+                "archived": false,
+                "createdAt": "2026-02-03T20:20:00.841Z",
+                "updatedAt": "2026-02-03T20:20:00.841Z"
+            },
+            {
+                "id": "c-1770149972628",
+                "title": "GoCase",
+                "brand": "GoCase",
+                "status": "negociando",
+                "value": 800,
+                "barter": true,
+                "dueDate": "2026-02-02",
+                "startMethod": "",
+                "startMethodOther": "",
+                "paymentPercent": 0,
+                "paymentDate": "",
+                "paused": false,
+                "archived": false,
+                "createdAt": "2026-02-03T20:19:32.628Z",
+                "updatedAt": "2026-02-03T20:20:07.026Z",
+                "fieldsComplete": true
+            },
+            {
+                "id": "c-1770149921431",
+                "title": "Nike",
+                "brand": "Nike",
+                "status": "realizado",
+                "value": 1200,
+                "barter": false,
+                "dueDate": "2026-02-04",
+                "startMethod": "",
+                "startMethodOther": "",
+                "paymentPercent": 0,
+                "paymentDate": "",
+                "paused": false,
+                "archived": false,
+                "createdAt": "2026-02-03T20:18:41.431Z",
+                "updatedAt": "2026-02-03T20:18:50.488Z",
+                "fieldsComplete": true
+            }
+        ],
+        "brands": [],
+        "scripts": [],
+        "metrics": {
+            "avgTime": 12,
+            "proposals": 24,
+            "responseRate": 0.419999999999999984456877655247808434069156646728515625,
+            "steps": [
+                {
+                    "label": "Contato enviado",
+                    "value": 1
+                },
+                {
+                    "label": "Marca respondeu",
+                    "value": 1
+                },
+                {
+                    "label": "Negociacao",
+                    "value": 0
+                },
+                {
+                    "label": "Roteiro pronto",
+                    "value": 1
+                },
+                {
+                    "label": "Gravacao",
+                    "value": 0
+                },
+                {
+                    "label": "Edicao",
+                    "value": 1
+                }
+            ]
+        },
+        "settings": {
+            "weekly": false,
+            "alerts": true,
+            "backup": true
+        },
+        "progress": {
+            "daily": {
+                "date": "2026-02-03",
+                "bonusDate": null,
+                "lastCompleteDate": null,
+                "unique": {
+                    "d-complete-campaign": [
+                        "c-1770149921431",
+                        "c-1770149972628"
+                    ],
+                    "d-deadlines": [
+                        "c-1770149921431",
+                        "c-1770149972628"
+                    ],
+                    "d-update-status": [
+                        "c-1770149921431",
+                        "c-1770149972628",
+                        "c-1770150024425"
+                    ],
+                    "d-advance-stage": [
+                        "c-1770149921431",
+                        "c-1770149972628",
+                        "c-1770150024425"
+                    ],
+                    "d-finish-campaign": [
+                        "c-1770149921431",
+                        "c-1770149972628"
+                    ],
+                    "d-production": [
+                        "c-1770149921431",
+                        "c-1770149972628",
+                        "c-1770150024425"
+                    ]
+                }
+            },
+            "weekly": {
+                "date": "2026-W06",
+                "challengeId": "w-contacts",
+                "dailyCompleteDays": [],
+                "campaignUpdateDays": [
+                    "2026-02-03"
+                ],
+                "organizedCampaignIds": [],
+                "finishedCampaignIds": [
+                    "c-1770149921431",
+                    "c-1770149972628"
+                ]
+            },
+            "streak": {
+                "lastSeenDate": "2026-02-03"
+            },
+            "achievements": {
+                "version": 2,
+                "unlocked": [],
+                "active": [
+                    "ach-first-contact",
+                    "ach-streak7",
+                    "ach-script-finisher",
+                    "ach-10-campaigns",
+                    "ach-deadlines-8",
+                    "ach-negotiations-3",
+                    "ach-finalizer",
+                    "ach-organizer",
+                    "ach-no-overdue",
+                    "ach-focus-5"
+                ]
+            }
+        },
+        "avatar": {
+            "premium": false,
+            "unlocked": [
+                "hair-classic",
+                "outfit-basic",
+                "shoe-default"
+            ],
+            "selected": {
+                "hair": "hair-classic",
+                "outfit": "outfit-basic",
+                "shoes": "shoe-default"
+            }
+        },
+        "ui": {
+            "activePage": "campaigns",
+            "campaignFilter": "all",
+            "campaignPaymentFilter": "all",
+            "openScript": null,
+            "brandComposer": {
+                "brandId": null,
+                "type": "first",
+                "text": ""
+            },
+            "missionDate": "2026-02-03",
+            "weeklyDate": "2026-W06"
+        }
+    }
+}

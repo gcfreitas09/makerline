@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "url": "https://dutzsjykyntttfmmhxjv.supabase.co",
+  "service_key": "sb_publishable_0omnUu1M443f-R1nAePYcg_CpTRmObN",
+  "table_users": "ugc_users",
+  "table_partner_commissions": "partner_commissions",
+  "timeout": 12
+}
+

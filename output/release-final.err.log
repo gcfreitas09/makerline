@@ -1,0 +1,193 @@
+[Thu May 28 20:57:52 2026] PHP 8.2.12 Development Server (http://127.0.0.1:8036) started
+[Thu May 28 20:58:09 2026] 127.0.0.1:54756 Accepted
+[Thu May 28 20:58:09 2026] 127.0.0.1:54756 [200]: HEAD /KeilaBragante_15
+[Thu May 28 20:58:09 2026] 127.0.0.1:54756 Closing
+[Thu May 28 20:58:09 2026] 127.0.0.1:54757 Accepted
+[Thu May 28 20:58:09 2026] 127.0.0.1:54757 [200]: HEAD /RickOlavo
+[Thu May 28 20:58:09 2026] 127.0.0.1:54757 Closing
+[Thu May 28 20:58:09 2026] 127.0.0.1:54759 Accepted
+[Thu May 28 20:58:09 2026] 127.0.0.1:54759 [200]: HEAD /KeilaBragante_30
+[Thu May 28 20:58:09 2026] 127.0.0.1:54759 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:54010 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:54010 [200]: GET /
+[Thu May 28 20:58:12 2026] 127.0.0.1:54010 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:62414 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:64465 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:62414 [200]: GET /assets/css/landing.css?v=20260507oldstyle
+[Thu May 28 20:58:12 2026] 127.0.0.1:57546 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:64465 [200]: GET /assets/img/landing-feature-campaigns-real.png
+[Thu May 28 20:58:12 2026] 127.0.0.1:62406 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:57546 [200]: GET /assets/img/landing-feature-prospeccao-real.png
+[Thu May 28 20:58:12 2026] 127.0.0.1:49420 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:62406 [200]: GET /assets/img/landing-feature-metrics-real.png
+[Thu May 28 20:58:12 2026] 127.0.0.1:62414 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:62357 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:49420 [200]: GET /assets/js/landing_tracker.js?v=20260516a
+[Thu May 28 20:58:12 2026] 127.0.0.1:52215 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:62357 [200]: GET /assets/img/logo.png
+[Thu May 28 20:58:12 2026] 127.0.0.1:52215 [200]: GET /assets/img/keila.jpg
+[Thu May 28 20:58:12 2026] 127.0.0.1:64465 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:63044 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:49420 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:63044 [200]: GET /assets/img/rick.jpg
+[Thu May 28 20:58:12 2026] 127.0.0.1:62357 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:57546 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:62406 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:52215 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:63044 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:57874 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:57874 [200]: POST /api/landing_track.php
+[Thu May 28 20:58:12 2026] 127.0.0.1:57874 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:61944 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:61944 [200]: POST /api/landing_track.php
+[Thu May 28 20:58:12 2026] 127.0.0.1:61944 Closing
+[Thu May 28 20:58:12 2026] 127.0.0.1:61207 Accepted
+[Thu May 28 20:58:12 2026] 127.0.0.1:61207 [200]: GET /assets/img/logo.png
+[Thu May 28 20:58:12 2026] 127.0.0.1:61207 Closing
+[Thu May 28 20:58:37 2026] 127.0.0.1:60117 Accepted
+[Thu May 28 20:58:37 2026] 127.0.0.1:60117 [200]: GET /api/referral_lookup.php?ref=KeilaBragante_30
+[Thu May 28 20:58:37 2026] 127.0.0.1:60117 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:55406 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:55406 [200]: POST /api/landing_track.php
+[Thu May 28 20:58:40 2026] 127.0.0.1:55406 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:52961 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:52961 [200]: GET /KeilaBragante_30
+[Thu May 28 20:58:40 2026] 127.0.0.1:52961 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:50060 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:50440 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:50060 [200]: POST /api/landing_track.php
+[Thu May 28 20:58:40 2026] 127.0.0.1:50060 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:50440 [200]: POST /api/landing_track.php
+[Thu May 28 20:58:40 2026] 127.0.0.1:50440 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:63436 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:63436 [200]: GET /landing.html?ref=keilabragante-30&origin=keilabragante
+[Thu May 28 20:58:40 2026] 127.0.0.1:63436 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:63055 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:61515 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:63055 [200]: GET /assets/css/landing.css?v=20260507oldstyle
+[Thu May 28 20:58:40 2026] 127.0.0.1:61515 [200]: GET /assets/img/logo.png
+[Thu May 28 20:58:40 2026] 127.0.0.1:62369 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:57439 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:62369 [200]: GET /assets/img/landing-feature-campaigns-real.png
+[Thu May 28 20:58:40 2026] 127.0.0.1:49732 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:57439 [200]: GET /assets/img/landing-feature-prospeccao-real.png
+[Thu May 28 20:58:40 2026] 127.0.0.1:63055 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:61515 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:49732 [200]: GET /assets/img/landing-feature-metrics-real.png
+[Thu May 28 20:58:40 2026] 127.0.0.1:55141 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:61022 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:55141 [200]: GET /assets/js/landing_tracker.js?v=20260516a
+[Thu May 28 20:58:40 2026] 127.0.0.1:52766 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:61022 [200]: GET /assets/img/keila.jpg
+[Thu May 28 20:58:40 2026] 127.0.0.1:62369 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:52766 [200]: GET /assets/img/rick.jpg
+[Thu May 28 20:58:40 2026] 127.0.0.1:55141 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:57439 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:49732 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:61022 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:52766 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:54020 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:54020 [200]: GET /api/referral_lookup.php?ref=keilabragante-30
+[Thu May 28 20:58:40 2026] 127.0.0.1:54020 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:59170 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:55282 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:59170 [200]: POST /api/landing_track.php
+[Thu May 28 20:58:40 2026] 127.0.0.1:59170 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:53578 Accepted
+[Thu May 28 20:58:40 2026] 127.0.0.1:55282 [200]: POST /api/landing_track.php
+[Thu May 28 20:58:40 2026] 127.0.0.1:55282 Closing
+[Thu May 28 20:58:40 2026] 127.0.0.1:53578 [200]: GET /assets/img/logo.png
+[Thu May 28 20:58:40 2026] 127.0.0.1:53578 Closing
+[Thu May 28 20:59:01 2026] 127.0.0.1:62337 Accepted
+[Thu May 28 20:59:01 2026] 127.0.0.1:62337 [200]: GET /KeilaBragante_30
+[Thu May 28 20:59:01 2026] 127.0.0.1:62337 Closing
+[Thu May 28 20:59:01 2026] 127.0.0.1:60456 Accepted
+[Thu May 28 20:59:01 2026] 127.0.0.1:60456 [200]: GET /landing.html?ref=keilabragante-30&origin=keilabragante
+[Thu May 28 20:59:01 2026] 127.0.0.1:60456 Closing
+[Thu May 28 20:59:01 2026] 127.0.0.1:56197 Accepted
+[Thu May 28 20:59:01 2026] 127.0.0.1:51364 Accepted
+[Thu May 28 20:59:01 2026] 127.0.0.1:56197 [200]: GET /assets/css/landing.css?v=20260507oldstyle
+[Thu May 28 20:59:01 2026] 127.0.0.1:51933 Accepted
+[Thu May 28 20:59:01 2026] 127.0.0.1:51364 [200]: GET /assets/img/landing-feature-campaigns-real.png
+[Thu May 28 20:59:01 2026] 127.0.0.1:61839 Accepted
+[Thu May 28 20:59:01 2026] 127.0.0.1:51933 [200]: GET /assets/img/landing-feature-prospeccao-real.png
+[Thu May 28 20:59:01 2026] 127.0.0.1:61468 Accepted
+[Thu May 28 20:59:01 2026] 127.0.0.1:61839 [200]: GET /assets/img/landing-feature-metrics-real.png
+[Thu May 28 20:59:01 2026] 127.0.0.1:56197 Closing
+[Thu May 28 20:59:02 2026] 127.0.0.1:56922 Accepted
+[Thu May 28 20:59:02 2026] 127.0.0.1:61468 [200]: GET /assets/js/landing_tracker.js?v=20260516a
+[Thu May 28 20:59:02 2026] 127.0.0.1:54064 Accepted
+[Thu May 28 20:59:02 2026] 127.0.0.1:56922 [200]: GET /assets/img/logo.png
+[Thu May 28 20:59:02 2026] 127.0.0.1:54064 [200]: GET /assets/img/keila.jpg
+[Thu May 28 20:59:02 2026] 127.0.0.1:51364 Closing
+[Thu May 28 20:59:02 2026] 127.0.0.1:65241 Accepted
+[Thu May 28 20:59:02 2026] 127.0.0.1:61468 Closing
+[Thu May 28 20:59:02 2026] 127.0.0.1:65241 [200]: GET /assets/img/rick.jpg
+[Thu May 28 20:59:02 2026] 127.0.0.1:56922 Closing
+[Thu May 28 20:59:02 2026] 127.0.0.1:51933 Closing
+[Thu May 28 20:59:02 2026] 127.0.0.1:61839 Closing
+[Thu May 28 20:59:02 2026] 127.0.0.1:54064 Closing
+[Thu May 28 20:59:02 2026] 127.0.0.1:65241 Closing
+[Thu May 28 20:59:02 2026] 127.0.0.1:61266 Accepted
+[Thu May 28 20:59:02 2026] 127.0.0.1:61266 [200]: GET /api/referral_lookup.php?ref=keilabragante-30
+[Thu May 28 20:59:02 2026] 127.0.0.1:61266 Closing
+[Thu May 28 20:59:02 2026] 127.0.0.1:58323 Accepted
+[Thu May 28 20:59:02 2026] 127.0.0.1:58323 [200]: POST /api/landing_track.php
+[Thu May 28 20:59:02 2026] 127.0.0.1:58323 Closing
+[Thu May 28 20:59:02 2026] 127.0.0.1:54821 Accepted
+[Thu May 28 20:59:02 2026] 127.0.0.1:54821 [200]: POST /api/landing_track.php
+[Thu May 28 20:59:02 2026] 127.0.0.1:54821 Closing
+[Thu May 28 20:59:02 2026] 127.0.0.1:58474 Accepted
+[Thu May 28 20:59:02 2026] 127.0.0.1:58474 [200]: GET /assets/img/logo.png
+[Thu May 28 20:59:02 2026] 127.0.0.1:58474 Closing
+[Thu May 28 20:59:18 2026] 127.0.0.1:60620 Accepted
+[Thu May 28 20:59:18 2026] 127.0.0.1:60620 [200]: POST /api/landing_track.php
+[Thu May 28 20:59:18 2026] 127.0.0.1:60620 Closing
+[Thu May 28 20:59:18 2026] 127.0.0.1:63900 Accepted
+[Thu May 28 20:59:18 2026] 127.0.0.1:63900 [200]: GET /KeilaBragante_30
+[Thu May 28 20:59:18 2026] 127.0.0.1:63900 Closing
+[Thu May 28 20:59:18 2026] 127.0.0.1:56095 Accepted
+[Thu May 28 20:59:18 2026] 127.0.0.1:63924 Accepted
+[Thu May 28 20:59:18 2026] 127.0.0.1:56095 [200]: POST /api/landing_track.php
+[Thu May 28 20:59:18 2026] 127.0.0.1:56095 Closing
+[Thu May 28 20:59:18 2026] 127.0.0.1:63924 [200]: POST /api/landing_track.php
+[Thu May 28 20:59:18 2026] 127.0.0.1:63924 Closing
+[Thu May 28 20:59:18 2026] 127.0.0.1:52895 Accepted
+[Thu May 28 20:59:18 2026] 127.0.0.1:52895 [200]: GET /landing.html?ref=keilabragante-30&origin=keilabragante
+[Thu May 28 20:59:18 2026] 127.0.0.1:52895 Closing
+[Thu May 28 20:59:18 2026] 127.0.0.1:51878 Accepted
+[Thu May 28 20:59:18 2026] 127.0.0.1:51878 [200]: GET /assets/css/landing.css?v=20260507oldstyle
+[Thu May 28 20:59:18 2026] 127.0.0.1:60625 Accepted
+[Thu May 28 20:59:18 2026] 127.0.0.1:51878 Closing
+[Thu May 28 20:59:18 2026] 127.0.0.1:63007 Accepted
+[Thu May 28 20:59:18 2026] 127.0.0.1:62247 Accepted
+[Thu May 28 20:59:18 2026] 127.0.0.1:60625 [200]: GET /assets/img/landing-feature-campaigns-real.png
+[Thu May 28 20:59:18 2026] 127.0.0.1:63073 Accepted
+[Thu May 28 20:59:18 2026] 127.0.0.1:63007 [200]: GET /assets/img/landing-feature-prospeccao-real.png
+[Thu May 28 20:59:18 2026] 127.0.0.1:62247 [200]: GET /assets/img/logo.png
+[Thu May 28 20:59:19 2026] 127.0.0.1:50156 Accepted
+[Thu May 28 20:59:19 2026] 127.0.0.1:63073 [200]: GET /assets/img/landing-feature-metrics-real.png
+[Thu May 28 20:59:19 2026] 127.0.0.1:65447 Accepted
+[Thu May 28 20:59:19 2026] 127.0.0.1:50156 [200]: GET /assets/js/landing_tracker.js?v=20260516a
+[Thu May 28 20:59:19 2026] 127.0.0.1:65447 [200]: GET /assets/img/keila.jpg
+[Thu May 28 20:59:19 2026] 127.0.0.1:62247 Closing
+[Thu May 28 20:59:19 2026] 127.0.0.1:60625 Closing
+[Thu May 28 20:59:19 2026] 127.0.0.1:50156 Closing
+[Thu May 28 20:59:19 2026] 127.0.0.1:50774 Accepted
+[Thu May 28 20:59:19 2026] 127.0.0.1:65447 Closing
+[Thu May 28 20:59:19 2026] 127.0.0.1:63007 Closing
+[Thu May 28 20:59:19 2026] 127.0.0.1:63073 Closing
+[Thu May 28 20:59:19 2026] 127.0.0.1:50774 [200]: GET /assets/img/rick.jpg
+[Thu May 28 20:59:19 2026] 127.0.0.1:50774 Closing
+[Thu May 28 20:59:19 2026] 127.0.0.1:60159 Accepted
+[Thu May 28 20:59:19 2026] 127.0.0.1:60159 [200]: GET /api/referral_lookup.php?ref=keilabragante-30
+[Thu May 28 20:59:19 2026] 127.0.0.1:60159 Closing
+[Thu May 28 20:59:19 2026] 127.0.0.1:53838 Accepted
+[Thu May 28 20:59:19 2026] 127.0.0.1:64181 Accepted
+[Thu May 28 20:59:19 2026] 127.0.0.1:53838 [200]: POST /api/landing_track.php
+[Thu May 28 20:59:19 2026] 127.0.0.1:53838 Closing
+[Thu May 28 20:59:19 2026] 127.0.0.1:62966 Accepted
+[Thu May 28 20:59:19 2026] 127.0.0.1:64181 [200]: GET /assets/img/logo.png
+[Thu May 28 20:59:19 2026] 127.0.0.1:62966 [200]: POST /api/landing_track.php
+[Thu May 28 20:59:19 2026] 127.0.0.1:62966 Closing
+[Thu May 28 20:59:19 2026] 127.0.0.1:64181 Closing

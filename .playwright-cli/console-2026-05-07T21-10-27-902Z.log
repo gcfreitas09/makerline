@@ -1,0 +1,3 @@
+[     304ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/index.html:0
+[     304ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/index.html:0
+[     317ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/saas-ugc/api/referral_lookup.php?code=index-html:0

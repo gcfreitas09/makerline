@@ -1,0 +1,159 @@
+- generic [active] [ref=e1]:
+  - link "Pular para o conteúdo" [ref=e2] [cursor=pointer]:
+    - /url: "#conteudo"
+  - banner "Navegação principal" [ref=e3]:
+    - link "Makerline" [ref=e4] [cursor=pointer]:
+      - /url: ./
+      - generic [ref=e5]: Makerline
+    - navigation "Seções da landing" [ref=e6]:
+      - link "Problema" [ref=e7] [cursor=pointer]:
+        - /url: "#problema"
+      - link "Funcionalidades" [ref=e8] [cursor=pointer]:
+        - /url: "#funcionalidades"
+      - link "Parceiros" [ref=e9] [cursor=pointer]:
+        - /url: "#parceiros"
+    - link "Quero acesso antecipado" [ref=e11] [cursor=pointer]:
+      - /url: "#cta-final"
+  - main [ref=e12]:
+    - region "Organize sua operação UGC em um só lugar" [ref=e13]:
+      - generic [ref=e15]:
+        - complementary [ref=e16]:
+          - generic [ref=e17]:
+            - generic [ref=e18]: G
+            - strong [ref=e19]: Creator UGC
+            - generic [ref=e20]: Plano anual
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - generic [ref=e28]: Sistema operacional do creator
+            - button [ref=e29]: Acesso antecipado
+          - generic [ref=e30]:
+            - generic [ref=e31]: Operação visível
+            - strong [ref=e32]: Campanhas, prazos e pagamentos
+            - paragraph [ref=e33]: Do primeiro contato com a marca até o pagamento na conta.
+            - generic [ref=e34]:
+              - emphasis [ref=e35]: Campanhas
+              - emphasis [ref=e36]: Prospecção
+              - emphasis [ref=e37]: Pagamentos
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - generic [ref=e40]: Campanhas
+              - strong [ref=e41]: Organizadas
+            - generic [ref=e42]:
+              - generic [ref=e43]: Prazos
+              - strong [ref=e44]: No radar
+            - generic [ref=e45]:
+              - generic [ref=e46]: Pagamentos
+              - strong [ref=e47]: Sob controle
+          - generic [ref=e48]:
+            - generic [ref=e49]: Operação
+            - generic [ref=e50]: Prazos
+            - generic [ref=e51]: Financeiro
+      - generic [ref=e52]:
+        - heading "Organize sua operação UGC em um só lugar" [level=1] [ref=e53]
+        - paragraph [ref=e54]: O Makerline é o sistema operacional do creator UGC. Campanhas, prazos, prospecção e pagamentos organizados em um só lugar, do primeiro contato com a marca até o pagamento na conta.
+        - generic [ref=e55]:
+          - link "Ver funcionalidades" [ref=e56] [cursor=pointer]:
+            - /url: "#funcionalidades"
+          - link "Quero acesso antecipado" [ref=e57] [cursor=pointer]:
+            - /url: "#cta-final"
+        - paragraph [ref=e58]: Por enquanto, o Makerline está em fase de lançamento. Os primeiros inscritos acessam o produto uma semana antes da liberação oficial.
+    - region "Você não tem problema de talento. Tem problema de sistema." [ref=e59]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - heading "Você não tem problema de talento. Tem problema de sistema." [level=2] [ref=e62]
+          - paragraph [ref=e63]: Você fecha campanhas, entrega conteúdo e conquista marcas. Mas, no fim do dia, ainda gasta energia tentando lembrar o que falta entregar, quem ainda vai pagar e qual campanha está atrasada.
+        - generic [ref=e64]:
+          - article [ref=e65]:
+            - generic [ref=e66]: "01"
+            - heading "Controle espalhado" [level=3] [ref=e67]
+            - paragraph [ref=e68]: Notion, planilha, WhatsApp e papel. Cada ferramenta resolve uma parte, e nenhuma resolve o todo.
+          - article [ref=e69]:
+            - generic [ref=e70]: "02"
+            - heading "Entregas e pagamentos saem do radar" [level=3] [ref=e71]
+            - paragraph [ref=e72]: Você depende da memória para lembrar o que falta entregar, quem ainda vai pagar e qual campanha já atrasou.
+          - article [ref=e73]:
+            - generic [ref=e74]: "03"
+            - heading "Tempo indo embora na operação" [level=3] [ref=e75]
+            - paragraph [ref=e76]: Quanto tempo você perde todos os dias só para manter o controle do que já tem, em vez de fechar mais campanhas?
+    - region "Funcionalidades principais" [ref=e77]:
+      - heading "Funcionalidades principais" [level=2] [ref=e79]
+      - generic [ref=e80]:
+        - article [ref=e81]:
+          - generic [ref=e82]:
+            - generic [ref=e83]: "01"
+            - heading "Organizador de Campanhas" [level=3] [ref=e84]
+            - paragraph [ref=e85]: Organize cada campanha em um só lugar, com status, entregas, prazos e próximos passos sempre visíveis.
+          - img "Tela real do Makerline mostrando a área de campanhas com filtros, cards e tabela de entregas." [ref=e88]
+        - article [ref=e89]:
+          - generic [ref=e90]:
+            - generic [ref=e91]: "02"
+            - heading "Central de Prospecção" [level=3] [ref=e92]
+            - paragraph [ref=e93]: Acompanhe marcas, contatos e oportunidades comerciais com mais clareza, sem depender de planilhas soltas.
+          - img "Tela real do Makerline exibindo a central de prospecção com cards de marcas, contatos e estágio comercial." [ref=e96]
+        - article [ref=e97]:
+          - generic [ref=e98]:
+            - generic [ref=e99]: "03"
+            - heading "Acompanhamento de Métricas" [level=3] [ref=e100]
+            - paragraph [ref=e101]: Veja o que está entrando, o que falta receber e como sua operação está evoluindo em campanhas e no financeiro.
+          - img "Tela real do Makerline com métricas da operação, cards de indicadores e gráficos de desempenho." [ref=e104]
+    - region "Parceiros que já usam o Makerline" [ref=e105]:
+      - generic [ref=e106]:
+        - heading "Parceiros que já usam o Makerline" [level=2] [ref=e107]
+        - paragraph [ref=e108]: Creators que já testaram a plataforma e validaram a experiência no dia a dia.
+      - generic [ref=e109]:
+        - article [ref=e110]:
+          - img "Keila" [ref=e111]
+          - generic [ref=e112]:
+            - heading "Keila" [level=3] [ref=e113]
+            - link "Instagram de Keila" [ref=e114] [cursor=pointer]:
+              - /url: https://instagram.com/keilabraganteugc
+              - img [ref=e115]
+              - generic [ref=e119]: "@keilabraganteugc"
+          - blockquote [ref=e120]: "\"Muito intuitivo. Tive contato com outra plataforma e fiquei perdida. No Makerline, fiquei zero perdida. As funções estão muito bem colocadas e o que testei até agora é nota 10.\""
+        - article [ref=e121]:
+          - img "Rick Olavo" [ref=e122]
+          - generic [ref=e123]:
+            - heading "Rick Olavo" [level=3] [ref=e124]
+            - link "Instagram de Rick Olavo" [ref=e125] [cursor=pointer]:
+              - /url: https://instagram.com/rickolavo
+              - img [ref=e126]
+              - generic [ref=e130]: "@rickolavo"
+          - blockquote [ref=e131]: "\"Muito melhor do que fazer planilha. Está tudo organizado, tem o dashboard e mostra exatamente onde você está. Tem aplicativo melhor que esse?\""
+    - region "O Makerline está quase no ar." [ref=e132]:
+      - generic [ref=e133]:
+        - heading "O Makerline está quase no ar." [level=2] [ref=e134]
+        - paragraph [ref=e135]: Inscreva-se agora para entrar na fila de acesso. Neste lançamento, toda entrada no SaaS passa primeiro por este formulário.
+        - paragraph [ref=e136]: "Keila Bragante: quando o app liberar, crie sua conta com este mesmo Instagram para receber automaticamente 30 dias de teste."
+        - generic [ref=e137]:
+          - generic [ref=e138]:
+            - generic [ref=e139]: Nome
+            - textbox "Nome" [ref=e140]
+          - generic [ref=e141]:
+            - generic [ref=e142]: Número (WhatsApp)
+            - textbox "Número (WhatsApp)" [ref=e143]:
+              - /placeholder: (11) 99999-9999
+          - generic [ref=e144]:
+            - generic [ref=e145]: Instagram
+            - textbox "Instagram" [ref=e146]:
+              - /placeholder: "@seuinstagram"
+          - button "Garantir meu acesso antecipado" [ref=e147] [cursor=pointer]
+          - status
+        - paragraph [ref=e148]: Últimas vagas para o teste pré-lançamento.
+  - contentinfo [ref=e149]:
+    - generic [ref=e150]:
+      - generic [ref=e151]:
+        - link "Makerline" [ref=e152] [cursor=pointer]:
+          - /url: ./
+          - generic [ref=e153]: Makerline
+        - paragraph [ref=e154]: Organize campanhas, prazos, prospecção e pagamentos em uma operação mais clara e profissional.
+      - generic [ref=e155]:
+        - generic [ref=e156]: Navegação
+        - link "Funcionalidades" [ref=e157] [cursor=pointer]:
+          - /url: "#funcionalidades"
+        - link "Parceiros" [ref=e158] [cursor=pointer]:
+          - /url: "#parceiros"
+      - generic [ref=e159]:
+        - generic [ref=e160]: Lançamento
+        - paragraph [ref=e161]: Entre na lista para receber o acesso assim que o Makerline abrir.
+        - link "Quero acesso antecipado" [ref=e162] [cursor=pointer]:
+          - /url: "#cta-final"

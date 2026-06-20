@@ -1,0 +1,8 @@
+{
+  "name": "makerline/saas-ugc",
+  "description": "Makerline SaaS UGC billing integration",
+  "type": "project",
+  "require": {
+    "stripe/stripe-php": "^18.0"
+  }
+}

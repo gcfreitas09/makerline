@@ -1,0 +1,16 @@
+[Thu May 28 19:42:04 2026] PHP 8.2.12 Development Server (http://127.0.0.1:8034) started
+[Thu May 28 19:42:05 2026] 127.0.0.1:60652 Accepted
+[Thu May 28 19:42:05 2026] 127.0.0.1:60650 Accepted
+[Thu May 28 19:42:05 2026] 127.0.0.1:60652 [400]: POST /api/auth.php
+[Thu May 28 19:42:05 2026] 127.0.0.1:60652 Closing
+[Thu May 28 19:42:05 2026] 127.0.0.1:60650 [400]: POST /api/auth.php
+[Thu May 28 19:42:05 2026] 127.0.0.1:60650 Closing
+[Thu May 28 19:42:20 2026] 127.0.0.1:60656 Accepted
+[Thu May 28 19:42:21 2026] 127.0.0.1:60656 [400]: POST /api/auth.php
+[Thu May 28 19:42:21 2026] 127.0.0.1:60656 Closing
+[Thu May 28 19:42:21 2026] 127.0.0.1:60658 Accepted
+[Thu May 28 19:42:21 2026] 127.0.0.1:60658 [400]: POST /api/auth.php
+[Thu May 28 19:42:21 2026] 127.0.0.1:60658 Closing
+[Thu May 28 19:42:32 2026] 127.0.0.1:60661 Accepted
+[Thu May 28 19:42:33 2026] 127.0.0.1:60661 [401]: POST /api/auth.php
+[Thu May 28 19:42:33 2026] 127.0.0.1:60661 Closing

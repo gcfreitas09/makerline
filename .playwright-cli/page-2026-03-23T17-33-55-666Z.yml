@@ -1,0 +1,129 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - img "Makerline" [ref=e6]
+      - generic [ref=e8]: Makerline
+    - generic [ref=e9]:
+      - generic [ref=e10]: L
+      - generic [ref=e12]: Lorenzo Ritter
+    - navigation [ref=e13]:
+      - generic [ref=e14]:
+        - button "Dashboard" [ref=e15] [cursor=pointer]:
+          - img [ref=e16]
+          - text: Dashboard
+        - button "Marcas" [ref=e19] [cursor=pointer]:
+          - img [ref=e20]
+          - text: Marcas
+        - button "Campanhas" [ref=e23] [cursor=pointer]:
+          - img [ref=e24]
+          - text: Campanhas
+        - button "Financeiro" [ref=e29] [cursor=pointer]:
+          - img [ref=e30]
+          - text: Financeiro
+        - button "Métricas" [ref=e32] [cursor=pointer]:
+          - img [ref=e33]
+          - text: Métricas
+        - button "Configurações" [ref=e34] [cursor=pointer]:
+          - img [ref=e35]
+          - text: Configurações
+      - button "Sair" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - text: Sair
+  - main [ref=e42]:
+    - generic [ref=e43]:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - button "Menu" [ref=e46] [cursor=pointer]
+          - heading "Boa tarde, Lorenzo Ritter!" [level=1] [ref=e47]
+          - paragraph [ref=e48]: Acompanhe prioridades, prazos e movimentos do dia.
+          - paragraph [ref=e49]: Comece cadastrando uma marca ou campanha para organizar sua operação.
+        - button "Nova campanha" [ref=e50] [cursor=pointer]
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e54]:
+            - paragraph [ref=e55]: Maior prioridade
+            - heading "Ações de hoje" [level=2] [ref=e56]
+          - article [ref=e58]:
+            - generic [ref=e59]:
+              - generic [ref=e60]: Tudo sob controle
+              - generic [ref=e62]:
+                - heading "Seu dia está leve" [level=3] [ref=e63]
+                - paragraph [ref=e64]: Nenhuma urgência aberta agora.
+              - generic [ref=e65]:
+                - generic [ref=e66]: 0 follow-up(s)
+                - generic [ref=e67]: 0 prazo(s)
+                - generic [ref=e68]: 0 pagamento(s)
+              - paragraph [ref=e69]: Aproveite para organizar o próximo movimento e manter a operação fluindo bonita.
+          - generic [ref=e70]:
+            - article [ref=e71]:
+              - generic [ref=e72]: Follow-ups
+              - strong [ref=e73]: "0"
+              - paragraph [ref=e74]: Nenhuma conversa pendente agora.
+            - article [ref=e75]:
+              - generic [ref=e76]: Prazos no radar
+              - strong [ref=e77]: "0"
+              - paragraph [ref=e78]: Sem entrega crítica no momento.
+            - article [ref=e79]:
+              - generic [ref=e80]: Pagamentos no radar
+              - strong [ref=e81]: R$ 0
+              - paragraph [ref=e82]: Caixa sem pendências agora.
+          - generic [ref=e83]:
+            - generic [ref=e84]:
+              - generic [ref=e85]:
+                - heading "Follow-ups pendentes" [level=3] [ref=e86]
+                - paragraph [ref=e87]: Próximas ações de marcas e campanhas.
+              - button "Nova ação de marca" [ref=e88] [cursor=pointer]
+            - paragraph [ref=e90]: Nenhum follow-up pendente.
+          - generic [ref=e91]:
+            - generic [ref=e93]:
+              - heading "Prazos próximos" [level=3] [ref=e94]
+              - paragraph [ref=e95]: Campanhas que vencem em até 3 dias ou já atrasaram.
+            - paragraph [ref=e97]: Nenhum prazo próximo.
+          - generic [ref=e98]:
+            - generic [ref=e100]:
+              - heading "Pagamentos pendentes" [level=3] [ref=e101]
+              - paragraph [ref=e102]: Campanhas em aguardando pagamento.
+            - paragraph [ref=e104]: Nenhum pagamento pendente.
+        - generic [ref=e105]:
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - paragraph [ref=e108]: Operação
+              - heading "Pipeline" [level=2] [ref=e109]
+            - button "Ver campanhas" [ref=e110] [cursor=pointer]
+          - generic [ref=e111]:
+            - generic [ref=e113]:
+              - button "0 campanhas Prospecção Sem campanha nessa fase agora" [ref=e114] [cursor=pointer]:
+                - generic [ref=e115]: 0 campanhas
+                - generic [ref=e116]: Prospecção
+                - generic [ref=e117]: Sem campanha nessa fase agora
+              - button "0 campanhas Produção Sem campanha nessa fase agora" [ref=e118] [cursor=pointer]:
+                - generic [ref=e119]: 0 campanhas
+                - generic [ref=e120]: Produção
+                - generic [ref=e121]: Sem campanha nessa fase agora
+              - button "0 campanhas Finalização Sem campanha nessa fase agora" [ref=e122] [cursor=pointer]:
+                - generic [ref=e123]: 0 campanhas
+                - generic [ref=e124]: Finalização
+                - generic [ref=e125]: Sem campanha nessa fase agora
+              - button "0 campanhas Concluído Sem campanha nessa fase agora" [ref=e126] [cursor=pointer]:
+                - generic [ref=e127]: 0 campanhas
+                - generic [ref=e128]: Concluído
+                - generic [ref=e129]: Sem campanha nessa fase agora
+            - paragraph [ref=e132]: Clique em um status da pipeline para ver as campanhas dessa fase.
+        - generic [ref=e133]:
+          - generic [ref=e134]:
+            - generic [ref=e135]:
+              - paragraph [ref=e136]: Fechamento
+              - heading "Meta financeira do mês" [level=2] [ref=e137]
+            - button "Editar meta" [ref=e138] [cursor=pointer]
+          - generic [ref=e140]:
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - generic [ref=e143]: Meta mensal
+                - strong [ref=e144]: R$ 0
+              - generic [ref=e145]:
+                - generic [ref=e146]: Confirmado
+                - strong [ref=e147]: R$ 0
+            - generic "Progresso da meta mensal" [ref=e148]
+            - generic [ref=e149]:
+              - generic [ref=e150]: 0% da meta concluída
+              - generic [ref=e151]: Meta batida neste mês

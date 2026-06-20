@@ -1,0 +1,5 @@
+[09-Feb-2026 12:07:13 America/Fortaleza] PHP Fatal error:  Uncaught Error: Call to undefined function supabase_config() in /home2/webdbs73/makerline.com.br/api/users_store.php:110
+Stack trace:
+#0 /home2/webdbs73/makerline.com.br/api/state.php(107): users_store_backend()
+#1 {main}
+  thrown in /home2/webdbs73/makerline.com.br/api/users_store.php on line 110

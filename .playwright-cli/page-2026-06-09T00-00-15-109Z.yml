@@ -1,0 +1,122 @@
+- generic [active] [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: A
+        - generic [ref=e14]:
+          - generic [ref=e15]: Auditoria Deploy
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - generic [ref=e293]:
+        - generic [ref=e294]:
+          - heading "Minhas campanhas" [level=1] [ref=e296]
+          - button "Nova campanha" [ref=e297] [cursor=pointer]
+        - generic [ref=e298]:
+          - button "Todas" [ref=e299] [cursor=pointer]
+          - button "Prospecção" [ref=e300] [cursor=pointer]
+          - button "Produção" [ref=e301] [cursor=pointer]
+          - button "Finalização" [ref=e302] [cursor=pointer]
+          - button "Concluída" [ref=e303] [cursor=pointer]
+          - combobox "Ordenar por" [ref=e304]:
+            - option "Recente" [selected]
+            - option "Valor"
+            - option "R$/hora"
+            - option "Prazo"
+            - option "Dias para vencer"
+            - option "Marca"
+            - option "Status"
+        - table [ref=e431]:
+          - rowgroup [ref=e432]:
+            - row "Marca Prazo Valor Status Etapa Avançar Ações" [ref=e433]:
+              - columnheader "Marca" [ref=e434]
+              - columnheader "Prazo" [ref=e435]
+              - columnheader "Valor" [ref=e436]
+              - columnheader "Status" [ref=e437]
+              - columnheader "Etapa" [ref=e438]
+              - columnheader "Avançar" [ref=e439]
+              - columnheader "Ações" [ref=e440]
+          - rowgroup [ref=e441]:
+            - 'row "Prospecção - Tech Vence em 3d 12/06 R$ 150 Prospecção Abordagem/Inscrição Avançar: Negociação Duplicar Editar" [ref=e442] [cursor=pointer]':
+              - cell "Prospecção - Tech Vence em 3d" [ref=e443]:
+                - generic [ref=e444]:
+                  - button "Marcar como prioridade" [ref=e445]:
+                    - img [ref=e446]
+                  - generic [ref=e448]: Prospecção - Tech
+                  - generic [ref=e449]: Vence em 3d
+              - cell "12/06" [ref=e450]:
+                - button "12/06" [ref=e451]
+              - cell "R$ 150" [ref=e452]:
+                - button "R$ 150" [ref=e453]
+              - cell "Prospecção" [ref=e454]:
+                - combobox [ref=e455]:
+                  - option "Prospecção" [selected]
+                  - option "Produção"
+                  - option "Finalização"
+                  - option "Concluída"
+              - cell "Abordagem/Inscrição" [ref=e456]:
+                - combobox [ref=e457]:
+                  - option "Abordagem/Inscrição" [selected]
+                  - option "Negociação"
+                  - option "Aprovado"
+              - 'cell "Avançar: Negociação" [ref=e458]':
+                - 'button "Avançar: Negociação" [ref=e460]':
+                  - generic [ref=e461]: "Avançar: Negociação"
+              - cell "Duplicar Editar" [ref=e462]:
+                - generic [ref=e463]:
+                  - button "Duplicar" [ref=e464]:
+                    - img [ref=e465]
+                    - text: Duplicar
+                  - button "Editar" [ref=e468]:
+                    - img [ref=e469]
+                    - text: Editar
+            - 'row "Prospecção - Tech MODELO — — Prospecção Abordagem/Inscrição Trocar para campanha real Propostas: 0/5 + Enviei 1" [ref=e472] [cursor=pointer]':
+              - cell "Prospecção - Tech MODELO" [ref=e473]:
+                - generic [ref=e474]:
+                  - button "Marcar como prioridade" [ref=e475]:
+                    - img [ref=e476]
+                  - generic [ref=e478]: Prospecção - Tech
+                  - generic [ref=e479]: MODELO
+              - cell "—" [ref=e480]
+              - cell "—" [ref=e481]
+              - cell "Prospecção" [ref=e482]:
+                - generic: Prospecção
+              - cell "Abordagem/Inscrição" [ref=e483]:
+                - generic: Abordagem/Inscrição
+              - cell "Trocar para campanha real" [ref=e484]:
+                - button "Trocar para campanha real" [ref=e486]
+              - 'cell "Propostas: 0/5 + Enviei 1" [ref=e487]':
+                - generic [ref=e489]:
+                  - generic [ref=e490]:
+                    - text: "Propostas:"
+                    - strong [ref=e491]: 0/5
+                  - button "+ Enviei 1" [ref=e492]
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓

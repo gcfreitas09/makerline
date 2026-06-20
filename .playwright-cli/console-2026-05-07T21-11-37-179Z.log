@@ -1,0 +1,4 @@
+[   36353ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/app.html?section=dashboard&billing=success&session_id=cs_test_fake:0
+[   38471ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260507a:465
+[   39385ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[   40824ms] [WARNING] [Sync] Resposta inesperada do servidor: {ok: true, updatedAt: 2026-05-07T23:12:17+02:00, bytes: 2263, backend: supabase, warning: null} @ http://localhost/saas-ugc/assets/js2/core/state.js:973

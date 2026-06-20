@@ -1,0 +1,18 @@
+[    1468ms] [WARNING] [renderAll] dashboardFinancials falhou TypeError: Cannot read properties of undefined (reading 'title')
+    at renderDashboardFinancials (http://localhost/saas-ugc/assets/js2/core/renderers.js?v=20260429m:778:29)
+    at run (http://localhost/saas-ugc/assets/js2/core/renderers.js?v=20260429m:3358:7)
+    at renderAll (http://localhost/saas-ugc/assets/js2/core/renderers.js?v=20260429m:3365:3)
+    at safeRun (http://localhost/saas-ugc/assets/js2/app.js?v=20260429m:149:5)
+    at http://localhost/saas-ugc/assets/js2/app.js?v=20260429m:371:5 @ http://localhost/saas-ugc/assets/js2/core/renderers.js?v=20260429m:3359
+[    1512ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/app.html?section=brands:0
+[    1538ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/state.php:0
+[    1613ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/billing_status.php:0
+[    1623ms] [WARNING] [renderAll] dashboardFinancials falhou TypeError: Cannot read properties of undefined (reading 'title')
+    at renderDashboardFinancials (http://localhost/saas-ugc/assets/js2/core/renderers.js?v=20260429m:778:29)
+    at run (http://localhost/saas-ugc/assets/js2/core/renderers.js?v=20260429m:3358:7)
+    at renderAll (http://localhost/saas-ugc/assets/js2/core/renderers.js?v=20260429m:3365:3)
+    at safeRun (http://localhost/saas-ugc/assets/js2/app.js?v=20260429m:149:5)
+    at http://localhost/saas-ugc/assets/js2/app.js?v=20260429m:405:7 @ http://localhost/saas-ugc/assets/js2/core/renderers.js?v=20260429m:3359
+[    1626ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260429m:408
+[    1657ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/index.html:0
+[    1658ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/index.html:0

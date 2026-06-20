@@ -1,0 +1,167 @@
+{
+    "updatedAt": "2026-06-09T01:38:11+02:00",
+    "sessions": [
+        {
+            "tokenHash": "102409a74fdff239610abea94e10c8776167b6a5f36ef424523d7931cdfdabe1",
+            "email": "fgui3662@gmail.com",
+            "remember": true,
+            "fingerprint": "9884896580bbd9285b8a0782ea7ae63de01ed5f471d1bab6202de0630c0399a3",
+            "createdAt": "2026-06-07T01:42:37+02:00",
+            "lastSeenAt": "2026-06-08T01:59:47+02:00",
+            "expiresAt": "2026-06-22T01:59:47+02:00"
+        },
+        {
+            "tokenHash": "b7bd99a387b257f376aecd005d49d67322e172975003f27830132126c89a6c4b",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "9884896580bbd9285b8a0782ea7ae63de01ed5f471d1bab6202de0630c0399a3",
+            "createdAt": "2026-06-08T20:08:00+02:00",
+            "lastSeenAt": "2026-06-08T20:08:05+02:00",
+            "expiresAt": "2026-06-09T08:08:05+02:00"
+        },
+        {
+            "tokenHash": "e5f6ae62dc1c02fe1c470a10310ad49ca0e6cff69212f14a662c72a87e95cd9c",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "9884896580bbd9285b8a0782ea7ae63de01ed5f471d1bab6202de0630c0399a3",
+            "createdAt": "2026-06-09T00:41:16+02:00",
+            "lastSeenAt": "2026-06-09T00:41:46+02:00",
+            "expiresAt": "2026-06-09T12:41:46+02:00"
+        },
+        {
+            "tokenHash": "7cc1115173d30a6b79fc9735b0e29fd96b77933374d4efff5389c60619d569f4",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "9884896580bbd9285b8a0782ea7ae63de01ed5f471d1bab6202de0630c0399a3",
+            "createdAt": "2026-06-09T00:49:02+02:00",
+            "lastSeenAt": "2026-06-09T01:20:50+02:00",
+            "expiresAt": "2026-06-09T13:20:50+02:00"
+        },
+        {
+            "tokenHash": "be109fce61862a49d2766282e9794fce1f48e7f5570d81d1394eecfe2aa26e82",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "61c264930e9c651a7e08cc70c42c899524b3464ba52500373b7ac268df628130",
+            "createdAt": "2026-06-09T00:50:50+02:00",
+            "lastSeenAt": "2026-06-09T00:50:51+02:00",
+            "expiresAt": "2026-06-09T12:50:51+02:00"
+        },
+        {
+            "tokenHash": "d32783df78b3c8a3235433fec93e58e7fa8af9d5ac1447dc4c30280c79692008",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "61c264930e9c651a7e08cc70c42c899524b3464ba52500373b7ac268df628130",
+            "createdAt": "2026-06-09T00:51:59+02:00",
+            "lastSeenAt": "2026-06-09T00:51:59+02:00",
+            "expiresAt": "2026-06-09T12:51:59+02:00"
+        },
+        {
+            "tokenHash": "562cd3454d439872a8fa8d1e9a3a3d5cdc350fc82f59d6ce3ba14bc7ee79bea0",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "61c264930e9c651a7e08cc70c42c899524b3464ba52500373b7ac268df628130",
+            "createdAt": "2026-06-09T00:54:27+02:00",
+            "lastSeenAt": "2026-06-09T00:54:27+02:00",
+            "expiresAt": "2026-06-09T12:54:27+02:00"
+        },
+        {
+            "tokenHash": "a8d8dab442cbc7b637eb34c1d1d5d383cc01d7fb8c06473428aae543d76a255b",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "61c264930e9c651a7e08cc70c42c899524b3464ba52500373b7ac268df628130",
+            "createdAt": "2026-06-09T00:54:42+02:00",
+            "lastSeenAt": "2026-06-09T00:54:42+02:00",
+            "expiresAt": "2026-06-09T12:54:42+02:00"
+        },
+        {
+            "tokenHash": "6a3ae4db05c6a55301d2e3b8048b18e54988e4a84013f0b21b4a3dd25ed49aa7",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "61c264930e9c651a7e08cc70c42c899524b3464ba52500373b7ac268df628130",
+            "createdAt": "2026-06-09T00:54:54+02:00",
+            "lastSeenAt": "2026-06-09T00:54:54+02:00",
+            "expiresAt": "2026-06-09T12:54:54+02:00"
+        },
+        {
+            "tokenHash": "ee8999613237980eeb04b84a11e4b5ba7832f517ab117ee9060eab7f674d2d37",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "61c264930e9c651a7e08cc70c42c899524b3464ba52500373b7ac268df628130",
+            "createdAt": "2026-06-09T00:57:46+02:00",
+            "lastSeenAt": "2026-06-09T00:57:46+02:00",
+            "expiresAt": "2026-06-09T12:57:46+02:00"
+        },
+        {
+            "tokenHash": "90646b5e4b667d5ebc93fe96ff85f90265f2140beb8315227a6c2cb4eee8d760",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "61c264930e9c651a7e08cc70c42c899524b3464ba52500373b7ac268df628130",
+            "createdAt": "2026-06-09T00:58:02+02:00",
+            "lastSeenAt": "2026-06-09T00:58:02+02:00",
+            "expiresAt": "2026-06-09T12:58:02+02:00"
+        },
+        {
+            "tokenHash": "ec21c7c2acf42e4fe943d5c58ca5206038efbb8359a7c81af280a51af14fc539",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "9884896580bbd9285b8a0782ea7ae63de01ed5f471d1bab6202de0630c0399a3",
+            "createdAt": "2026-06-09T01:21:36+02:00",
+            "lastSeenAt": "2026-06-09T01:21:46+02:00",
+            "expiresAt": "2026-06-09T13:21:46+02:00"
+        },
+        {
+            "tokenHash": "11755e0085a77796de1b0a6948fddbe6ad589d62148c2bf04332765952e5a70e",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "61c264930e9c651a7e08cc70c42c899524b3464ba52500373b7ac268df628130",
+            "createdAt": "2026-06-09T01:24:44+02:00",
+            "lastSeenAt": "2026-06-09T01:24:44+02:00",
+            "expiresAt": "2026-06-09T13:24:44+02:00"
+        },
+        {
+            "tokenHash": "2cbc3b47f8f972417951982b7a900006f5e3071a0867dfd7d5848138ee0da97d",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "61c264930e9c651a7e08cc70c42c899524b3464ba52500373b7ac268df628130",
+            "createdAt": "2026-06-09T01:25:06+02:00",
+            "lastSeenAt": "2026-06-09T01:25:07+02:00",
+            "expiresAt": "2026-06-09T13:25:07+02:00"
+        },
+        {
+            "tokenHash": "06ea3be91bf7aa88066d58996cf1ec7a6ea70df6e43988edc6492a0d3650ac75",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "61c264930e9c651a7e08cc70c42c899524b3464ba52500373b7ac268df628130",
+            "createdAt": "2026-06-09T01:29:22+02:00",
+            "lastSeenAt": "2026-06-09T01:29:22+02:00",
+            "expiresAt": "2026-06-09T13:29:22+02:00"
+        },
+        {
+            "tokenHash": "2746c9a5126e38a30874b2cd16b0e4e356aab4cea4e882ba18be4e90e0736bc0",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "61c264930e9c651a7e08cc70c42c899524b3464ba52500373b7ac268df628130",
+            "createdAt": "2026-06-09T01:29:44+02:00",
+            "lastSeenAt": "2026-06-09T01:29:44+02:00",
+            "expiresAt": "2026-06-09T13:29:44+02:00"
+        },
+        {
+            "tokenHash": "fbb94635207c4e0a1bfdc1873a75f4d8a156c8990eb88751eb0731f74a9fd985",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "9884896580bbd9285b8a0782ea7ae63de01ed5f471d1bab6202de0630c0399a3",
+            "createdAt": "2026-06-09T01:32:55+02:00",
+            "lastSeenAt": "2026-06-09T01:32:55+02:00",
+            "expiresAt": "2026-06-09T13:32:55+02:00"
+        },
+        {
+            "tokenHash": "ed1c19fa45385419c4e6dfd03fedd7025f45773f54d08ee0f3f25e28b5a6e87f",
+            "email": "fgui3662@gmail.com",
+            "remember": false,
+            "fingerprint": "9884896580bbd9285b8a0782ea7ae63de01ed5f471d1bab6202de0630c0399a3",
+            "createdAt": "2026-06-09T01:36:37+02:00",
+            "lastSeenAt": "2026-06-09T01:38:11+02:00",
+            "expiresAt": "2026-06-09T13:38:11+02:00"
+        }
+    ]
+}

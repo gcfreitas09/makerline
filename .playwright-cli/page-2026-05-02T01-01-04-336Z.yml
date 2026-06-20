@@ -1,0 +1,220 @@
+- generic [active] [ref=e1]:
+  - link "Pular para o conteúdo" [ref=e2] [cursor=pointer]:
+    - /url: "#conteudo"
+  - banner "Navegação principal" [ref=e3]:
+    - link "Makerline" [ref=e4] [cursor=pointer]:
+      - /url: landing.html
+      - generic [ref=e5]: Makerline
+    - navigation "Seções da landing" [ref=e6]:
+      - link "Produto" [ref=e7] [cursor=pointer]:
+        - /url: "#produto"
+      - link "Recursos" [ref=e8] [cursor=pointer]:
+        - /url: "#recursos"
+      - link "Planos" [ref=e9] [cursor=pointer]:
+        - /url: "#planos"
+      - link "FAQ" [ref=e10] [cursor=pointer]:
+        - /url: "#faq"
+    - generic [ref=e11]:
+      - link "Entrar" [ref=e12] [cursor=pointer]:
+        - /url: index.html
+      - link "Testar 15 dias" [ref=e13] [cursor=pointer]:
+        - /url: index.html
+  - main [ref=e14]:
+    - region "O controle que faltava entre a DM da marca e o pagamento recebido." [ref=e15]:
+      - generic [ref=e17]:
+        - complementary [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e20]: G
+            - strong [ref=e21]: Creator UGC
+            - generic [ref=e22]: Plano anual
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: Seu painel agora
+            - button [ref=e31]: Nova campanha
+          - generic [ref=e32]:
+            - generic [ref=e33]: Sua prioridade agora
+            - strong [ref=e34]: Convecso
+            - paragraph [ref=e35]: Finalização · Aguardando pagamento
+            - generic [ref=e36]:
+              - emphasis [ref=e37]: Prazo 23/03
+              - emphasis [ref=e38]: Atrasada
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]: Próximo follow-up
+              - strong [ref=e42]: Enviar proposta
+            - generic [ref=e43]:
+              - generic [ref=e44]: Dinheiro no radar
+              - strong [ref=e45]: R$ 500
+            - generic [ref=e46]:
+              - generic [ref=e47]: Pagamentos pendentes
+              - strong [ref=e48]: 1 recebimento
+          - generic [ref=e49]:
+            - generic [ref=e50]: Prospecção
+            - generic [ref=e51]: Avaliando
+            - generic [ref=e52]: Recebido
+            - generic [ref=e53]: Atrasado
+      - generic [ref=e54]:
+        - paragraph [ref=e55]: Painel comercial para creators UGC
+        - heading "O controle que faltava entre a DM da marca e o pagamento recebido." [level=1] [ref=e56]
+        - paragraph [ref=e57]: Organize marcas, campanhas, propostas, prazos, pagamentos e métricas em uma operação clara, sem planilhas soltas e sem perder follow-up.
+        - generic [ref=e58]:
+          - link "Testar 15 dias grátis" [ref=e59] [cursor=pointer]:
+            - /url: index.html
+          - link "Ver como funciona" [ref=e60] [cursor=pointer]:
+            - /url: "#produto"
+        - paragraph [ref=e61]: 15 dias de free trial para testar a rotina completa. Depois disso, escolha o plano mensal ou anual para continuar usando.
+    - region "Criado para a rotina real de creators que negociam, entregam e cobram." [ref=e62]:
+      - generic [ref=e63]:
+        - paragraph [ref=e64]: Produto
+        - heading "Criado para a rotina real de creators que negociam, entregam e cobram." [level=2] [ref=e65]
+        - paragraph [ref=e66]: O Makerline junta CRM, pipeline, agenda de recebimentos e visão comercial em uma experiência direta para quem vive de campanhas UGC.
+      - generic [ref=e67]:
+        - article [ref=e68]:
+          - generic [ref=e69]: Campanhas
+          - heading "Campanhas com contexto" [level=3] [ref=e70]
+          - paragraph [ref=e71]: Status, etapa, valor, prazo, produto, arquivos e próxima ação sempre no mesmo lugar.
+          - generic [ref=e72]:
+            - generic [ref=e73]: Finalização
+            - generic [ref=e74]: R$ 500
+            - generic [ref=e75]: Aguardando pagamento
+        - article [ref=e76]:
+          - generic [ref=e77]: Marcas
+          - heading "Marcas organizadas" [level=3] [ref=e78]
+          - paragraph [ref=e79]: Histórico de contato, status comercial, interações e campanhas vinculadas por marca.
+          - generic [ref=e80]:
+            - generic [ref=e81]: Convecso
+            - generic [ref=e82]: Contato ativo
+            - generic [ref=e83]: 2 campanhas
+        - article [ref=e84]:
+          - generic [ref=e85]: Prospecção
+          - heading "Prospecção acionável" [level=3] [ref=e86]
+          - paragraph [ref=e87]: Veja quem está pendente, avaliando, recusou ou respondeu com blocos coloridos e fáceis de priorizar.
+          - generic [ref=e88]:
+            - generic [ref=e89]: Avaliando proposta
+            - generic [ref=e90]: Retorno pendente
+            - generic [ref=e91]: Atualizado hoje
+        - article [ref=e92]:
+          - generic [ref=e93]: Financeiro
+          - heading "Financeiro no radar" [level=3] [ref=e94]
+          - paragraph [ref=e95]: Recebimentos pendentes, pagamentos atrasados, fluxo futuro e saúde financeira sem retrabalho.
+          - generic [ref=e96]:
+            - generic [ref=e97]: 1 recebimento
+            - generic [ref=e98]: Venceu em 23/03
+            - generic [ref=e99]: Prioridade alta
+    - region "Saiba exatamente qual campanha precisa do seu próximo movimento." [ref=e100]:
+      - generic [ref=e101]:
+        - generic [ref=e102]:
+          - paragraph [ref=e103]: Fluxo comercial
+          - heading "Saiba exatamente qual campanha precisa do seu próximo movimento." [level=2] [ref=e104]
+          - paragraph [ref=e105]: O painel prioriza o que está atrasado, o que tem dinheiro pendente e o que precisa de follow-up. Menos memória, mais execução.
+          - list [ref=e106]:
+            - listitem [ref=e107]: Prioridade do dia com CTA direto para abrir campanha.
+            - listitem [ref=e108]: Pipeline com etapas reais de prospecção, produção e finalização.
+            - listitem [ref=e109]: Resumo financeiro sem esconder pagamento atrasado.
+          - link "Criar conta e testar 15 dias" [ref=e110] [cursor=pointer]:
+            - /url: index.html
+        - generic "Exemplo de fluxo Makerline" [ref=e111]:
+          - article [ref=e112]:
+            - generic [ref=e113]: Finalização
+            - strong [ref=e114]: Convecso
+            - paragraph [ref=e115]: Aguardando pagamento
+            - generic [ref=e116]: R$ 500 · atrasado
+          - article [ref=e117]:
+            - generic [ref=e118]: Produção
+            - strong [ref=e119]: Principal
+            - paragraph [ref=e120]: Aguardando produto
+            - generic [ref=e121]: Produto recebido é o próximo avanço
+          - article [ref=e122]:
+            - generic [ref=e123]: Prospecção
+            - strong [ref=e124]: Puma Disk
+            - paragraph [ref=e125]: Negociação
+            - generic [ref=e126]: Follow-up comercial hoje
+    - region "Um SaaS enxuto, com as partes que realmente movem a operação." [ref=e127]:
+      - generic [ref=e128]:
+        - paragraph [ref=e129]: Recursos
+        - heading "Um SaaS enxuto, com as partes que realmente movem a operação." [level=2] [ref=e130]
+      - generic [ref=e131]:
+        - article [ref=e132]:
+          - heading "Dashboard diário" [level=3] [ref=e133]
+          - paragraph [ref=e134]: Prioridade, dinheiro no radar, pagamentos pendentes e campanhas que precisam de atenção.
+        - article [ref=e135]:
+          - heading "Agenda de recebimentos" [level=3] [ref=e136]
+          - paragraph [ref=e137]: Veja valores, vencimentos e status financeiro sem procurar contrato por contrato.
+        - article [ref=e138]:
+          - heading "Métricas comerciais" [level=3] [ref=e139]
+          - paragraph [ref=e140]: Entenda etapa, gargalo, ticket médio, produtividade e evolução das campanhas.
+        - article [ref=e141]:
+          - heading "Configurações de conta" [level=3] [ref=e142]
+          - paragraph [ref=e143]: Gerencie assinatura, perfil, segurança e preferências de operação em um só lugar.
+        - article [ref=e144]:
+          - heading "Roteiros e arquivos" [level=3] [ref=e145]
+          - paragraph [ref=e146]: Centralize materiais importantes da campanha para manter entrega e revisão no contexto certo.
+        - article [ref=e147]:
+          - heading "Modo claro e escuro" [level=3] [ref=e148]
+          - paragraph [ref=e149]: Trabalhe no visual que combina com sua rotina, mantendo legibilidade e contraste.
+    - region "Troque ansiedade por uma rotina comercial visível." [ref=e150]:
+      - generic [ref=e151]:
+        - generic [ref=e152]:
+          - paragraph [ref=e153]: Visão operacional
+          - heading "Troque ansiedade por uma rotina comercial visível." [level=2] [ref=e154]
+          - paragraph [ref=e155]: Quando cada marca, proposta e pagamento tem status, o creator sabe o que fazer antes de perder prazo, dinheiro ou oportunidade.
+        - generic "Benefícios práticos" [ref=e156]:
+          - generic [ref=e157]:
+            - strong [ref=e158]: "0"
+            - generic [ref=e159]: campanhas esquecidas no inbox
+          - generic [ref=e160]:
+            - strong [ref=e161]: "1"
+            - generic [ref=e162]: lugar para marcas, prazos e recebimentos
+          - generic [ref=e163]:
+            - strong [ref=e164]: 100%
+            - generic [ref=e165]: do fluxo com próxima ação clara
+    - region "Teste por 15 dias e assine quando fizer sentido continuar." [ref=e166]:
+      - generic [ref=e167]:
+        - paragraph [ref=e168]: Planos
+        - heading "Teste por 15 dias e assine quando fizer sentido continuar." [level=2] [ref=e169]
+        - paragraph [ref=e170]: O free trial libera a rotina completa para você organizar campanhas reais antes de escolher entre o plano mensal ou anual.
+      - generic [ref=e171]:
+        - article [ref=e172]:
+          - generic [ref=e173]: Após o teste
+          - heading "Plano mensal" [level=3] [ref=e174]
+          - paragraph [ref=e175]: Para manter sua operação organizada mês a mês depois dos 15 dias de free trial.
+          - strong [ref=e176]: R$ 39,90
+          - generic [ref=e177]: por mês
+          - link "Assinar mensal" [ref=e178] [cursor=pointer]:
+            - /url: index.html
+        - article [ref=e179]:
+          - generic [ref=e180]: Após o teste
+          - heading "Plano anual" [level=3] [ref=e181]
+          - paragraph [ref=e182]: Para creators que querem manter previsibilidade e pagar menos no ciclo completo depois do free trial.
+          - strong [ref=e183]: R$ 349,90
+          - generic [ref=e184]: por ano
+          - link "Assinar anual" [ref=e185] [cursor=pointer]:
+            - /url: index.html
+    - region "Perguntas rápidas antes de entrar." [ref=e186]:
+      - generic [ref=e187]:
+        - generic [ref=e188]:
+          - paragraph [ref=e189]: FAQ
+          - heading "Perguntas rápidas antes de entrar." [level=2] [ref=e190]
+        - generic [ref=e191]:
+          - group [ref=e192]:
+            - generic "O Makerline substitui planilhas?" [ref=e193] [cursor=pointer]
+          - group [ref=e194]:
+            - generic "Serve para creator iniciante?" [ref=e195] [cursor=pointer]
+          - group [ref=e196]:
+            - generic "Como funciona o free trial?" [ref=e197] [cursor=pointer]
+          - group [ref=e198]:
+            - generic "Preciso cadastrar uma marca antes da campanha?" [ref=e199] [cursor=pointer]
+    - region "Entre no Makerline e transforme follow-up, prazo e pagamento em rotina clara." [ref=e200]:
+      - generic [ref=e201]:
+        - paragraph [ref=e202]: Pronto para organizar sua operação?
+        - heading "Entre no Makerline e transforme follow-up, prazo e pagamento em rotina clara." [level=2] [ref=e203]
+        - link "Testar 15 dias grátis" [ref=e204] [cursor=pointer]:
+          - /url: index.html
+  - contentinfo [ref=e205]:
+    - generic [ref=e206]:
+      - link "Makerline" [ref=e207] [cursor=pointer]:
+        - /url: landing.html
+        - generic [ref=e208]: Makerline
+      - paragraph [ref=e209]: Makerline - Painel comercial para creators UGC.
+      - link "Entrar no app" [ref=e210] [cursor=pointer]:
+        - /url: index.html

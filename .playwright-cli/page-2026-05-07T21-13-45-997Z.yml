@@ -1,0 +1,113 @@
+- generic [active] [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: C
+        - generic [ref=e14]:
+          - generic [ref=e15]: Codex Teste
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - heading "Boa noite, Codex Teste!" [level=1] [ref=e50]
+            - paragraph [ref=e51]: Comece com uma marca ou campanha para colocar seu fluxo em movimento.
+          - button "Nova campanha" [ref=e52] [cursor=pointer]
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - paragraph [ref=e57]: Seu painel agora
+            - article [ref=e59]:
+              - generic [ref=e60]:
+                - generic [ref=e61]: Hoje está tranquilo
+                - heading "Sem incêndio no painel" [level=3] [ref=e64]
+                - generic [ref=e65]:
+                  - generic [ref=e66]: 0 follow-up(s)
+                  - generic [ref=e67]: 0 prazo(s)
+                  - generic [ref=e68]: 0 pagamento(s)
+            - generic [ref=e69]:
+              - article [ref=e70]:
+                - generic [ref=e71]: Próximo follow-up
+                - strong [ref=e72]: Livre
+                - paragraph [ref=e73]: Nenhum follow-up pendente hoje.
+              - article [ref=e74]:
+                - generic [ref=e75]: Entrega mais próxima
+                - paragraph [ref=e76]: Sem prazo apertado agora.
+              - article [ref=e77]:
+                - generic [ref=e78]: Dinheiro no radar
+                - strong [ref=e79]: Tudo ok
+            - generic [ref=e80]:
+              - heading "Pagamentos pendentes" [level=3] [ref=e83]
+              - paragraph [ref=e85]: Nenhum recebimento pendente agora.
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - generic [ref=e88]:
+                - paragraph [ref=e89]: Fluxo do mês
+                - heading "Como suas campanhas estão andando" [level=2] [ref=e90]
+              - button "Ver campanhas" [ref=e91] [cursor=pointer]
+            - generic [ref=e92]:
+              - generic [ref=e94]:
+                - button "0 campanhas Prospecção Sem campanha nessa fase agora" [ref=e95] [cursor=pointer]:
+                  - generic [ref=e96]: 0 campanhas
+                  - generic [ref=e97]: Prospecção
+                  - generic [ref=e98]: Sem campanha nessa fase agora
+                - button "0 campanhas Produção Sem campanha nessa fase agora" [ref=e99] [cursor=pointer]:
+                  - generic [ref=e100]: 0 campanhas
+                  - generic [ref=e101]: Produção
+                  - generic [ref=e102]: Sem campanha nessa fase agora
+                - button "0 campanhas Finalização Sem campanha nessa fase agora" [ref=e103] [cursor=pointer]:
+                  - generic [ref=e104]: 0 campanhas
+                  - generic [ref=e105]: Finalização
+                  - generic [ref=e106]: Sem campanha nessa fase agora
+                - button "0 campanhas Concluído Sem campanha nessa fase agora" [ref=e107] [cursor=pointer]:
+                  - generic [ref=e108]: 0 campanhas
+                  - generic [ref=e109]: Concluído
+                  - generic [ref=e110]: Sem campanha nessa fase agora
+              - paragraph [ref=e113]: Clique em um status da pipeline para ver as campanhas dessa fase.
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - generic [ref=e116]:
+                - paragraph [ref=e117]: Fechamento
+                - heading "Meta financeira do mês" [level=2] [ref=e118]
+              - button "Editar meta" [ref=e119] [cursor=pointer]
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - generic [ref=e123]:
+                  - generic [ref=e124]: Meta mensal
+                  - strong [ref=e125]: R$ 0
+                - generic [ref=e126]:
+                  - generic [ref=e127]: Confirmado
+                  - strong [ref=e128]: R$ 0
+              - generic "Progresso da meta mensal" [ref=e129]
+              - generic [ref=e130]:
+                - generic [ref=e131]: 0% da meta concluída
+                - generic [ref=e132]: Meta batida neste mês
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓

@@ -1,0 +1,89 @@
+- generic [active] [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: A
+        - generic [ref=e14]:
+          - generic [ref=e15]: Auditoria Makerline
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - heading "Minhas campanhas" [level=1] [ref=e50]
+          - button "Nova campanha" [ref=e51] [cursor=pointer]
+        - generic [ref=e52]:
+          - button "Todas" [ref=e53] [cursor=pointer]
+          - button "Prospecção" [ref=e54] [cursor=pointer]
+          - button "Produção" [ref=e55] [cursor=pointer]
+          - button "Finalização" [ref=e56] [cursor=pointer]
+          - button "Concluída" [ref=e57] [cursor=pointer]
+          - combobox "Ordenar por" [ref=e58]:
+            - option "Recente" [selected]
+            - option "Valor"
+            - option "R$/hora"
+            - option "Prazo"
+            - option "Dias para vencer"
+            - option "Marca"
+            - option "Status"
+        - table [ref=e61]:
+          - rowgroup [ref=e62]:
+            - row "Marca Prazo Valor Status Etapa Avançar Ações" [ref=e63]:
+              - columnheader "Marca" [ref=e64]
+              - columnheader "Prazo" [ref=e65]
+              - columnheader "Valor" [ref=e66]
+              - columnheader "Status" [ref=e67]
+              - columnheader "Etapa" [ref=e68]
+              - columnheader "Avançar" [ref=e69]
+              - columnheader "Ações" [ref=e70]
+          - rowgroup [ref=e71]:
+            - 'row "Prospecção - Beleza MODELO — — Prospecção Abordagem/Inscrição Trocar para campanha real Propostas: 0/5 + Enviei 1" [ref=e72] [cursor=pointer]':
+              - cell "Prospecção - Beleza MODELO" [ref=e73]:
+                - generic [ref=e74]:
+                  - button "Marcar como prioridade" [ref=e75]:
+                    - img [ref=e76]
+                  - generic [ref=e78]: Prospecção - Beleza
+                  - generic [ref=e79]: MODELO
+              - cell "—" [ref=e80]
+              - cell "—" [ref=e81]
+              - cell "Prospecção" [ref=e82]:
+                - generic: Prospecção
+              - cell "Abordagem/Inscrição" [ref=e83]:
+                - generic: Abordagem/Inscrição
+              - cell "Trocar para campanha real" [ref=e84]:
+                - button "Trocar para campanha real" [ref=e86]
+              - 'cell "Propostas: 0/5 + Enviei 1" [ref=e87]':
+                - generic [ref=e89]:
+                  - generic [ref=e90]:
+                    - text: "Propostas:"
+                    - strong [ref=e91]: 0/5
+                  - button "+ Enviei 1" [ref=e92]
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓

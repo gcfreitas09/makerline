@@ -1,0 +1,191 @@
+{
+    "userId": "u_696f95f3865387.02655675",
+    "updatedAt": "2026-02-03T22:09:10-03:00",
+    "state": {
+        "meta": {
+            "updatedAt": "2026-02-04T01:09:08.970Z"
+        },
+        "profile": {
+            "name": "Lorenzo Ritter",
+            "email": "lorenzo.ritter27@gmail.com",
+            "level": 1,
+            "xp": 140,
+            "streak": 1
+        },
+        "focus": {
+            "id": "f-short-videos",
+            "week": "2026-W06",
+            "roll": 0,
+            "label": "Postar 3 vídeos curtos",
+            "current": 3,
+            "target": 3,
+            "xp": 120
+        },
+        "missions": [
+            {
+                "id": "d-resume-stale",
+                "label": "Retomar 1 campanha sem atualização",
+                "total": 1,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            },
+            {
+                "id": "d-linked-script",
+                "label": "Criar 1 roteiro vinculado a uma campanha",
+                "total": 1,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            },
+            {
+                "id": "d-create-scripts",
+                "label": "Criar 2 roteiros",
+                "total": 2,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            }
+        ],
+        "challenges": [
+            {
+                "id": "w-consistent",
+                "label": "Criador consistente: completar missões em 5 dias",
+                "total": 5,
+                "xp": 250,
+                "type": "semanal",
+                "progress": 0
+            }
+        ],
+        "campaigns": [
+            {
+                "id": "c-1768920958082",
+                "title": "Nike",
+                "brand": "Nike",
+                "status": "pendente",
+                "value": 800,
+                "dueDate": "2026-01-22",
+                "paused": false,
+                "archived": false,
+                "createdAt": "2026-01-20T14:55:58.081Z",
+                "updatedAt": "2026-01-20T17:44:02.559Z",
+                "fieldsComplete": true
+            }
+        ],
+        "brands": [],
+        "scripts": [
+            {
+                "id": "s-1768951162094",
+                "text": "ROTEIRO TUTORIAL - Airbnb\nDuração: 60s | Tom: Educativo\nPúblico: pessoas de moda e estilo\nObjetivo: gerar vendas\n\nHOOK (0-3s)\n- Intriga visual: close no produto e pergunta: \"já imaginou gerar vendas?\"\nDESENVOLVIMENTO\n- Prova social + um dado simples.\n- Mantém o ritmo de 60s (cortes rápidos e sem enrolar).\nPROVA\n- Número simples (ex: \"+42% de tempo salvo\").\nCTA\n- \"Se curtiu, salva e me marca\" + reforça benefício.\nFINAL\n- Mostra o produto + lembrete visual do link\/benefício.",
+                "brand": "Airbnb",
+                "type": "tutorial",
+                "campaignId": null,
+                "finalized": false,
+                "title": "Tutorial - Airbnb"
+            }
+        ],
+        "metrics": {
+            "avgTime": 12,
+            "proposals": 24,
+            "responseRate": 0.419999999999999984456877655247808434069156646728515625,
+            "steps": [
+                {
+                    "label": "Contato enviado",
+                    "value": 1
+                },
+                {
+                    "label": "Marca respondeu",
+                    "value": 1
+                },
+                {
+                    "label": "Negociacao",
+                    "value": 0
+                },
+                {
+                    "label": "Roteiro pronto",
+                    "value": 1
+                },
+                {
+                    "label": "Gravacao",
+                    "value": 0
+                },
+                {
+                    "label": "Edicao",
+                    "value": 1
+                }
+            ]
+        },
+        "settings": {
+            "weekly": false,
+            "alerts": true,
+            "backup": true
+        },
+        "progress": {
+            "daily": {
+                "date": "2026-02-03",
+                "bonusDate": null,
+                "lastCompleteDate": null,
+                "unique": {
+                    "d-review-active": [
+                        "seen"
+                    ]
+                }
+            },
+            "weekly": {
+                "date": "2026-W06",
+                "challengeId": "w-consistent",
+                "dailyCompleteDays": [],
+                "campaignUpdateDays": [],
+                "organizedCampaignIds": [],
+                "finishedCampaignIds": []
+            },
+            "streak": {
+                "lastSeenDate": "2026-02-03"
+            },
+            "achievements": {
+                "version": 2,
+                "unlocked": [
+                    "ach-first-campaign"
+                ],
+                "active": [
+                    "ach-first-campaign",
+                    "ach-contacts-10",
+                    "ach-script-finisher",
+                    "ach-production",
+                    "ach-deadlines-8",
+                    "ach-contact",
+                    "ach-focus-2",
+                    "ach-scripts-15",
+                    "ach-clean-pipeline",
+                    "ach-level10"
+                ]
+            }
+        },
+        "avatar": {
+            "premium": false,
+            "unlocked": [
+                "hair-classic",
+                "outfit-basic",
+                "shoe-default"
+            ],
+            "selected": {
+                "hair": "hair-classic",
+                "outfit": "outfit-basic",
+                "shoes": "shoe-default"
+            }
+        },
+        "ui": {
+            "activePage": "campaigns",
+            "campaignFilter": "all",
+            "campaignPaymentFilter": "all",
+            "openScript": "s-1768951162094",
+            "brandComposer": {
+                "brandId": null,
+                "type": "first",
+                "text": ""
+            },
+            "missionDate": "2026-02-03",
+            "weeklyDate": "2026-W06"
+        }
+    }
+}

@@ -1,0 +1,15 @@
+[    7450ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/state.php:0
+[    9398ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/state.php:0
+[    9398ms] [ERROR] [Sync] Erro ao salvar estado: 401 Unauthorized @ http://localhost/saas-ugcBKP/assets/js2/core/state.js:863
+[   32158ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[   62158ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[   92957ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  122108ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  183028ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  242428ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  302287ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  335281ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  361998ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  392527ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  452185ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0
+[  516098ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugcBKP/api/track_time.php:0

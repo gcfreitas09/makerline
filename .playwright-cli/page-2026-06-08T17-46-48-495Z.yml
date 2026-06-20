@@ -1,0 +1,111 @@
+- generic [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: A
+        - generic [ref=e14]:
+          - generic [ref=e15]: Auditoria Makerline
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - button "Menu" [active] [ref=e50] [cursor=pointer]
+            - heading "Boa tarde, Auditoria Makerline!" [level=1] [ref=e51]
+            - paragraph [ref=e52]: Hoje está redondo. Use o painel para mover o que importa sem perder contexto.
+          - button "Nova campanha" [ref=e53] [cursor=pointer]
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - paragraph [ref=e58]: Seu painel agora
+            - article [ref=e128]:
+              - generic [ref=e129]:
+                - generic [ref=e130]: Próximo toque
+                - generic [ref=e132]:
+                  - heading "Marca Auditoria" [level=3] [ref=e133]
+                  - paragraph [ref=e134]: "Contato: Pessoa Teste"
+                - generic [ref=e135]:
+                  - generic [ref=e137]: Follow-up
+                  - generic [ref=e138]: Planejado para 10/06/2026
+              - button "Editar ação" [ref=e140] [cursor=pointer]
+            - generic [ref=e73]:
+              - article [ref=e141]:
+                - generic [ref=e142]: Próximo follow-up
+                - strong [ref=e143]: Marca Auditoria
+                - paragraph [ref=e144]: Follow-up · 10/06/2026
+              - article [ref=e145]:
+                - generic [ref=e146]: Entrega mais próxima
+                - paragraph [ref=e147]: Sem prazo apertado agora.
+              - article [ref=e148]:
+                - generic [ref=e149]: Dinheiro no radar
+                - strong [ref=e150]: Tudo ok
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - generic [ref=e86]:
+                - paragraph [ref=e87]: Fluxo do mês
+                - heading "Como suas campanhas estão andando" [level=2] [ref=e88]
+              - button "Ver campanhas" [ref=e89] [cursor=pointer]
+            - generic [ref=e151]:
+              - button "1 campanha Prospecção Marca Auditoria" [ref=e152] [cursor=pointer]:
+                - generic [ref=e153]: 1 campanha
+                - generic [ref=e154]: Prospecção
+                - generic [ref=e155]: Marca Auditoria
+              - button "0 campanhas Produção Sem campanha nessa fase agora" [ref=e156] [cursor=pointer]:
+                - generic [ref=e157]: 0 campanhas
+                - generic [ref=e158]: Produção
+                - generic [ref=e159]: Sem campanha nessa fase agora
+              - button "0 campanhas Finalização Sem campanha nessa fase agora" [ref=e160] [cursor=pointer]:
+                - generic [ref=e161]: 0 campanhas
+                - generic [ref=e162]: Finalização
+                - generic [ref=e163]: Sem campanha nessa fase agora
+              - button "0 campanhas Concluído Sem campanha nessa fase agora" [ref=e164] [cursor=pointer]:
+                - generic [ref=e165]: 0 campanhas
+                - generic [ref=e166]: Concluído
+                - generic [ref=e167]: Sem campanha nessa fase agora
+          - generic [ref=e109]:
+            - generic [ref=e110]:
+              - generic [ref=e111]:
+                - paragraph [ref=e112]: Fechamento
+                - heading "Meta financeira do mês" [level=2] [ref=e113]
+              - button "Editar meta" [ref=e114] [cursor=pointer]
+            - generic [ref=e168]:
+              - generic [ref=e169]:
+                - generic [ref=e170]:
+                  - generic [ref=e171]: Meta mensal
+                  - strong [ref=e172]: R$ 5000
+                - generic [ref=e173]:
+                  - generic [ref=e174]: Confirmado
+                  - strong [ref=e175]: R$ 0
+              - generic "Progresso da meta mensal" [ref=e176]
+              - generic [ref=e177]:
+                - generic [ref=e178]: 0% da meta concluída
+                - generic [ref=e179]: R$ 5000 para fechar o mês
+      - text: Marca Prazo Valor Status Etapa Avançar Ações Marca Prazo Valor Status Etapa Avançar Ações Status Marca Ação pendente Próximo follow-up Total faturado Campanhas Último contato Ações Status Marca Ação pendente Próximo follow-up Total faturado Campanhas Último contato Ações Campanha Marca Valor Vencimento Status financeiro Última atualização Ação ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓

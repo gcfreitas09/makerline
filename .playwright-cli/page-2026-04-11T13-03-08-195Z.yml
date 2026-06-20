@@ -1,0 +1,51 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - img "Makerline" [ref=e6]
+      - generic [ref=e8]: Makerline
+    - generic [ref=e9]:
+      - generic [ref=e10]: C
+      - generic [ref=e12]: Criador
+    - navigation [ref=e13]:
+      - generic [ref=e14]:
+        - button "Dashboard" [ref=e15] [cursor=pointer]:
+          - img [ref=e16]
+          - text: Dashboard
+        - button "Marcas" [ref=e19] [cursor=pointer]:
+          - img [ref=e20]
+          - text: Marcas
+        - button "Campanhas" [ref=e23] [cursor=pointer]:
+          - img [ref=e24]
+          - text: Campanhas
+        - button "Prospecção" [active] [ref=e29] [cursor=pointer]:
+          - img [ref=e30]
+          - text: Prospecção
+        - button "Financeiro" [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+          - text: Financeiro
+        - button "Métricas" [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+          - text: Métricas
+        - button "Configurações" [ref=e38] [cursor=pointer]:
+          - img [ref=e39]
+          - text: Configurações
+  - main [ref=e42]:
+    - generic [ref=e227]:
+      - generic [ref=e228]:
+        - generic [ref=e229]:
+          - heading "Prospecção" [level=1] [ref=e230]
+          - paragraph [ref=e231]: Gerencie seus contatos com marcas e acompanhe o andamento de cada conversa.
+        - button "Nova prospecção" [ref=e232] [cursor=pointer]
+      - generic [ref=e234]:
+        - generic [ref=e235]:
+          - tablist "Modo da seção de prospecção" [ref=e236]:
+            - tab "Prospecções" [selected] [ref=e237] [cursor=pointer]
+            - tab "Templates" [ref=e238] [cursor=pointer]
+          - generic [ref=e239]:
+            - generic [ref=e240]: "Total: 0"
+            - generic [ref=e241]: "Pendentes: 0"
+            - generic [ref=e242]: "Com retorno: 0"
+        - searchbox "Buscar por marca ou tipo de contato..." [ref=e244]
+        - generic [ref=e246]:
+          - strong [ref=e247]: Nenhuma prospecção encontrada.
+          - paragraph [ref=e248]: Crie sua primeira prospecção para começar a organizar os contatos.

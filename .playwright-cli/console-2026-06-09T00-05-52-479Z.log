@@ -1,0 +1,6 @@
+[    1440ms] [LOG] [Sync] Carregando estado do servidor: {campanhas: 2, marcas: 1} @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:687
+[    2172ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:764
+[    3088ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[    5100ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971
+[   37472ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
+[   39913ms] [LOG] [Sync] Estado salvo com sucesso no servidor @ http://localhost/saas-ugc/assets/js2/core/state.js:971

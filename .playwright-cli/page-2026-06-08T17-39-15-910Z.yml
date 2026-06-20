@@ -1,0 +1,74 @@
+- generic [active] [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img "Makerline" [ref=e9]
+        - generic [ref=e11]: Makerline
+      - generic [ref=e12]:
+        - generic [ref=e13]: A
+        - generic [ref=e14]:
+          - generic [ref=e15]: Auditoria Makerline
+          - generic [ref=e16]: Plano grátis
+      - navigation [ref=e17]:
+        - generic [ref=e18]:
+          - button "Dashboard" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+            - text: Dashboard
+          - button "Marcas" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: Marcas
+          - button "Campanhas" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - text: Campanhas
+          - button "Prospecção" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Prospecção
+          - button "Financeiro" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Financeiro
+          - button "Métricas" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - text: Métricas
+          - button "Configurações" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Configurações
+    - main [ref=e46]:
+      - generic [ref=e958]:
+        - generic [ref=e959]:
+          - generic [ref=e960]:
+            - heading "Prospecção" [level=1] [ref=e961]
+            - paragraph [ref=e962]: Gerencie seus contatos com marcas e acompanhe o andamento de cada conversa.
+          - button "Nova prospecção" [ref=e963] [cursor=pointer]
+        - generic [ref=e965]:
+          - generic [ref=e967]:
+            - generic [ref=e968]: "Total: 0"
+            - generic [ref=e969]: "Pendentes: 0"
+            - generic [ref=e970]: "Com retorno: 0"
+          - searchbox "Buscar por marca ou tipo de contato..." [ref=e972]
+          - generic [ref=e974]:
+            - strong [ref=e975]: Nenhuma prospecção encontrada.
+            - paragraph [ref=e976]: Crie sua primeira prospecção para começar a organizar os contatos.
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓
+  - generic [ref=e979]:
+    - generic [ref=e980]:
+      - generic [ref=e981]:
+        - heading "Nova prospecção" [level=3] [ref=e982]
+        - paragraph [ref=e983]: Registre a marca, o contato e acompanhe o status da conversa.
+      - button "Fechar" [ref=e984] [cursor=pointer]
+    - generic [ref=e985]:
+      - generic [ref=e986]:
+        - generic [ref=e987]: 1. Contato
+        - generic [ref=e988]: 2. Status
+        - generic [ref=e989]: 3. Mensagem
+      - generic [ref=e1002]:
+        - generic [ref=e1003]: Script/Mensagem
+        - textbox "Cole ou escreva seu script aqui..." [ref=e1004]
+      - generic [ref=e1005]:
+        - generic [ref=e1006]: Observações / Anotações
+        - textbox "Respostas da marca, pedidos específicos e detalhes da conversa..." [ref=e1007]
+      - generic [ref=e1008]:
+        - button "Cancelar" [ref=e1009] [cursor=pointer]
+        - button "Salvar prospecção" [ref=e1010] [cursor=pointer]

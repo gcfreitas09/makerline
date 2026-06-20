@@ -1,0 +1,20 @@
+[
+    {
+        "type": "reset_code",
+        "email": "fgui3662@gmail.com",
+        "verifyLink": "http:\/\/localhost\/saas-ugc\/verify.html?email=fgui3662%40gmail.com",
+        "code": "504082",
+        "sent": false,
+        "mailer": {
+            "smtpConfigured": false,
+            "reason": "smtp_placeholder",
+            "smtpPath": "storage\/smtp.json",
+            "examplePath": "storage\/smtp.example.json",
+            "driver": "mail",
+            "mailAvailable": true,
+            "error": "mail() falhou ou não está configurado",
+            "sent": false
+        },
+        "timestamp": "2026-05-27T19:11:17+02:00"
+    }
+]

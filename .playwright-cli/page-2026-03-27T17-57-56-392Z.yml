@@ -1,0 +1,160 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - img "Makerline" [ref=e6]
+      - generic [ref=e8]: Makerline
+    - generic [ref=e9]:
+      - generic [ref=e10]: C
+      - generic [ref=e12]: Codex
+    - navigation [ref=e13]:
+      - generic [ref=e14]:
+        - button "Dashboard" [ref=e15] [cursor=pointer]:
+          - img [ref=e16]
+          - text: Dashboard
+        - button "Marcas" [ref=e19] [cursor=pointer]:
+          - img [ref=e20]
+          - text: Marcas
+        - button "Campanhas" [ref=e23] [cursor=pointer]:
+          - img [ref=e24]
+          - text: Campanhas
+        - button "Financeiro" [ref=e29] [cursor=pointer]:
+          - img [ref=e30]
+          - text: Financeiro
+        - button "Métricas" [active] [ref=e32] [cursor=pointer]:
+          - img [ref=e33]
+          - text: Métricas
+        - button "Configurações" [ref=e34] [cursor=pointer]:
+          - img [ref=e35]
+          - text: Configurações
+      - button "Sair" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - text: Sair
+  - main [ref=e42]:
+    - generic [ref=e334]:
+      - generic [ref=e335]:
+        - generic [ref=e336]:
+          - heading "Métricas" [level=1] [ref=e337]
+          - paragraph [ref=e338]: Acompanhe performance comercial, eficiência do funil e evolução das campanhas.
+        - generic [ref=e340]:
+          - generic [ref=e341]: Período
+          - combobox "Filtrar período de métricas" [ref=e342]:
+            - option "15 dias"
+            - option "30 dias" [selected]
+            - option "45 dias"
+            - option "90 dias"
+            - option "Todo histórico"
+      - generic [ref=e343]:
+        - generic [ref=e344]:
+          - generic [ref=e346]:
+            - heading "KPIs de performance" [level=3] [ref=e347]
+            - paragraph [ref=e348]: Campanhas ativas, fechamento, ticket e velocidade comercial em um só plano.
+          - generic [ref=e349]:
+            - article [ref=e350]:
+              - generic [ref=e351]: Campanhas ativas
+              - strong [ref=e352]: "0"
+              - generic [ref=e353]: Pipeline em andamento agora
+            - article [ref=e354]:
+              - generic [ref=e355]: Concluídas
+              - strong [ref=e356]: "0"
+              - generic [ref=e357]: Histórico total encerrado
+            - article [ref=e358]:
+              - generic [ref=e359]: Taxa de conclusão
+              - strong [ref=e360]: 0%
+              - generic [ref=e361]: Do volume total de campanhas
+            - article [ref=e362]:
+              - generic [ref=e363]: Ticket médio
+              - strong [ref=e364]: —
+              - generic [ref=e365]: Concluídas em 30 dias
+            - article [ref=e366]:
+              - generic [ref=e367]: Tempo médio de fechamento
+              - strong [ref=e368]: —
+              - generic [ref=e369]: Da criação ao encerramento
+        - generic [ref=e370]:
+          - generic [ref=e371]:
+            - generic [ref=e373]:
+              - heading "Funil comercial" [level=3] [ref=e374]
+              - paragraph [ref=e375]: "A fase principal da página: volume por etapa, ritmo médio e concentração do pipeline."
+            - generic [ref=e376]:
+              - button "0 Prospecção 0% da operação Sem tempo médio" [ref=e377] [cursor=pointer]:
+                - generic [ref=e378]: "0"
+                - generic [ref=e379]: Prospecção
+                - generic [ref=e380]: 0% da operação
+                - generic [ref=e381]: Sem tempo médio
+              - button "0 Produção 0% da operação Sem tempo médio" [ref=e382] [cursor=pointer]:
+                - generic [ref=e383]: "0"
+                - generic [ref=e384]: Produção
+                - generic [ref=e385]: 0% da operação
+                - generic [ref=e386]: Sem tempo médio
+              - button "0 Finalização 0% da operação Sem tempo médio" [ref=e387] [cursor=pointer]:
+                - generic [ref=e388]: "0"
+                - generic [ref=e389]: Finalização
+                - generic [ref=e390]: 0% da operação
+                - generic [ref=e391]: Sem tempo médio
+              - button "0 Concluído 0% da operação Sem tempo médio" [ref=e392] [cursor=pointer]:
+                - generic [ref=e393]: "0"
+                - generic [ref=e394]: Concluído
+                - generic [ref=e395]: 0% da operação
+                - generic [ref=e396]: Sem tempo médio
+          - generic [ref=e397]:
+            - generic [ref=e399]:
+              - heading "Leitura por etapa" [level=3] [ref=e400]
+              - paragraph [ref=e401]: Diagnóstico da fase selecionada com gargalo, tempo médio e campanhas mais sensíveis.
+            - generic [ref=e403]:
+              - generic [ref=e404]:
+                - generic [ref=e405]:
+                  - paragraph [ref=e406]: 0 campanhas nessa etapa
+                  - heading "Prospecção" [level=4] [ref=e407]
+                - generic [ref=e408]: Leitura da etapa
+              - generic [ref=e409]:
+                - article [ref=e410]:
+                  - generic [ref=e411]: Volume
+                  - strong [ref=e412]: 0 campanhas
+                - article [ref=e413]:
+                  - generic [ref=e414]: Tempo médio na fase
+                  - strong [ref=e415]: —
+                - article [ref=e416]:
+                  - generic [ref=e417]: Participação no funil
+                  - strong [ref=e418]: 0%
+                - article [ref=e419]:
+                  - generic [ref=e420]: Campanhas sensíveis
+                  - strong [ref=e421]: 0 com prazo próximo
+              - generic [ref=e422]:
+                - strong [ref=e423]: Diagnóstico
+                - paragraph [ref=e424]: Sem campanhas nessa etapa neste momento.
+              - button "Ver na aba campanhas" [ref=e425] [cursor=pointer]
+              - paragraph [ref=e427]: Nenhuma campanha nesse status agora.
+        - generic [ref=e428]:
+          - generic [ref=e429]:
+            - generic [ref=e431]:
+              - heading "Evolução mensal" [level=3] [ref=e432]
+              - paragraph [ref=e433]: Volume de campanhas criadas e concluídas nos últimos 6 meses.
+            - generic "Gráfico de evolução mensal" [ref=e435]
+          - generic [ref=e436]:
+            - generic [ref=e438]:
+              - heading "Eficiência do funil" [level=3] [ref=e439]
+              - paragraph [ref=e440]: Indicadores finais voltados a performance comercial, gargalos e velocidade operacional.
+            - generic [ref=e441]:
+              - article [ref=e442]:
+                - generic [ref=e443]: Gargalo atual
+                - strong [ref=e444]: —
+                - generic [ref=e445]: Etapa com maior tempo médio
+              - article [ref=e446]:
+                - generic [ref=e447]: Tempo médio em fase ativa
+                - strong [ref=e448]: —
+                - generic [ref=e449]: Quanto o pipeline demora para girar
+              - article [ref=e450]:
+                - generic [ref=e451]: Campanhas paradas
+                - strong [ref=e452]: "0"
+                - generic [ref=e453]: Sem avanço há 7+ dias
+              - article [ref=e454]:
+                - generic [ref=e455]: Criadas no período
+                - strong [ref=e456]: "0"
+                - generic [ref=e457]: 30 dias
+              - article [ref=e458]:
+                - generic [ref=e459]: Concluídas no período
+                - strong [ref=e460]: "0"
+                - generic [ref=e461]: Encerradas dentro da janela
+              - article [ref=e462]:
+                - generic [ref=e463]: Em risco de prazo
+                - strong [ref=e464]: "0"
+                - generic [ref=e465]: Ativas com prazo nos próximos 7 dias

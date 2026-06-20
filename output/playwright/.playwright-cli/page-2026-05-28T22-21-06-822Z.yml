@@ -1,0 +1,23 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: Status
+      - generic [ref=e10]:
+        - combobox "Status":
+          - option "Prospecção"
+          - option "Produção"
+          - option "Finalização"
+          - option "Concluída" [selected]
+        - button "Concluída" [expanded] [active] [ref=e11] [cursor=pointer]
+    - generic [ref=e7]:
+      - button "Duplicar" [ref=e8]
+      - generic [ref=e9]: "cliques atrás: 0"
+  - listbox [ref=e12]:
+    - option "Prospecção" [ref=e13] [cursor=pointer]:
+      - generic [ref=e14]: Prospecção
+    - option "Produção" [ref=e15] [cursor=pointer]:
+      - generic [ref=e16]: Produção
+    - option "Finalização" [ref=e17] [cursor=pointer]:
+      - generic [ref=e18]: Finalização
+    - option "Concluída" [selected] [ref=e19] [cursor=pointer]:
+      - generic [ref=e20]: Concluída

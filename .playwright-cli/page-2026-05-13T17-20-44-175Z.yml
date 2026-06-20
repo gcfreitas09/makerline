@@ -1,0 +1,141 @@
+- generic [active] [ref=e1]:
+  - button "Ativar tema claro" [ref=e2] [cursor=pointer]:
+    - generic [ref=e3]: ☀
+    - generic [ref=e4]: ☾
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - img "Makerline" [ref=e9]
+      - generic [ref=e11]: Makerline
+    - generic [ref=e12]:
+      - heading "UGC Quest" [level=2] [ref=e13]
+      - paragraph [ref=e14]: Gerencie campanhas, marcas e entregas com uma operação mais clara e profissional.
+    - tablist "Entrar ou criar conta" [ref=e15]:
+      - tab "Entrar" [selected] [ref=e16] [cursor=pointer]
+      - tab "Criar conta" [ref=e17] [cursor=pointer]
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]: E-mail
+        - textbox "E-mail" [ref=e21]:
+          - /placeholder: seu@email.com
+      - generic [ref=e22]:
+        - generic [ref=e23]: Senha
+        - textbox "Senha" [ref=e24]:
+          - /placeholder: Sua senha
+      - button "Entrar" [ref=e25] [cursor=pointer]
+      - button "Esqueci minha senha" [ref=e27] [cursor=pointer]
+    - generic [ref=e28]: Ao continuar, você entra no seu painel da Makerline.
+  - generic [ref=e29]:
+    - complementary [ref=e30]:
+      - generic [ref=e31]:
+        - img "Makerline" [ref=e33]
+        - generic [ref=e35]: Makerline
+      - generic [ref=e36]:
+        - generic [ref=e37]: Q
+        - generic [ref=e38]:
+          - generic [ref=e39]: QA Session
+          - generic [ref=e40]: Plano
+      - navigation [ref=e41]:
+        - generic [ref=e42]:
+          - button "Dashboard" [ref=e43] [cursor=pointer]:
+            - img [ref=e44]
+            - text: Dashboard
+          - button "Marcas" [ref=e47] [cursor=pointer]:
+            - img [ref=e48]
+            - text: Marcas
+          - button "Campanhas" [ref=e51] [cursor=pointer]:
+            - img [ref=e52]
+            - text: Campanhas
+          - button "Prospecção" [ref=e57] [cursor=pointer]:
+            - img [ref=e58]
+            - text: Prospecção
+          - button "Financeiro" [ref=e61] [cursor=pointer]:
+            - img [ref=e62]
+            - text: Financeiro
+          - button "Métricas" [ref=e64] [cursor=pointer]:
+            - img [ref=e65]
+            - text: Métricas
+          - button "Planos" [ref=e66] [cursor=pointer]:
+            - img [ref=e67]
+            - text: Planos
+          - button "Configurações" [ref=e69] [cursor=pointer]:
+            - img [ref=e70]
+            - text: Configurações
+    - main [ref=e73]:
+      - generic [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - heading "Boa tarde, QA Session!" [level=1] [ref=e77]
+            - paragraph [ref=e78]: Comece com uma marca ou campanha para colocar seu fluxo em movimento.
+          - button "Nova campanha" [ref=e79] [cursor=pointer]
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - emphasis [ref=e82]: Planos disponíveis
+            - strong [ref=e83]: Escolha um plano quando quiser ativar sua assinatura.
+            - generic [ref=e84]: Veja os planos disponíveis e escolha o ciclo que faz mais sentido para você.
+          - button "Ver planos" [ref=e85] [cursor=pointer]
+        - generic [ref=e86]:
+          - generic [ref=e87]:
+            - paragraph [ref=e90]: Seu painel agora
+            - article [ref=e92]:
+              - generic [ref=e93]:
+                - generic [ref=e94]: Hoje está tranquilo
+                - heading "Sem incêndio no painel" [level=3] [ref=e97]
+                - generic [ref=e98]:
+                  - generic [ref=e99]: 0 follow-up(s)
+                  - generic [ref=e100]: 0 prazo(s)
+                  - generic [ref=e101]: 0 pagamento(s)
+            - generic [ref=e102]:
+              - article [ref=e103]:
+                - generic [ref=e104]: Próximo follow-up
+                - strong [ref=e105]: Livre
+                - paragraph [ref=e106]: Nenhum follow-up pendente hoje.
+              - article [ref=e107]:
+                - generic [ref=e108]: Entrega mais próxima
+                - paragraph [ref=e109]: Sem prazo apertado agora.
+              - article [ref=e110]:
+                - generic [ref=e111]: Dinheiro no radar
+                - strong [ref=e112]: Tudo ok
+          - generic [ref=e113]:
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - paragraph [ref=e116]: Fluxo do mês
+                - heading "Como suas campanhas estão andando" [level=2] [ref=e117]
+              - button "Ver campanhas" [ref=e118] [cursor=pointer]
+            - generic [ref=e119]:
+              - generic [ref=e121]:
+                - button "0 campanhas Prospecção Sem campanha nessa fase agora" [ref=e122] [cursor=pointer]:
+                  - generic [ref=e123]: 0 campanhas
+                  - generic [ref=e124]: Prospecção
+                  - generic [ref=e125]: Sem campanha nessa fase agora
+                - button "0 campanhas Produção Sem campanha nessa fase agora" [ref=e126] [cursor=pointer]:
+                  - generic [ref=e127]: 0 campanhas
+                  - generic [ref=e128]: Produção
+                  - generic [ref=e129]: Sem campanha nessa fase agora
+                - button "0 campanhas Finalização Sem campanha nessa fase agora" [ref=e130] [cursor=pointer]:
+                  - generic [ref=e131]: 0 campanhas
+                  - generic [ref=e132]: Finalização
+                  - generic [ref=e133]: Sem campanha nessa fase agora
+                - button "0 campanhas Concluído Sem campanha nessa fase agora" [ref=e134] [cursor=pointer]:
+                  - generic [ref=e135]: 0 campanhas
+                  - generic [ref=e136]: Concluído
+                  - generic [ref=e137]: Sem campanha nessa fase agora
+              - paragraph [ref=e140]: Clique em um status da pipeline para ver as campanhas dessa fase.
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - generic [ref=e143]:
+                - paragraph [ref=e144]: Fechamento
+                - heading "Meta financeira do mês" [level=2] [ref=e145]
+              - button "Editar meta" [ref=e146] [cursor=pointer]
+            - generic [ref=e148]:
+              - generic [ref=e149]:
+                - generic [ref=e150]:
+                  - generic [ref=e151]: Meta mensal
+                  - strong [ref=e152]: R$ 0
+                - generic [ref=e153]:
+                  - generic [ref=e154]: Confirmado
+                  - strong [ref=e155]: R$ 0
+              - generic "Progresso da meta mensal" [ref=e156]
+              - generic [ref=e157]:
+                - generic [ref=e158]: 0% da meta concluída
+                - generic [ref=e159]: Meta batida neste mês
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓
