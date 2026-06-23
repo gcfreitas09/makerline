@@ -121,8 +121,13 @@ const hydrateStateFromServer = async () => {
     if (!res.ok || !data || typeof data !== 'object') return;
     if (!data.state || typeof data.state !== 'object') return;
 
+<<<<<<< HEAD
     const remoteUpdatedAt = data.updatedAt || data.state.meta.updatedAt || null;
     const localUpdatedAt = state.meta.updatedAt || null;
+=======
+    const remoteUpdatedAt = data.updatedAt || data.state?.meta?.updatedAt || null;
+    const localUpdatedAt = state?.meta?.updatedAt || null;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
     if (parseIso(remoteUpdatedAt) <= parseIso(localUpdatedAt)) {
       return;

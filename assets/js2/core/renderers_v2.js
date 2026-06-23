@@ -303,7 +303,10 @@ const computeDashboardFinance = () => {
 
   const todayStr = `${curYear}-${String(curMonth + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
+<<<<<<< HEAD
   // Receita do mês
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const monthCampaigns = campaigns.filter((c) =>
     isCurrentMonth(c.createdAt) || isCurrentMonth(c.updatedAt) || isCurrentMonth(c.dueDate) || isCurrentMonth(c.paymentDate)
   );
@@ -317,7 +320,10 @@ const computeDashboardFinance = () => {
   const diffPercent = meta ? ((receitaConfirmada / meta) * 100) : 0;
   const metaOk = diffValor >= 0;
 
+<<<<<<< HEAD
   // Acoes criticas
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const hoje = todayStr;
   const vencendoHoje = campaigns.filter((c) => c.dueDate === hoje && c.status !== 'concluida');
   const pagamentosAtrasados = campaigns.filter((c) => {
@@ -327,7 +333,10 @@ const computeDashboardFinance = () => {
   });
   const metaEmRisco = !metaOk && receitaPrevista > 0;
 
+<<<<<<< HEAD
   // Rentabilidade
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const brandMap = {};
   campaigns.forEach((c) => {
     const brand = c.brand || 'Sem marca';
@@ -1212,6 +1221,13 @@ const renderSettings = () => {
     el.textContent = email || '�';
   });
 
+<<<<<<< HEAD
+=======
+  const weeklyBtn = document.querySelector('[data-action="send-weekly-summary"]');
+  if (weeklyBtn) {
+    weeklyBtn.disabled = !state.settings.weekly;
+  }
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const renderScriptHistory = () => {
@@ -1281,3 +1297,7 @@ const renderAll = () => {
 export { renderAll, renderScriptHistory };
 
 // VERSAO_ATUALIZADA_070226_2350
+<<<<<<< HEAD
+=======
+
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7

@@ -22,6 +22,7 @@ const initAccountForm = () => {
         return '';
       }
     })();
+<<<<<<< HEAD
     const newPassword = String(formData.get('newPassword') || '').trim();
     const payload = {
       token,
@@ -30,6 +31,13 @@ const initAccountForm = () => {
       confirmPassword: String(formData.get('confirmPassword') || '')
     };
     if (newPassword) payload.newPassword = newPassword;
+=======
+    const payload = {
+      token,
+      newEmail: String(formData.get('newEmail') || '').trim(),
+      newPassword: String(formData.get('newPassword') || '')
+    };
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
     if (!payload.token) {
       msg.textContent = 'Sua sessão caiu. Faz login de novo.';
@@ -37,7 +45,11 @@ const initAccountForm = () => {
     }
 
     if (!payload.newEmail && !payload.newPassword) {
+<<<<<<< HEAD
       msg.textContent = 'Nada pra salvar: preencha um novo email ou use Alterar senha.';
+=======
+      msg.textContent = 'Nada pra salvar: preenche um novo email ou uma nova senha.';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       return;
     }
 

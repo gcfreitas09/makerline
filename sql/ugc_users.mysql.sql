@@ -5,9 +5,12 @@ CREATE TABLE IF NOT EXISTS `ugc_users` (
   `id` VARCHAR(64) NOT NULL,
   `name` VARCHAR(120) NOT NULL,
   `email` VARCHAR(190) NOT NULL,
+<<<<<<< HEAD
   `instagram` VARCHAR(40) NULL,
   `referralCode` VARCHAR(80) NULL,
   `referredBy` VARCHAR(80) NULL,
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   `password` VARCHAR(255) NOT NULL,
   `createdAt` VARCHAR(40) NOT NULL,
 
@@ -20,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `ugc_users` (
   `lastSeenAt` VARCHAR(40) NULL,
   `lastAccessAt` VARCHAR(40) NULL,
 
+<<<<<<< HEAD
   `stripeCustomerId` VARCHAR(255) NULL,
   `stripeSubscriptionId` VARCHAR(255) NULL,
   `stripePriceId` VARCHAR(255) NULL,
@@ -36,6 +40,8 @@ CREATE TABLE IF NOT EXISTS `ugc_users` (
   `trialStartedAt` VARCHAR(40) NULL,
   `trialEndsAt` VARCHAR(40) NULL,
 
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   `sessionTokenHash` CHAR(64) NULL,
   `sessionTokenExpires` INT NULL,
 
@@ -46,6 +52,7 @@ CREATE TABLE IF NOT EXISTS `ugc_users` (
   `resetCodeExpires` INT NULL,
 
   PRIMARY KEY (`id`),
+<<<<<<< HEAD
   UNIQUE KEY `uniq_email` (`email`),
   UNIQUE KEY `uniq_instagram` (`instagram`),
   UNIQUE KEY `uniq_cpf_hash` (`cpfHash`)
@@ -71,3 +78,8 @@ ALTER TABLE `ugc_users`
   ADD COLUMN IF NOT EXISTS `trialEndsAt` VARCHAR(40) NULL AFTER `trialStartedAt`;
 
 -- Para bancos existentes, crie um índice único em cpfHash pelo painel do banco se sua versão do MySQL/MariaDB não aceitar IF NOT EXISTS em índices.
+=======
+  UNIQUE KEY `uniq_email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7

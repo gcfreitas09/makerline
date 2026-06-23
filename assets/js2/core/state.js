@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 const STORAGE_KEY_BASE = 'ugcQuestState';
+=======
+﻿const STORAGE_KEY_BASE = 'ugcQuestState';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 const PREFS_KEY_BASE = 'ugcQuestPrefs';
 
 const getSessionUserId = () => {
   try {
+<<<<<<< HEAD
     return sessionStorage.getItem('ugcQuestUserId') || localStorage.getItem('ugcQuestSessionUserId') || '';
   } catch (error) {
     try {
@@ -10,11 +15,17 @@ const getSessionUserId = () => {
     } catch (fallbackError) {
       return '';
     }
+=======
+    return sessionStorage.getItem('ugcQuestUserId') || '';
+  } catch (error) {
+    return '';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
 };
 
 const getSessionUserEmail = () => {
   try {
+<<<<<<< HEAD
     return (sessionStorage.getItem('ugcQuestUserEmail') || localStorage.getItem('ugcQuestSessionUserEmail') || '').trim().toLowerCase();
   } catch (error) {
     try {
@@ -22,6 +33,11 @@ const getSessionUserEmail = () => {
     } catch (fallbackError) {
       return '';
     }
+=======
+    return (sessionStorage.getItem('ugcQuestUserEmail') || '').trim().toLowerCase();
+  } catch (error) {
+    return '';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
 };
 
@@ -131,7 +147,10 @@ const defaultState = {
   challenges: [],
   campaigns: [],
   brands: [],
+<<<<<<< HEAD
   prospections: [],
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   scripts: [],
   metrics: {
     rangeDays: 7,
@@ -213,7 +232,10 @@ const defaultState = {
     campaignPaymentFilter: 'all',
     campaignSort: 'updatedAt',
     campaignSortDir: 'desc',
+<<<<<<< HEAD
     prospectionSearch: '',
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     performanceTab: 'financial',
     openMetric: 'pocket',
     openScript: null,
@@ -262,11 +284,19 @@ const campaignStagesByStatus = {
   concluida: [{ id: 'pago', label: 'Pago' }]
 };
 
+<<<<<<< HEAD
 const activePages = new Set(['dashboard', 'brands', 'campaigns', 'prospeccao', 'finance', 'metrics', 'plans', 'settings']);
 
 const getCampaignStageOptions = (status) => campaignStagesByStatus[String(status || '').trim()] || [];
 
 const getDefaultCampaignStage = (status) => getCampaignStageOptions(status)[0].id || '';
+=======
+const activePages = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'metrics', 'settings']);
+
+const getCampaignStageOptions = (status) => campaignStagesByStatus[String(status || '').trim()] || [];
+
+const getDefaultCampaignStage = (status) => getCampaignStageOptions(status)[0]?.id || '';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 const getCampaignStageLabel = (status, stageId) => {
   const wanted = String(stageId || '').trim();
@@ -309,6 +339,7 @@ const brandInteractionTypes = {
 
 const brandInteractionOptions = Object.keys(brandInteractionTypes);
 
+<<<<<<< HEAD
 const prospectionContactTypes = {
   dm_instagram: 'DM Instagram',
   email: 'Email',
@@ -333,6 +364,8 @@ const prospectionStatuses = {
 
 const prospectionStatusOptions = Object.keys(prospectionStatuses);
 
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 const nextActionLabels = {
   followup: 'Follow-up',
   enviar_proposta: 'Enviar proposta',
@@ -450,12 +483,19 @@ const normalizeUiState = (currentState) => {
   currentState.ui.metricsRangeDays = [0, 15, 30, 45, 90].includes(metricsRangeDays) ? metricsRangeDays : 30;
   const metricsStatusOpen = String(currentState.ui.metricsStatusOpen || '').trim();
   currentState.ui.metricsStatusOpen = ['prospeccao', 'producao', 'finalizacao', 'concluida'].includes(metricsStatusOpen)
+<<<<<<< HEAD
      metricsStatusOpen
+=======
+    ? metricsStatusOpen
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     : '';
   if (typeof currentState.ui.campaignPaymentFilter !== 'string') currentState.ui.campaignPaymentFilter = 'all';
   if (typeof currentState.ui.campaignSort !== 'string') currentState.ui.campaignSort = 'updatedAt';
   if (typeof currentState.ui.campaignSortDir !== 'string') currentState.ui.campaignSortDir = 'desc';
+<<<<<<< HEAD
   if (typeof currentState.ui.prospectionSearch !== 'string') currentState.ui.prospectionSearch = '';
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   currentState.ui.performanceTab = 'financial';
 
@@ -667,6 +707,7 @@ const normalizeCampaignContractFields = (currentState) => {
   });
 };
 
+<<<<<<< HEAD
 const normalizeCampaignDeliverables = (currentState) => {
   if (!currentState || typeof currentState !== 'object') return;
   const campaigns = Array.isArray(currentState.campaigns) ? currentState.campaigns : [];
@@ -750,6 +791,8 @@ const normalizeCampaignResources = (currentState) => {
   });
 };
 
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 const normalizeCampaignHistory = (currentState) => {
   if (!currentState || typeof currentState !== 'object') return;
   const campaigns = Array.isArray(currentState.campaigns) ? currentState.campaigns : [];
@@ -784,6 +827,7 @@ const normalizeBrandActionFields = (currentState) => {
   brands.forEach((brand) => normalizeNextActionFields(brand));
 };
 
+<<<<<<< HEAD
 const normalizeProspections = (currentState) => {
   if (!currentState || typeof currentState !== 'object') return;
   const list = Array.isArray(currentState.prospections) ? currentState.prospections : [];
@@ -820,6 +864,8 @@ const normalizeProspections = (currentState) => {
     .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
 };
 
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 const mergeState = (base, incoming) => {
   if (Array.isArray(base)) {
     return Array.isArray(incoming) ? incoming : base;
@@ -853,7 +899,11 @@ const loadState = () => {
     if (legacy) {
       try {
         const parsed = JSON.parse(legacy);
+<<<<<<< HEAD
         const legacyEmail = String(parsed.profile.email || '').trim().toLowerCase();
+=======
+        const legacyEmail = String(parsed?.profile?.email || '').trim().toLowerCase();
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         if (legacyEmail && legacyEmail === sessionEmail) {
           stored = legacy;
         }
@@ -895,11 +945,16 @@ const loadState = () => {
   normalizeCampaignBrandLinks(nextState);
   normalizeCampaignActionFields(nextState);
   normalizeCampaignContractFields(nextState);
+<<<<<<< HEAD
   normalizeCampaignDeliverables(nextState);
   normalizeCampaignResources(nextState);
   normalizeCampaignHistory(nextState);
   normalizeBrandActionFields(nextState);
   normalizeProspections(nextState);
+=======
+  normalizeCampaignHistory(nextState);
+  normalizeBrandActionFields(nextState);
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   normalizeUiState(nextState);
   return nextState;
 };
@@ -916,6 +971,7 @@ const enableRemoteSave = () => { remoteSaveEnabled = true; };
 
 const getSessionToken = () => {
   try {
+<<<<<<< HEAD
     return sessionStorage.getItem('ugcQuestToken') || localStorage.getItem('ugcQuestSessionToken') || '';
   } catch (error) {
     try {
@@ -923,11 +979,17 @@ const getSessionToken = () => {
     } catch (fallbackError) {
       return '';
     }
+=======
+    return sessionStorage.getItem('ugcQuestToken') || '';
+  } catch (error) {
+    return '';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
 };
 
 const isLoggedIn = () => {
   try {
+<<<<<<< HEAD
     return sessionStorage.getItem('ugcQuestLoggedIn') === '1' || localStorage.getItem('ugcQuestSessionLoggedIn') === '1';
   } catch (error) {
     try {
@@ -935,12 +997,21 @@ const isLoggedIn = () => {
     } catch (fallbackError) {
       return false;
     }
+=======
+    return sessionStorage.getItem('ugcQuestLoggedIn') === '1';
+  } catch (error) {
+    return false;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
 };
 
 const canRemoteSync = () => {
   if (typeof window === 'undefined') return false;
+<<<<<<< HEAD
   if (window.location.protocol === 'file:') return false;
+=======
+  if (window.location?.protocol === 'file:') return false;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   return isLoggedIn() && Boolean(getSessionToken());
 };
 
@@ -968,7 +1039,11 @@ const flushRemoteSave = async () => {
       console.error('[Sync] Erro ao salvar estado:', res.status, res.statusText);
     } else {
       const data = await res.json().catch(() => null);
+<<<<<<< HEAD
       if (data?.ok === true) {
+=======
+      if (data?.success) {
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         console.log('[Sync] Estado salvo com sucesso no servidor');
       } else {
         console.warn('[Sync] Resposta inesperada do servidor:', data);
@@ -1004,7 +1079,11 @@ const saveState = () => {
     localStorage.setItem(PREFS_KEY, JSON.stringify({ settings: state.settings }));
   } catch (error) {}
 
+<<<<<<< HEAD
   if (state.settings.backup) {
+=======
+  if (state.settings?.backup) {
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } else {
     try {
@@ -1028,11 +1107,16 @@ const replaceState = (nextState) => {
   normalizeCampaignBrandLinks(merged);
   normalizeCampaignActionFields(merged);
   normalizeCampaignContractFields(merged);
+<<<<<<< HEAD
   normalizeCampaignDeliverables(merged);
   normalizeCampaignResources(merged);
   normalizeCampaignHistory(merged);
   normalizeBrandActionFields(merged);
   normalizeProspections(merged);
+=======
+  normalizeCampaignHistory(merged);
+  normalizeBrandActionFields(merged);
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   normalizeUiState(merged);
   state = merged;
 };
@@ -1147,7 +1231,11 @@ const achievementPoolLegacy = [
     title: 'Criador consistente',
     desc: 'Completar missões em 7 dias seguidos.',
     xp: 300,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.streak || 0) >= 7
+=======
+    isUnlocked: (current) => (current.profile?.streak || 0) >= 7
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-clean-pipeline',
@@ -1166,14 +1254,22 @@ const achievementPoolLegacy = [
     title: 'Usuário avançado',
     desc: 'Atingir o nível 5.',
     xp: 400,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 5
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 5
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-level10',
     title: 'UGC disciplinado',
     desc: 'Atingir o nível 10.',
     xp: 500,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 10
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 10
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-first-script',
@@ -1239,7 +1335,11 @@ const achievementPoolLegacy = [
     title: 'Subindo rápido',
     desc: 'Atingir o nível 3.',
     xp: 200,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 3
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 3
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
 ];
 
@@ -1258,7 +1358,11 @@ const achievementPool = [
     title: 'Criador consistente',
     desc: 'Completar missões em 7 dias seguidos.',
     xp: 300,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.streak || 0) >= 7
+=======
+    isUnlocked: (current) => (current.profile?.streak || 0) >= 7
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-writer',
@@ -1285,7 +1389,11 @@ const achievementPool = [
     title: 'Usuário avançado',
     desc: 'Atingir o nível 5.',
     xp: 400,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 5
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 5
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-contact',
@@ -1344,7 +1452,11 @@ const achievementPool = [
     title: 'UGC disciplinado',
     desc: 'Atingir o nível 10.',
     xp: 500,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 10
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 10
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
 ];
 
@@ -1358,7 +1470,11 @@ const achievementCatalog = [
     xp: 400,
     isUnlocked: (current) => {
       const campaigns = Array.isArray(current.campaigns) ? current.campaigns : [];
+<<<<<<< HEAD
       return campaigns.filter((campaign) => Boolean(String(campaign.dueDate || '').trim())).length >= 8;
+=======
+      return campaigns.filter((campaign) => Boolean(String(campaign?.dueDate || '').trim())).length >= 8;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     }
   },
   {
@@ -1369,7 +1485,11 @@ const achievementCatalog = [
     xp: 250,
     isUnlocked: (current) => {
       const campaigns = Array.isArray(current.campaigns) ? current.campaigns : [];
+<<<<<<< HEAD
       return campaigns.filter((campaign) => campaign.status === 'prospeccao' && campaign.stage === 'negociacao' && isCampaignActive(campaign)).length >= 3;
+=======
+      return campaigns.filter((campaign) => campaign?.status === 'prospeccao' && campaign?.stage === 'negociacao' && isCampaignActive(campaign)).length >= 3;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     }
   },
   {
@@ -1378,7 +1498,11 @@ const achievementCatalog = [
     title: 'Foco total',
     desc: 'Completar o foco da semana 2 vezes.',
     xp: 300,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.focus.roll || 0) >= 2
+=======
+    isUnlocked: (current) => (current.focus?.roll || 0) >= 2
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-scripts-15',
@@ -1400,7 +1524,11 @@ const achievementCatalog = [
       if (active.length < 3) return false;
       const today = todayKey();
       return active.every((campaign) => {
+<<<<<<< HEAD
         const due = String(campaign.dueDate || '').trim();
+=======
+        const due = String(campaign?.dueDate || '').trim();
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         if (!due) return false;
         return due >= today;
       });
@@ -1412,7 +1540,11 @@ const achievementCatalog = [
     title: 'Modo lenda',
     desc: 'Completar o foco da semana 5 vezes.',
     xp: 500,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.focus.roll || 0) >= 5
+=======
+    isUnlocked: (current) => (current.focus?.roll || 0) >= 5
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-first-script',
@@ -1479,7 +1611,11 @@ const achievementCatalog = [
     title: 'Subindo rápido',
     desc: 'Atingir o nível 3.',
     xp: 200,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 3
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 3
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-10-campaigns',
@@ -1509,7 +1645,11 @@ const achievementOptionsByLevel = {
 
 const formatCurrency = (value) => {
   const safeValue = Number.isFinite(value) ? Math.round(value) : 0;
+<<<<<<< HEAD
   const stringValue = safeValue.toString().replace(/\B(=(\d{3})+(!\d))/g, '.');
+=======
+  const stringValue = safeValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   return `R$ ${stringValue}`;
 };
 
@@ -1519,7 +1659,11 @@ const formatPercent = (value) => `${Math.round(value * 100)}%`;
 const badgeCatalog = [
   // Financeiro
   { id: 'badge-hourly-elite', category: 'financial', title: 'R$/hora Elite', desc: 'R$/hora acima de R$ 150', icon: 'cash', xp: 300, check: (s) => { const c = (s.campaigns||[]).filter(x=>x.status==='concluida'&&x.estimatedHours>0); if(!c.length) return {done:false,current:0,target:150}; const avg = c.reduce((a,x)=>a+(x.value||0)/(x.estimatedHours||1),0)/c.length; return {done:avg>=150,current:Math.round(avg),target:150}; } },
+<<<<<<< HEAD
   { id: 'badge-above-goal', category: 'financial', title: 'Receita acima da meta', desc: 'Receita confirmada acima da meta mensal', icon: 'trend', xp: 250, check: (s) => { const goal = s.settings.monthlyGoal||0; if(!goal) return {done:false,current:0,target:goal}; const now=new Date(); const cm=now.getMonth(); const cy=now.getFullYear(); const mc=(s.campaigns||[]).filter(c=>{const d=new Date(c.updatedAt||c.createdAt);return d.getMonth()===cm&&d.getFullYear()===cy&&(c.status==='concluida'||c.paymentPercent>=100);}); const rev=mc.reduce((a,c)=>a+(c.value||0),0); return {done:rev>=goal,current:rev,target:goal}; } },
+=======
+  { id: 'badge-above-goal', category: 'financial', title: 'Receita acima da meta', desc: 'Receita confirmada acima da meta mensal', icon: 'trend', xp: 250, check: (s) => { const goal = s.settings?.monthlyGoal||0; if(!goal) return {done:false,current:0,target:goal}; const now=new Date(); const cm=now.getMonth(); const cy=now.getFullYear(); const mc=(s.campaigns||[]).filter(c=>{const d=new Date(c.updatedAt||c.createdAt);return d.getMonth()===cm&&d.getFullYear()===cy&&(c.status==='concluida'||c.paymentPercent>=100);}); const rev=mc.reduce((a,c)=>a+(c.value||0),0); return {done:rev>=goal,current:rev,target:goal}; } },
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   { id: 'badge-3months-growth', category: 'financial', title: '3 meses crescendo', desc: 'Receita cresceu por 3 meses consecutivos', icon: 'trend', xp: 400, check: () => ({done:false,current:0,target:3,insight:'Registre receita por 3 meses para desbloquear.'}) },
   // Comercial
   { id: 'badge-10-responses', category: 'commercial', title: '10 contatos com resposta', desc: 'Receber resposta de 10 marcas', icon: 'chat', xp: 200, check: (s) => { const b=(s.brands||[]).filter(x=>['negociando','cliente_ativo','cliente_recorrente','perdida'].includes(x.status)); return {done:b.length>=10,current:b.length,target:10}; } },
@@ -1554,10 +1698,13 @@ export {
   brandOptions,
   brandInteractionTypes,
   brandInteractionOptions,
+<<<<<<< HEAD
   prospectionContactTypes,
   prospectionContactOptions,
   prospectionStatuses,
   prospectionStatusOptions,
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   nextActionLabels,
   nextActionOptions,
   getNextActionLabel,

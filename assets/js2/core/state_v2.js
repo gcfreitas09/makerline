@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 const STORAGE_KEY_BASE = 'ugcQuestState';
+=======
+﻿const STORAGE_KEY_BASE = 'ugcQuestState';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 const PREFS_KEY_BASE = 'ugcQuestPrefs';
 
 const getSessionUserId = () => {
@@ -225,7 +229,11 @@ const campaignStagesByStatus = {
 
 const getCampaignStageOptions = (status) => campaignStagesByStatus[String(status || '').trim()] || [];
 
+<<<<<<< HEAD
 const getDefaultCampaignStage = (status) => getCampaignStageOptions(status)[0].id || '';
+=======
+const getDefaultCampaignStage = (status) => getCampaignStageOptions(status)[0]?.id || '';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 const getCampaignStageLabel = (status, stageId) => {
   const wanted = String(stageId || '').trim();
@@ -396,7 +404,11 @@ const loadState = () => {
     if (legacy) {
       try {
         const parsed = JSON.parse(legacy);
+<<<<<<< HEAD
         const legacyEmail = String(parsed.profile.email || '').trim().toLowerCase();
+=======
+        const legacyEmail = String(parsed?.profile?.email || '').trim().toLowerCase();
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         if (legacyEmail && legacyEmail === sessionEmail) {
           stored = legacy;
         }
@@ -459,7 +471,11 @@ const isLoggedIn = () => {
 
 const canRemoteSync = () => {
   if (typeof window === 'undefined') return false;
+<<<<<<< HEAD
   if (window.location.protocol === 'file:') return false;
+=======
+  if (window.location?.protocol === 'file:') return false;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   return isLoggedIn() && Boolean(getSessionToken());
 };
 
@@ -509,7 +525,11 @@ const saveState = () => {
     localStorage.setItem(PREFS_KEY, JSON.stringify({ settings: state.settings }));
   } catch (error) {}
 
+<<<<<<< HEAD
   if (state.settings.backup) {
+=======
+  if (state.settings?.backup) {
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } else {
     try {
@@ -616,7 +636,11 @@ const achievementPoolLegacy = [
     title: 'Criador consistente',
     desc: 'Completar missões em 7 dias seguidos.',
     xp: 300,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.streak || 0) >= 7
+=======
+    isUnlocked: (current) => (current.profile?.streak || 0) >= 7
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-clean-pipeline',
@@ -635,14 +659,22 @@ const achievementPoolLegacy = [
     title: 'Usuário avançado',
     desc: 'Atingir o nível 5.',
     xp: 400,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 5
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 5
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-level10',
     title: 'UGC disciplinado',
     desc: 'Atingir o nível 10.',
     xp: 500,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 10
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 10
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-first-script',
@@ -708,7 +740,11 @@ const achievementPoolLegacy = [
     title: 'Subindo rápido',
     desc: 'Atingir o nível 3.',
     xp: 200,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 3
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 3
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
 ];
 
@@ -727,7 +763,11 @@ const achievementPool = [
     title: 'Criador consistente',
     desc: 'Completar missões em 7 dias seguidos.',
     xp: 300,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.streak || 0) >= 7
+=======
+    isUnlocked: (current) => (current.profile?.streak || 0) >= 7
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-writer',
@@ -754,7 +794,11 @@ const achievementPool = [
     title: 'Usuário avançado',
     desc: 'Atingir o nível 5.',
     xp: 400,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 5
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 5
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-contact',
@@ -813,7 +857,11 @@ const achievementPool = [
     title: 'UGC disciplinado',
     desc: 'Atingir o nível 10.',
     xp: 500,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 10
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 10
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
 ];
 
@@ -827,7 +875,11 @@ const achievementCatalog = [
     xp: 400,
     isUnlocked: (current) => {
       const campaigns = Array.isArray(current.campaigns) ? current.campaigns : [];
+<<<<<<< HEAD
       return campaigns.filter((campaign) => Boolean(String(campaign.dueDate || '').trim())).length >= 8;
+=======
+      return campaigns.filter((campaign) => Boolean(String(campaign?.dueDate || '').trim())).length >= 8;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     }
   },
   {
@@ -838,7 +890,11 @@ const achievementCatalog = [
     xp: 250,
     isUnlocked: (current) => {
       const campaigns = Array.isArray(current.campaigns) ? current.campaigns : [];
+<<<<<<< HEAD
       return campaigns.filter((campaign) => campaign.status === 'prospeccao' && campaign.stage === 'negociacao' && isCampaignActive(campaign)).length >= 3;
+=======
+      return campaigns.filter((campaign) => campaign?.status === 'prospeccao' && campaign?.stage === 'negociacao' && isCampaignActive(campaign)).length >= 3;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     }
   },
   {
@@ -847,7 +903,11 @@ const achievementCatalog = [
     title: 'Foco total',
     desc: 'Completar o foco da semana 2 vezes.',
     xp: 300,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.focus.roll || 0) >= 2
+=======
+    isUnlocked: (current) => (current.focus?.roll || 0) >= 2
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-scripts-15',
@@ -869,7 +929,11 @@ const achievementCatalog = [
       if (active.length < 3) return false;
       const today = todayKey();
       return active.every((campaign) => {
+<<<<<<< HEAD
         const due = String(campaign.dueDate || '').trim();
+=======
+        const due = String(campaign?.dueDate || '').trim();
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         if (!due) return false;
         return due >= today;
       });
@@ -881,7 +945,11 @@ const achievementCatalog = [
     title: 'Modo lenda',
     desc: 'Completar o foco da semana 5 vezes.',
     xp: 500,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.focus.roll || 0) >= 5
+=======
+    isUnlocked: (current) => (current.focus?.roll || 0) >= 5
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-first-script',
@@ -948,7 +1016,11 @@ const achievementCatalog = [
     title: 'Subindo rápido',
     desc: 'Atingir o nível 3.',
     xp: 200,
+<<<<<<< HEAD
     isUnlocked: (current) => (current.profile.level || 0) >= 3
+=======
+    isUnlocked: (current) => (current.profile?.level || 0) >= 3
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     id: 'ach-10-campaigns',
@@ -978,7 +1050,11 @@ const achievementOptionsByLevel = {
 
 const formatCurrency = (value) => {
   const safeValue = Number.isFinite(value) ? Math.round(value) : 0;
+<<<<<<< HEAD
   const stringValue = safeValue.toString().replace(/\B(=(\d{3})+(!\d))/g, '.');
+=======
+  const stringValue = safeValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   return `R$ ${stringValue}`;
 };
 

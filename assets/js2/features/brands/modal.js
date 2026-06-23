@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 ﻿import { state, saveState, nextActionOptions } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js?v=20260502c';
 import { showToast } from '../../core/ui.js?v=20260502c';
+=======
+import { state, saveState, nextActionOptions } from '../../core/state.js';
+import { renderAll } from '../../core/renderers.js?v=20260318b';
+import { showToast } from '../../core/ui.js?v=20260302f';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 import { trackEvent } from '../../core/gamification.js?v=20260302f';
 
 const getBrandModal = () => ({
@@ -13,6 +19,7 @@ const getBrandModal = () => ({
 });
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
+<<<<<<< HEAD
 const BRAND_WIZARD_TOTAL = 4;
 let brandWizardEnabled = false;
 let brandWizardStep = 1;
@@ -106,6 +113,12 @@ const advanceBrandWizardStep = () => {
 const setNextActionCustomVisibility = (form, value) => {
   const row = document.getElementById('brand-next-action-custom-row');
   const input = form.querySelector('input[name="nextActionCustomType"]');
+=======
+
+const setNextActionCustomVisibility = (form, value) => {
+  const row = document.getElementById('brand-next-action-custom-row');
+  const input = form?.querySelector('input[name="nextActionCustomType"]');
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const show = value === 'outro';
   if (row) row.style.display = show ? '' : 'none';
   if (input) {
@@ -120,9 +133,15 @@ const populateCampaignBrandSelect = (selectedId = '') => {
 
   const brands = (Array.isArray(state.brands) ? state.brands : [])
     .slice()
+<<<<<<< HEAD
     .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'pt-BR'));
 
   select.innerHTML = ['<option value="">Vincular depois...</option>']
+=======
+    .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || ''), 'pt-BR'));
+
+  select.innerHTML = ['<option value="">Escolher marca...</option>']
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     .concat(brands.map((brand) => `<option value="${brand.id}">${String(brand.name || 'Marca')}</option>`))
     .join('');
 
@@ -147,7 +166,11 @@ const openBrandModal = (brandId = '', options = {}) => {
 
   form.reset();
   form.dataset.brandId = brand?.id || '';
+<<<<<<< HEAD
   form.dataset.returnTo = options.returnTo || '';
+=======
+  form.dataset.returnTo = options?.returnTo || '';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (msg) msg.textContent = '';
 
   const idInput = form.querySelector('input[name="id"]');
@@ -180,7 +203,10 @@ const openBrandModal = (brandId = '', options = {}) => {
   form.querySelectorAll('[data-brand-create-only]').forEach((element) => {
     element.style.display = brand ? 'none' : '';
   });
+<<<<<<< HEAD
   setBrandWizardMode(brand ? 'edit' : 'create');
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   if (deleteBtn) {
     if (brand) {
@@ -195,12 +221,15 @@ const openBrandModal = (brandId = '', options = {}) => {
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   if (nameInput) nameInput.focus();
+<<<<<<< HEAD
 
   if (typeof window.enableCustomSelects === 'function') {
     requestAnimationFrame(() => {
       try { window.enableCustomSelects(modal); } catch (e) {}
     });
   }
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const closeBrandModal = () => {
@@ -221,9 +250,12 @@ const closeBrandModal = () => {
     delete deleteBtn.dataset.brandId;
   }
   setNextActionCustomVisibility(form, '');
+<<<<<<< HEAD
   brandWizardEnabled = false;
   brandWizardStep = 1;
   applyBrandWizardStep();
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const syncCampaignsWithBrand = (brand, previousName = '') => {
@@ -265,7 +297,11 @@ const handleBrandSubmit = (event) => {
     return;
   }
   if (email && !email.includes('@')) {
+<<<<<<< HEAD
     if (msg) msg.textContent = 'Informe um e-mail válido ou deixe em branco.';
+=======
+    if (msg) msg.textContent = 'Informe um email válido ou deixe em branco.';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     return;
   }
   if (nextActionType && !nextActionDate) {
@@ -331,7 +367,10 @@ const handleBrandSubmit = (event) => {
   }
 
   saveState();
+<<<<<<< HEAD
   closeBrandModal();
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   renderAll();
   populateCampaignBrandSelect(brand.id);
 
@@ -345,6 +384,10 @@ const handleBrandSubmit = (event) => {
     trackEvent('brand_updated', { brandId: brand.id, brand });
   }
 
+<<<<<<< HEAD
+=======
+  closeBrandModal();
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   showToast(reason === 'create' ? 'Marca salva.' : 'Marca atualizada.');
 
   const campaignBrandSelect = document.querySelector('#campaign-form select[name="brandId"]');
@@ -356,7 +399,11 @@ const handleBrandSubmit = (event) => {
   }
   if (returnTo === 'campaign' && !isCampaignOpen) {
     window.setTimeout(() => {
+<<<<<<< HEAD
       if (window.__ugcModals.openCampaignModal) {
+=======
+      if (window.__ugcModals?.openCampaignModal) {
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         window.__ugcModals.openCampaignModal();
       }
     }, 80);
@@ -375,6 +422,7 @@ const initBrandForm = () => {
   if (typeSelect) {
     typeSelect.addEventListener('change', () => {
       setNextActionCustomVisibility(form, typeSelect.value);
+<<<<<<< HEAD
       applyBrandWizardStep();
     });
   }
@@ -384,6 +432,8 @@ const initBrandForm = () => {
     nextStepBtn.dataset.bound = '1';
     nextStepBtn.addEventListener('click', () => {
       advanceBrandWizardStep();
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     });
   }
 

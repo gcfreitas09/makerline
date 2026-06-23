@@ -34,7 +34,11 @@ const buildAlertsMessage = () => {
 
   const head = parts.slice(0, 2).join(' · ');
   const tail = parts.length > 2 ? ` +${parts.length - 2}` : '';
+<<<<<<< HEAD
   return `Alertas: ${head}${tail}. Bora dar um passo nisso`;
+=======
+  return `Alertas: ${head}${tail}. Bora dar um passo nisso?`;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const runCampaignAlerts = ({ force = false } = {}) => {

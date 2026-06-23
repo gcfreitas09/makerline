@@ -28,7 +28,11 @@ if (users_store_backend() === 'error') {
 
 $body = json_decode(file_get_contents('php://input'), true) ?? [];
 $token = trim((string)($body['token'] ?? ''));
+<<<<<<< HEAD
 $password = trim((string)($body['password'] ?? ''));
+=======
+$password = (string)($body['password'] ?? '');
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 if (strlen($token) < 10) {
     respond(400, ['error' => 'Token inválido']);
@@ -56,10 +60,18 @@ $ok = users_store_update_by_id((string)$user['id'], [
     'resetTokenExpires' => null,
     'sessionTokenHash' => null,
     'sessionTokenExpires' => null
+<<<<<<< HEAD
 ], 'reset_password');
+=======
+]);
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 if (!$ok) {
     respond(500, ['error' => users_store_last_error() ?: 'Não consegui salvar a nova senha agora.']);
 }
 
 respond(200, ['ok' => true]);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
 import { renderAll } from './core/renderers.js?v=20260623b';
 import { setActivePage } from './core/ui.js?v=20260507b';
@@ -469,6 +470,38 @@ const getSafeProfileName = () => {
   if (!isPlaceholderProfileName(persistedName)) return persistedName;
   if (!isPlaceholderProfileName(sessionName)) return sessionName;
   return 'Criador';
+=======
+import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
+import { renderAll } from './core/renderers.js?v=20260318b';
+import { setActivePage } from './core/ui.js?v=20260304b';
+import { initActions } from './core/actions.js?v=20260318e';
+import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260314b';
+import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260304c';
+
+  const sessionToken = sessionStorage.getItem('ugcQuestToken') || '';
+  const sessionUserId = sessionStorage.getItem('ugcQuestUserId') || '';
+  const hasSession = sessionStorage.getItem('ugcQuestLoggedIn') === '1' && Boolean(sessionToken) && Boolean(sessionUserId);
+
+  if (!hasSession) {
+    window.location.replace('index.html');
+  }
+
+  const initProfileFromSession = () => {
+    const name = sessionStorage.getItem('ugcQuestUserName') || '';
+    const email = sessionStorage.getItem('ugcQuestUserEmail') || '';
+    if (name) state.profile.name = name;
+    if (email) state.profile.email = email;
+    saveState();
+  };
+
+const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'metrics', 'settings']);
+
+const getSafeProfileName = () => {
+  const sessionName = String(sessionStorage.getItem('ugcQuestUserName') || '').trim();
+  const persistedName = String(state.profile?.name || '').trim();
+  if (persistedName && persistedName.toLowerCase() !== 'criador') return persistedName;
+  return sessionName || 'Criador';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const getSafeProfileInitial = () => getSafeProfileName().charAt(0).toUpperCase() || 'C';
@@ -487,7 +520,10 @@ const safeRun = (label, fn) => {
   state.ui.activePage = ACTIVE_PAGES.has(activePage) ? activePage : 'dashboard';
   if (typeof state.ui.campaignDashboardFilter !== 'string') state.ui.campaignDashboardFilter = '';
   if (typeof state.ui.dashboardPipelineOpen !== 'string') state.ui.dashboardPipelineOpen = '';
+<<<<<<< HEAD
   if (typeof state.ui.prospectionSearch !== 'string') state.ui.prospectionSearch = '';
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const financeRangeDays = Number(state.ui.financeRangeDays);
   state.ui.financeRangeDays = [0, 15, 30, 45, 90].includes(financeRangeDays) ? financeRangeDays : 30;
   if (typeof state.ui.financeExpandedCampaignId !== 'string') state.ui.financeExpandedCampaignId = '';
@@ -549,18 +585,25 @@ const enforceModernShell = () => {
         <div class="profile-avatar" data-profile-avatar>${getSafeProfileInitial()}</div>
         <div class="profile-card-copy">
           <div class="profile-card-name" data-profile-name>${getSafeProfileName()}</div>
+<<<<<<< HEAD
           <div class="profile-card-plan" data-profile-plan>Plano</div>
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         </div>
       `;
     }
 
     const avatar = profileCard.querySelector('[data-profile-avatar]');
     const name = profileCard.querySelector('[data-profile-name]');
+<<<<<<< HEAD
     let plan = profileCard.querySelector('[data-profile-plan]');
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     const safeInitial = getSafeProfileInitial();
     const safeName = getSafeProfileName();
     if (avatar && avatar.textContent !== safeInitial) avatar.textContent = safeInitial;
     if (name && name.textContent !== safeName) name.textContent = safeName;
+<<<<<<< HEAD
     if (!plan) {
       plan = document.createElement('div');
       plan.className = 'profile-card-plan';
@@ -569,6 +612,8 @@ const enforceModernShell = () => {
       const copy = profileCard.querySelector('.profile-card-copy');
       if (copy) copy.appendChild(plan);
     }
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
 };
 
@@ -589,7 +634,11 @@ const parseIso = (value) => {
 
 const initSessionTimeTracking = () => {
   if (window.location.protocol === 'file:') return;
+<<<<<<< HEAD
   const token = getStoredAuth('ugcQuestToken', 'ugcQuestSessionToken');
+=======
+  const token = sessionStorage.getItem('ugcQuestToken') || '';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (!token) return;
 
   const startedAt = Date.now();
@@ -660,7 +709,11 @@ const initSessionTimeTracking = () => {
 
 const hydrateStateFromServer = async () => {
   if (window.location.protocol === 'file:') return;
+<<<<<<< HEAD
   const token = getStoredAuth('ugcQuestToken', 'ugcQuestSessionToken');
+=======
+  const token = sessionStorage.getItem('ugcQuestToken') || '';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (!token) return;
 
   try {
@@ -679,15 +732,24 @@ const hydrateStateFromServer = async () => {
     const hasValidRemoteData = (
       (remoteState.campaigns && remoteState.campaigns.length > 0) ||
       (remoteState.brands && remoteState.brands.length > 0) ||
+<<<<<<< HEAD
       Boolean(String(remoteState.meta.updatedAt || '').trim())
+=======
+      Boolean(String(remoteState.meta?.updatedAt || '').trim())
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     );
 
     // Se o estado remoto tem dados válidos, usar ele
     // Caso contrário, manter o estado local
     if (hasValidRemoteData) {
       console.log('[Sync] Carregando estado do servidor:', {
+<<<<<<< HEAD
         campanhas: remoteState.campaigns.length || 0,
         marcas: remoteState.brands.length || 0
+=======
+        campanhas: remoteState.campaigns?.length || 0,
+        marcas: remoteState.brands?.length || 0
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       });
       replaceState(remoteState);
       initProfileFromSession();
@@ -700,6 +762,7 @@ const hydrateStateFromServer = async () => {
   }
 };
 
+<<<<<<< HEAD
   safeRun('initThemeToggle', initThemeToggle);
   if (!hasSession) {
     safeRun('setAuthMode(true)', () => setAuthMode(true));
@@ -707,11 +770,16 @@ const hydrateStateFromServer = async () => {
   } else {
     safeRun('setAuthMode(false)', () => setAuthMode(false));
     safeRun('primeBillingUiFromReturn', primeBillingUiFromReturn);
+=======
+  // Renderizar imediatamente se houver sessão
+  if (hasSession) {
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     safeRun('initProfileFromSession', initProfileFromSession);
     safeRun('sanitizeActiveUiState', sanitizeActiveUiState);
     safeRun('enforceModernShell', enforceModernShell);
     safeRun('startShellGuard', startShellGuard);
     safeRun('renderAll', renderAll);
+<<<<<<< HEAD
     safeRun('setActivePage(initial)', () => setActivePage(getRequestedPage()));
     safeRun('enforceBillingAccess', enforceBillingAccess);
     safeRun('initActions', initActions);
@@ -724,12 +792,22 @@ const hydrateStateFromServer = async () => {
       window.__ugcAppLoaded = true;
       return;
     }
+=======
+    safeRun('setActivePage(dashboard)', () => setActivePage('dashboard'));
+    safeRun('initActions', initActions);
+    safeRun('initAdminTrackerCard', initAdminTrackerCard);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!hasSession) return;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     safeRun('initSessionTimeTracking', initSessionTimeTracking);
     
     (async () => {
       safeRun('initActions', initActions);
       // Carregar estado do servidor APÓS inicialização
       await hydrateStateFromServer();
+<<<<<<< HEAD
       if (getBillingReturnCode() === 'success') {
         const activatedBilling = await waitForBillingActivation();
         const celebrationBilling =
@@ -746,6 +824,8 @@ const hydrateStateFromServer = async () => {
         }
       }
       safeRun('enforceBillingAccess', enforceBillingAccess);
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
       // Habilitar salvamento remoto somente após hidratação
       safeRun('enableRemoteSave', enableRemoteSave);
@@ -766,15 +846,21 @@ const hydrateStateFromServer = async () => {
       console.log('[App] Estado do servidor carregado');
       
       // Inicializar features
+<<<<<<< HEAD
       safeRun('setActivePage(initial)', () => setActivePage(getRequestedPage()));
       safeRun('enforceBillingAccess', enforceBillingAccess);
       safeRun('initAdminTrackerCard', initAdminTrackerCard);
       safeRun('initAdminPartnerCommissions', initAdminPartnerCommissions);
+=======
+      safeRun('setActivePage(dashboard)', () => setActivePage('dashboard'));
+      safeRun('initAdminTrackerCard', initAdminTrackerCard);
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     })();
     window.__ugcAppLoaded = true;
   });
 
 window.addEventListener('pageshow', () => {
+<<<<<<< HEAD
   restoreSessionFromPersistentStorage();
   if (!getStoredAuth('ugcQuestToken', 'ugcQuestSessionToken')) return;
   if (String(window.location.search || '').includes('billing=')) {
@@ -800,3 +886,9 @@ window.addEventListener('pageshow', () => {
   }
 });
 
+=======
+  if (sessionStorage.getItem('ugcQuestLoggedIn') !== '1') {
+    window.location.replace('index.html');
+  }
+});
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7

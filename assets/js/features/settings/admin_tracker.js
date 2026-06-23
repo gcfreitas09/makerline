@@ -3,7 +3,10 @@ const getEls = () => ({
   msg: document.getElementById('admin-tracker-msg')
 });
 const TRACKER_ALLOWED_EMAILS = new Set(['fgui3662@gmail.com', 'lorenzo.ritter27@gmail.com']);
+<<<<<<< HEAD
 const INTELLIGENCE_ROUTE = 'intelligence.html';
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 const getSessionEmail = () => {
   try {
@@ -22,7 +25,11 @@ const setMsg = (text) => {
 const setBtnEnabled = (enabled) => {
   const { card } = getEls();
   if (!card) return;
+<<<<<<< HEAD
   const btn = card.querySelector(`a[href="${INTELLIGENCE_ROUTE}"]`);
+=======
+  const btn = card.querySelector('a[href="admin.html"]');
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (!btn) return;
   btn.classList.toggle('is-disabled', !enabled);
   btn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
@@ -53,7 +60,11 @@ const initAdminTrackerCard = () => {
 
   card.style.display = 'block';
   setBtnEnabled(false);
+<<<<<<< HEAD
   setMsg('Carregando Makerline Intelligence...');
+=======
+  setMsg('Carregando painel do time...');
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   fetch('api/admin_users.php', {
     method: 'POST',
@@ -73,7 +84,11 @@ const initAdminTrackerCard = () => {
           return;
         }
 
+<<<<<<< HEAD
         const msg = data?.error ? String(data.error) : 'Não consegui carregar o Makerline Intelligence agora.';
+=======
+        const msg = data?.error ? String(data.error) : 'Não consegui carregar o tracker agora.';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         setMsg(msg);
         setBtnEnabled(true);
         return;
@@ -81,10 +96,17 @@ const initAdminTrackerCard = () => {
 
       setBtnEnabled(true);
       const count = Number.isFinite(data.count) ? data.count : Array.isArray(data.users) ? data.users.length : 0;
+<<<<<<< HEAD
       setMsg(count ? `${count} usuário${count === 1 ? '' : 's'} monitorado${count === 1 ? '' : 's'} no Intelligence.` : 'Ainda não há usuários monitorados no Intelligence.');
     })
     .catch(() => {
       setMsg('Não consegui carregar o Makerline Intelligence agora. Tente de novo mais tarde.');
+=======
+      setMsg(count ? `Tem ${count} cadastro${count === 1 ? '' : 's'} rolando.` : 'Ainda não tem cadastros por aqui.');
+    })
+    .catch(() => {
+      setMsg('Não consegui carregar o tracker agora. Se der, tenta de novo mais tarde.');
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       setBtnEnabled(true);
     });
 };

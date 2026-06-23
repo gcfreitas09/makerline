@@ -100,7 +100,11 @@ if (users_store_backend() === 'error') {
 
 $backend = users_store_backend();
 if ($backend !== 'mysql' && $backend !== 'supabase') {
+<<<<<<< HEAD
     respond(400, ['error' => 'O banco ainda não está ativo. Crie o storage/db.json (MySQL) ou storage/supabase.json (Supabase) e importe o SQL primeiro.']);
+=======
+    respond(400, ['error' => 'O banco ainda não está ativo. Cria o storage/db.json (MySQL) ou storage/supabase.json (Supabase) e importa o SQL primeiro.']);
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 $body = json_decode(file_get_contents('php://input'), true);
@@ -128,7 +132,11 @@ if ($expires && $expires < $now) {
 $adminEmails = loadAdmins($adminsFile, $adminsExampleFile);
 $currentEmail = strtolower(trim((string)($foundUser['email'] ?? '')));
 if (!$currentEmail || !in_array($currentEmail, $adminEmails, true)) {
+<<<<<<< HEAD
     respond(403, ['error' => 'Sem permissão para ver isso.']);
+=======
+    respond(403, ['error' => 'Sem permissão pra ver isso.']);
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 $jsonUsersFile = __DIR__ . '/../storage/users.json';
@@ -183,6 +191,10 @@ foreach ($jsonUsers as $row) {
         'email' => $email,
         'password' => (string)($row['password'] ?? ''),
         'createdAt' => (string)($row['createdAt'] ?? date('c')),
+<<<<<<< HEAD
+=======
+        'weeklySummary' => !empty($row['weeklySummary']),
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         'accessCount' => (int)($row['accessCount'] ?? 0),
         'timeSpentSeconds' => (int)($row['timeSpentSeconds'] ?? 0),
         'lastLoginAt' => $row['lastLoginAt'] ?? null,

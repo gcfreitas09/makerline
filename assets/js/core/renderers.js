@@ -1212,6 +1212,13 @@ const renderSettings = () => {
     el.textContent = email || '—';
   });
 
+<<<<<<< HEAD
+=======
+  const weeklyBtn = document.querySelector('[data-action="send-weekly-summary"]');
+  if (weeklyBtn) {
+    weeklyBtn.disabled = !state.settings.weekly;
+  }
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const renderScriptHistory = () => {

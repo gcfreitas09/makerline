@@ -34,7 +34,10 @@ function supabase_info($config, $reason, $error = null)
             'url' => $config['url'] ?? null,
             'table_users' => $config['table_users'] ?? 'ugc_users',
             'table_states' => $config['table_states'] ?? 'ugc_user_states',
+<<<<<<< HEAD
             'table_partner_commissions' => $config['table_partner_commissions'] ?? 'partner_commissions',
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
             'timeout' => $config['timeout'] ?? 12
         ];
     }
@@ -60,7 +63,10 @@ function load_supabase_config()
         $key = (string)(getenv('UGC_SUPABASE_SERVICE_KEY') ?: (getenv('UGC_SUPABASE_KEY') ?: ''));
         $table = trim((string)(getenv('UGC_SUPABASE_USERS_TABLE') ?: 'ugc_users'));
         $tableStates = trim((string)(getenv('UGC_SUPABASE_STATES_TABLE') ?: 'ugc_user_states'));
+<<<<<<< HEAD
         $tablePartnerCommissions = trim((string)(getenv('UGC_SUPABASE_PARTNER_COMMISSIONS_TABLE') ?: 'partner_commissions'));
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         $timeoutEnv = getenv('UGC_SUPABASE_TIMEOUT');
         $timeout = $timeoutEnv !== false ? (int)$timeoutEnv : 12;
 
@@ -71,7 +77,10 @@ function load_supabase_config()
                 'service_key' => $key,
                 'table_users' => $table !== '' ? $table : 'ugc_users',
                 'table_states' => $tableStates !== '' ? $tableStates : 'ugc_user_states',
+<<<<<<< HEAD
                 'table_partner_commissions' => $tablePartnerCommissions !== '' ? $tablePartnerCommissions : 'partner_commissions',
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
                 'timeout' => $timeout > 0 ? $timeout : 12
             ];
             $GLOBALS['UGC_SUPABASE_CONFIG'] = $config;
@@ -99,7 +108,10 @@ function load_supabase_config()
     $key = (string)($data['service_key'] ?? ($data['key'] ?? ''));
     $table = trim((string)($data['table_users'] ?? 'ugc_users'));
     $tableStates = trim((string)($data['table_states'] ?? 'ugc_user_states'));
+<<<<<<< HEAD
     $tablePartnerCommissions = trim((string)($data['table_partner_commissions'] ?? 'partner_commissions'));
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     $timeout = (int)($data['timeout'] ?? 12);
 
     if ($url === '' || $key === '') {
@@ -113,7 +125,10 @@ function load_supabase_config()
         'service_key' => $key,
         'table_users' => $table !== '' ? $table : 'ugc_users',
         'table_states' => $tableStates !== '' ? $tableStates : 'ugc_user_states',
+<<<<<<< HEAD
         'table_partner_commissions' => $tablePartnerCommissions !== '' ? $tablePartnerCommissions : 'partner_commissions',
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         'timeout' => $timeout > 0 ? $timeout : 12
     ];
 

@@ -23,8 +23,15 @@ import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from 
 import { closeFocusModal, confirmFocusModal, openFocusModal } from '../features/focus/modal.js';
 import { closeTour, nextTour, openTour, prevTour, skipTour } from '../features/tour/tour.js';
 import { initAccountForm } from '../features/settings/account.js';
+<<<<<<< HEAD
 import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260507a';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js';
+=======
+import { initAdminTrackerCard } from '../features/settings/admin_tracker.js';
+import { syncWeeklySetting } from '../features/settings/weekly.js';
+import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js';
+import { sendWeeklySummaryNow } from '../features/settings/weekly_summary.js';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 const copyText = (text, doneMessage) => {
   const value = String(text || '').trim();
@@ -298,6 +305,21 @@ const handleActionClick = (event) => {
     return;
   }
 
+<<<<<<< HEAD
+=======
+  if (action === 'send-weekly-summary') {
+    sendWeeklySummaryNow();
+    return;
+  }
+
+  if (action === 'copy-weekly-preview') {
+    const preview = document.getElementById('weekly-summary-preview');
+    if (!preview) return;
+    copyText(preview.textContent, 'Resumo copiado.');
+    return;
+  }
+
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (action === 'pause-campaign') {
     const campaignId = actionEl.dataset.campaignId;
     const campaign = state.campaigns.find((item) => item.id === campaignId);
@@ -479,6 +501,15 @@ const handleChange = (event) => {
     const key = target.dataset.setting;
     state.settings[key] = target.checked;
     saveState();
+<<<<<<< HEAD
+=======
+    if (key === 'weekly') {
+      renderAll();
+      syncWeeklySetting(target.checked);
+      return;
+    }
+
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     if (key === 'alerts') {
       if (target.checked) {
         showToast('Alertas ligados. Vou te lembrar por aqui.');

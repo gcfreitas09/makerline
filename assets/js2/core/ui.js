@@ -1,11 +1,16 @@
 import { saveState, state } from './state.js';
 
+<<<<<<< HEAD
 const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'prospeccao', 'finance', 'metrics', 'plans', 'settings']);
+=======
+const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'metrics', 'settings']);
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 const setActivePage = (page) => {
   const navItems = document.querySelectorAll('.nav-item[data-target]');
   const sections = document.querySelectorAll('.page-section');
   const validPages = Array.from(sections).map((section) => section.dataset.section);
+<<<<<<< HEAD
   let targetPage = validPages.includes(page) ? page : 'dashboard';
   try {
     const billing = window.__ugcBilling.getBillingSnapshot();
@@ -14,6 +19,9 @@ const setActivePage = (page) => {
       targetPage = 'plans';
     }
   } catch (error) {}
+=======
+  const targetPage = validPages.includes(page) ? page : 'dashboard';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   navItems.forEach((item) => {
     const target = String(item.dataset.target || '').trim();

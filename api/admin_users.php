@@ -226,11 +226,19 @@ function loadCampaignCountsByUserIds($userIds)
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($method !== 'POST') {
+<<<<<<< HEAD
     respond(405, ['error' => 'Método não permitido']);
 }
 
 if (users_store_backend() === 'error') {
     respond(500, ['error' => users_store_last_error() ?: 'Banco configurado, mas não está pronto ainda.']);
+=======
+    respond(405, ['error' => 'Metodo nao permitido']);
+}
+
+if (users_store_backend() === 'error') {
+    respond(500, ['error' => users_store_last_error() ?: 'Banco configurado, mas nao esta pronto ainda.']);
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 $body = json_decode(file_get_contents('php://input'), true);
@@ -258,7 +266,11 @@ if ($expires && $expires < $now) {
 $adminEmails = loadAdmins($adminsFile, $adminsExampleFile);
 $currentEmail = strtolower(trim((string)($foundUser['email'] ?? '')));
 if (!$currentEmail || !in_array($currentEmail, $adminEmails, true)) {
+<<<<<<< HEAD
     respond(403, ['error' => 'Sem permissão para ver isso.']);
+=======
+    respond(403, ['error' => 'Sem permissao pra ver isso.']);
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 $users = users_store_load_all();
@@ -270,6 +282,14 @@ foreach ($users as $user) {
     if ($email === '') {
         continue;
     }
+<<<<<<< HEAD
+=======
+    // Tracker deve mostrar apenas clientes; admins (vocês) ficam ocultos da lista.
+    if (in_array($email, $adminEmails, true)) {
+        continue;
+    }
+
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     $id = (string)($user['id'] ?? '');
     if ($id !== '') $userIds[] = $id;
     $list[] = [
@@ -277,6 +297,10 @@ foreach ($users as $user) {
         'name' => (string)($user['name'] ?? ''),
         'email' => $email,
         'createdAt' => (string)($user['createdAt'] ?? ''),
+<<<<<<< HEAD
+=======
+        'weeklySummary' => (bool)($user['weeklySummary'] ?? false),
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         'accessCount' => (int)($user['accessCount'] ?? 0),
         'timeSpentSeconds' => (int)($user['timeSpentSeconds'] ?? 0),
         'lastAccessAt' => (string)($user['lastAccessAt'] ?? ''),

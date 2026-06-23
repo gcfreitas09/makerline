@@ -492,7 +492,11 @@ const flushRemoteSave = async () => {
       console.error('[Sync] Erro ao salvar estado:', res.status, res.statusText);
     } else {
       const data = await res.json().catch(() => null);
+<<<<<<< HEAD
       if (data?.ok === true) {
+=======
+      if (data?.success) {
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         console.log('[Sync] Estado salvo com sucesso no servidor');
       } else {
         console.warn('[Sync] Resposta inesperada do servidor:', data);
@@ -1044,3 +1048,7 @@ export {
 
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7

@@ -10,14 +10,23 @@ const STRUCTURE_LABELS = { AIDA: 'AIDA (Atenção → Interesse → Desejo → A
 
 /* ── Hook library ── */
 const HOOKS = {
+<<<<<<< HEAD
   dor: (audience, goal) => `HOOK (0-3s)\n• Dor direta: "${audience} cansou de ${goal} Olha isso aqui."`,
   intriga: (_, goal) => `HOOK (0-3s)\n• Intriga visual: close no produto + pergunta: "Já imaginou ${goal}"`,
+=======
+  dor: (audience, goal) => `HOOK (0-3s)\n• Dor direta: "${audience} cansou de ${goal}? Olha isso aqui."`,
+  intriga: (_, goal) => `HOOK (0-3s)\n• Intriga visual: close no produto + pergunta: "Já imaginou ${goal}?"`,
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   autoridade: (_, __, brand) => `HOOK (0-3s)\n• Autoridade: "Testei ${brand} e vou te mostrar o que mudou."`,
   choque: (audience) => `HOOK (0-3s)\n• Choque: "A maioria de vocês (${audience}) tá errando nessa."`,
   curiosidade: (_, goal) => `HOOK (0-3s)\n• Curiosidade: "O segredo pra ${goal} que ninguém tá te contando."`,
   antes_depois: (_, __, brand) => `HOOK (0-3s)\n• Antes/depois: "Antes de ${brand} eu fazia assim... Agora..."`,
   trend: () => `HOOK (0-3s)\n• Trend: Começa com áudio viral + transição pra produto.`,
+<<<<<<< HEAD
   pergunta: (audience, goal) => `HOOK (0-3s)\n• Pergunta polêmica: "${audience}, vocês realmente acham que ${goal} é impossível"`
+=======
+  pergunta: (audience, goal) => `HOOK (0-3s)\n• Pergunta polêmica: "${audience}, vocês realmente acham que ${goal} é impossível?"`
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 const hookKeys = Object.keys(HOOKS);
 

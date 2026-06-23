@@ -1,5 +1,9 @@
 import { state, saveState } from '../../core/state.js';
+<<<<<<< HEAD
 import { renderAll } from '../../core/renderers.js?v=20260429d';
+=======
+import { renderAll } from '../../core/renderers.js?v=20260302f';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 import { showToast } from '../../core/ui.js?v=20260302f';
 
 const getCampaignDeleteModal = () => ({
@@ -11,8 +15,13 @@ const getCampaignDeleteModal = () => ({
 });
 
 const formatCampaignTitle = (campaign) => {
+<<<<<<< HEAD
   const title = String(campaign.title || '').trim();
   const brand = String(campaign.brand || '').trim();
+=======
+  const title = String(campaign?.title || '').trim();
+  const brand = String(campaign?.brand || '').trim();
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (title && brand && title.toLowerCase() !== brand.toLowerCase()) return `${title} (${brand})`;
   return title || brand || 'Campanha';
 };

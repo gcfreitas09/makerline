@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 ﻿import { state, saveState } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js?v=20260502c';
 import { showToast } from '../../core/ui.js?v=20260502c';
+=======
+import { state, saveState } from '../../core/state.js';
+import { renderAll } from '../../core/renderers.js?v=20260302f';
+import { showToast } from '../../core/ui.js?v=20260302f';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 const getBrandDeleteModal = () => ({
   modal: document.getElementById('brand-delete-modal'),
@@ -57,22 +63,37 @@ const handleBrandDeleteSubmit = (event) => {
   });
 
   if (linkedCampaigns.length) {
+<<<<<<< HEAD
     if (msg) msg.textContent = `Essa marca ainda tem ${linkedCampaigns.length} ${linkedCampaigns.length === 1 ? 'campanha vinculada' : 'campanhas vinculadas'}. Reatribua ou exclua essas campanhas antes.`;
+=======
+    if (msg) msg.textContent = `Essa marca ainda tem ${linkedCampaigns.length} campanha(s) vinculada(s). Reatribua ou exclua essas campanhas antes.`;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     return;
   }
 
   state.brands = (Array.isArray(state.brands) ? state.brands : []).filter((item) => item.id !== id);
 
+<<<<<<< HEAD
   if (state.ui.brandComposer.brandId === id) {
+=======
+  if (state.ui?.brandComposer?.brandId === id) {
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     state.ui.brandComposer.brandId = null;
     state.ui.brandComposer.text = '';
     state.ui.brandComposer.lastBrandId = null;
     state.ui.brandComposer.lastType = null;
   }
+<<<<<<< HEAD
   if (state.ui.selectedBrandId === id) {
     state.ui.selectedBrandId = null;
   }
   if (state.ui.pendingCampaignBrandId === id) {
+=======
+  if (state.ui?.selectedBrandId === id) {
+    state.ui.selectedBrandId = null;
+  }
+  if (state.ui?.pendingCampaignBrandId === id) {
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     state.ui.pendingCampaignBrandId = null;
   }
 

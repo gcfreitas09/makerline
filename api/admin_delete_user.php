@@ -119,7 +119,11 @@ if ($expires && $expires < $now) {
 $adminEmails = loadAdmins($adminsFile, $adminsExampleFile);
 $currentEmail = strtolower(trim((string)($foundUser['email'] ?? '')));
 if (!$currentEmail || !in_array($currentEmail, $adminEmails, true)) {
+<<<<<<< HEAD
     respond(403, ['error' => 'Sem permissão para fazer isso.']);
+=======
+    respond(403, ['error' => 'Sem permissão pra fazer isso.']);
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 $targetId = trim((string)($body['userId'] ?? ''));
@@ -128,7 +132,11 @@ if ($targetId === '') {
 }
 
 if ((string)($foundUser['id'] ?? '') === $targetId) {
+<<<<<<< HEAD
     respond(400, ['error' => 'Não é possível excluir você mesmo aqui.']);
+=======
+    respond(400, ['error' => 'Não dá pra excluir você mesmo aqui.']);
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 $target = users_store_find_by_id($targetId);

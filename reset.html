@@ -6,7 +6,11 @@
   <title>UGC Quest - Reset de senha</title>
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
+<<<<<<< HEAD
   <link rel="stylesheet" href="assets/css/app.css?v=20260608a" />
+=======
+  <link rel="stylesheet" href="assets/css/app.css" />
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 </head>
 <body class="auth-body">
   <div class="auth-card">
@@ -22,7 +26,11 @@
 
     <div>
       <h2>Redefinir senha</h2>
+<<<<<<< HEAD
       <p>Escolha uma nova senha para acessar sua conta.</p>
+=======
+      <p>Escolhe uma nova senha e pronto.</p>
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     </div>
 
     <form class="auth-form active" id="reset-form">
@@ -39,7 +47,11 @@
     </form>
 
     <div class="auth-footer">
+<<<<<<< HEAD
       <a class="auth-link" href="app.html">Voltar para o login</a>
+=======
+      <a class="auth-link" href="index.html">Voltar pro login</a>
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     </div>
   </div>
 
@@ -58,6 +70,7 @@
 
     if (!token && email) {
       submitBtn.disabled = true;
+<<<<<<< HEAD
       msg.textContent = 'Link antigo. Redirecionando para confirmar seu e-mail...';
       try {
         sessionStorage.setItem('ugcQuestResetEmail', String(email).trim().toLowerCase());
@@ -70,6 +83,38 @@
 
     if (!token && !email) {
       disableForm('Esse link não vale mais.');
+=======
+      msg.textContent = 'Link antigo. Vamos confirmar seu email...';
+      fetch('api/forgot.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.ok) {
+            const next = data.next || `verify.html?email=${encodeURIComponent(email)}`;
+            try {
+              sessionStorage.setItem('ugcQuestResetEmail', String(email).trim().toLowerCase());
+              if (data.code) {
+                sessionStorage.setItem('ugcQuestResetCode', String(data.code));
+              } else {
+                sessionStorage.removeItem('ugcQuestResetCode');
+              }
+            } catch (e) {}
+            window.location.replace(next);
+            return;
+          }
+          disableForm(data?.error || data?.message || 'NÃ£o consegui enviar o cÃ³digo.');
+        })
+        .catch(() => {
+          disableForm('NÃ£o consegui enviar o cÃ³digo.');
+        });
+    }
+
+    if (!token && !email) {
+      disableForm('Esse link nÃ£o vale mais.');
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     }
 
     form.addEventListener('submit', async (e) => {
@@ -83,7 +128,11 @@
         return;
       }
       if (password !== confirm) {
+<<<<<<< HEAD
         msg.textContent = 'As senhas não batem.';
+=======
+        msg.textContent = 'As senhas nÃ£o batem.';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         return;
       }
 
@@ -99,16 +148,27 @@
           msg.textContent = payload.error || 'Erro ao salvar.';
           return;
         }
+<<<<<<< HEAD
         msg.textContent = 'Senha atualizada. Voltando para o login...';
+=======
+        msg.textContent = 'Senha atualizada. Voltando pro login...';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         try {
           sessionStorage.removeItem('ugcQuestResetCode');
           sessionStorage.removeItem('ugcQuestResetEmail');
         } catch (e) {}
         setTimeout(() => {
+<<<<<<< HEAD
           window.location.replace('app.html');
         }, 1200);
       } catch (err) {
         msg.textContent = 'Não consegui salvar.';
+=======
+          window.location.replace('index.html');
+        }, 1200);
+      } catch (err) {
+        msg.textContent = 'NÃ£o consegui salvar.';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       }
     });
   </script>

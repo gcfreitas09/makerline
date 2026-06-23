@@ -6,6 +6,7 @@
         "password": "$2y$10$z1YyzpoDotRgJoIqY.5ckeP.1GUB23OXMkefHKosMX0B4\/QO\/MDHG",
         "createdAt": "2026-01-22T23:31:22+01:00",
         "weeklySummary": true,
+<<<<<<< HEAD
         "accessCount": 107,
         "timeSpentSeconds": 7613,
         "lastLoginAt": "2026-06-23T02:09:31+02:00",
@@ -34,6 +35,19 @@
         "trialStartedAt": null,
         "trialEndsAt": null,
         "instagram": null
+=======
+        "accessCount": 20,
+        "timeSpentSeconds": 2264,
+        "lastLoginAt": "2026-02-04T20:33:46+01:00",
+        "sessionTokenHash": "43fe659eeb929e1fb9c72283d30d84ea21eb3d8f91723e1bdc9aa1b10255bc41",
+        "sessionTokenExpires": 1770838426,
+        "resetTokenHash": null,
+        "resetTokenExpires": null,
+        "resetCodeHash": null,
+        "resetCodeExpires": null,
+        "lastSeenAt": "2026-02-04T23:23:30+01:00",
+        "lastAccessAt": "2026-02-04T23:23:18+01:00"
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     },
     {
         "id": "u_697cb5b51cec00.47738691",
@@ -52,6 +66,7 @@
         "resetTokenHash": null,
         "resetTokenExpires": null,
         "resetCodeHash": null,
+<<<<<<< HEAD
         "resetCodeExpires": null,
         "referralCode": null,
         "referredBy": null,
@@ -70,11 +85,34 @@
         "trialStartedAt": null,
         "trialEndsAt": null,
         "instagram": null
+=======
+        "resetCodeExpires": null
+    },
+    {
+        "id": "u_6981068ce4f035.01077298",
+        "name": "Creator",
+        "email": "lorenzo.ritter13@gmail.com",
+        "password": "",
+        "createdAt": "2026-02-02T17:20:35-03:00",
+        "weeklySummary": false,
+        "accessCount": 0,
+        "timeSpentSeconds": 0,
+        "lastLoginAt": null,
+        "lastSeenAt": null,
+        "lastAccessAt": null,
+        "sessionTokenHash": null,
+        "sessionTokenExpires": null,
+        "resetTokenHash": null,
+        "resetTokenExpires": null,
+        "resetCodeHash": null,
+        "resetCodeExpires": null
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     },
     {
         "id": "u_696f95f3865387.02655675",
         "name": "Lorenzo Ritter",
         "email": "lorenzo.ritter27@gmail.com",
+<<<<<<< HEAD
         "password": "$2y$10$XILjZVWvXBUBa0Oxe4HKR.5Mzk4Q3Waw0uKdrnDlXAn7iufsrtYDG",
         "createdAt": "2026-02-04T21:47:02-03:00",
         "weeklySummary": false,
@@ -179,5 +217,21 @@
         "billingLastEventId": null,
         "billingLastSyncedAt": "2026-06-23T23:47:17+02:00",
         "stripeProductId": null
+=======
+        "password": "",
+        "createdAt": "2026-02-04T21:47:02-03:00",
+        "weeklySummary": false,
+        "accessCount": 0,
+        "timeSpentSeconds": 0,
+        "lastLoginAt": null,
+        "lastSeenAt": null,
+        "lastAccessAt": null,
+        "sessionTokenHash": null,
+        "sessionTokenExpires": null,
+        "resetTokenHash": null,
+        "resetTokenExpires": null,
+        "resetCodeHash": null,
+        "resetCodeExpires": null
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     }
 ]

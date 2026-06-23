@@ -1,0 +1,224 @@
+{
+    "userId": "u_6981068ce4f035.01077298",
+    "updatedAt": "2026-02-02T17:20:35-03:00",
+    "state": {
+        "meta": {
+            "updatedAt": "2026-02-02T20:20:34.559Z"
+        },
+        "profile": {
+            "name": "Creator",
+            "email": "lorenzo.ritter13@gmail.com",
+            "level": 1,
+            "xp": 20,
+            "streak": 1
+        },
+        "focus": {
+            "id": "f-short-videos",
+            "week": "2026-W06",
+            "roll": 0,
+            "label": "Postar 3 vídeos curtos",
+            "current": 0,
+            "target": 3,
+            "xp": 120
+        },
+        "missions": [
+            {
+                "id": "d-create-scripts",
+                "label": "Criar 2 roteiros",
+                "total": 2,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            },
+            {
+                "id": "d-create-campaign",
+                "label": "Criar 1 nova campanha",
+                "total": 1,
+                "xp": 20,
+                "type": "diária",
+                "progress": 1
+            },
+            {
+                "id": "d-brand-contacts",
+                "label": "Registrar contato com 3 marcas",
+                "total": 3,
+                "xp": 20,
+                "type": "diária",
+                "progress": 0
+            }
+        ],
+        "challenges": [
+            {
+                "id": "w-clean-week",
+                "label": "Semana limpa: atualizar campanhas ativas em 5 dias",
+                "total": 5,
+                "xp": 200,
+                "type": "semanal",
+                "progress": 1
+            }
+        ],
+        "campaigns": [
+            {
+                "id": "c-1770063625713",
+                "title": "YouCom",
+                "brand": "YouCom",
+                "status": "negociando",
+                "value": 650,
+                "barter": false,
+                "dueDate": "",
+                "paused": false,
+                "archived": false,
+                "createdAt": "2026-02-02T20:20:25.713Z",
+                "updatedAt": "2026-02-02T20:20:25.713Z"
+            },
+            {
+                "id": "c-1770063557254",
+                "title": "GoCase",
+                "brand": "GoCase",
+                "status": "realizado",
+                "value": 800,
+                "barter": true,
+                "dueDate": "2026-02-28",
+                "paused": false,
+                "archived": false,
+                "createdAt": "2026-02-02T20:19:17.254Z",
+                "updatedAt": "2026-02-02T20:19:17.254Z",
+                "fieldsComplete": true
+            },
+            {
+                "id": "c-1770063533811",
+                "title": "Nike",
+                "brand": "Nike",
+                "status": "pendente",
+                "value": 1200,
+                "barter": false,
+                "dueDate": "2026-02-27",
+                "paused": false,
+                "archived": false,
+                "createdAt": "2026-02-02T20:18:53.811Z",
+                "updatedAt": "2026-02-02T20:18:53.811Z",
+                "fieldsComplete": true
+            }
+        ],
+        "brands": [],
+        "scripts": [],
+        "metrics": {
+            "avgTime": 12,
+            "proposals": 24,
+            "responseRate": 0.419999999999999984456877655247808434069156646728515625,
+            "steps": [
+                {
+                    "label": "Contato enviado",
+                    "value": 1
+                },
+                {
+                    "label": "Marca respondeu",
+                    "value": 1
+                },
+                {
+                    "label": "Negociacao",
+                    "value": 0
+                },
+                {
+                    "label": "Roteiro pronto",
+                    "value": 1
+                },
+                {
+                    "label": "Gravacao",
+                    "value": 0
+                },
+                {
+                    "label": "Edicao",
+                    "value": 1
+                }
+            ]
+        },
+        "settings": {
+            "weekly": false,
+            "alerts": true,
+            "backup": true
+        },
+        "progress": {
+            "daily": {
+                "date": "2026-02-02",
+                "bonusDate": null,
+                "lastCompleteDate": null,
+                "unique": {
+                    "d-complete-campaign": [
+                        "c-1770063533811",
+                        "c-1770063557254"
+                    ],
+                    "d-deadlines": [
+                        "c-1770063533811",
+                        "c-1770063557254"
+                    ],
+                    "d-update-status": [
+                        "c-1770063557254"
+                    ],
+                    "d-advance-stage": [
+                        "c-1770063557254"
+                    ],
+                    "d-finish-campaign": [
+                        "c-1770063557254"
+                    ]
+                }
+            },
+            "weekly": {
+                "date": "2026-W06",
+                "challengeId": "w-clean-week",
+                "dailyCompleteDays": [],
+                "campaignUpdateDays": [
+                    "2026-02-02"
+                ],
+                "organizedCampaignIds": [],
+                "finishedCampaignIds": [
+                    "c-1770063557254"
+                ]
+            },
+            "streak": {
+                "lastSeenDate": "2026-02-02"
+            },
+            "achievements": {
+                "version": 2,
+                "unlocked": [],
+                "active": [
+                    "ach-first-script",
+                    "ach-streak7",
+                    "ach-2-closes",
+                    "ach-10-campaigns",
+                    "ach-deadlines-8",
+                    "ach-contact",
+                    "ach-focus-2",
+                    "ach-organizer",
+                    "ach-clean-pipeline",
+                    "ach-level10"
+                ]
+            }
+        },
+        "avatar": {
+            "premium": false,
+            "unlocked": [
+                "hair-classic",
+                "outfit-basic",
+                "shoe-default"
+            ],
+            "selected": {
+                "hair": "hair-classic",
+                "outfit": "outfit-basic",
+                "shoes": "shoe-default"
+            }
+        },
+        "ui": {
+            "activePage": "campaigns",
+            "campaignFilter": "all",
+            "openScript": null,
+            "brandComposer": {
+                "brandId": null,
+                "type": "first",
+                "text": ""
+            },
+            "missionDate": "2026-02-02",
+            "weeklyDate": "2026-W06"
+        }
+    }
+}

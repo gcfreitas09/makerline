@@ -57,7 +57,11 @@ function states_store_supabase_ready()
     if ($status === 404) {
         states_store_set_error('Supabase: falta criar a tabela de states. Roda o SQL em sql/ugc_user_states.supabase.sql.');
     } elseif ($status === 401 || $status === 403) {
+<<<<<<< HEAD
         states_store_set_error('Supabase: sem permissão para acessar a tabela de states. Confira a key no storage/supabase.json.');
+=======
+        states_store_set_error('Supabase: sem permissao pra acessar a tabela de states. Confere a key no storage/supabase.json.');
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     } else {
         states_store_set_error($err ?: 'Falha ao acessar Supabase (states).');
     }

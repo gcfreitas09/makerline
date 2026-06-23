@@ -1,23 +1,38 @@
 import { state, saveState, getDefaultCampaignStage, nextActionOptions } from '../../core/state.js';
+<<<<<<< HEAD
 import { renderAll } from '../../core/renderers.js?v=20260502c';
 import { showToast } from '../../core/ui.js?v=20260502c';
 import { trackEvent } from '../../core/gamification.js?v=20260302g';
 import { populateCampaignBrandSelect } from '../brands/modal.js?v=20260502c';
+=======
+import { renderAll } from '../../core/renderers.js?v=20260318b';
+import { showToast } from '../../core/ui.js?v=20260304b';
+import { trackEvent } from '../../core/gamification.js?v=20260302g';
+import { populateCampaignBrandSelect } from '../brands/modal.js?v=20260318b';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 const getCampaignModal = () => ({
   modal: document.getElementById('campaign-modal'),
   form: document.getElementById('campaign-form'),
   msg: document.getElementById('campaign-msg'),
   title: document.querySelector('[data-campaign-modal-title]'),
+<<<<<<< HEAD
   subtitle: document.querySelector('[data-campaign-modal-subtitle]'),
   assetsButton: document.getElementById('campaign-assets-header-btn')
+=======
+  subtitle: document.querySelector('[data-campaign-modal-subtitle]')
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 });
 
 const formatMoneyBRL = (raw) => {
   const digits = String(raw || '').replace(/\D/g, '');
   if (!digits) return '';
   const value = parseInt(digits, 10) || 0;
+<<<<<<< HEAD
   const formatted = value.toString().replace(/\B(=(\d{3})+(!\d))/g, '.');
+=======
+  const formatted = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   return `R$ ${formatted}`;
 };
 
@@ -27,6 +42,7 @@ const parseMoneyBRL = (raw) => {
 };
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
+<<<<<<< HEAD
 const campaignResourceCategoryLabels = {
   video: 'Vídeo',
   roteiro: 'Roteiro',
@@ -156,6 +172,8 @@ const addCampaignDraftFiles = async () => {
     if (msg) msg.textContent = 'Não consegui preparar esses arquivos agora.';
   }
 };
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 const getBrandById = (brandId) => (Array.isArray(state.brands) ? state.brands : []).find((brand) => brand.id === brandId) || null;
 
@@ -165,7 +183,11 @@ const getCampaignBrandValue = (select) => {
   let value = String(select.value || '').trim();
   if (!value) {
     const selectedOption = select.options[select.selectedIndex] || null;
+<<<<<<< HEAD
     value = String(selectedOption.value || '').trim();
+=======
+    value = String(selectedOption?.value || '').trim();
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
 
   if (!value) {
@@ -189,7 +211,11 @@ const getCampaignBrandValue = (select) => {
 
 const toggleNextActionCustomRow = (form, value) => {
   const customRow = document.getElementById('campaign-next-action-custom-row');
+<<<<<<< HEAD
   const customInput = form.querySelector('input[name="nextActionCustomType"]');
+=======
+  const customInput = form?.querySelector('input[name="nextActionCustomType"]');
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const show = value === 'outro';
   if (customRow) customRow.style.display = show ? '' : 'none';
   if (customInput) {
@@ -199,6 +225,7 @@ const toggleNextActionCustomRow = (form, value) => {
 };
 
 const setModalMode = ({ mode, campaign }) => {
+<<<<<<< HEAD
   const { title, subtitle, assetsButton } = getCampaignModal();
   const isEdit = mode === 'edit';
   if (title) title.textContent = isEdit ? 'Editar campanha' : 'Nova campanha';
@@ -209,6 +236,13 @@ const setModalMode = ({ mode, campaign }) => {
     if (isEdit && campaign.id) assetsButton.dataset.campaignId = campaign.id;
     else delete assetsButton.dataset.campaignId;
   }
+=======
+  const { title, subtitle } = getCampaignModal();
+  const isEdit = mode === 'edit';
+  if (title) title.textContent = isEdit ? 'Editar campanha' : 'Nova campanha';
+  if (subtitle) subtitle.textContent = isEdit ? 'Atualiza o que precisar e salva.' : 'Só o básico pra já entrar no jogo.';
+
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const { form } = getCampaignModal();
   if (!form) return;
   form.dataset.mode = mode || 'create';
@@ -284,7 +318,10 @@ const openCampaignModal = (campaignId) => {
   if (!modal || !form) return;
 
   form.reset();
+<<<<<<< HEAD
   resetCampaignDraftResources();
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const valueInput = form.querySelector('input[name="value"]');
   const barterSelect = form.querySelector('select[name="barter"]');
   if (valueInput) valueInput.value = 'R$ 0';
@@ -311,16 +348,22 @@ const openCampaignModal = (campaignId) => {
   const nextActionDateInput = form.querySelector('input[name="nextActionDate"]');
   const nextActionNoteInput = form.querySelector('input[name="nextActionNote"]');
   const nextActionCustomInput = form.querySelector('input[name="nextActionCustomType"]');
+<<<<<<< HEAD
   const photoCountInput = form.querySelector('input[name="photoCount"]');
   const videoCountInput = form.querySelector('input[name="videoCount"]');
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (contactNameInput) contactNameInput.value = '';
   if (contactEmailInput) contactEmailInput.value = '';
   if (nextActionTypeSelect) nextActionTypeSelect.value = '';
   if (nextActionDateInput) nextActionDateInput.value = '';
   if (nextActionNoteInput) nextActionNoteInput.value = '';
   if (nextActionCustomInput) nextActionCustomInput.value = '';
+<<<<<<< HEAD
   if (photoCountInput) photoCountInput.value = '';
   if (videoCountInput) videoCountInput.value = '';
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   toggleNextActionCustomRow(form, '');
   populateCampaignBrandSelect(state.ui.pendingCampaignBrandId || '');
 
@@ -345,9 +388,12 @@ const openCampaignModal = (campaignId) => {
       const dueInput = form.querySelector('input[name="dueDate"]');
       if (dueInput) dueInput.value = campaign.dueDate || '';
 
+<<<<<<< HEAD
       if (photoCountInput) photoCountInput.value = Number.isFinite(campaign.photoCount) ? campaign.photoCount : '';
       if (videoCountInput) videoCountInput.value = Number.isFinite(campaign.videoCount) ? campaign.videoCount : '';
 
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       const hoursInput = form.querySelector('input[name="estimatedHours"]');
       if (hoursInput) hoursInput.value = campaign.estimatedHours || '';
 
@@ -436,7 +482,10 @@ const closeCampaignModal = () => {
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
   if (form) form.reset();
+<<<<<<< HEAD
   resetCampaignDraftResources();
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (msg) msg.textContent = '';
   if (form) {
     delete form.dataset.mode;
@@ -490,14 +539,26 @@ const handleCampaignSubmit = (event) => {
   const nextActionCustomType = String(data.get('nextActionCustomType') || '').trim().slice(0, 80);
   const nextActionDate = String(data.get('nextActionDate') || '').trim();
   const nextActionNote = String(data.get('nextActionNote') || '').trim().slice(0, 140);
+<<<<<<< HEAD
   const photoCount = Math.max(0, parseInt(String(data.get('photoCount') || '0').trim(), 10) || 0);
   const videoCount = Math.max(0, parseInt(String(data.get('videoCount') || '0').trim(), 10) || 0);
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const paymentReceivedAt =
     paymentPercent >= 100
       ? (paymentReceivedAtRaw || todayIso())
       : '';
   const brandRecord = getBrandById(brandId);
+<<<<<<< HEAD
   const brand = brandRecord ? String(brandRecord.name || '').trim() : '';
+=======
+  const brand = brandRecord?.name || '';
+
+  if (!brandRecord) {
+    if (msg) msg.textContent = 'Escolha uma marca para salvar a campanha.';
+    return;
+  }
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (nextActionType && !nextActionDate) {
     if (msg) msg.textContent = 'Defina a data da próxima ação.';
     return;
@@ -515,29 +576,46 @@ const handleCampaignSubmit = (event) => {
   const allowedStartMethods = ['ugc_platform', 'inbound', 'outbound', 'instagram', 'agencia', 'comunidade', 'other'];
   const startMethodSafe = allowedStartMethods.includes(startMethodNormalized) ? startMethodNormalized : '';
 
+<<<<<<< HEAD
   if (brandRecord) {
     if (contactName && !brandRecord.contact) brandRecord.contact = contactName;
     if (contactEmail && !brandRecord.email) brandRecord.email = contactEmail;
     brandRecord.updatedAt = nowIso;
   }
+=======
+  if (contactName && !brandRecord.contact) brandRecord.contact = contactName;
+  if (contactEmail && !brandRecord.email) brandRecord.email = contactEmail;
+  brandRecord.updatedAt = nowIso;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   if (id) {
     const campaign = state.campaigns.find((item) => item.id === id);
     if (!campaign) {
+<<<<<<< HEAD
       if (msg) msg.textContent = 'Não encontrei essa campanha. Tente de novo.';
+=======
+      if (msg) msg.textContent = 'Não achei essa campanha. Tenta de novo.';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       return;
     }
 
     const previousDue = campaign.dueDate || '';
     const previousLife = campaign.archived ? 'archived' : campaign.paused ? 'paused' : 'active';
 
+<<<<<<< HEAD
     campaign.brandId = brandRecord ? brandRecord.id : '';
+=======
+    campaign.brandId = brandRecord.id;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     campaign.brand = brand;
     campaign.value = value;
     campaign.barter = barter;
     campaign.dueDate = dueDate;
+<<<<<<< HEAD
     campaign.photoCount = photoCount;
     campaign.videoCount = videoCount;
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     campaign.estimatedHours = estimatedHours;
     campaign.startMethod = startMethodSafe;
     campaign.startMethodOther = startMethodSafe === 'other' ? startMethodOther : '';
@@ -550,7 +628,10 @@ const handleCampaignSubmit = (event) => {
     campaign.nextActionCustomType = nextActionType === 'outro' ? nextActionCustomType : '';
     campaign.nextActionDate = nextActionType ? nextActionDate : '';
     campaign.nextActionNote = nextActionType ? nextActionNote : '';
+<<<<<<< HEAD
     campaign.resources = Array.isArray(campaign.resources) ? campaign.resources : [];
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     applyLifecycle(campaign, lifecycle);
     campaign.updatedAt = nowIso;
 
@@ -578,24 +659,36 @@ const handleCampaignSubmit = (event) => {
   }
 
   const brandKey = brand.toLowerCase();
+<<<<<<< HEAD
   const existingCount = brandRecord
     ? state.campaigns.filter((c) => String(c.brandId || '').trim() === brandRecord.id || String(c.brand || '').toLowerCase() === brandKey).length
     : state.campaigns.filter((c) => !String(c.brandId || '').trim() && !String(c.brand || '').trim()).length;
   const baseTitle = brand || 'Campanha sem marca';
   const title = existingCount ? `${baseTitle} #${existingCount + 1}` : baseTitle;
+=======
+  const existingCount = state.campaigns.filter((c) => String(c.brandId || '').trim() === brandRecord.id || String(c.brand || '').toLowerCase() === brandKey).length;
+  const title = existingCount ? `${brand} #${existingCount + 1}` : `${brand}`;
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   const campaign = {
     id: `c-${Date.now()}`,
     title,
+<<<<<<< HEAD
     brandId: brandRecord ? brandRecord.id : '',
+=======
+    brandId: brandRecord.id,
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     brand,
     status: 'prospeccao',
     stage: getDefaultCampaignStage('prospeccao'),
     value,
     barter,
     dueDate,
+<<<<<<< HEAD
     photoCount,
     videoCount,
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     estimatedHours,
     startMethod: startMethodSafe,
     startMethodOther: startMethodSafe === 'other' ? startMethodOther : '',
@@ -608,7 +701,10 @@ const handleCampaignSubmit = (event) => {
     nextActionCustomType: nextActionType === 'outro' ? nextActionCustomType : '',
     nextActionDate: nextActionType ? nextActionDate : '',
     nextActionNote: nextActionType ? nextActionNote : '',
+<<<<<<< HEAD
     resources: campaignDraftResources.map((resource) => ({ ...resource })),
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     paused: false,
     archived: false,
     createdAt: nowIso,
@@ -673,6 +769,7 @@ const initCampaignForm = () => {
     });
   }
 
+<<<<<<< HEAD
   const draftFilesBtn = document.getElementById('campaign-draft-files-btn');
   const draftFilesList = document.querySelector('[data-campaign-draft-list]');
   if (draftFilesBtn && draftFilesBtn.dataset.bound !== '1') {
@@ -694,6 +791,8 @@ const initCampaignForm = () => {
   }
   renderCampaignDraftResources();
 
+=======
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const prevStepBtn = document.getElementById('campaign-step-prev-btn');
   const nextStepBtn = document.getElementById('campaign-step-next-btn');
   if (prevStepBtn && prevStepBtn.dataset.bound !== '1') {
@@ -708,6 +807,17 @@ const initCampaignForm = () => {
     nextStepBtn.addEventListener('click', () => {
       if (!campaignWizardEnabled) return;
 
+<<<<<<< HEAD
+=======
+      const selectedBrandId = getCampaignBrandValue(brandSelect);
+      if (campaignWizardStep === 1 && brandSelect && !selectedBrandId) {
+        const { msg } = getCampaignModal();
+        if (msg) msg.textContent = 'Escolha uma marca para continuar.';
+        brandSelect.focus();
+        return;
+      }
+
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       const { msg } = getCampaignModal();
       if (msg) msg.textContent = '';
       setCampaignWizardStep(campaignWizardStep + 1);
@@ -738,7 +848,11 @@ const initCampaignForm = () => {
 
   try {
     document.addEventListener('ugc:brands-changed', () => {
+<<<<<<< HEAD
       const selectedId = state.ui.pendingCampaignBrandId || brandSelect.value || '';
+=======
+      const selectedId = state.ui.pendingCampaignBrandId || brandSelect?.value || '';
+>>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       populateCampaignBrandSelect(selectedId);
       if (brandSelect && selectedId) brandSelect.value = selectedId;
     });
