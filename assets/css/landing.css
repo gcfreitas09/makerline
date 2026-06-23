@@ -1101,6 +1101,16 @@ h3 {
   display: block;
 }
 
+.feature-shot--campaigns {
+  padding: clamp(10px, 1.35vw, 18px);
+}
+
+.feature-shot--campaigns img {
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+}
+
 .feature-preview {
   position: relative;
   display: grid;

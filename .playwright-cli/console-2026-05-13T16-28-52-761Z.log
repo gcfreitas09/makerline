@@ -1,5 +1,0 @@
-[   19640ms] [LOG] [Sync] Carregando estado do servidor: {campanhas: 0, marcas: 0} @ http://127.0.0.1:8031/assets/js2/app.js?v=20260507b:583
-[   20362ms] [LOG] [App] Estado do servidor carregado @ http://127.0.0.1:8031/assets/js2/app.js?v=20260507b:655
-[   21266ms] [LOG] [Sync] Salvando estado no servidor... @ http://127.0.0.1:8031/assets/js2/core/state.js:959
-[   22627ms] [WARNING] [Sync] Resposta inesperada do servidor: {ok: true, updatedAt: 2026-05-13T18:29:14+02:00, bytes: 2266, backend: supabase, warning: null} @ http://127.0.0.1:8031/assets/js2/core/state.js:973
-[   48507ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://127.0.0.1:8031/api/track_time.php:0

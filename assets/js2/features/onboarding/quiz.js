@@ -529,7 +529,7 @@ const injectOnboardingHeader = () => {
 let fieldTooltipStep = 0;
 
 const fieldTooltipDefs = [
-  { step: 1, selector: 'select[name="brandId"]', text: 'Escolha a marca dessa campanha.', event: 'change' },
+  { step: 1, selector: 'select[name="brandId"]', text: 'Se quiser, vincule uma marca agora. Você também pode deixar para depois.', event: 'change' },
   { step: 1, selector: 'select[name="startMethod"]', text: 'Selecione como esse projeto começou.', event: 'change' },
   { step: 2, selector: 'input[name="value"]', text: 'Informe o valor em dinheiro (se for permuta, pode deixar R$ 0).', event: 'input' },
   { step: 3, selector: 'input[name="dueDate"]', text: 'Defina o prazo principal da entrega.', event: 'change' },

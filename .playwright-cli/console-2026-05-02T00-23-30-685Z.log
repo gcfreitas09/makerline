@@ -1,7 +1,0 @@
-[     929ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/app.html?section=campaigns&qa=billingcache:0
-[     939ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260502b:408
-[    1846ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
-[    1851ms] [ERROR] [Sync] Falha ao salvar estado no servidor: TypeError: Cannot read properties of null (reading 'success')
-    at flushRemoteSave (http://localhost/saas-ugc/assets/js2/core/state.js:971:16) @ http://localhost/saas-ugc/assets/js2/core/state.js:977
-[   30942ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/track_time.php:0
-[   60942ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/track_time.php:0

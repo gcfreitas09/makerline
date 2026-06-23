@@ -1,10 +1,11 @@
 ﻿import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-import { renderAll } from './core/renderers.js?v=20260608b';
+import { renderAll } from './core/renderers.js?v=20260623b';
 import { setActivePage } from './core/ui.js?v=20260507b';
-import { initActions } from './core/actions.js?v=20260507b';
-import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260314b';
+import { initActions } from './core/actions.js?v=20260623d';
+import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260623c';
 import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260515b';
-import { applyOptimisticBillingPlanFromPending, clearPendingCheckoutPlan, getBillingSnapshot, refreshBillingStatus, waitForBillingActivation, writeCachedBilling } from './features/settings/billing.js?v=20260531c';
+import { initAdminPartnerCommissions } from './features/settings/admin_partner_commissions.js?v=20260623a';
+import { applyOptimisticBillingPlanFromPending, clearPendingCheckoutPlan, getBillingSnapshot, refreshBillingStatus, waitForBillingActivation, writeCachedBilling } from './features/settings/billing.js?v=20260623b';
 
 const applyTheme = (theme) => {
   const safeTheme = theme === 'light' ? 'light' : 'dark';
@@ -426,14 +427,11 @@ const clearBillingParamsFromUrl = () => {
 
 const shouldHidePlansNav = (billing = {}) => {
   const plan = String(billing.plan || '').trim();
-  const status = String(billing.status || '').trim();
   return (
     Boolean(billing.isInternalAccess) ||
-    Boolean(billing.hasPremiumAccess) ||
     plan === 'internal' ||
     plan === 'monthly' ||
-    plan === 'annual' ||
-    ['active', 'trialing', 'internal'].includes(status)
+    plan === 'annual'
   );
 };
 
@@ -460,6 +458,8 @@ const enforceBillingAccess = () => {
   });
   if (locked && !['plans', 'settings'].includes(String(state.ui.activePage || ''))) {
     setActivePage('plans');
+  } else if (!locked && hidePlans && String(state.ui.activePage || '') === 'plans') {
+    setActivePage('settings');
   }
 };
 
@@ -716,6 +716,7 @@ const hydrateStateFromServer = async () => {
     safeRun('enforceBillingAccess', enforceBillingAccess);
     safeRun('initActions', initActions);
     safeRun('initAdminTrackerCard', initAdminTrackerCard);
+    safeRun('initAdminPartnerCommissions', initAdminPartnerCommissions);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -768,6 +769,7 @@ const hydrateStateFromServer = async () => {
       safeRun('setActivePage(initial)', () => setActivePage(getRequestedPage()));
       safeRun('enforceBillingAccess', enforceBillingAccess);
       safeRun('initAdminTrackerCard', initAdminTrackerCard);
+      safeRun('initAdminPartnerCommissions', initAdminPartnerCommissions);
     })();
     window.__ugcAppLoaded = true;
   });

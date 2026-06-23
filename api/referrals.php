@@ -365,6 +365,7 @@ function referrals_record_commission_from_invoice($user, $invoice, $eventId, $su
 
     $percent = (int)$partner['commissionPercent'];
     $commissionAmount = (int)round($amountPaid * ($percent / 100));
+    $platformAmount = max(0, $amountPaid - $commissionAmount);
     $price = referrals_subscription_first_price($subscriptionArray);
     $priceId = trim((string)($price['id'] ?? ''));
     $productId = trim((string)($price['product'] ?? ''));
@@ -395,6 +396,9 @@ function referrals_record_commission_from_invoice($user, $invoice, $eventId, $su
         'commissionPercent' => $percent,
         'amountPaid' => $amountPaid,
         'commissionAmount' => $commissionAmount,
+        'platformAmount' => $platformAmount,
+        'commissionMode' => trim((string)($metadata['ugc_commission_mode'] ?? 'ledger_only')) ?: 'ledger_only',
+        'stripePartnerAccountId' => trim((string)($metadata['ugc_stripe_partner_account_id'] ?? '')) ?: null,
         'currency' => strtolower(trim((string)($invoiceArray['currency'] ?? 'brl'))) ?: 'brl',
         'planCode' => referrals_plan_from_price($priceId, $productId, $interval),
         'billingInterval' => $interval ?: null,

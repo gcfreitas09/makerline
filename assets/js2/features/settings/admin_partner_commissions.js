@@ -1,6 +1,6 @@
-const COMMISSIONS_CACHE_KEY = 'ugcQuestAdminPartnerCommissionsCacheV1';
+const COMMISSIONS_CACHE_KEY = 'ugcQuestAdminPartnerCommissionsCacheV3';
 const COMMISSIONS_CACHE_TTL_MS = 5 * 60 * 1000;
-const COMMISSIONS_ALLOWED_EMAILS = new Set(['fgui3662@gmail.com', 'lorenzo.ritter13@gmail.com']);
+const COMMISSIONS_ALLOWED_EMAILS = new Set(['fgui3662@gmail.com', 'lorenzo.ritter27@gmail.com']);
 
 let commissionsRequest = null;
 let commissionsLoaded = false;
@@ -48,6 +48,13 @@ const isAllowed = () => {
   return Boolean(email && COMMISSIONS_ALLOWED_EMAILS.has(email));
 };
 
+const removePrivateCard = (card) => {
+  try {
+    sessionStorage.removeItem(COMMISSIONS_CACHE_KEY);
+  } catch (error) {}
+  if (card) card.remove();
+};
+
 const getEls = () => ({
   card: document.querySelector('[data-admin-commissions-card]'),
   status: document.querySelector('[data-admin-commissions-status]'),
@@ -87,6 +94,36 @@ const writeCache = (payload) => {
   } catch (error) {}
 };
 
+const buildPartnerBalancesFallback = (summaryRows) =>
+  Object.values(
+    summaryRows.reduce((acc, row) => {
+      const code = String(row.partner_code || row.referral_code || row.partner_name || 'sem-parceiro');
+      if (!acc[code]) {
+        acc[code] = {
+          partnerCode: code,
+          partnerName: row.partner_name || row.partner_code || 'Sem parceiro',
+          commissionAmountCents: 0,
+          payingClients: 0,
+          paidInvoices: 0,
+          latestPayoutMonth: row.payout_month || ''
+        };
+      }
+      acc[code].commissionAmountCents += Number(row.commission_amount_cents || 0);
+      acc[code].payingClients += Number(row.paying_clients || 0);
+      acc[code].paidInvoices += Number(row.paid_invoices || 0);
+      if (String(row.payout_month || '') > String(acc[code].latestPayoutMonth || '')) {
+        acc[code].latestPayoutMonth = row.payout_month || '';
+      }
+      return acc;
+    }, {})
+  );
+
+const getPlatformNetFromMonthlyRow = (row) =>
+  row.platform_net_amount_cents ?? Math.max(0, Number(row.gross_amount_cents || 0) - Number(row.commission_amount_cents || 0));
+
+const getPlatformNetFromRecentRow = (row) =>
+  row.platform_amount_cents ?? Math.max(0, Number(row.amount_paid_cents || 0) - Number(row.commission_amount_cents || 0));
+
 const renderSummary = (payload) => {
   const { summary, recent } = getEls();
   if (!summary || !recent) return;
@@ -94,26 +131,81 @@ const renderSummary = (payload) => {
   const totals = payload && typeof payload === 'object' ? payload.totals || {} : {};
   const summaryRows = Array.isArray(payload?.summary) ? payload.summary : [];
   const recentRows = Array.isArray(payload?.recent) ? payload.recent : [];
+  const balances = payload && typeof payload === 'object' && payload.balances && typeof payload.balances === 'object' ? payload.balances : {};
+  const platformBalance = balances.platform && typeof balances.platform === 'object' ? balances.platform : {};
+  const partnerBalances = Array.isArray(balances.partners) ? balances.partners : buildPartnerBalancesFallback(summaryRows);
+
+  const grossAmount = Number(platformBalance.grossAmountCents ?? totals.grossAmountCents ?? 0);
+  const partnerReserve = Number(platformBalance.partnerCommissionReserveCents ?? totals.commissionAmountCents ?? 0);
+  const platformNet = Number(platformBalance.netPlatformAmountCents ?? totals.platformAmountCents ?? Math.max(0, grossAmount - partnerReserve));
 
   summary.innerHTML = `
-    <div class="admin-commissions-kpis">
-      <div class="admin-commissions-kpi">
-        <span>Receita rastreada</span>
-        <strong>${formatMoney(totals.grossAmountCents || 0)}</strong>
-      </div>
-      <div class="admin-commissions-kpi">
-        <span>Comissão total</span>
-        <strong>${formatMoney(totals.commissionAmountCents || 0)}</strong>
-      </div>
-      <div class="admin-commissions-kpi">
-        <span>Clientes pagantes</span>
-        <strong>${Number(totals.payingClients || 0)}</strong>
-      </div>
-      <div class="admin-commissions-kpi">
-        <span>Faturas pagas</span>
-        <strong>${Number(totals.paidInvoices || 0)}</strong>
-      </div>
+    <div class="admin-ledger-grid">
+      <section class="admin-ledger-panel">
+        <div class="admin-ledger-head">
+          <span>Saldo dos parceiros</span>
+          <strong>${formatMoney(partnerReserve)}</strong>
+          <p>Reserva exclusiva para comissões. Não entra no saldo a dividir entre os sócios.</p>
+        </div>
+        <div class="admin-commissions-table-wrap">
+          <table class="admin-commissions-table admin-commissions-table--compact">
+            <thead>
+              <tr>
+                <th>Parceiro</th>
+                <th>Último mês</th>
+                <th>Clientes</th>
+                <th>Comissão a pagar</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${
+                partnerBalances.length
+                  ? partnerBalances
+                      .map(
+                        (row) => `
+              <tr>
+                <td>${escapeHtml(String(row.partnerName || row.partner_name || row.partnerCode || row.partner_code || '-'))}</td>
+                <td>${escapeHtml(String(row.latestPayoutMonth || row.payout_month || '-'))}</td>
+                <td>${Number(row.payingClients || row.paying_clients || 0)}</td>
+                <td>${formatMoney(row.commissionAmountCents ?? row.commission_amount_cents ?? 0)}</td>
+              </tr>`
+                      )
+                      .join('')
+                  : '<tr><td colspan="4">Nenhuma comissão de parceiro registrada ainda.</td></tr>'
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="admin-ledger-panel admin-ledger-panel--platform">
+        <div class="admin-ledger-head">
+          <span>Saldo da plataforma</span>
+          <strong>${formatMoney(platformNet)}</strong>
+          <p>Valor líquido depois de separar as comissões. Use este saldo para a divisão entre você e seu sócio.</p>
+        </div>
+        <div class="admin-commissions-kpis">
+          <div class="admin-commissions-kpi">
+            <span>Entrada Stripe</span>
+            <strong>${formatMoney(grossAmount)}</strong>
+          </div>
+          <div class="admin-commissions-kpi">
+            <span>Reserva parceiros</span>
+            <strong>${formatMoney(partnerReserve)}</strong>
+          </div>
+          <div class="admin-commissions-kpi">
+            <span>Saldo sócios</span>
+            <strong>${formatMoney(platformNet)}</strong>
+          </div>
+          <div class="admin-commissions-kpi">
+            <span>Faturas pagas</span>
+            <strong>${Number(totals.paidInvoices || 0)}</strong>
+          </div>
+        </div>
+      </section>
     </div>
+
+    <h4 class="admin-commissions-section-title">Auditoria mensal</h4>
     <div class="admin-commissions-table-wrap">
       <table class="admin-commissions-table">
         <thead>
@@ -122,8 +214,9 @@ const renderSummary = (payload) => {
             <th>Parceiro</th>
             <th>Clientes</th>
             <th>Faturas</th>
-            <th>Receita</th>
-            <th>Comissão</th>
+            <th>Entrada Stripe</th>
+            <th>Comissão parceiro</th>
+            <th>Saldo plataforma</th>
           </tr>
         </thead>
         <tbody>
@@ -133,16 +226,17 @@ const renderSummary = (payload) => {
                   .map(
                     (row) => `
             <tr>
-              <td>${escapeHtml(String(row.payout_month || '—'))}</td>
-              <td>${escapeHtml(String(row.partner_name || row.partner_code || '—'))}</td>
+              <td>${escapeHtml(String(row.payout_month || '-'))}</td>
+              <td>${escapeHtml(String(row.partner_name || row.partner_code || '-'))}</td>
               <td>${Number(row.paying_clients || 0)}</td>
               <td>${Number(row.paid_invoices || 0)}</td>
               <td>${formatMoney(row.gross_amount_cents || 0)}</td>
               <td>${formatMoney(row.commission_amount_cents || 0)}</td>
+              <td>${formatMoney(getPlatformNetFromMonthlyRow(row))}</td>
             </tr>`
                   )
                   .join('')
-              : '<tr><td colspan="6">Nenhuma comissão registrada ainda.</td></tr>'
+              : '<tr><td colspan="7">Nenhuma comissão registrada ainda.</td></tr>'
           }
         </tbody>
       </table>
@@ -150,6 +244,7 @@ const renderSummary = (payload) => {
   `;
 
   recent.innerHTML = `
+    <h4 class="admin-commissions-section-title">Últimos pagamentos separados</h4>
     <div class="admin-commissions-table-wrap">
       <table class="admin-commissions-table">
         <thead>
@@ -158,8 +253,9 @@ const renderSummary = (payload) => {
             <th>Parceiro</th>
             <th>Cliente</th>
             <th>Plano</th>
-            <th>Valor</th>
-            <th>Comissão</th>
+            <th>Entrada Stripe</th>
+            <th>Comissão parceiro</th>
+            <th>Saldo plataforma</th>
             <th>Status</th>
           </tr>
         </thead>
@@ -170,17 +266,18 @@ const renderSummary = (payload) => {
                   .map(
                     (row) => `
             <tr>
-              <td>${escapeHtml(String(row.paid_at || '—').slice(0, 10))}</td>
-              <td>${escapeHtml(String(row.partner_name || row.partner_code || '—'))}</td>
-              <td>${escapeHtml(String(row.user_email || '—'))}</td>
-              <td>${escapeHtml(String(row.plan_code || row.billing_interval || '—'))}</td>
+              <td>${escapeHtml(String(row.paid_at || '-').slice(0, 10))}</td>
+              <td>${escapeHtml(String(row.partner_name || row.partner_code || '-'))}</td>
+              <td>${escapeHtml(String(row.user_email || '-'))}</td>
+              <td>${escapeHtml(String(row.plan_code || row.billing_interval || '-'))}</td>
               <td>${formatMoney(row.amount_paid_cents || 0, row.currency || 'BRL')}</td>
               <td>${formatMoney(row.commission_amount_cents || 0, row.currency || 'BRL')}</td>
+              <td>${formatMoney(getPlatformNetFromRecentRow(row), row.currency || 'BRL')}</td>
               <td>${escapeHtml(String(row.payout_status || 'pending'))}</td>
             </tr>`
                   )
                   .join('')
-              : '<tr><td colspan="7">Nenhum lançamento recente.</td></tr>'
+              : '<tr><td colspan="8">Nenhum lançamento recente.</td></tr>'
           }
         </tbody>
       </table>
@@ -193,11 +290,11 @@ const initAdminPartnerCommissions = () => {
   if (!card) return;
 
   if (!isAllowed()) {
-    card.style.display = 'none';
+    removePrivateCard(card);
     return;
   }
 
-  card.style.display = 'block';
+  card.style.display = 'grid';
   const cached = readCache();
   if (cached) {
     renderSummary(cached);
@@ -232,7 +329,7 @@ const initAdminPartnerCommissions = () => {
       commissionsLoaded = true;
       writeCache(data);
       renderSummary(data);
-      setStatus('Resumo mensal e lançamentos recentes sincronizados.');
+      setStatus('Comissões e saldo da plataforma sincronizados separadamente.');
     })
     .catch(() => {
       setStatus('Não consegui carregar as comissões agora.');

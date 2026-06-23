@@ -28,7 +28,7 @@
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-  <link rel="stylesheet" href="assets/css/app2.css?v=20260507b" />
+  <link rel="stylesheet" href="assets/css/app2.css?v=20260623d" />
   <link rel="stylesheet" href="assets/css/mobile.css?v=20260507b">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="assets/js2/core/customSelect.js?v=20260507b"></script>
@@ -130,14 +130,6 @@
           </svg>
           Dashboard
         </button>
-        <button class="nav-item" data-target="brands" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 19V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11" />
-            <path d="M3 19h18" />
-            <path d="M9 6V4a3 3 0 0 1 6 0v2" />
-          </svg>
-          Marcas
-        </button>
         <button class="nav-item" data-target="campaigns" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 4h6v6H4z" />
@@ -146,6 +138,14 @@
             <path d="M14 14h6v6h-6z" />
           </svg>
           Campanhas
+        </button>
+        <button class="nav-item" data-target="brands" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 19V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11" />
+            <path d="M3 19h18" />
+            <path d="M9 6V4a3 3 0 0 1 6 0v2" />
+          </svg>
+          Marcas
         </button>
         <button class="nav-item" data-target="prospeccao" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -545,7 +545,7 @@
             <span class="billing-pill billing-pill--active" data-settings-billing-pill>Ativa</span>
           </div>
           <div class="billing-actions" style="margin-top: 14px;">
-            <button class="btn btn-primary" data-action="open-billing-portal" data-settings-billing-action type="button">Gerenciar plano</button>
+            <button class="btn btn-primary" data-action="goto-plans" data-settings-billing-action type="button">Ver planos</button>
           </div>
         </div>
         <div style="margin-top: 18px;"></div>
@@ -567,6 +567,20 @@
           </div>
           <div class="muted" id="admin-tracker-msg"></div>
           <div class="muted" style="margin-top: 8px;">Landing Insights mostra origem, UTM, scroll, CTA, formulario, erros e leads capturados com acesso via login privado.</div>
+        </div>
+
+        <div style="margin-top: 18px;"></div>
+        <div class="card admin-commissions-card" data-admin-commissions-card style="display: none;">
+          <div class="section-header admin-commissions-header">
+            <div>
+              <h3>Divisão de assinaturas por parceiro</h3>
+              <p class="section-subtitle">Comissões dos parceiros separadas do saldo da plataforma para dividir entre os sócios.</p>
+            </div>
+            <span class="billing-pill">Privado</span>
+          </div>
+          <div class="muted" data-admin-commissions-status></div>
+          <div class="admin-commissions-summary" data-admin-commissions-summary></div>
+          <div class="admin-commissions-recent" data-admin-commissions-recent></div>
         </div>
 
         <div style="margin-top: 18px;"></div>
@@ -616,14 +630,14 @@
         </div>
 
         <div class="form-row" data-campaign-step="1">
-          <label>Marca</label>
+          <label>Marca (opcional)</label>
           <div class="form-split">
-            <select class="select" name="brandId" data-campaign-brand-select required>
-              <option value="">Escolher marca...</option>
+            <select class="select" name="brandId" data-campaign-brand-select>
+              <option value="">Vincular depois...</option>
             </select>
             <button class="btn btn-ghost btn-small" data-action="open-brand-modal" data-brand-modal-context="campaign" type="button">Nova marca</button>
           </div>
-          <div class="muted">Toda campanha precisa estar vinculada a uma marca.</div>
+          <div class="muted">Você pode cadastrar a campanha agora e vincular a marca depois.</div>
         </div>
         <div class="form-row" data-campaign-step="1">
           <label>Como começou</label>
@@ -1411,7 +1425,7 @@
     </div>
   </div>
 
-  <script type="module" src="assets/js2/app.js?v=20260607a"></script>
+  <script type="module" src="assets/js2/app.js?v=20260623e"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

@@ -23,7 +23,7 @@ function admin_partner_commissions_allowed_emails()
 {
     return [
         'fgui3662@gmail.com',
-        'lorenzo.ritter13@gmail.com'
+        'lorenzo.ritter27@gmail.com'
     ];
 }
 
@@ -117,20 +117,65 @@ $recentRows = is_array($recentRes['data']) ? $recentRes['data'] : [];
 $totals = [
     'grossAmountCents' => 0,
     'commissionAmountCents' => 0,
+    'platformAmountCents' => 0,
     'payingClients' => 0,
     'paidInvoices' => 0
 ];
 
-foreach ($summaryRows as $row) {
-    $totals['grossAmountCents'] += (int)($row['gross_amount_cents'] ?? 0);
-    $totals['commissionAmountCents'] += (int)($row['commission_amount_cents'] ?? 0);
+$partnerBalancesByKey = [];
+
+foreach ($summaryRows as $index => $row) {
+    $grossAmount = (int)($row['gross_amount_cents'] ?? 0);
+    $commissionAmount = (int)($row['commission_amount_cents'] ?? 0);
+    $platformAmount = max(0, $grossAmount - $commissionAmount);
+    $summaryRows[$index]['platform_net_amount_cents'] = $platformAmount;
+
+    $totals['grossAmountCents'] += $grossAmount;
+    $totals['commissionAmountCents'] += $commissionAmount;
     $totals['payingClients'] += (int)($row['paying_clients'] ?? 0);
     $totals['paidInvoices'] += (int)($row['paid_invoices'] ?? 0);
+
+    $partnerKey = trim((string)($row['partner_code'] ?? $row['referral_code'] ?? $row['partner_name'] ?? 'sem-parceiro'));
+    if ($partnerKey === '') {
+        $partnerKey = 'sem-parceiro';
+    }
+
+    if (!isset($partnerBalancesByKey[$partnerKey])) {
+        $partnerBalancesByKey[$partnerKey] = [
+            'partnerCode' => (string)($row['partner_code'] ?? $partnerKey),
+            'partnerName' => (string)($row['partner_name'] ?? $partnerKey),
+            'grossAmountCents' => 0,
+            'commissionAmountCents' => 0,
+            'payingClients' => 0,
+            'paidInvoices' => 0,
+            'latestPayoutMonth' => (string)($row['payout_month'] ?? '')
+        ];
+    }
+
+    $partnerBalancesByKey[$partnerKey]['grossAmountCents'] += $grossAmount;
+    $partnerBalancesByKey[$partnerKey]['commissionAmountCents'] += $commissionAmount;
+    $partnerBalancesByKey[$partnerKey]['payingClients'] += (int)($row['paying_clients'] ?? 0);
+    $partnerBalancesByKey[$partnerKey]['paidInvoices'] += (int)($row['paid_invoices'] ?? 0);
+    if ((string)($row['payout_month'] ?? '') > (string)($partnerBalancesByKey[$partnerKey]['latestPayoutMonth'] ?? '')) {
+        $partnerBalancesByKey[$partnerKey]['latestPayoutMonth'] = (string)($row['payout_month'] ?? '');
+    }
 }
+
+$totals['platformAmountCents'] = max(0, $totals['grossAmountCents'] - $totals['commissionAmountCents']);
+$partnerBalances = array_values($partnerBalancesByKey);
 
 admin_partner_commissions_respond(200, [
     'ok' => true,
     'summary' => $summaryRows,
     'recent' => $recentRows,
-    'totals' => $totals
+    'totals' => $totals,
+    'balances' => [
+        'partners' => $partnerBalances,
+        'platform' => [
+            'grossAmountCents' => $totals['grossAmountCents'],
+            'partnerCommissionReserveCents' => $totals['commissionAmountCents'],
+            'netPlatformAmountCents' => $totals['platformAmountCents'],
+            'ownerSplitBase' => 'netPlatformAmountCents'
+        ]
+    ]
 ]);

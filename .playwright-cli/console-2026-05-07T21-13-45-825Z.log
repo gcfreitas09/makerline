@@ -1,7 +1,0 @@
-[     110ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/app.html:0
-[    1605ms] [LOG] [Sync] Carregando estado do servidor: {campanhas: 0, marcas: 0} @ http://localhost/saas-ugc/assets/js2/app.js?v=20260507a:398
-[    2465ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260507a:465
-[    3377ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959
-[    3380ms] [ERROR] Failed to load resource: net::ERR_INTERNET_DISCONNECTED @ http://localhost/saas-ugc/api/state.php:0
-[    3380ms] [ERROR] [Sync] Falha ao salvar estado no servidor: TypeError: Failed to fetch
-    at flushRemoteSave (http://localhost/saas-ugc/assets/js2/core/state.js:961:23) @ http://localhost/saas-ugc/assets/js2/core/state.js:977

@@ -497,12 +497,7 @@ const handleCampaignSubmit = (event) => {
       ? (paymentReceivedAtRaw || todayIso())
       : '';
   const brandRecord = getBrandById(brandId);
-  const brand = brandRecord.name || '';
-
-  if (!brandRecord) {
-    if (msg) msg.textContent = 'Escolha uma marca para salvar a campanha.';
-    return;
-  }
+  const brand = brandRecord ? String(brandRecord.name || '').trim() : '';
   if (nextActionType && !nextActionDate) {
     if (msg) msg.textContent = 'Defina a data da próxima ação.';
     return;
@@ -520,9 +515,11 @@ const handleCampaignSubmit = (event) => {
   const allowedStartMethods = ['ugc_platform', 'inbound', 'outbound', 'instagram', 'agencia', 'comunidade', 'other'];
   const startMethodSafe = allowedStartMethods.includes(startMethodNormalized) ? startMethodNormalized : '';
 
-  if (contactName && !brandRecord.contact) brandRecord.contact = contactName;
-  if (contactEmail && !brandRecord.email) brandRecord.email = contactEmail;
-  brandRecord.updatedAt = nowIso;
+  if (brandRecord) {
+    if (contactName && !brandRecord.contact) brandRecord.contact = contactName;
+    if (contactEmail && !brandRecord.email) brandRecord.email = contactEmail;
+    brandRecord.updatedAt = nowIso;
+  }
 
   if (id) {
     const campaign = state.campaigns.find((item) => item.id === id);
@@ -534,7 +531,7 @@ const handleCampaignSubmit = (event) => {
     const previousDue = campaign.dueDate || '';
     const previousLife = campaign.archived ? 'archived' : campaign.paused ? 'paused' : 'active';
 
-    campaign.brandId = brandRecord.id;
+    campaign.brandId = brandRecord ? brandRecord.id : '';
     campaign.brand = brand;
     campaign.value = value;
     campaign.barter = barter;
@@ -581,13 +578,16 @@ const handleCampaignSubmit = (event) => {
   }
 
   const brandKey = brand.toLowerCase();
-  const existingCount = state.campaigns.filter((c) => String(c.brandId || '').trim() === brandRecord.id || String(c.brand || '').toLowerCase() === brandKey).length;
-  const title = existingCount ? `${brand} #${existingCount + 1}` : `${brand}`;
+  const existingCount = brandRecord
+    ? state.campaigns.filter((c) => String(c.brandId || '').trim() === brandRecord.id || String(c.brand || '').toLowerCase() === brandKey).length
+    : state.campaigns.filter((c) => !String(c.brandId || '').trim() && !String(c.brand || '').trim()).length;
+  const baseTitle = brand || 'Campanha sem marca';
+  const title = existingCount ? `${baseTitle} #${existingCount + 1}` : baseTitle;
 
   const campaign = {
     id: `c-${Date.now()}`,
     title,
-    brandId: brandRecord.id,
+    brandId: brandRecord ? brandRecord.id : '',
     brand,
     status: 'prospeccao',
     stage: getDefaultCampaignStage('prospeccao'),
@@ -707,14 +707,6 @@ const initCampaignForm = () => {
     nextStepBtn.dataset.bound = '1';
     nextStepBtn.addEventListener('click', () => {
       if (!campaignWizardEnabled) return;
-
-      const selectedBrandId = getCampaignBrandValue(brandSelect);
-      if (campaignWizardStep === 1 && brandSelect && !selectedBrandId) {
-        const { msg } = getCampaignModal();
-        if (msg) msg.textContent = 'Escolha uma marca para continuar.';
-        brandSelect.focus();
-        return;
-      }
 
       const { msg } = getCampaignModal();
       if (msg) msg.textContent = '';

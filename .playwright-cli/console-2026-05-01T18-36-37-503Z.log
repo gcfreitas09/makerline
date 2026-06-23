@@ -1,6 +1,0 @@
-[     349ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/app.html?section=brands&qa=encoding-fixed:0
-[     363ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/state.php:0
-[     462ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost/saas-ugc/api/billing_status.php:0
-[     481ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260501a:408
-[     533ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/index.html:0
-[     533ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/index.html:0

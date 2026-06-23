@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/landing.css?v=20260607a" />
+  <link rel="stylesheet" href="assets/css/landing.css?v=20260623a" />
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -26,8 +26,8 @@
     <nav class="top-nav" aria-label="Seções da landing">
       <a href="#problema">Problema</a>
       <a href="#funcionalidades">Funcionalidades</a>
-      <a href="#parceiros">Parceiros</a>
       <a href="#para-quem">Para quem é</a>
+      <a href="#parceiros">Parceiros</a>
     </nav>
     <div class="header-actions">
       <a class="btn btn-primary" href="#cta-final" data-track-cta="Header - acesso antecipado" data-cta-id="header_cta">Quero acesso antecipado</a>
@@ -154,7 +154,7 @@
             <p>Campanhas com status, prazos, valores e próximos passos em uma visão clara.</p>
           </div>
           <div class="feature-visual">
-            <div class="feature-shot">
+            <div class="feature-shot feature-shot--campaigns">
               <img
                 src="assets/img/landing-feature-campaigns-real.png"
                 alt="Tela real do Makerline mostrando a área de campanhas com filtros, cards e tabela de entregas."
@@ -220,9 +220,7 @@
 
     <section class="section proof-section" id="parceiros" aria-labelledby="partners-title" data-track-section="parceiros" data-section="parceiros">
       <div class="container social-heading">
-        <span class="section-kicker">Nossos parceiros</span>
-        <h2 id="partners-title">Links exclusivos para entrar no Makerline com atribuição certa.</h2>
-        <p>Se você chegou por uma parceira ou parceiro, entre pelo card correto para manter views, leads, trial e origem rastreados no painel.</p>
+        <h2 id="partners-title">Parceiros que já organizam suas campanhas com o Makerline</h2>
       </div>
       <div class="container testimonial-grid">
         <article class="testimonial-card">
@@ -255,7 +253,7 @@
       <div class="container final-cta-inner final-cta-form">
         <h2 id="final-title">Entre na lista de acesso antecipado do Makerline.</h2>
         <p class="final-cta-subtitle">Vamos liberar os primeiros acessos para creators que querem organizar campanhas, prazos e pagamentos antes do lançamento oficial.</p>
-        <form class="waitlist-form" id="waitlist-form" action="#" method="post">
+        <form class="waitlist-form" id="waitlist-form" action="#" method="post" autocomplete="off">
           <label class="field">
             <span>Nome</span>
             <input type="text" name="name" autocomplete="name" required />
@@ -266,13 +264,12 @@
           </label>
           <label class="field">
             <span>Instagram</span>
-            <input type="text" name="instagram" id="waitlist-instagram" autocomplete="username" placeholder="@seuinstagram" required />
+            <input type="text" name="instagram" id="waitlist-instagram" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="text" placeholder="@seuinstagram" required />
           </label>
           <p class="form-fields-note">Usamos o Instagram apenas para identificar creators inscritos.</p>
           <button class="btn btn-primary btn-large" type="submit" id="waitlist-submit" data-cta-id="final_form_submit">Garantir meu acesso antecipado</button>
           <p class="waitlist-feedback" id="waitlist-feedback" role="status" aria-live="polite"></p>
         </form>
-        <p class="final-cta-note">Sem spam. Vamos chamar apenas quando o acesso estiver disponível.</p>
       </div>
     </section>
   </main>
@@ -289,8 +286,8 @@
       <div class="footer-column">
         <span class="footer-label">Navegação</span>
         <a href="#funcionalidades">Funcionalidades</a>
-        <a href="#parceiros">Parceiros</a>
         <a href="#para-quem">Para quem é</a>
+        <a href="#parceiros">Parceiros</a>
       </div>
       <div class="footer-column footer-column--cta">
         <span class="footer-label">Lançamento</span>

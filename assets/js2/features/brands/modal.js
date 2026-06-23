@@ -122,7 +122,7 @@ const populateCampaignBrandSelect = (selectedId = '') => {
     .slice()
     .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'pt-BR'));
 
-  select.innerHTML = ['<option value="">Escolher marca...</option>']
+  select.innerHTML = ['<option value="">Vincular depois...</option>']
     .concat(brands.map((brand) => `<option value="${brand.id}">${String(brand.name || 'Marca')}</option>`))
     .join('');
 

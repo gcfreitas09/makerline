@@ -1,4 +1,0 @@
-[    1474ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/saas-ugc/app.html:0
-[    9084ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260507a:465
-[    9090ms] [ERROR] Failed to load resource: net::ERR_INTERNET_DISCONNECTED @ http://localhost/saas-ugc/assets/js2/features/campaigns/modal.js:0
-[    9089ms] Failed to fetch dynamically imported module: http://localhost/saas-ugc/assets/js2/features/campaigns/modal.js

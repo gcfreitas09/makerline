@@ -1,3 +1,0 @@
-[    2134ms] [LOG] [Sync] Carregando estado do servidor: {campanhas: 2, marcas: 2} @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:687
-[    3072ms] [LOG] [App] Estado do servidor carregado @ http://localhost/saas-ugc/assets/js2/app.js?v=20260607a:764
-[    3987ms] [LOG] [Sync] Salvando estado no servidor... @ http://localhost/saas-ugc/assets/js2/core/state.js:959

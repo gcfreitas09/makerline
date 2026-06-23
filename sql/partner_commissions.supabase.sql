@@ -102,6 +102,8 @@ select
   round(sum(amount_paid_cents)::numeric / 100, 2) as gross_amount_brl,
   sum(commission_amount_cents) as commission_amount_cents,
   round(sum(commission_amount_cents)::numeric / 100, 2) as commission_amount_brl,
+  (sum(amount_paid_cents) - sum(commission_amount_cents)) as platform_net_amount_cents,
+  round((sum(amount_paid_cents) - sum(commission_amount_cents))::numeric / 100, 2) as platform_net_amount_brl,
   min(paid_at) as first_payment_at,
   max(paid_at) as last_payment_at
 from public.partner_commissions
@@ -124,3 +126,5 @@ drop view if exists public.rick_olavo_commissions_monthly;
 
 -- Consulta rápida de fechamento mensal:
 -- select * from public.partner_commissions_monthly order by payout_month desc, partner_name;
+-- Use commission_amount_cents para o saldo dos parceiros.
+-- Use platform_net_amount_cents como base separada para a divisao entre os socios.

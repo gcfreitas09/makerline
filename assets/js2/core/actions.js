@@ -3,18 +3,18 @@ import { setActivePage, showToast } from './ui.js?v=20260502c';
 import { formatCurrency } from './state.js';
 import { prospectionContactOptions, prospectionStatusOptions } from './state.js';
 import { trackEvent } from './gamification.js?v=20260302g';
-import { renderAll } from './renderers.js?v=20260531c';
+import { renderAll } from './renderers.js?v=20260623b';
 
 import {
   closeCampaignModal,
   initCampaignForm,
   openCampaignModal
-} from '../features/campaigns/modal.js?v=20260502c';
+} from '../features/campaigns/modal.js?v=20260623c';
 import {
   closeBrandModal,
   initBrandForm,
   openBrandModal
-} from '../features/brands/modal.js?v=20260502c';
+} from '../features/brands/modal.js?v=20260623c';
 import {
   closeBrandDeleteModal,
   initBrandDeleteFeature,
@@ -32,8 +32,9 @@ import {
   openScriptDeleteModal
 } from '../features/scripts/delete.js?v=20260304c';
 import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js?v=20260302f';
-  import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260507a';
-import { openBillingCheckout, openBillingPortal } from '../features/settings/billing.js?v=20260531c';
+import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260507a';
+import { initAdminPartnerCommissions } from '../features/settings/admin_partner_commissions.js?v=20260623a';
+import { openBillingCheckout, openBillingPortal } from '../features/settings/billing.js?v=20260623b';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
 import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260314b';
 
@@ -1494,12 +1495,6 @@ const handleActionClick = (event) => {
   }
 
   if (action === 'new-campaign') {
-    const brands = Array.isArray(state.brands) ? state.brands : [];
-    if (!brands.length) {
-      openBrandModal('', { returnTo: 'campaign' });
-      showToast('Crie uma marca antes de cadastrar a campanha.');
-      return;
-    }
     openCampaignModal();
     injectOnboardingHeader();
     return;
@@ -1735,6 +1730,7 @@ const handleNavClick = (event) => {
   setActivePage(target);
   if (target === 'settings') {
     initAdminTrackerCard();
+    initAdminPartnerCommissions();
   }
   if (target === 'campaigns') {
     trackEvent('campaigns_viewed');
@@ -2034,6 +2030,7 @@ const initActions = () => {
   safeInit('initCampaignForm', initCampaignForm);
   safeInit('initCampaignDeleteFeature', initCampaignDeleteFeature);
   safeInit('initAdminTrackerCard', initAdminTrackerCard);
+  safeInit('initAdminPartnerCommissions', initAdminPartnerCommissions);
 
   const brandActionForm = document.getElementById('brand-action-form');
   if (brandActionForm && brandActionForm.dataset.bound !== '1') {

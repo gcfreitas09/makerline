@@ -18,7 +18,7 @@
   getBadgeById
 } from './state.js';
 import { setScriptOutput } from './ui.js';
-import { getBillingNotice, getBillingSnapshot } from '../features/settings/billing.js?v=20260531c';
+import { getBillingNotice, getBillingSnapshot } from '../features/settings/billing.js?v=20260623b';
 
 const plur = (n, singular, plural) => `${n} ${n === 1 ? singular : plural}`;
 const escapeHtml = (value) =>
@@ -1938,29 +1938,24 @@ const getCampaignOnboardingGuideHtml = () => {
   const totalCampaigns = Array.isArray(state.campaigns) ? state.campaigns.length : 0;
   if (totalCampaigns > 0) return '';
 
-  const hasBrands = Array.isArray(state.brands) && state.brands.length > 0;
-  const primaryAction = hasBrands
-    ? `
-      <button class="btn btn-primary btn-small" data-action="new-campaign" type="button">
-        Iniciar minha campanha
-      </button>
-    `
-    : `
-      <button class="btn btn-primary btn-small" data-action="open-brand-modal" data-brand-modal-context="campaign" type="button">
-        Criar marca primeiro
-      </button>
-    `;
+  const primaryAction = `
+    <button class="btn btn-primary btn-small" data-action="new-campaign" type="button">
+      Criar campanha primeiro
+    </button>
+  `;
 
   return `
     <div class="card campaign-onboarding-card">
       <div>
         <p class="dashboard-eyebrow">Passo a passo</p>
-        <h3 class="campaign-onboarding-title">Como criar sua primeira campanha</h3>
+        <h3 class="campaign-onboarding-title">Sequência para organizar a operação</h3>
       </div>
       <ol class="campaign-onboarding-list">
-        <li>${hasBrands ? 'Clique em "Nova campanha".' : 'Crie sua primeira marca para poder vincular a campanha.'}</li>
-        <li>${hasBrands ? 'Preencha marca, origem, valor e prazo no modal.' : 'Depois clique em "Nova campanha" para abrir o cadastro.'}</li>
-        <li>Defina a próxima ação e salve. O sistema vai te guiar campo a campo.</li>
+        <li><strong>Campanhas:</strong> cadastre entregas, prazos, valores e status.</li>
+        <li><strong>Marcas:</strong> conecte cada campanha com a marca certa.</li>
+        <li><strong>Prospecção:</strong> acompanhe oportunidades antes de fecharem.</li>
+        <li><strong>Dashboard:</strong> veja prioridades, atrasos e próximos passos.</li>
+        <li><strong>Financeiro e métricas:</strong> acompanhe receita, pagamentos e evolução.</li>
       </ol>
       <div class="campaign-onboarding-actions">
         ${primaryAction}
@@ -3128,11 +3123,10 @@ const renderPlansPage = () => {
       return '<button class="btn btn-ghost plans-offer-btn plans-offer-btn--ghost" type="button" disabled>Acesso interno</button>';
     }
     if (billing.hasPremiumAccess) {
-      if (billing.portalAvailable) {
-        const label = currentPlan ? 'Gerenciar assinatura' : 'Alterar plano no portal';
-        return `<button class="btn btn-ghost plans-offer-btn plans-offer-btn--ghost" data-action="open-billing-portal" type="button">${label}</button>`;
+      if (!currentPlan) {
+        return `<button class="${classes}" data-action="open-billing-checkout" data-plan="${targetPlan}" type="button">Trocar para plano ${planName}</button>`;
       }
-      return '<button class="btn btn-ghost plans-offer-btn plans-offer-btn--ghost" type="button" disabled>Plano ativo</button>';
+      return '<button class="btn btn-ghost plans-offer-btn plans-offer-btn--ghost" type="button" disabled>Plano atual</button>';
     }
     return `<button class="${classes}" data-action="open-billing-checkout" data-plan="${targetPlan}" type="button">Assinar plano ${planName}</button>`;
   };

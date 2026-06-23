@@ -16,6 +16,24 @@ const DEFAULT_BILLING = {
   subscriptionId: null
 };
 
+const PLAN_PRICE_CENTS = {
+  monthly: 3990,
+  annual: 34990
+};
+
+const formatBillingMoney = (cents) =>
+  (Number(cents || 0) / 100).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+
+const getAnnualSavings = () => {
+  const monthlyYear = PLAN_PRICE_CENTS.monthly * 12;
+  const savings = Math.max(0, monthlyYear - PLAN_PRICE_CENTS.annual);
+  const percent = monthlyYear > 0 ? Math.round((savings / monthlyYear) * 100) : 0;
+  return { monthlyYear, savings, percent };
+};
+
 const getPendingCheckoutPlanKey = () => {
   const userId = String(getSessionUserId() || '').trim();
   return userId ? `ugcQuestPendingCheckoutPlan:${userId}` : '';
@@ -193,7 +211,9 @@ const isAuthError = (res, data) => {
 };
 
 const setBillingMessage = (text) => {
-  void text;
+  const message = String(text || '').trim();
+  const target = document.getElementById('billing-msg');
+  if (target) target.textContent = message;
 };
 
 const getBillingNotice = () => {
@@ -203,6 +223,12 @@ const getBillingNotice = () => {
     if (code === 'success') return 'Pagamento confirmado. Assim que a Stripe terminar a sincronização, seu plano aparece aqui.';
     if (code === 'cancel') return 'Checkout cancelado. Você continua no plano grátis.';
     if (code === 'portal') return 'Você voltou do portal de cobrança.';
+    if (code === 'plan_updated') {
+      const plan = String(params.get('plan') || '').trim();
+      if (plan === 'monthly') return 'Plano mensal ativado com sucesso.';
+      if (plan === 'annual') return 'Plano anual ativado com sucesso.';
+      return 'Plano atualizado com sucesso.';
+    }
     if (code === 'test_success') return 'Teste Stripe concluído. Confira a cobrança de R$ 0,50 no dashboard da Stripe.';
     if (code === 'test_cancel') return 'Teste Stripe cancelado antes do pagamento.';
   } catch (error) {}
@@ -324,7 +350,56 @@ const submitBillingRedirect = (action, fields, options = {}) => {
   window.setTimeout(() => form.remove(), 0);
 };
 
-const openBillingCheckout = (plan) => {
+const showMonthlyAnnualOffer = () => {
+  if (typeof document === 'undefined') return Promise.resolve('monthly');
+
+  return new Promise((resolve) => {
+    const existing = document.querySelector('[data-billing-annual-offer]');
+    if (existing) existing.remove();
+
+    const { monthlyYear, savings, percent } = getAnnualSavings();
+    const alreadyAnnual = currentBilling.plan === 'annual';
+    const modal = document.createElement('div');
+    modal.className = 'modal billing-annual-offer open';
+    modal.setAttribute('aria-hidden', 'false');
+    modal.setAttribute('data-billing-annual-offer', '1');
+    modal.innerHTML = `
+      <div class="modal-scrim" data-choice="cancel"></div>
+      <div class="modal-panel card billing-annual-offer-panel" role="dialog" aria-modal="true" aria-labelledby="billing-annual-offer-title">
+        <div class="billing-annual-offer-badge">Economize ${percent}%</div>
+        <h3 id="billing-annual-offer-title">${alreadyAnnual ? 'Você já está no plano com melhor economia.' : 'Antes de assinar mensal, veja o anual.'}</h3>
+        <p class="muted">Mensal por 12 meses sai por ${formatBillingMoney(monthlyYear)}. No anual, você paga ${formatBillingMoney(PLAN_PRICE_CENTS.annual)} e economiza ${formatBillingMoney(savings)}.</p>
+        <div class="billing-annual-offer-price">
+          <strong>${formatBillingMoney(PLAN_PRICE_CENTS.annual)}</strong>
+          <span>/ ano</span>
+        </div>
+        <div class="billing-annual-offer-actions">
+          <button class="btn btn-primary" data-choice="annual" type="button">${alreadyAnnual ? 'Manter plano anual' : `Assinar anual e economizar ${percent}%`}</button>
+          <button class="btn btn-ghost" data-choice="monthly" type="button">Continuar no mensal</button>
+        </div>
+      </div>
+    `;
+
+    const finish = (choice) => {
+      modal.remove();
+      document.removeEventListener('keydown', onKeydown);
+      resolve(choice);
+    };
+    const onKeydown = (event) => {
+      if (event.key === 'Escape') finish('cancel');
+    };
+
+    modal.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-choice]');
+      if (!button) return;
+      finish(String(button.dataset.choice || 'cancel'));
+    });
+    document.addEventListener('keydown', onKeydown);
+    document.body.appendChild(modal);
+  });
+};
+
+const openBillingCheckout = async (plan) => {
   const token = getSessionToken();
   if (!token) {
     clearSessionAndRedirect();
@@ -337,24 +412,54 @@ const openBillingCheckout = (plan) => {
       setBillingMessage('Plano inválido.');
       return false;
     }
-    if (currentBilling.hasPremiumAccess) {
-      if (currentBilling.portalAvailable) {
-        void openBillingPortal();
-      } else {
-        setBillingMessage('Sua conta já tem um plano ativo.');
+    if (currentBilling.hasPremiumAccess && currentBilling.plan === safePlan) {
+      setBillingMessage('Esse já é o plano ativo desta conta.');
+      return false;
+    }
+    if (safePlan === 'monthly') {
+      const choice = await showMonthlyAnnualOffer();
+      if (choice === 'annual') {
+        if (currentBilling.plan === 'annual') {
+          setBillingMessage('Você já está no plano anual.');
+          return false;
+        }
+        return openBillingCheckout('annual');
       }
+      if (choice !== 'monthly') return false;
+    }
+
+    setBillingMessage(
+      currentBilling.hasPremiumAccess
+        ? 'Atualizando seu plano...'
+        : 'Abrindo checkout seguro...'
+    );
+    const res = await fetch('api/billing_checkout.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token,
+        plan: safePlan,
+        referralCode: getReferralCode()
+      })
+    });
+
+    const data = await res.json().catch(() => null);
+    if (isAuthError(res, data)) {
+      clearSessionAndRedirect();
+      return false;
+    }
+
+    if (!res.ok || !data || !data.url) {
+      clearPendingCheckoutPlan();
+      setBillingMessage((data && (data.error || data.message)) || 'Não consegui abrir o checkout agora.');
       return false;
     }
 
     writePendingCheckoutPlan(safePlan);
-    submitBillingRedirect('api/billing_checkout.php', {
-      token,
-      plan: safePlan,
-      referralCode: getReferralCode(),
-      redirect: '1'
-    });
+    redirectToBillingUrl(data.url);
     return true;
   } catch (error) {
+    clearPendingCheckoutPlan();
     setBillingMessage('Não consegui abrir o checkout agora.');
     return false;
   }
