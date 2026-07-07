@@ -6,3 +6,10 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Secrets and user data - never commit
+storage/*.json
+!storage/*.example.json
+storage/backups/
+storage/states/
+storage/market/*.json

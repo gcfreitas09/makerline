@@ -4,9 +4,7 @@
   "service_key": "COLE_AQUI_A_SERVICE_ROLE_KEY",
   "table_users": "ugc_users",
   "table_states": "ugc_user_states",
-<<<<<<< HEAD
+  "table_pre_signups": "landing_pre_signups",
   "table_partner_commissions": "partner_commissions",
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   "timeout": 12
 }
