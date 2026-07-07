@@ -2177,7 +2177,7 @@ const renderCampaigns = () => {
                       <button class="btn-priority ${isPriority ? 'active' : ''}" data-action="toggle-priority" data-campaign-id="${campaign.id}" type="button" title="${isPriority ? 'Remover prioridade' : 'Marcar como prioridade'}">
                         ${priorityIcon}
                       </button>
-                      <span class="chip chip-pill brand-status-${statusSafe}">${escapeHtml(campaign.brand || 'Marca')}</span>
+                      <span class="chip chip-pill brand-status-${statusSafe}" title="${escapeHtml(campaign.brand || 'Marca')}"><span class="chip-pill-text">${escapeHtml(campaign.brand || 'Marca')}</span></span>
                       ${isModel ? '<span class="badge-model">MODELO</span>' : ''}
                       ${indicatorHtml}
                     </div>

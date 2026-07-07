@@ -5200,6 +5200,32 @@ body[data-theme="light"] .select {
   .campaign-table td[data-label="Etapa"] {
     width: 230px;
   }
+
+  .campaign-table td[data-label="Marca"] {
+    max-width: 220px;
+  }
+
+  .campaign-table td[data-label="Marca"] > div {
+    flex-wrap: nowrap !important;
+    min-width: 0;
+  }
+
+  .campaign-table td[data-label="Marca"] .btn-priority {
+    flex-shrink: 0;
+  }
+
+  .campaign-table td[data-label="Marca"] .chip-pill {
+    min-width: 0;
+    flex: 0 1 auto;
+  }
+
+  .campaign-table td[data-label="Marca"] .chip-pill-text {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
 }
 
 .campaign-table td[data-label="Status"],
