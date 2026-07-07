@@ -557,7 +557,9 @@
       trackFormView();
       trackFormStart('focus');
 
-      const field = event.target && event.target.name ? trimText(event.target.name, 80) : '';
+      const field = event.target
+        ? trimText(event.target.getAttribute('data-field') || event.target.name || '', 80)
+        : '';
       if (!field) return;
       if (field === 'name') trackFieldFocus('name');
       if (field === 'phone') trackFieldFocus('whatsapp');
@@ -565,7 +567,9 @@
     });
 
     form.addEventListener('focusout', (event) => {
-      const field = event.target && event.target.name ? trimText(event.target.name, 80) : '';
+      const field = event.target
+        ? trimText(event.target.getAttribute('data-field') || event.target.name || '', 80)
+        : '';
       if (!field) return;
       if (field === 'name') trackFieldBlur('name');
       if (field === 'phone') trackFieldBlur('whatsapp');

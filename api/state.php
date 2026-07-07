@@ -65,7 +65,6 @@ function restoreLatestStateBackup($statesDir, $safeUserId, $stateFile)
     return @copy($latest, $stateFile);
 }
 
-<<<<<<< HEAD
 function state_data_score($state)
 {
     if (!is_array($state)) return 0;
@@ -122,8 +121,6 @@ function choose_best_state_payload($remotePayload, $filePayload)
     return $candidates[0];
 }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 function backupStateFile($statesDir, $safeUserId, $stateFile)
 {
     if (!file_exists($stateFile)) return true;
@@ -213,28 +210,16 @@ if ($action === 'load') {
     }
 
     $warning = null;
-<<<<<<< HEAD
     $remotePayload = null;
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     $stateBackend = states_store_backend();
     if ($stateBackend === 'supabase') {
         $remote = states_store_load_by_user_id($userId);
         if (is_array($remote) && is_array($remote['state'] ?? null)) {
-<<<<<<< HEAD
             $remotePayload = [
                 'state' => $remote['state'],
                 'updatedAt' => $remote['updatedAt'] ?? null,
                 'backend' => 'supabase'
             ];
-=======
-            respond(200, [
-                'ok' => true,
-                'state' => $remote['state'],
-                'updatedAt' => $remote['updatedAt'] ?? null,
-                'backend' => 'supabase'
-            ]);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         }
         if ($remote === null) {
             $warning = states_store_last_error() ?: 'Falha ao carregar state no Supabase.';
@@ -243,7 +228,6 @@ if ($action === 'load') {
         $warning = states_store_last_error() ?: null;
     }
 
-<<<<<<< HEAD
     if ($remotePayload) {
         $filePayload = state_payload_from_file($stateFile);
         $best = choose_best_state_payload($remotePayload, $filePayload);
@@ -256,8 +240,6 @@ if ($action === 'load') {
         ]);
     }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     if (!file_exists($stateFile)) {
         // Tentativa de recuperação (se o state sumiu por deploy/FTP, mas ainda existem backups).
         if (!restoreLatestStateBackup($statesDir, $safeUserId, $stateFile)) {
@@ -300,7 +282,6 @@ if ($action === 'save') {
         respond(400, ['error' => 'State inválido']);
     }
 
-<<<<<<< HEAD
     $incomingScore = state_data_score($state);
     $existingRemote = null;
     if (states_store_backend() === 'supabase') {
@@ -319,8 +300,6 @@ if ($action === 'save') {
         ]);
     }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     $bytes = strlen(json_encode($state, JSON_UNESCAPED_UNICODE));
     if ($bytes > 1024 * 1024) {
         respond(413, ['error' => 'State muito grande (limite: 1MB).']);

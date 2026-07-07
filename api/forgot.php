@@ -46,11 +46,7 @@ $body = json_decode(file_get_contents('php://input'), true) ?? [];
 $email = trim(strtolower((string)($body['email'] ?? '')));
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-<<<<<<< HEAD
     respond(400, ['error' => 'E-mail inválido']);
-=======
-    respond(400, ['error' => 'Email inválido']);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 $user = users_store_find_by_email($email);
@@ -76,11 +72,7 @@ if (!$ok) {
 $verifyLink = ugc_base_url() . '/verify.html?email=' . urlencode($email);
 $subject = 'Código de verificação - Makerline';
 $message = "Oi!\n\n" .
-<<<<<<< HEAD
     "Para confirmar que esse e-mail é seu, aqui está seu código:\n\n" .
-=======
-    "Pra confirmar que esse email é seu mesmo, aqui vai seu código:\n\n" .
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     $code . "\n\n" .
     "Ele expira em 10 minutos.\n\n" .
     "Você pode abrir a tela de confirmação por aqui:\n" .
@@ -104,17 +96,10 @@ logEmail($logFile, [
 ]);
 
 $responseMessage = $sent
-<<<<<<< HEAD
     ? 'Enviamos um código para seu e-mail.'
     : ($isLocal
         ? 'Não foi possível enviar agora (ambiente local). Vou mostrar o código aqui mesmo.'
         : 'Não foi possível enviar o e-mail agora. Tente de novo mais tarde.');
-=======
-    ? 'Te mandei um código no email.'
-    : ($isLocal
-        ? 'Não deu pra enviar agora (ambiente local). Vou te mostrar o código aqui mesmo.'
-        : 'Não consegui enviar o email agora. Tenta de novo mais tarde.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 if (!$sent && !$isLocal) {
     respond(503, ['error' => $responseMessage, 'sent' => false, 'mailer' => $mailerInfo]);
@@ -128,7 +113,3 @@ respond(200, [
     'code' => $sent ? null : ($isLocal ? $code : null),
     'mailer' => $mailerInfo
 ]);
-<<<<<<< HEAD
-=======
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7

@@ -33,3 +33,9 @@ DirectoryIndex landing.html index.html
     Header set Expires 0
   </IfModule>
 </FilesMatch>
+
+<FilesMatch "^(app|admin|intelligence|landing-insights|reset|verify)\.html$">
+  <IfModule mod_headers.c>
+    Header set X-Robots-Tag "noindex, nofollow"
+  </IfModule>
+</FilesMatch>

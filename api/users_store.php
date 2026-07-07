@@ -6,10 +6,7 @@ require_once __DIR__ . '/supabase_client.php';
 const UGC_USERS_FILE_PATH = __DIR__ . '/../storage/users.json';
 const UGC_USERS_TABLE_FALLBACK = 'ugc_users';
 const UGC_DELETED_EMAILS_FILE_PATH = __DIR__ . '/../storage/deleted_emails.json';
-<<<<<<< HEAD
 const UGC_SECURITY_AUDIT_FILE_PATH = __DIR__ . '/../storage/security_audit.log';
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 $GLOBALS['UGC_USERS_STORE_LAST_ERROR'] = null;
 
@@ -23,7 +20,6 @@ function users_store_set_error($message)
     $GLOBALS['UGC_USERS_STORE_LAST_ERROR'] = (string)$message;
 }
 
-<<<<<<< HEAD
 function users_store_security_audit($action, $userId = '', $origin = '', $adminId = null, $meta = [])
 {
     $entry = [
@@ -75,8 +71,6 @@ function users_store_filter_update_fields($id, $fields, $origin = 'users_store_u
     return $clean;
 }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 function users_store_table()
 {
     $cfg = db_config();
@@ -149,7 +143,6 @@ function users_store_supabase_ready()
         return $ready;
     }
 
-<<<<<<< HEAD
     $serviceKey = trim((string)($cfg['service_key'] ?? ''));
     if ($serviceKey === '' || preg_match('/^(sb_publishable_|sb_anon_|anon_)/i', $serviceKey)) {
         users_store_set_error('Supabase está configurado sem chave de serviço no backend. Usando storage/users.json como fallback.');
@@ -157,8 +150,6 @@ function users_store_supabase_ready()
         return $ready;
     }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     $table = users_store_supabase_table();
     $res = supabase_client_request('GET', $table, ['select' => 'id', 'limit' => 1], null);
     if (is_array($res) && !empty($res['ok'])) {
@@ -172,11 +163,7 @@ function users_store_supabase_ready()
     if ($status === 404) {
         users_store_set_error('Supabase configurado, mas a tabela de usuários não existe ainda. Roda o SQL em sql/ugc_users.supabase.sql.');
     } elseif ($status === 401 || $status === 403) {
-<<<<<<< HEAD
         users_store_set_error('Supabase: sem permissão para acessar a tabela. Confira storage/supabase.json (service_key).');
-=======
-        users_store_set_error('Supabase: sem permissão pra acessar a tabela. Confere storage/supabase.json (service_key).');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     } else {
         users_store_set_error($err ?: 'Falha ao acessar Supabase.');
     }
@@ -190,22 +177,13 @@ function users_store_backend()
     $supabaseCfg = supabase_config();
     if (is_array($supabaseCfg) && !empty($supabaseCfg['enabled'])) {
         if (users_store_supabase_ready()) return 'supabase';
-<<<<<<< HEAD
-=======
-        return 'error';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     }
 
     $cfg = db_config();
     if (is_array($cfg) && !empty($cfg['enabled'])) {
         if (users_store_db_ready()) return 'mysql';
-<<<<<<< HEAD
     }
 
-=======
-        return 'error';
-    }
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     return 'json';
 }
 
@@ -224,11 +202,7 @@ function users_store_ensure_file()
     }
     $ok = @file_put_contents($file, json_encode([], JSON_UNESCAPED_UNICODE), LOCK_EX);
     if ($ok === false) {
-<<<<<<< HEAD
         users_store_set_error('Não consegui criar storage/users.json. Confira a permissão de escrita no servidor.');
-=======
-        users_store_set_error('Não consegui criar storage/users.json. Confere permissão de escrita no servidor.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         return false;
     }
     return true;
@@ -240,11 +214,7 @@ function users_store_load_all_json()
 
     $raw = @file_get_contents(UGC_USERS_FILE_PATH);
     if ($raw === false) {
-<<<<<<< HEAD
         users_store_set_error('Não consegui ler storage/users.json. Confira a permissão de leitura no servidor.');
-=======
-        users_store_set_error('Não consegui ler storage/users.json. Confere permissão de leitura no servidor.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         return null;
     }
 
@@ -254,11 +224,7 @@ function users_store_load_all_json()
         if (users_store_restore_latest_backup()) {
             $raw = @file_get_contents(UGC_USERS_FILE_PATH);
             if ($raw === false) {
-<<<<<<< HEAD
                 users_store_set_error('Não consegui ler storage/users.json depois do restore. Confira a permissão.');
-=======
-                users_store_set_error('Não consegui ler storage/users.json depois do restore. Confere permissão.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
                 return null;
             }
             $trimmed = trim((string)$raw);
@@ -304,7 +270,6 @@ function users_store_load_all_json()
             users_store_save_all_json($data);
         }
         $data = users_store_merge_missing_from_state_files($data);
-<<<<<<< HEAD
         $data = users_store_restore_missing_passwords_from_backups($data);
     }
 
@@ -319,11 +284,6 @@ function users_store_load_all_json()
     }
 
     return $normalized;
-=======
-    }
-
-    return $data;
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 function users_store_states_dir()
@@ -429,12 +389,6 @@ function users_store_user_from_state_file($path)
         $name = (string)(strstr($email, '@', true) ?: 'Creator');
     }
 
-<<<<<<< HEAD
-=======
-    $settings = is_array($state['settings'] ?? null) ? $state['settings'] : [];
-    $weeklySummary = !empty($settings['weekly']);
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     $createdAt = (string)($payload['updatedAt'] ?? '');
     if ($createdAt === '') {
         $mtime = @filemtime($path);
@@ -445,24 +399,16 @@ function users_store_user_from_state_file($path)
         'id' => $userId,
         'name' => $name,
         'email' => $email,
-<<<<<<< HEAD
         'referralCode' => null,
         'referredBy' => null,
         // Se recuperou via state, pode estar sem senha. Aí o login pede "Esqueci minha senha".
         'password' => '',
         'createdAt' => $createdAt,
-=======
-        // Se recuperou via state, pode estar sem senha. Aí o login pede "Esqueci minha senha?".
-        'password' => '',
-        'createdAt' => $createdAt,
-        'weeklySummary' => $weeklySummary,
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         'accessCount' => 0,
         'timeSpentSeconds' => 0,
         'lastLoginAt' => null,
         'lastSeenAt' => null,
         'lastAccessAt' => null,
-<<<<<<< HEAD
         'stripeCustomerId' => null,
         'stripeSubscriptionId' => null,
         'stripePriceId' => null,
@@ -473,8 +419,6 @@ function users_store_user_from_state_file($path)
         'billingCancelAtPeriodEnd' => false,
         'billingLastEventId' => null,
         'billingLastSyncedAt' => null,
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         'sessionTokenHash' => null,
         'sessionTokenExpires' => null,
         'resetTokenHash' => null,
@@ -597,7 +541,6 @@ function users_store_backup_users_file()
     return true;
 }
 
-<<<<<<< HEAD
 function users_store_find_backup_password_for_user($user)
 {
     if (!is_array($user)) return '';
@@ -676,8 +619,6 @@ function users_store_restore_missing_password_for_user($user)
     return $user;
 }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 function users_store_save_all_json($users)
 {
     if (!users_store_ensure_file()) return false;
@@ -688,17 +629,12 @@ function users_store_save_all_json($users)
         LOCK_EX
     );
     if ($ok === false) {
-<<<<<<< HEAD
         users_store_set_error('Não consegui salvar em storage/users.json. Confira a permissão de escrita no servidor.');
-=======
-        users_store_set_error('Não consegui salvar em storage/users.json. Confere permissão de escrita no servidor.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         return false;
     }
     return true;
 }
 
-<<<<<<< HEAD
 function users_store_normalize_user($user)
 {
     if (!is_array($user)) return null;
@@ -749,8 +685,6 @@ function users_store_normalize_user($user)
     return $user;
 }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 function users_store_row_to_user($row)
 {
     if (!is_array($row)) return null;
@@ -759,19 +693,14 @@ function users_store_row_to_user($row)
     // Mapeia snake_case (Supabase) para camelCase (app).
     $map = [
         'created_at' => 'createdAt',
-<<<<<<< HEAD
         'instagram' => 'instagram',
         'referral_code' => 'referralCode',
         'referred_by' => 'referredBy',
-=======
-        'weekly_summary' => 'weeklySummary',
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         'access_count' => 'accessCount',
         'time_spent_seconds' => 'timeSpentSeconds',
         'last_login_at' => 'lastLoginAt',
         'last_seen_at' => 'lastSeenAt',
         'last_access_at' => 'lastAccessAt',
-<<<<<<< HEAD
         'stripe_customer_id' => 'stripeCustomerId',
         'stripe_subscription_id' => 'stripeSubscriptionId',
         'stripe_price_id' => 'stripePriceId',
@@ -786,8 +715,6 @@ function users_store_row_to_user($row)
         'cpf_last4' => 'cpfLast4',
         'trial_started_at' => 'trialStartedAt',
         'trial_ends_at' => 'trialEndsAt',
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         'session_token_hash' => 'sessionTokenHash',
         'session_token_expires' => 'sessionTokenExpires',
         'reset_token_hash' => 'resetTokenHash',
@@ -805,18 +732,7 @@ function users_store_row_to_user($row)
         $user['email'] = trim(strtolower((string)$user['email']));
     }
 
-<<<<<<< HEAD
     return users_store_normalize_user($user);
-=======
-    $user['weeklySummary'] = (bool)($user['weeklySummary'] ?? false);
-    $user['accessCount'] = (int)($user['accessCount'] ?? 0);
-    $user['timeSpentSeconds'] = (int)($user['timeSpentSeconds'] ?? 0);
-    $user['sessionTokenExpires'] = $user['sessionTokenExpires'] !== null ? (int)$user['sessionTokenExpires'] : null;
-    $user['resetTokenExpires'] = $user['resetTokenExpires'] !== null ? (int)$user['resetTokenExpires'] : null;
-    $user['resetCodeExpires'] = $user['resetCodeExpires'] !== null ? (int)$user['resetCodeExpires'] : null;
-
-    return $user;
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 function users_store_load_all()
@@ -867,7 +783,6 @@ function users_store_find_by_email_mysql($email)
     return users_store_row_to_user($row ?: null);
 }
 
-<<<<<<< HEAD
 function users_store_find_by_instagram_mysql($instagram)
 {
     $pdo = db();
@@ -885,8 +800,6 @@ function users_store_find_by_instagram_mysql($instagram)
     }
 }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 function users_store_load_legacy_users_json()
 {
     $file = UGC_USERS_FILE_PATH;
@@ -910,21 +823,14 @@ function users_store_payload_from_legacy($row)
         'id' => $id,
         'name' => (string)($row['name'] ?? 'Creator'),
         'email' => $email,
-<<<<<<< HEAD
         'instagram' => $row['instagram'] ?? null,
         'password' => (string)($row['password'] ?? ''),
         'createdAt' => (string)($row['createdAt'] ?? date('c')),
-=======
-        'password' => (string)($row['password'] ?? ''),
-        'createdAt' => (string)($row['createdAt'] ?? date('c')),
-        'weeklySummary' => !empty($row['weeklySummary']),
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         'accessCount' => (int)($row['accessCount'] ?? 0),
         'timeSpentSeconds' => (int)($row['timeSpentSeconds'] ?? 0),
         'lastLoginAt' => $row['lastLoginAt'] ?? null,
         'lastSeenAt' => $row['lastSeenAt'] ?? null,
         'lastAccessAt' => $row['lastAccessAt'] ?? null,
-<<<<<<< HEAD
         'stripeCustomerId' => $row['stripeCustomerId'] ?? null,
         'stripeSubscriptionId' => $row['stripeSubscriptionId'] ?? null,
         'stripePriceId' => $row['stripePriceId'] ?? null,
@@ -939,8 +845,6 @@ function users_store_payload_from_legacy($row)
         'cpfLast4' => $row['cpfLast4'] ?? null,
         'trialStartedAt' => $row['trialStartedAt'] ?? null,
         'trialEndsAt' => $row['trialEndsAt'] ?? null,
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         'sessionTokenHash' => $row['sessionTokenHash'] ?? null,
         'sessionTokenExpires' => $row['sessionTokenExpires'] ?? null,
         'resetTokenHash' => $row['resetTokenHash'] ?? null,
@@ -958,11 +862,7 @@ function users_store_find_by_email($email)
     $backend = users_store_backend();
     if ($backend === 'mysql') {
         $user = users_store_find_by_email_mysql($email);
-<<<<<<< HEAD
         if ($user) return users_store_restore_missing_password_for_user($user);
-=======
-        if ($user) return $user;
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         if (users_store_is_deleted_email($email)) return null;
 
         // Migração suave: se o usuário só existe no JSON antigo, puxa pro MySQL e segue o jogo.
@@ -985,11 +885,7 @@ function users_store_find_by_email($email)
             }
 
             if ($ok) {
-<<<<<<< HEAD
                 return users_store_restore_missing_password_for_user(users_store_find_by_email_mysql($email));
-=======
-                return users_store_find_by_email_mysql($email);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
             }
             break;
         }
@@ -1000,11 +896,7 @@ function users_store_find_by_email($email)
         $table = users_store_supabase_table();
         $res = supabase_client_request('GET', $table, ['select' => '*', 'email' => users_store_supabase_eq($email), 'limit' => 1], null);
         if (is_array($res) && !empty($res['ok']) && is_array($res['data']) && count($res['data']) > 0) {
-<<<<<<< HEAD
             return users_store_restore_missing_password_for_user(users_store_row_to_user(is_array($res['data'][0]) ? $res['data'][0] : null));
-=======
-            return users_store_row_to_user(is_array($res['data'][0]) ? $res['data'][0] : null);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         }
         if (users_store_is_deleted_email($email)) return null;
 
@@ -1030,11 +922,7 @@ function users_store_find_by_email($email)
             if ($ok) {
                 $res2 = supabase_client_request('GET', $table, ['select' => '*', 'email' => users_store_supabase_eq($email), 'limit' => 1], null);
                 if (is_array($res2) && !empty($res2['ok']) && is_array($res2['data']) && count($res2['data']) > 0) {
-<<<<<<< HEAD
                     return users_store_restore_missing_password_for_user(users_store_row_to_user(is_array($res2['data'][0]) ? $res2['data'][0] : null));
-=======
-                    return users_store_row_to_user(is_array($res2['data'][0]) ? $res2['data'][0] : null);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
                 }
             }
             break;
@@ -1050,7 +938,6 @@ function users_store_find_by_email($email)
     if (!is_array($users)) return null;
     foreach ($users as $user) {
         $rowEmail = trim(strtolower((string)($user['email'] ?? '')));
-<<<<<<< HEAD
         if ($rowEmail === $email) return users_store_restore_missing_password_for_user($user);
     }
     return null;
@@ -1131,9 +1018,6 @@ function users_store_find_by_cpf_hash($cpfHash)
     if (!is_array($users)) return null;
     foreach ($users as $user) {
         if (hash_equals((string)($user['cpfHash'] ?? ''), $cpfHash)) return users_store_normalize_user($user);
-=======
-        if ($rowEmail === $email) return $user;
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     }
     return null;
 }
@@ -1178,7 +1062,6 @@ function users_store_find_by_session_token_hash($tokenHash)
     return null;
 }
 
-<<<<<<< HEAD
 function users_store_find_by_stripe_customer_id($customerId)
 {
     $customerId = trim((string)$customerId);
@@ -1259,8 +1142,6 @@ function users_store_find_by_stripe_subscription_id($subscriptionId)
     return null;
 }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 function users_store_find_by_reset_token_hash($tokenHash)
 {
     $tokenHash = trim((string)$tokenHash);
@@ -1298,10 +1179,7 @@ function users_store_find_by_reset_token_hash($tokenHash)
 
 function users_store_insert($user)
 {
-<<<<<<< HEAD
     $user = users_store_normalize_user(is_array($user) ? $user : []);
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     $backend = users_store_backend();
     if ($backend === 'mysql') {
         $pdo = db();
@@ -1311,23 +1189,16 @@ function users_store_insert($user)
             'id' => (string)($user['id'] ?? ''),
             'name' => (string)($user['name'] ?? ''),
             'email' => (string)($user['email'] ?? ''),
-<<<<<<< HEAD
             'instagram' => $user['instagram'] ?? null,
             'referralCode' => $user['referralCode'] ?? null,
             'referredBy' => $user['referredBy'] ?? null,
             'password' => (string)($user['password'] ?? ''),
             'createdAt' => (string)($user['createdAt'] ?? date('c')),
-=======
-            'password' => (string)($user['password'] ?? ''),
-            'createdAt' => (string)($user['createdAt'] ?? date('c')),
-            'weeklySummary' => !empty($user['weeklySummary']) ? 1 : 0,
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
             'accessCount' => (int)($user['accessCount'] ?? 0),
             'timeSpentSeconds' => (int)($user['timeSpentSeconds'] ?? 0),
             'lastLoginAt' => $user['lastLoginAt'] ?? null,
             'lastSeenAt' => $user['lastSeenAt'] ?? null,
             'lastAccessAt' => $user['lastAccessAt'] ?? null,
-<<<<<<< HEAD
             'stripeCustomerId' => $user['stripeCustomerId'] ?? null,
             'stripeSubscriptionId' => $user['stripeSubscriptionId'] ?? null,
             'stripePriceId' => $user['stripePriceId'] ?? null,
@@ -1343,9 +1214,6 @@ function users_store_insert($user)
         'trialStartedAt' => $user['trialStartedAt'] ?? null,
         'trialEndsAt' => $user['trialEndsAt'] ?? null,
         'sessionTokenHash' => $user['sessionTokenHash'] ?? null,
-=======
-            'sessionTokenHash' => $user['sessionTokenHash'] ?? null,
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
             'sessionTokenExpires' => $user['sessionTokenExpires'] ?? null,
             'resetTokenHash' => $user['resetTokenHash'] ?? null,
             'resetTokenExpires' => $user['resetTokenExpires'] ?? null,
@@ -1373,19 +1241,11 @@ function users_store_insert($user)
             'id' => (string)($user['id'] ?? ''),
             'name' => (string)($user['name'] ?? ''),
             'email' => trim(strtolower((string)($user['email'] ?? ''))),
-<<<<<<< HEAD
             'instagram' => $user['instagram'] ?? null,
             'referral_code' => $user['referralCode'] ?? null,
             'referred_by' => $user['referredBy'] ?? null,
             'password' => (string)($user['password'] ?? ''),
             'created_at' => (string)($user['createdAt'] ?? date('c')),
-=======
-            'password' => (string)($user['password'] ?? ''),
-            'created_at' => (string)($user['createdAt'] ?? date('c')),
-
-            'weekly_summary' => !empty($user['weeklySummary']),
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
             'access_count' => (int)($user['accessCount'] ?? 0),
             'time_spent_seconds' => (int)($user['timeSpentSeconds'] ?? 0),
 
@@ -1393,7 +1253,6 @@ function users_store_insert($user)
             'last_seen_at' => $user['lastSeenAt'] ?? null,
             'last_access_at' => $user['lastAccessAt'] ?? null,
 
-<<<<<<< HEAD
             'stripe_customer_id' => $user['stripeCustomerId'] ?? null,
             'stripe_subscription_id' => $user['stripeSubscriptionId'] ?? null,
             'stripe_price_id' => $user['stripePriceId'] ?? null,
@@ -1409,8 +1268,6 @@ function users_store_insert($user)
             'trial_started_at' => $user['trialStartedAt'] ?? null,
             'trial_ends_at' => $user['trialEndsAt'] ?? null,
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
             'session_token_hash' => $user['sessionTokenHash'] ?? null,
             'session_token_expires' => $user['sessionTokenExpires'] ?? null,
 
@@ -1435,7 +1292,6 @@ function users_store_insert($user)
 
     $users = users_store_load_all_json();
     if (!is_array($users)) return false;
-<<<<<<< HEAD
     $users[] = users_store_normalize_user($user);
     return users_store_save_all_json($users);
 }
@@ -1446,16 +1302,6 @@ function users_store_update_by_id($id, $fields, $origin = 'users_store_update_by
     if ($id === '') return false;
     $fields = users_store_filter_update_fields($id, $fields, $origin, $adminId);
     if (!$fields) return true;
-=======
-    $users[] = $user;
-    return users_store_save_all_json($users);
-}
-
-function users_store_update_by_id($id, $fields)
-{
-    $id = (string)$id;
-    if ($id === '') return false;
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
     $backend = users_store_backend();
     if ($backend === 'supabase') {
@@ -1464,21 +1310,15 @@ function users_store_update_by_id($id, $fields)
         $map = [
             'name' => 'name',
             'email' => 'email',
-<<<<<<< HEAD
             'instagram' => 'instagram',
             'referralCode' => 'referral_code',
             'referredBy' => 'referred_by',
             'password' => 'password',
-=======
-            'password' => 'password',
-            'weeklySummary' => 'weekly_summary',
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
             'accessCount' => 'access_count',
             'timeSpentSeconds' => 'time_spent_seconds',
             'lastLoginAt' => 'last_login_at',
             'lastSeenAt' => 'last_seen_at',
             'lastAccessAt' => 'last_access_at',
-<<<<<<< HEAD
             'stripeCustomerId' => 'stripe_customer_id',
             'stripeSubscriptionId' => 'stripe_subscription_id',
             'stripePriceId' => 'stripe_price_id',
@@ -1493,8 +1333,6 @@ function users_store_update_by_id($id, $fields)
             'cpfLast4' => 'cpf_last4',
             'trialStartedAt' => 'trial_started_at',
             'trialEndsAt' => 'trial_ends_at',
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
             'sessionTokenHash' => 'session_token_hash',
             'sessionTokenExpires' => 'session_token_expires',
             'resetTokenHash' => 'reset_token_hash',
@@ -1512,7 +1350,6 @@ function users_store_update_by_id($id, $fields)
                 $payload[$col] = trim(strtolower((string)$value));
                 continue;
             }
-<<<<<<< HEAD
             if ($key === 'instagram') {
                 $instagram = strtolower(trim((string)$value));
                 $instagram = ltrim($instagram, '@');
@@ -1521,9 +1358,6 @@ function users_store_update_by_id($id, $fields)
                 continue;
             }
             if ($key === 'billingCancelAtPeriodEnd') {
-=======
-            if ($key === 'weeklySummary') {
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
                 $payload[$col] = (bool)$value;
                 continue;
             }
@@ -1541,7 +1375,6 @@ function users_store_update_by_id($id, $fields)
 
         if (!$payload) return true;
 
-<<<<<<< HEAD
         $query = ['id' => users_store_supabase_eq($id)];
         $headers = ['Prefer' => 'return=minimal'];
 
@@ -1564,13 +1397,6 @@ function users_store_update_by_id($id, $fields)
             return false;
         }
 
-=======
-        $res = supabase_client_request('PATCH', $table, ['id' => users_store_supabase_eq($id)], $payload, ['Prefer' => 'return=minimal']);
-        if (!is_array($res) || empty($res['ok'])) {
-            users_store_set_error((string)($res['error'] ?? 'Falha ao atualizar usuário no Supabase.'));
-            return false;
-        }
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         return true;
     }
     if ($backend === 'mysql') {
@@ -1580,21 +1406,15 @@ function users_store_update_by_id($id, $fields)
         $allowed = [
             'name',
             'email',
-<<<<<<< HEAD
             'instagram',
             'referralCode',
             'referredBy',
             'password',
-=======
-            'password',
-            'weeklySummary',
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
             'accessCount',
             'timeSpentSeconds',
             'lastLoginAt',
             'lastSeenAt',
             'lastAccessAt',
-<<<<<<< HEAD
             'stripeCustomerId',
             'stripeSubscriptionId',
             'stripePriceId',
@@ -1609,8 +1429,6 @@ function users_store_update_by_id($id, $fields)
             'cpfLast4',
             'trialStartedAt',
             'trialEndsAt',
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
             'sessionTokenHash',
             'sessionTokenExpires',
             'resetTokenHash',
@@ -1624,7 +1442,6 @@ function users_store_update_by_id($id, $fields)
         foreach ((array)$fields as $key => $value) {
             if (!in_array($key, $allowed, true)) continue;
             $set[] = "`{$key}` = :{$key}";
-<<<<<<< HEAD
             if ($key === 'email') {
                 $params[$key] = trim(strtolower((string)$value));
             } elseif ($key === 'instagram') {
@@ -1633,9 +1450,6 @@ function users_store_update_by_id($id, $fields)
                 $instagram = preg_replace('/[^a-z0-9._]+/', '', $instagram);
                 $params[$key] = trim((string)$instagram) ?: null;
             } elseif ($key === 'billingCancelAtPeriodEnd') {
-=======
-            if ($key === 'weeklySummary') {
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
                 $params[$key] = $value ? 1 : 0;
             } else {
                 $params[$key] = $value;
@@ -1667,10 +1481,7 @@ function users_store_update_by_id($id, $fields)
         foreach ((array)$fields as $k => $v) {
             $users[$index][$k] = $v;
         }
-<<<<<<< HEAD
         $users[$index] = users_store_normalize_user($users[$index]);
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         $found = true;
         break;
     }

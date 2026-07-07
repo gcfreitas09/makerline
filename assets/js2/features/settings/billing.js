@@ -221,7 +221,7 @@ const getBillingNotice = () => {
     const params = new URLSearchParams(window.location.search);
     const code = String(params.get('billing') || '').trim();
     if (code === 'success') return 'Pagamento confirmado. Assim que a Stripe terminar a sincronização, seu plano aparece aqui.';
-    if (code === 'cancel') return 'Checkout cancelado. Você continua no plano grátis.';
+    if (code === 'cancel') return 'Checkout cancelado. Você continua no teste grátis.';
     if (code === 'portal') return 'Você voltou do portal de cobrança.';
     if (code === 'plan_updated') {
       const plan = String(params.get('plan') || '').trim();

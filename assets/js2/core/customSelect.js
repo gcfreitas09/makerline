@@ -7,10 +7,7 @@
   const VIEWPORT_GUTTER = 8;
   const DROPDOWN_OFFSET = 4;
   const MAX_DROPDOWN_HEIGHT = 320;
-<<<<<<< HEAD
   const GHOST_CLICK_SUPPRESS_MS = 420;
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   const instances = new Set();
   const selectToInstance = new WeakMap();
@@ -18,17 +15,13 @@
   let openInstance = null;
   let observer = null;
   let hydrateQueued = false;
-<<<<<<< HEAD
   let backdrop = null;
   let suppressInteractionsUntil = 0;
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   const isMobile = () => window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`).matches;
 
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-<<<<<<< HEAD
   const suppressInteractions = (duration = GHOST_CLICK_SUPPRESS_MS) => {
     suppressInteractionsUntil = Date.now() + duration;
   };
@@ -78,8 +71,6 @@
     document.body.classList.remove('custom-select-open');
   };
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const isEligibleSelect = (select) => {
     if (!(select instanceof HTMLSelectElement)) return false;
     if (select.multiple) return false;
@@ -97,19 +88,13 @@
   const closeDropdown = (instance) => {
     if (!instance || !instance.isOpen) return;
     instance.isOpen = false;
-<<<<<<< HEAD
     instance.wrapper.classList.remove('is-open');
     instance.display.classList.remove('is-open');
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     instance.dropdown.style.display = 'none';
     instance.dropdown.setAttribute('aria-hidden', 'true');
     instance.display.setAttribute('aria-expanded', 'false');
     if (openInstance === instance) openInstance = null;
-<<<<<<< HEAD
     hideBackdrop();
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   };
 
   const closeOpenDropdown = () => {
@@ -157,38 +142,25 @@
       text.textContent = String(option.textContent || option.label || '').trim();
       item.appendChild(text);
 
-<<<<<<< HEAD
       const commitSelection = (event) => {
-=======
-      item.addEventListener('click', (event) => {
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         event.preventDefault();
         event.stopPropagation();
         if (option.disabled) return;
 
-<<<<<<< HEAD
         if (event.pointerType === 'touch' || event.pointerType === 'pen') {
           suppressInteractions();
         }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         const prevValue = select.value;
         select.value = option.value;
 
         if (select.value !== prevValue) {
           select.dispatchEvent(new Event('change', { bubbles: true }));
-<<<<<<< HEAD
-=======
-        } else {
-          select.dispatchEvent(new Event('change', { bubbles: true }));
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         }
 
         syncDisplayState(instance);
         syncDropdownOptions(instance);
         closeDropdown(instance);
-<<<<<<< HEAD
       };
 
       item.addEventListener('click', commitSelection);
@@ -196,8 +168,6 @@
         if (event.pointerType === 'touch' || event.pointerType === 'pen') {
           commitSelection(event);
         }
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       });
 
       dropdown.appendChild(item);
@@ -253,18 +223,12 @@
 
     instance.isOpen = true;
     openInstance = instance;
-<<<<<<< HEAD
     instance.wrapper.classList.add('is-open');
     instance.display.classList.add('is-open');
     instance.dropdown.setAttribute('aria-hidden', 'false');
     instance.display.setAttribute('aria-expanded', 'true');
 
     showBackdrop();
-=======
-    instance.dropdown.setAttribute('aria-hidden', 'false');
-    instance.display.setAttribute('aria-expanded', 'true');
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     positionDropdown(instance);
 
     const selected = instance.dropdown.querySelector('.custom-select-option.selected');
@@ -460,10 +424,7 @@
   const disableCustomSelects = () => {
     stopObserver();
     closeOpenDropdown();
-<<<<<<< HEAD
     hideBackdrop();
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     Array.from(instances).forEach((instance) => destroyInstance(instance));
   };
 
@@ -479,15 +440,12 @@
     if (event.key === 'Escape') closeOpenDropdown();
   };
 
-<<<<<<< HEAD
   const handleSuppressedInteraction = (event) => {
     if (!shouldSuppressInteraction()) return;
     event.preventDefault();
     event.stopPropagation();
   };
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const handleViewportChange = () => {
     if (!isMobile()) {
       disableCustomSelects();
@@ -497,7 +455,6 @@
     enableCustomSelects();
   };
 
-<<<<<<< HEAD
   const handleScroll = (event) => {
     if (!openInstance) return;
     const target = event.target;
@@ -511,13 +468,6 @@
   document.addEventListener('pointerdown', handlePointerDown, true);
   document.addEventListener('pointerup', handleSuppressedInteraction, true);
   document.addEventListener('click', handleSuppressedInteraction, true);
-=======
-  const handleScroll = () => {
-    if (openInstance) closeOpenDropdown();
-  };
-
-  document.addEventListener('pointerdown', handlePointerDown, true);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   document.addEventListener('keydown', handleKeyDown);
   document.addEventListener('scroll', handleScroll, true);
   window.addEventListener('resize', handleViewportChange);

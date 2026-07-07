@@ -55,11 +55,7 @@ const STEPS = [
     page: 'settings',
     selector: '.settings-grid',
     title: 'Configurações',
-<<<<<<< HEAD
     text: 'Liga/desliga coisas úteis, como alertas e backup, e ajusta sua conta.'
-=======
-    text: 'Liga/desliga coisas úteis (resumo semanal, alertas...) e ajusta sua conta.'
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   },
   {
     page: 'dashboard',
@@ -119,23 +115,14 @@ const highlightTarget = (target) => {
 };
 
 const getStepText = (step) => {
-<<<<<<< HEAD
   if (isMobileTour() && step.textMobile) return step.textMobile;
   return step.text || '';
-=======
-  if (isMobileTour() && step?.textMobile) return step.textMobile;
-  return step?.text || '';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const updatePanel = () => {
   const step = STEPS[currentIndex];
   const { title, text, progress, nextBtn, prevBtn } = getEls();
-<<<<<<< HEAD
   if (title) title.textContent = step.title || '';
-=======
-  if (title) title.textContent = step?.title || '';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (text) text.textContent = getStepText(step);
   if (progress) progress.textContent = `${currentIndex + 1} de ${STEPS.length}`;
   if (prevBtn) prevBtn.disabled = currentIndex === 0;
@@ -203,11 +190,7 @@ const showStep = (index) => {
   currentIndex = Math.min(Math.max(index, 0), STEPS.length - 1);
   const step = STEPS[currentIndex];
 
-<<<<<<< HEAD
   if (step.page) {
-=======
-  if (step?.page) {
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     setActivePage(step.page);
   }
 

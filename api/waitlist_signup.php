@@ -76,6 +76,7 @@ if (($resolvedPartner['partnerName'] ?? '') !== '') {
 $record = [
     'name' => $name,
     'phone' => $phone,
+    'whatsapp' => $phone,
     'phoneDigits' => $phoneDigits,
     'instagram' => waitlist_store_format_instagram($instagramHandle),
     'instagramHandle' => $instagramHandle,

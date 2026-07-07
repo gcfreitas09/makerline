@@ -1,11 +1,7 @@
 <?php
 // api/admin_migrate_states.php
 // Importa states do storage/states/*.json pro Supabase (admin-only).
-<<<<<<< HEAD
 // Serve para não perder campanhas/roteiros/progresso quando fizer deploy/FTP.
-=======
-// Serve pra nao perder campanhas/roteiros/progresso quando fizer deploy/FTP.
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 ini_set('display_errors', '0');
 error_reporting(0);
@@ -98,16 +94,9 @@ function userPayloadFromState($userId, $state, $fallbackCreatedAt)
         'id' => (string)$userId,
         'name' => $name,
         'email' => $email,
-<<<<<<< HEAD
         // Sem senha: no login vai cair no "Esqueci minha senha"
         'password' => '',
         'createdAt' => $createdAt,
-=======
-        // Sem senha: no login vai cair no "Esqueci minha senha?"
-        'password' => '',
-        'createdAt' => $createdAt,
-        'weeklySummary' => !empty($settings['weekly']),
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         'accessCount' => 0,
         'timeSpentSeconds' => 0,
         'lastLoginAt' => null,
@@ -163,11 +152,7 @@ if ($expires && $expires < $now) {
 $adminEmails = loadAdmins($adminsFile, $adminsExampleFile);
 $currentEmail = strtolower(trim((string)($foundUser['email'] ?? '')));
 if (!$currentEmail || !in_array($currentEmail, $adminEmails, true)) {
-<<<<<<< HEAD
     respond(403, ['error' => 'Sem permissão para fazer isso.']);
-=======
-    respond(403, ['error' => 'Sem permissão pra fazer isso.']);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 $files = listStateFiles($statesDir);
@@ -220,7 +205,3 @@ respond(200, [
     'errors' => $errors,
     'recoveredUsers' => $recoveredUsers
 ]);
-<<<<<<< HEAD
-=======
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7

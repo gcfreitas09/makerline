@@ -169,11 +169,7 @@ function mailer_default_from_email()
 function mailer_send_with_mail($to, $subject, $message, $fromEmail, $fromName, &$info)
 {
     if (!function_exists('mail')) {
-<<<<<<< HEAD
         $info['error'] = 'mail() indisponível';
-=======
-        $info['error'] = 'mail() indisponÃ­vel';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         return false;
     }
 
@@ -191,11 +187,7 @@ function mailer_send_with_mail($to, $subject, $message, $fromEmail, $fromName, &
     $info['sent'] = (bool)$ok;
     $info['driver'] = 'mail';
     if (!$ok && !$info['error']) {
-<<<<<<< HEAD
         $info['error'] = 'mail() falhou ou não está configurado';
-=======
-        $info['error'] = 'mail() falhou ou nÃ£o estÃ¡ configurado';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     }
     return $ok;
 }

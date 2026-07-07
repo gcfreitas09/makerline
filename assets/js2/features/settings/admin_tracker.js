@@ -1,9 +1,6 @@
 const ADMIN_USERS_CACHE_KEY = 'ugcQuestAdminUsersCacheV2';
 const ADMIN_USERS_CACHE_TTL_MS = 5 * 60 * 1000;
-<<<<<<< HEAD
 const INTELLIGENCE_ROUTE = 'intelligence.html';
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 let trackerRequest = null;
 let trackerLoaded = false;
@@ -23,11 +20,7 @@ const setMsg = (text) => {
 const setBtnEnabled = (enabled) => {
   const { card } = getEls();
   if (!card) return;
-<<<<<<< HEAD
   const btn = card.querySelector(`a[href="${INTELLIGENCE_ROUTE}"]`);
-=======
-  const btn = card.querySelector('a[href="admin.html"]');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (!btn) return;
   btn.classList.toggle('is-disabled', !enabled);
   btn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
@@ -43,11 +36,7 @@ const getCountFromPayload = (payload) => {
 };
 
 const setSummaryMessage = (count) => {
-<<<<<<< HEAD
   setMsg(count ? `${count} usuário${count === 1 ? '' : 's'} monitorado${count === 1 ? '' : 's'} no Intelligence.` : 'Ainda não há usuários monitorados no Intelligence.');
-=======
-  setMsg(count ? `Tem ${count} cadastro${count === 1 ? '' : 's'} rolando.` : 'Ainda não tem cadastros por aqui.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const readUsersCache = () => {
@@ -70,13 +59,8 @@ const readUsersCache = () => {
 
 const writeUsersCache = (payload) => {
   try {
-<<<<<<< HEAD
     const users = Array.isArray(payload.users) ? payload.users : [];
     const count = Number.isFinite(payload.count) ? payload.count : users.length;
-=======
-    const users = Array.isArray(payload?.users) ? payload.users : [];
-    const count = Number.isFinite(payload?.count) ? payload.count : users.length;
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     const viewerId = String(getSessionUserId() || '');
     if (!viewerId) return;
     sessionStorage.setItem(
@@ -140,11 +124,7 @@ const initAdminTrackerCard = () => {
     setSummaryMessage(getCountFromPayload(cached));
   } else {
     setBtnEnabled(false);
-<<<<<<< HEAD
     setMsg('Carregando Makerline Intelligence...');
-=======
-    setMsg('Carregando painel do time...');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
 
   if (trackerLoaded || trackerRequest) return;
@@ -168,11 +148,7 @@ const initAdminTrackerCard = () => {
           return;
         }
 
-<<<<<<< HEAD
         const msg = data.error ? String(data.error) : 'Não consegui carregar o Makerline Intelligence agora.';
-=======
-        const msg = data?.error ? String(data.error) : 'Não consegui carregar o tracker agora.';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         if (!cached) setMsg(msg);
         setBtnEnabled(true);
         return;
@@ -185,11 +161,7 @@ const initAdminTrackerCard = () => {
     })
     .catch(() => {
       if (!cached) {
-<<<<<<< HEAD
         setMsg('Não consegui carregar o Makerline Intelligence agora. Tente de novo mais tarde.');
-=======
-        setMsg('Não consegui carregar o tracker agora. Se der, tenta de novo mais tarde.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       }
       setBtnEnabled(true);
     })

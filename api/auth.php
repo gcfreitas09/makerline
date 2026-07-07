@@ -1,21 +1,14 @@
 <?php
-<<<<<<< HEAD
-=======
-// api/auth.php
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 ini_set('display_errors', '0');
 error_reporting(0);
 
 require_once __DIR__ . '/users_store.php';
-<<<<<<< HEAD
 require_once __DIR__ . '/referrals.php';
 require_once __DIR__ . '/billing_common.php';
 require_once __DIR__ . '/waitlist_store.php';
 
 const UGC_ADMINS_FILE_PATH = __DIR__ . '/../storage/admins.json';
 const UGC_ADMINS_EXAMPLE_FILE_PATH = __DIR__ . '/../storage/admins.example.json';
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -24,16 +17,11 @@ header('Expires: 0');
 
 function respond($status, $data = [])
 {
-<<<<<<< HEAD
     http_response_code((int)$status);
-=======
-    http_response_code($status);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-<<<<<<< HEAD
 function auth_public_user($user, $fallbackEmail = '')
 {
     $instagram = trim((string)($user['instagram'] ?? ''));
@@ -231,16 +219,10 @@ function auth_issue_session_response($user, $email, $extraUpdates = [], $status 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($method !== 'POST') {
     respond(405, ['error' => 'Metodo nao permitido']);
-=======
-$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-if ($method !== 'POST') {
-    respond(405, ['error' => 'Método não permitido']);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 $body = json_decode(file_get_contents('php://input'), true) ?? [];
 $action = (string)($body['action'] ?? '');
-<<<<<<< HEAD
 $rawInstagram = trim((string)($body['instagram'] ?? ''));
 $instagram = auth_normalize_instagram($rawInstagram ?? '');
 $loginIdentifier = trim((string)($body['email'] ?? ($instagram !== '' ? $instagram : '')));
@@ -299,42 +281,10 @@ if ($action === 'signup') {
         $referralCode = null;
     }
 
-=======
-$email = trim(strtolower((string)($body['email'] ?? '')));
-$password = (string)($body['password'] ?? '');
-$name = trim((string)($body['name'] ?? ''));
-
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    respond(400, ['error' => 'Email inválido']);
-}
-
-if ($action !== 'signup' && $action !== 'login') {
-    respond(400, ['error' => 'Ação inválida']);
-}
-
-if (users_store_backend() === 'error') {
-    respond(500, ['error' => users_store_last_error() ?: 'Banco configurado, mas não está pronto ainda.']);
-}
-
-if ($action === 'signup') {
-    if ($name === '') {
-        respond(400, ['error' => 'Nome obrigatório']);
-    }
-    if (strlen($password) < 6) {
-        respond(400, ['error' => 'Senha muito curta (mín. 6)']);
-    }
-
-    if (users_store_find_by_email($email)) {
-        respond(409, ['error' => 'Esse email já está cadastrado']);
-    }
-
-    $token = bin2hex(random_bytes(24));
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     $newUser = [
         'id' => uniqid('u_', true),
         'name' => $name,
         'email' => $email,
-<<<<<<< HEAD
         'instagram' => $instagram !== '' ? $instagram : null,
         'referralCode' => $ownReferralCode,
         'referredBy' => $referralCode,
@@ -343,9 +293,6 @@ if ($action === 'signup') {
         'referralTrialDays' => $trialDays,
         'trialStartedAt' => $trialStartedAt,
         'trialEndsAt' => $trialEndsAt,
-=======
-        'weeklySummary' => false,
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         'accessCount' => 0,
         'timeSpentSeconds' => 0,
         'lastLoginAt' => date('c'),
@@ -358,7 +305,6 @@ if ($action === 'signup') {
         'resetCodeHash' => null,
         'resetCodeExpires' => null,
         'lastSeenAt' => null,
-<<<<<<< HEAD
         'lastAccessAt' => null,
         'stripeCustomerId' => null,
         'stripeSubscriptionId' => null,
@@ -369,28 +315,19 @@ if ($action === 'signup') {
         'billingCancelAtPeriodEnd' => false,
         'billingLastEventId' => null,
         'billingLastSyncedAt' => null,
-=======
-        'lastAccessAt' => null
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     ];
 
     $ok = users_store_insert($newUser);
     if (!$ok) {
         respond(500, [
-<<<<<<< HEAD
             'error' => users_store_last_error() ?: 'Nao consegui salvar sua conta agora.',
             'hint' => 'Confira o banco (storage/db.json) ou a permissao de escrita do servidor.',
-=======
-            'error' => users_store_last_error() ?: 'Não consegui salvar sua conta agora.',
-            'hint' => 'Confere o banco (storage/db.json) ou a permissão de escrita do servidor.'
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         ]);
     }
 
     respond(201, [
         'ok' => true,
         'token' => $token,
-<<<<<<< HEAD
         'user' => auth_public_user($newUser, $email),
     ]);
 }
@@ -405,26 +342,10 @@ $authEmail = (string)($authLookup[1] ?? '');
 
 if (!$user || $authEmail === '') {
     respond(401, ['error' => 'E-mail ou senha invalidos']);
-=======
-        'user' => [
-            'id' => $newUser['id'],
-            'name' => $newUser['name'],
-            'email' => $newUser['email'],
-            'weeklySummary' => (bool)$newUser['weeklySummary']
-        ]
-    ]);
-}
-
-// login
-$user = users_store_find_by_email($email);
-if (!$user) {
-    respond(401, ['error' => 'Email ou senha inválidos']);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 $storedPassword = (string)($user['password'] ?? '');
 if ($storedPassword === '') {
-<<<<<<< HEAD
     $backupPassword = users_store_find_backup_password_for_user($user);
     if ($backupPassword !== '') {
         users_store_update_by_id((string)$user['id'], ['password' => $backupPassword]);
@@ -447,46 +368,12 @@ if ($storedPassword === '') {
     }
 
     respond(401, ['error' => 'Conta sem senha cadastrada. Use "Esqueci minha senha" para definir uma nova.']);
-=======
-    // Conta veio de import/backup sem senha. Se a pessoa digitar uma senha válida agora, já grava e segue login normal.
-    if (strlen($password) < 6) {
-        respond(401, ['error' => 'Conta sem senha. Digite uma nova senha com pelo menos 6 caracteres.']);
-    }
-
-    $token = bin2hex(random_bytes(24));
-    $updates = [
-        'password' => password_hash($password, PASSWORD_DEFAULT),
-        'sessionTokenHash' => hash('sha256', $token),
-        'sessionTokenExpires' => time() + 60 * 60 * 24 * 7,
-        'lastLoginAt' => date('c')
-    ];
-
-    $ok = users_store_update_by_id($user['id'], $updates);
-    if (!$ok) {
-        respond(500, [
-            'error' => users_store_last_error() ?: 'Não consegui salvar sua sessão agora.',
-            'hint' => 'Confere o banco (storage/db.json) ou a permissão de escrita do servidor.'
-        ]);
-    }
-
-    respond(200, [
-        'ok' => true,
-        'token' => $token,
-        'user' => [
-            'id' => $user['id'] ?? '',
-            'name' => $user['name'] ?? '',
-            'email' => $user['email'] ?? $email,
-            'weeklySummary' => (bool)($user['weeklySummary'] ?? false)
-        ]
-    ]);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 }
 
 $passwordInfo = function_exists('password_get_info') ? password_get_info($storedPassword) : ['algo' => 0];
 $isHashed = (int)($passwordInfo['algo'] ?? 0) !== 0;
 
 if (!$isHashed) {
-<<<<<<< HEAD
     if (!hash_equals($storedPassword, (string)$password)) {
         if (auth_can_use_local_admin_fallback($authEmail, $user)) {
             auth_issue_session_response($user, $authEmail);
@@ -507,74 +394,3 @@ if (!password_verify($password, $storedPassword)) {
 }
 
 auth_issue_session_response($user, $authEmail);
-=======
-    if (hash_equals($storedPassword, (string)$password)) {
-        if (empty($user['id'])) {
-            respond(500, ['error' => 'Sua conta está incompleta. Cria outra conta ou fala com o suporte.']);
-        }
-
-        $token = bin2hex(random_bytes(24));
-        $updates = [
-            'password' => password_hash($password, PASSWORD_DEFAULT),
-            'sessionTokenHash' => hash('sha256', $token),
-            'sessionTokenExpires' => time() + 60 * 60 * 24 * 7,
-            'lastLoginAt' => date('c')
-        ];
-
-        $ok = users_store_update_by_id($user['id'], $updates);
-        if (!$ok) {
-            respond(500, [
-                'error' => users_store_last_error() ?: 'Não consegui salvar sua sessão agora.',
-                'hint' => 'Confere o banco (storage/db.json) ou a permissão de escrita do servidor.'
-            ]);
-        }
-
-        respond(200, [
-            'ok' => true,
-            'token' => $token,
-            'user' => [
-                'id' => $user['id'] ?? '',
-                'name' => $user['name'] ?? '',
-                'email' => $user['email'] ?? $email,
-                'weeklySummary' => (bool)($user['weeklySummary'] ?? false)
-            ]
-        ]);
-    }
-
-    respond(401, ['error' => 'Email ou senha inválidos']);
-}
-
-if (!password_verify($password, $storedPassword)) {
-    respond(401, ['error' => 'Email ou senha inválidos']);
-}
-
-if (empty($user['id'])) {
-    respond(500, ['error' => 'Sua conta está incompleta. Cria outra conta ou fala com o suporte.']);
-}
-
-$token = bin2hex(random_bytes(24));
-$updates = [
-    'sessionTokenHash' => hash('sha256', $token),
-    'sessionTokenExpires' => time() + 60 * 60 * 24 * 7,
-    'lastLoginAt' => date('c')
-];
-
-$ok = users_store_update_by_id($user['id'], $updates);
-if (!$ok) {
-    respond(500, [
-        'error' => users_store_last_error() ?: 'Não consegui salvar sua sessão agora.',
-        'hint' => 'Confere o banco (storage/db.json) ou a permissão de escrita do servidor.'
-    ]);
-}
-
-respond(200, [
-    'ok' => true,
-    'token' => $token,
-    'user' => [
-        'id' => $user['id'] ?? '',
-        'name' => $user['name'] ?? '',
-        'email' => $user['email'] ?? $email,
-        'weeklySummary' => (bool)($user['weeklySummary'] ?? false)
-    ]
-]);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7

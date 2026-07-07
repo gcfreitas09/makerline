@@ -1,10 +1,7 @@
-import { state, saveState } from '../../core/state.js';
-<<<<<<< HEAD
+﻿import { state, saveState } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js?v=20260429d';
-=======
-import { renderAll } from '../../core/renderers.js?v=20260302f';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
-import { showToast } from '../../core/ui.js?v=20260302f';
+import { showToast } from '../../core/ui.js?v=20260625b';
+import { closeCampaignModal } from './modal.js?v=20260502c';
 
 const getCampaignDeleteModal = () => ({
   modal: document.getElementById('campaign-delete-modal'),
@@ -15,13 +12,8 @@ const getCampaignDeleteModal = () => ({
 });
 
 const formatCampaignTitle = (campaign) => {
-<<<<<<< HEAD
   const title = String(campaign.title || '').trim();
   const brand = String(campaign.brand || '').trim();
-=======
-  const title = String(campaign?.title || '').trim();
-  const brand = String(campaign?.brand || '').trim();
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (title && brand && title.toLowerCase() !== brand.toLowerCase()) return `${title} (${brand})`;
   return title || brand || 'Campanha';
 };
@@ -54,6 +46,31 @@ const closeCampaignDeleteModal = () => {
   if (confirm) confirm.disabled = false;
 };
 
+const forceCloseCampaignEditor = () => {
+  try {
+    closeCampaignModal();
+  } catch (error) {}
+
+  const editor = document.getElementById('campaign-modal');
+  if (editor) {
+    editor.classList.remove('open');
+    editor.setAttribute('aria-hidden', 'true');
+  }
+
+  const form = document.getElementById('campaign-form');
+  if (form) {
+    form.reset();
+    delete form.dataset.mode;
+    delete form.dataset.campaignId;
+  }
+
+  const inlineDeleteBtn = document.getElementById('campaign-delete-inline-btn');
+  if (inlineDeleteBtn) {
+    inlineDeleteBtn.style.display = 'none';
+    delete inlineDeleteBtn.dataset.campaignId;
+  }
+};
+
 const handleCampaignDeleteSubmit = (event) => {
   event.preventDefault();
   const { modal } = getCampaignDeleteModal();
@@ -70,13 +87,16 @@ const handleCampaignDeleteSubmit = (event) => {
     if (script && script.campaignId === id) script.campaignId = null;
   });
 
+  closeCampaignDeleteModal();
+  forceCloseCampaignEditor();
   saveState();
   renderAll();
+  window.requestAnimationFrame(forceCloseCampaignEditor);
+  window.setTimeout(forceCloseCampaignEditor, 0);
   try {
     document.dispatchEvent(new CustomEvent('ugc:campaigns-changed', { detail: { campaignId: id, reason: 'delete' } }));
   } catch (error) {}
-  closeCampaignDeleteModal();
-  showToast('Campanha excluída.');
+  showToast('Campanha excluída.', { duration: 1500 });
 };
 
 const initCampaignDeleteFeature = () => {
@@ -89,3 +109,4 @@ const initCampaignDeleteFeature = () => {
 };
 
 export { initCampaignDeleteFeature, openCampaignDeleteModal, closeCampaignDeleteModal };
+

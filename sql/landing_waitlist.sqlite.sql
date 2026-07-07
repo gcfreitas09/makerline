@@ -3,6 +3,9 @@
 
 CREATE TABLE IF NOT EXISTS landing_waitlist_entries (
   id TEXT PRIMARY KEY,
+  name TEXT,
+  phone TEXT,
+  whatsapp TEXT,
   instagram_handle TEXT,
   phone_digits TEXT,
   email TEXT,
@@ -12,6 +15,9 @@ CREATE TABLE IF NOT EXISTS landing_waitlist_entries (
   updated_at TEXT NOT NULL,
   payload_json TEXT NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS idx_waitlist_name
+  ON landing_waitlist_entries (name);
 
 CREATE INDEX IF NOT EXISTS idx_waitlist_instagram_handle
   ON landing_waitlist_entries (instagram_handle);

@@ -1,9 +1,5 @@
 import { state, saveState, STORAGE_KEY, PREFS_KEY } from '../../core/state.js';
-<<<<<<< HEAD
 import { renderAll } from '../../core/renderers.js?v=20260429d';
-=======
-import { renderAll } from '../../core/renderers.js?v=20260318e';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
 const getSessionToken = () => {
   try {
@@ -55,7 +51,6 @@ const initAccountForm = () => {
 
     (async () => {
       const formData = new FormData(accountForm);
-<<<<<<< HEAD
       const newPassword = String(formData.get('newPassword') || '').trim();
       const payload = {
         token: getSessionToken(),
@@ -67,25 +62,11 @@ const initAccountForm = () => {
 
       if (!payload.token) {
         msg.textContent = 'Sua sessão caiu. Faça login de novo.';
-=======
-      const payload = {
-        token: getSessionToken(),
-        newEmail: String(formData.get('newEmail') || '').trim(),
-        newPassword: String(formData.get('newPassword') || '')
-      };
-
-      if (!payload.token) {
-        msg.textContent = 'Sua sessão caiu. Faz login de novo.';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         return;
       }
 
       if (!payload.newEmail && !payload.newPassword) {
-<<<<<<< HEAD
         msg.textContent = 'Nada pra salvar: preencha um novo email ou use Alterar senha.';
-=======
-        msg.textContent = 'Nada pra salvar: preenche um novo email ou uma nova senha.';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         return;
       }
 
@@ -111,11 +92,7 @@ const initAccountForm = () => {
           } catch (error) {}
         }
 
-<<<<<<< HEAD
         if (data.user.email) {
-=======
-        if (data.user?.email) {
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
           state.profile.email = data.user.email;
           try {
             sessionStorage.setItem('ugcQuestUserEmail', data.user.email);
@@ -123,11 +100,7 @@ const initAccountForm = () => {
           } catch (error) {}
         }
 
-<<<<<<< HEAD
         if (data.user.name) {
-=======
-        if (data.user?.name) {
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
           state.profile.name = data.user.name;
           try {
             sessionStorage.setItem('ugcQuestUserName', data.user.name);
@@ -152,11 +125,7 @@ const initAccountForm = () => {
 
       const token = getSessionToken();
       if (!token) {
-<<<<<<< HEAD
         msg.textContent = 'Sua sessão caiu. Faça login de novo.';
-=======
-        msg.textContent = 'Sua sessão caiu. Faz login de novo.';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         return;
       }
 
@@ -172,21 +141,13 @@ const initAccountForm = () => {
         const data = await res.json().catch(() => null);
 
         if (!res.ok || !data || data.ok !== true) {
-<<<<<<< HEAD
           msg.textContent = data.error || 'Não consegui excluir sua conta agora.';
-=======
-          msg.textContent = data?.error || 'Não consegui excluir sua conta agora.';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
           deleteBtn.disabled = false;
           return;
         }
 
         clearAccountSession();
-<<<<<<< HEAD
         window.location.replace('app.html');
-=======
-        window.location.replace('index.html');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       } catch (error) {
         msg.textContent = 'Não consegui excluir sua conta agora.';
         deleteBtn.disabled = false;

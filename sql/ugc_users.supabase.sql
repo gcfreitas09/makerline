@@ -5,12 +5,9 @@ create table if not exists public.ugc_users (
   id text primary key,
   name text not null,
   email text not null unique,
-<<<<<<< HEAD
   instagram text null,
   referral_code text null,
   referred_by text null,
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   password text not null,
   created_at text not null,
 
@@ -23,7 +20,6 @@ create table if not exists public.ugc_users (
   last_seen_at text null,
   last_access_at text null,
 
-<<<<<<< HEAD
   stripe_customer_id text null,
   stripe_subscription_id text null,
   stripe_price_id text null,
@@ -40,8 +36,6 @@ create table if not exists public.ugc_users (
   trial_started_at text null,
   trial_ends_at text null,
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   session_token_hash text null,
   session_token_expires bigint null,
 
@@ -52,7 +46,6 @@ create table if not exists public.ugc_users (
   reset_code_expires bigint null
 );
 
-<<<<<<< HEAD
 alter table if exists public.ugc_users add column if not exists referral_code text null;
 alter table if exists public.ugc_users add column if not exists instagram text null;
 alter table if exists public.ugc_users add column if not exists referred_by text null;
@@ -77,9 +70,3 @@ create unique index if not exists ugc_users_instagram_uidx on public.ugc_users(i
 -- Dica:
 -- - Se você for usar a "service_role_key" no backend (PHP), não precisa mexer em RLS.
 -- - Se quiser usar anon key + RLS, aí precisa criar policies (não recomendo pro MVP agora).
-=======
--- Dica:
--- - Se você for usar a "service_role_key" no backend (PHP), não precisa mexer em RLS.
--- - Se quiser usar anon key + RLS, aí precisa criar policies (não recomendo pro MVP agora).
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7

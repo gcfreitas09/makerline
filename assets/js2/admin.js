@@ -122,11 +122,7 @@ const render = () => {
   const { count, tableBody, search } = getEls();
   if (!tableBody) return;
 
-<<<<<<< HEAD
   const query = String(search.value || '').trim().toLowerCase();
-=======
-  const query = String(search?.value || '').trim().toLowerCase();
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   const users = query
     ? state.users.filter((u) => String(u.email || '').toLowerCase().includes(query) || String(u.name || '').toLowerCase().includes(query))
     : state.users;
@@ -137,10 +133,6 @@ const render = () => {
 
 	  tableBody.innerHTML = users
 	    .map((user) => {
-<<<<<<< HEAD
-=======
-      const weekly = user.weeklySummary ? 'Ativo' : 'Off';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       const isSelf = String(user.id) === String(sessionUserId);
       const canDelete = !isSelf;
 	      return `
@@ -154,10 +146,6 @@ const render = () => {
 	          <td>${formatDateTime(user.createdAt)}</td>
 	          <td>${formatDateTime(user.lastLoginAt)}</td>
 	          <td>${formatDateTime(user.lastSeenAt)}</td>
-<<<<<<< HEAD
-=======
-	          <td style="white-space: nowrap;">${weekly}</td>
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
             <td style="white-space: nowrap;">
               ${
                 canDelete
@@ -256,11 +244,7 @@ const confirmDeleteUser = async () => {
     }
 
     if (!res.ok || !data || data.ok !== true) {
-<<<<<<< HEAD
       const err = data.error || 'Não consegui excluir agora.';
-=======
-      const err = data?.error || 'Não consegui excluir agora.';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       setDeleteMessage(err);
       showMessage(err);
       return;
@@ -338,13 +322,8 @@ const migrateStatesIfNeeded = async (force = false) => {
     }
 
     if (!res.ok || !data || data.ok !== true) {
-<<<<<<< HEAD
       const err = data.error || 'Não consegui importar o progresso.';
       const hint = data.hint ? ` ${data.hint}` : '';
-=======
-      const err = data?.error || 'Não consegui importar o progresso.';
-      const hint = data?.hint ? ` ${data.hint}` : '';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       showMessage(`${err}${hint}`.trim());
       return null;
     }
@@ -391,11 +370,7 @@ const loadUsers = async (options = {}) => {
 
     const data = await res.json().catch(() => null);
     if (!res.ok || !data || typeof data !== 'object' || data.ok !== true) {
-<<<<<<< HEAD
       const err = data.error || 'Não consegui carregar.';
-=======
-      const err = data?.error || 'Não consegui carregar.';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       showMessage(err);
       if (res.status === 401) window.location.replace('index.html');
       return;

@@ -1,14 +1,17 @@
 <?php
 require_once __DIR__ . '/referrals.php';
+require_once __DIR__ . '/supabase_client.php';
 
 const MAKERLINE_WAITLIST_FILE = __DIR__ . '/../storage/waitlist.json';
 const MAKERLINE_WAITLIST_DB_FILE = __DIR__ . '/../storage/waitlist.sqlite';
 const MAKERLINE_WAITLIST_TABLE = 'landing_waitlist_entries';
 const MAKERLINE_WAITLIST_BACKUP_DIR = __DIR__ . '/../storage/backups';
+const MAKERLINE_WAITLIST_REMOTE_OUTBOX_FILE = __DIR__ . '/../storage/waitlist_remote_outbox.jsonl';
 const MAKERLINE_LEAD_STATUS_DEFAULT = 'new';
 const MAKERLINE_LEAD_STATUS_OPTIONS = ['new', 'contacted', 'qualified', 'discarded', 'client'];
 
 $GLOBALS['MAKERLINE_WAITLIST_LAST_ERROR'] = null;
+$GLOBALS['MAKERLINE_WAITLIST_REMOTE_LAST_ERROR'] = null;
 
 function waitlist_store_last_error()
 {
@@ -18,6 +21,16 @@ function waitlist_store_last_error()
 function waitlist_store_set_error($message)
 {
     $GLOBALS['MAKERLINE_WAITLIST_LAST_ERROR'] = trim((string)$message);
+}
+
+function waitlist_store_last_remote_error()
+{
+    return $GLOBALS['MAKERLINE_WAITLIST_REMOTE_LAST_ERROR'];
+}
+
+function waitlist_store_set_remote_error($message)
+{
+    $GLOBALS['MAKERLINE_WAITLIST_REMOTE_LAST_ERROR'] = trim((string)$message);
 }
 
 function waitlist_store_string($value, $max = 255)
@@ -249,6 +262,50 @@ function waitlist_store_backup_json_if_needed($file = MAKERLINE_WAITLIST_FILE)
     return true;
 }
 
+function waitlist_store_db_has_column($pdo, $column)
+{
+    try {
+        $stmt = $pdo->query('PRAGMA table_info(' . MAKERLINE_WAITLIST_TABLE . ')');
+        $rows = $stmt ? $stmt->fetchAll() : [];
+        foreach ((array)$rows as $row) {
+            if ((string)($row['name'] ?? '') === (string)$column) return true;
+        }
+    } catch (Throwable $e) {
+        waitlist_store_set_error($e->getMessage());
+    }
+    return false;
+}
+
+function waitlist_store_db_add_column_if_missing($pdo, $column, $definition)
+{
+    if (waitlist_store_db_has_column($pdo, $column)) return true;
+
+    try {
+        $pdo->exec('ALTER TABLE ' . MAKERLINE_WAITLIST_TABLE . ' ADD COLUMN ' . $definition);
+        return true;
+    } catch (Throwable $e) {
+        waitlist_store_set_error($e->getMessage());
+        return false;
+    }
+}
+
+function waitlist_store_db_ensure_columns($pdo)
+{
+    $columns = [
+        'name' => 'name TEXT',
+        'phone' => 'phone TEXT',
+        'whatsapp' => 'whatsapp TEXT',
+    ];
+
+    foreach ($columns as $column => $definition) {
+        if (!waitlist_store_db_add_column_if_missing($pdo, $column, $definition)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function waitlist_store_db()
 {
     static $pdo = null;
@@ -275,6 +332,9 @@ function waitlist_store_db()
         $pdo->exec(
             'CREATE TABLE IF NOT EXISTS ' . MAKERLINE_WAITLIST_TABLE . ' (
                 id TEXT PRIMARY KEY,
+                name TEXT,
+                phone TEXT,
+                whatsapp TEXT,
                 instagram_handle TEXT,
                 phone_digits TEXT,
                 email TEXT,
@@ -285,6 +345,10 @@ function waitlist_store_db()
                 payload_json TEXT NOT NULL
             )'
         );
+        if (!waitlist_store_db_ensure_columns($pdo)) {
+            return null;
+        }
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_waitlist_name ON ' . MAKERLINE_WAITLIST_TABLE . ' (name)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_waitlist_instagram_handle ON ' . MAKERLINE_WAITLIST_TABLE . ' (instagram_handle)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_waitlist_phone_digits ON ' . MAKERLINE_WAITLIST_TABLE . ' (phone_digits)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_waitlist_created_at ON ' . MAKERLINE_WAITLIST_TABLE . ' (created_at DESC)');
@@ -399,6 +463,9 @@ function waitlist_store_ensure_entry_defaults($entry)
     }
     if (!isset($entry['phoneDigits']) || trim((string)$entry['phoneDigits']) === '') {
         $entry['phoneDigits'] = waitlist_store_normalize_phone($entry['phone'] ?? '');
+    }
+    if (!isset($entry['whatsapp']) || trim((string)$entry['whatsapp']) === '') {
+        $entry['whatsapp'] = waitlist_store_string($entry['phone'] ?? '', 40);
     }
     if (!isset($entry['dataSource']) || trim((string)$entry['dataSource']) === '') {
         $entry['dataSource'] = 'novo_tracker';
@@ -639,6 +706,9 @@ function waitlist_store_db_row_to_entry($row)
     }
 
     $payload['id'] = waitlist_store_string($row['id'] ?? ($payload['id'] ?? ''), 80);
+    $payload['name'] = waitlist_store_string($row['name'] ?? ($payload['name'] ?? ''), 160);
+    $payload['phone'] = waitlist_store_string($row['phone'] ?? ($payload['phone'] ?? ''), 40);
+    $payload['whatsapp'] = waitlist_store_string($row['whatsapp'] ?? ($payload['whatsapp'] ?? ($payload['phone'] ?? '')), 40);
     $payload['instagramHandle'] = waitlist_store_normalize_instagram($row['instagram_handle'] ?? ($payload['instagramHandle'] ?? ''));
     $payload['phoneDigits'] = waitlist_store_normalize_phone($row['phone_digits'] ?? ($payload['phoneDigits'] ?? ''));
     $payload['email'] = waitlist_store_string($row['email'] ?? ($payload['email'] ?? ''), 190);
@@ -666,6 +736,9 @@ function waitlist_store_db_upsert_entry($entry)
         $stmt = $pdo->prepare(
             'INSERT INTO ' . MAKERLINE_WAITLIST_TABLE . ' (
                 id,
+                name,
+                phone,
+                whatsapp,
                 instagram_handle,
                 phone_digits,
                 email,
@@ -676,6 +749,9 @@ function waitlist_store_db_upsert_entry($entry)
                 payload_json
             ) VALUES (
                 :id,
+                :name,
+                :phone,
+                :whatsapp,
                 :instagram_handle,
                 :phone_digits,
                 :email,
@@ -686,6 +762,9 @@ function waitlist_store_db_upsert_entry($entry)
                 :payload_json
             )
             ON CONFLICT(id) DO UPDATE SET
+                name = excluded.name,
+                phone = excluded.phone,
+                whatsapp = excluded.whatsapp,
                 instagram_handle = excluded.instagram_handle,
                 phone_digits = excluded.phone_digits,
                 email = excluded.email,
@@ -697,6 +776,9 @@ function waitlist_store_db_upsert_entry($entry)
         );
         $stmt->execute([
             'id' => (string)$entry['id'],
+            'name' => waitlist_store_string($entry['name'] ?? '', 160) ?: null,
+            'phone' => waitlist_store_string($entry['phone'] ?? '', 40) ?: null,
+            'whatsapp' => waitlist_store_string($entry['whatsapp'] ?? ($entry['phone'] ?? ''), 40) ?: null,
             'instagram_handle' => waitlist_store_normalize_instagram($entry['instagramHandle'] ?? ($entry['instagram'] ?? '')) ?: null,
             'phone_digits' => waitlist_store_normalize_phone($entry['phoneDigits'] ?? ($entry['phone'] ?? '')) ?: null,
             'email' => waitlist_store_string($entry['email'] ?? '', 190) ?: null,
@@ -763,6 +845,143 @@ function waitlist_store_db_load_all()
         waitlist_store_set_error($e->getMessage());
         return [];
     }
+}
+
+function waitlist_store_remote_table()
+{
+    if (!function_exists('supabase_config')) return '';
+    $config = supabase_config();
+    if (!$config || empty($config['enabled'])) return '';
+
+    $table = trim((string)($config['table_pre_signups'] ?? ($config['table_landing_waitlist'] ?? '')));
+    return $table !== '' ? $table : 'landing_pre_signups';
+}
+
+function waitlist_store_remote_payload($entry)
+{
+    $entry = waitlist_store_ensure_entry_defaults($entry);
+    $instagramHandle = waitlist_store_normalize_instagram($entry['instagramHandle'] ?? ($entry['instagram'] ?? ''));
+
+    return [
+        'id' => waitlist_store_entry_id($entry),
+        'name' => waitlist_store_string($entry['name'] ?? '', 160),
+        'whatsapp' => waitlist_store_string($entry['whatsapp'] ?? ($entry['phone'] ?? ''), 40),
+        'instagram' => waitlist_store_format_instagram($instagramHandle),
+        'lead_status' => waitlist_store_normalize_lead_status($entry['leadStatus'] ?? ''),
+        'is_test' => waitlist_store_boolean($entry['isTest'] ?? false),
+        'source' => waitlist_store_string($entry['source'] ?? 'landing', 80),
+        'origin_label' => waitlist_store_string($entry['originLabel'] ?? '', 180),
+        'referral_code' => waitlist_store_string($entry['referralCode'] ?? '', 80),
+        'partner_code' => waitlist_store_string($entry['partnerCode'] ?? '', 80),
+        'partner_name' => waitlist_store_string($entry['partnerName'] ?? '', 160),
+        'created_at' => waitlist_store_string($entry['createdAt'] ?? date('c'), 40),
+        'updated_at' => waitlist_store_string($entry['updatedAt'] ?? date('c'), 40),
+        'payload' => $entry,
+    ];
+}
+
+function waitlist_store_remote_outbox_append($entry, $error = '')
+{
+    $dir = dirname(MAKERLINE_WAITLIST_REMOTE_OUTBOX_FILE);
+    if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
+        return false;
+    }
+
+    $line = json_encode([
+        'queuedAt' => date('c'),
+        'error' => waitlist_store_string($error, 500),
+        'entry' => waitlist_store_ensure_entry_defaults($entry),
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    if (!is_string($line)) return false;
+    return @file_put_contents(MAKERLINE_WAITLIST_REMOTE_OUTBOX_FILE, $line . PHP_EOL, FILE_APPEND | LOCK_EX) !== false;
+}
+
+function waitlist_store_remote_upsert_entry($entry, $queueOnFailure = true)
+{
+    $table = waitlist_store_remote_table();
+    if ($table === '') return true;
+    if (!function_exists('supabase_client_request')) return true;
+
+    $payload = waitlist_store_remote_payload($entry);
+    $response = supabase_client_request(
+        'POST',
+        $table,
+        ['on_conflict' => 'id'],
+        $payload,
+        ['Prefer' => 'resolution=merge-duplicates,return=minimal']
+    );
+
+    if (($response['ok'] ?? false) === true) {
+        return true;
+    }
+
+    $error = (string)($response['error'] ?? 'Nao consegui sincronizar o pre-cadastro no banco remoto.');
+    waitlist_store_set_remote_error($error);
+    if ($queueOnFailure) {
+        waitlist_store_remote_outbox_append($entry, $error);
+    }
+    return false;
+}
+
+function waitlist_store_remote_flush_outbox($limit = 25)
+{
+    if (!is_file(MAKERLINE_WAITLIST_REMOTE_OUTBOX_FILE)) {
+        return ['ok' => true, 'sent' => 0, 'remaining' => 0];
+    }
+
+    $lines = file(MAKERLINE_WAITLIST_REMOTE_OUTBOX_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if (!is_array($lines) || !$lines) {
+        @unlink(MAKERLINE_WAITLIST_REMOTE_OUTBOX_FILE);
+        return ['ok' => true, 'sent' => 0, 'remaining' => 0];
+    }
+
+    $sent = 0;
+    $remaining = [];
+    $max = max(1, (int)$limit);
+    foreach ($lines as $line) {
+        $item = json_decode((string)$line, true);
+        $entry = is_array($item) ? ($item['entry'] ?? null) : null;
+        if (!is_array($entry)) continue;
+
+        if ($sent < $max && waitlist_store_remote_upsert_entry($entry, false)) {
+            $sent++;
+            continue;
+        }
+        $remaining[] = $line;
+    }
+
+    if ($remaining) {
+        @file_put_contents(MAKERLINE_WAITLIST_REMOTE_OUTBOX_FILE, implode(PHP_EOL, $remaining) . PHP_EOL, LOCK_EX);
+    } else {
+        @unlink(MAKERLINE_WAITLIST_REMOTE_OUTBOX_FILE);
+    }
+
+    return ['ok' => true, 'sent' => $sent, 'remaining' => count($remaining)];
+}
+
+function waitlist_store_sync_all_to_remote($entries = null)
+{
+    $entries = is_array($entries) ? $entries : waitlist_store_load_all();
+    $sent = 0;
+    $failed = 0;
+
+    waitlist_store_remote_flush_outbox(100);
+    foreach ($entries as $entry) {
+        if (!is_array($entry)) continue;
+        if (waitlist_store_remote_upsert_entry($entry)) {
+            $sent++;
+        } else {
+            $failed++;
+        }
+    }
+
+    return [
+        'ok' => $failed === 0,
+        'sent' => $sent,
+        'failed' => $failed,
+        'remoteError' => waitlist_store_last_remote_error(),
+    ];
 }
 
 function waitlist_store_find_index_by_id($entries, $entryId)
@@ -844,7 +1063,13 @@ function waitlist_store_save_entry($entry, $file = MAKERLINE_WAITLIST_FILE)
         $jsonEntries[$index] = waitlist_store_merge_entry_pair($entry, $jsonEntries[$index]);
     }
 
-    return waitlist_store_save_all_json($jsonEntries, $file);
+    $jsonOk = waitlist_store_save_all_json($jsonEntries, $file);
+    if ($jsonOk) {
+        waitlist_store_remote_flush_outbox(10);
+        waitlist_store_remote_upsert_entry($entry);
+    }
+
+    return $jsonOk;
 }
 
 function waitlist_store_delete_by_id($entryId, $file = MAKERLINE_WAITLIST_FILE)

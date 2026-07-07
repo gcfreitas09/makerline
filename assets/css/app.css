@@ -49,13 +49,10 @@
   box-sizing: border-box;
 }
 
-<<<<<<< HEAD
 [hidden] {
   display: none !important;
 }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 body {
   margin: 0;
   min-height: 100vh;
@@ -2973,7 +2970,3 @@ button[data-action="bonus-xp"] {
   background: linear-gradient(90deg, var(--accent), rgba(45, 212, 191, 0.6));
   transition: width 0.4s ease;
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7

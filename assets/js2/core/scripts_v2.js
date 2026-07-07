@@ -22,13 +22,8 @@ const generateScript = (payload) => {
   const brand = payload.brand || 'a marca';
 
   const hooks = [
-<<<<<<< HEAD
     `HOOK (0-3s)\n- Dor direta: "${audience} cansou de ${goal} Olha isso aqui."`,
     `HOOK (0-3s)\n- Intriga visual: close no produto e pergunta: "já imaginou ${goal}"`,
-=======
-    `HOOK (0-3s)\n- Dor direta: "${audience} cansou de ${goal}? Olha isso aqui."`,
-    `HOOK (0-3s)\n- Intriga visual: close no produto e pergunta: "já imaginou ${goal}?"`,
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     `HOOK (0-3s)\n- Autoridade: "Testei ${brand} e vou te mostrar o que mudou."`
   ];
 

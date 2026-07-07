@@ -1,19 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-<<<<<<< HEAD
+  <meta name="robots" content="noindex, nofollow" />
   <title>UGC Quest - Confirmar código</title>
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
   <link rel="stylesheet" href="assets/css/app.css?v=20260608a" />
-=======
-  <title>UGC Quest - Confirmar cÃ³digo</title>
-  <link rel="icon" type="image/png" href="assets/img/logo.png" />
-  <link rel="apple-touch-icon" href="assets/img/logo.png" />
-  <link rel="stylesheet" href="assets/css/app.css" />
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 </head>
 <body class="auth-body">
   <div class="auth-card">
@@ -28,18 +22,12 @@
     </div>
 
     <div>
-<<<<<<< HEAD
       <h2>Recuperar acesso</h2>
       <p>Primeiro informe seu e-mail. Depois que a Makerline enviar o código, confirme aqui para continuar.</p>
-=======
-      <h2>Confirma o cÃ³digo</h2>
-      <p>A gente te mandou um cÃ³digo por e-mail. Cola ele aqui pra trocar a senha.</p>
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     </div>
 
     <form class="auth-form active" id="verify-form">
       <div class="form-row">
-<<<<<<< HEAD
         <label>E-mail</label>
         <input class="input" name="email" type="email" placeholder="seu@email.com" required />
       </div>
@@ -51,28 +39,12 @@
         <button class="btn btn-primary" type="button" id="send-btn">Enviar código</button>
         <button class="btn btn-primary" type="submit" id="confirm-btn" hidden>Confirmar código</button>
         <button class="btn btn-ghost" type="button" id="resend-btn" hidden>Reenviar código</button>
-=======
-        <label>Email</label>
-        <input class="input" name="email" type="email" placeholder="seu@email.com" required />
-      </div>
-      <div class="form-row">
-        <label>CÃ³digo (6 dÃ­gitos)</label>
-        <input class="input" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="000000" maxlength="6" required />
-      </div>
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <button class="btn btn-primary" type="submit">Confirmar</button>
-        <button class="btn btn-ghost" type="button" id="resend-btn">Reenviar cÃ³digo</button>
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       </div>
       <div class="muted" id="verify-msg"></div>
     </form>
 
     <div class="auth-footer">
-<<<<<<< HEAD
       <a class="auth-link" href="app.html">Voltar para o login</a>
-=======
-      <a class="auth-link" href="index.html">Voltar pro login</a>
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     </div>
   </div>
 
@@ -82,14 +54,10 @@
     const codeParam = params.get('code') || '';
     const form = document.getElementById('verify-form');
     const msg = document.getElementById('verify-msg');
-<<<<<<< HEAD
     const sendBtn = document.getElementById('send-btn');
     const confirmBtn = document.getElementById('confirm-btn');
     const resendBtn = document.getElementById('resend-btn');
     const codeRow = document.getElementById('code-row');
-=======
-    const resendBtn = document.getElementById('resend-btn');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
     const emailInput = form.querySelector('input[name="email"]');
     const codeInput = form.querySelector('input[name="code"]');
@@ -104,7 +72,6 @@
     if (!emailInput.value && storedEmail) emailInput.value = storedEmail;
 
     const normalizeCode = (value) => (value || '').replace(/\D/g, '').slice(0, 6);
-<<<<<<< HEAD
     const setCodeStep = (enabled) => {
       codeRow.hidden = !enabled;
       confirmBtn.hidden = !enabled;
@@ -130,8 +97,6 @@
         }
       } catch (e) {}
     };
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
     codeInput.addEventListener('input', () => {
       codeInput.value = normalizeCode(codeInput.value);
@@ -139,7 +104,6 @@
 
     const initialCode = normalizeCode(codeParam) || normalizeCode(storedCode);
     if (initialCode) {
-<<<<<<< HEAD
       setCodeStep(true);
       codeInput.value = initialCode;
       msg.textContent = 'Código preenchido. Agora é só confirmar.';
@@ -156,19 +120,6 @@
       msg.textContent = 'Enviando código...';
       sendBtn.disabled = true;
       resendBtn.disabled = true;
-=======
-      codeInput.value = initialCode;
-      msg.textContent = 'JÃ¡ colei o cÃ³digo aqui. SÃ³ confirmar.';
-    }
-
-    const resendCode = async () => {
-      const email = (emailInput.value || '').trim().toLowerCase();
-      if (!email) {
-        msg.textContent = 'Coloca seu email pra eu mandar o cÃ³digo.';
-        return;
-      }
-      msg.textContent = 'Enviando cÃ³digo...';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       try {
         const res = await fetch('api/forgot.php', {
           method: 'POST',
@@ -177,7 +128,6 @@
         });
         const data = await res.json();
         if (!res.ok) {
-<<<<<<< HEAD
           msg.textContent = data.error || 'Não foi possível enviar.';
           return;
         }
@@ -213,27 +163,6 @@
     });
 
     resendBtn.addEventListener('click', requestCode);
-=======
-          msg.textContent = data.error || 'NÃ£o consegui enviar.';
-          return;
-        }
-        msg.textContent = data.message || 'CÃ³digo enviado.';
-        if (data.code) {
-          const clean = normalizeCode(data.code);
-          codeInput.value = clean;
-          msg.textContent += ` CÃ³digo: ${clean}`;
-          try {
-            sessionStorage.setItem('ugcQuestResetCode', clean);
-            sessionStorage.setItem('ugcQuestResetEmail', email);
-          } catch (e) {}
-        }
-      } catch (err) {
-        msg.textContent = 'NÃ£o consegui enviar.';
-      }
-    };
-
-    resendBtn.addEventListener('click', resendCode);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -241,19 +170,11 @@
       const code = normalizeCode(codeInput.value);
 
       if (!email) {
-<<<<<<< HEAD
         msg.textContent = 'Informe seu e-mail.';
         return;
       }
       if (code.length !== 6) {
         msg.textContent = 'O código tem 6 dígitos.';
-=======
-        msg.textContent = 'Coloca seu email.';
-        return;
-      }
-      if (code.length !== 6) {
-        msg.textContent = 'O cÃ³digo tem 6 dÃ­gitos.';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         return;
       }
 
@@ -266,33 +187,20 @@
         });
         const data = await res.json();
         if (!res.ok) {
-<<<<<<< HEAD
           msg.textContent = data.error || 'Código inválido.';
-=======
-          msg.textContent = data.error || 'CÃ³digo invÃ¡lido.';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
           return;
         }
         if (data.resetLink) {
           try {
-<<<<<<< HEAD
             sessionStorage.removeItem('ugcQuestResetEmail');
             sessionStorage.removeItem('ugcQuestResetCode');
-=======
-            sessionStorage.removeItem('ugcQuestResetCode');
-            sessionStorage.removeItem('ugcQuestResetEmail');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
           } catch (e) {}
           window.location.replace(data.resetLink);
           return;
         }
         msg.textContent = 'Deu certo, mas faltou o link de reset.';
       } catch (err) {
-<<<<<<< HEAD
         msg.textContent = 'Não foi possível confirmar.';
-=======
-        msg.textContent = 'NÃ£o consegui confirmar.';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       }
     });
   </script>

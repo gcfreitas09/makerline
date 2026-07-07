@@ -1,49 +1,30 @@
-﻿import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
-<<<<<<< HEAD
-import { setActivePage, showToast } from './ui.js?v=20260502c';
+import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
+import { setActivePage, showToast } from './ui.js?v=20260625b';
 import { formatCurrency } from './state.js';
 import { prospectionContactOptions, prospectionStatusOptions } from './state.js';
 import { trackEvent } from './gamification.js?v=20260302g';
-import { renderAll } from './renderers.js?v=20260623b';
-=======
-import { setActivePage, showToast } from './ui.js?v=20260304b';
-import { formatCurrency } from './state.js';
-import { trackEvent } from './gamification.js?v=20260302g';
-import { renderAll } from './renderers.js?v=20260318b';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
+import { renderAll } from './renderers.js?v=20260628a';
 
 import {
   closeCampaignModal,
   initCampaignForm,
   openCampaignModal
-<<<<<<< HEAD
-} from '../features/campaigns/modal.js?v=20260623c';
-=======
-} from '../features/campaigns/modal.js?v=20260318b';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
+} from '../features/campaigns/modal.js?v=20260624a';
 import {
   closeBrandModal,
   initBrandForm,
   openBrandModal
-<<<<<<< HEAD
 } from '../features/brands/modal.js?v=20260623c';
-=======
-} from '../features/brands/modal.js?v=20260318b';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 import {
   closeBrandDeleteModal,
   initBrandDeleteFeature,
   openBrandDeleteModal
-<<<<<<< HEAD
 } from '../features/brands/delete.js?v=20260502c';
-=======
-} from '../features/brands/delete.js?v=20260304c';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 import {
   closeCampaignDeleteModal,
   initCampaignDeleteFeature,
   openCampaignDeleteModal
-} from '../features/campaigns/delete.js?v=20260304c';
+} from '../features/campaigns/delete.js?v=20260625b';
 import { initScriptFlow } from '../features/scripts/flow.js?v=20260302f';
 import {
   closeScriptDeleteModal,
@@ -51,33 +32,18 @@ import {
   openScriptDeleteModal
 } from '../features/scripts/delete.js?v=20260304c';
 import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js?v=20260302f';
-<<<<<<< HEAD
 import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260507a';
 import { initAdminPartnerCommissions } from '../features/settings/admin_partner_commissions.js?v=20260623a';
-import { openBillingCheckout, openBillingPortal } from '../features/settings/billing.js?v=20260623b';
+import { openBillingCheckout, openBillingPortal } from '../features/settings/billing.js?v=20260628a';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260314b';
+import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260628b';
 
 /* -- Money mask helper -- */
-=======
-import { initAccountForm } from '../features/settings/account.js?v=20260318e';
-import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260304c';
-import { syncWeeklySetting } from '../features/settings/weekly.js?v=20260302f';
-import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
-import { sendWeeklySummaryNow } from '../features/settings/weekly_summary.js?v=20260302f';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260314b';
-
-/* â”€â”€ Money mask helper â”€â”€ */
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 const formatMoneyInput = (raw) => {
   const digits = String(raw || '').replace(/\D/g, '');
   if (!digits) return '';
   const value = parseInt(digits, 10) || 0;
-<<<<<<< HEAD
   const formatted = value.toString().replace(/\B(=(:\d{3})+(!\d))/g, '.');
-=======
-  const formatted = value.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, '.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   return `R$ ${formatted}`;
 };
 
@@ -99,11 +65,7 @@ const getCampaignById = (campaignId) => (Array.isArray(state.campaigns) ? state.
 const getCampaignStageLabel = (campaign) => {
   if (!campaign) return 'Sem etapa';
   const option = getCampaignStageOptions(campaign.status).find((item) => item.id === campaign.stage);
-<<<<<<< HEAD
   return option.label || campaign.stage || 'Sem etapa';
-=======
-  return option?.label || campaign.stage || 'Sem etapa';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 const campaignStartLabels = {
   ugc_platform: 'Plataforma de UGC',
@@ -115,7 +77,6 @@ const campaignStartLabels = {
   other: 'Outro'
 };
 const getCampaignStartLabel = (campaign) => {
-<<<<<<< HEAD
   const key = String(campaign.startMethod || '').trim();
   if (!key) return 'Não informado';
   if (key === 'other' && String(campaign.startMethodOther || '').trim()) return String(campaign.startMethodOther).trim();
@@ -123,15 +84,6 @@ const getCampaignStartLabel = (campaign) => {
 };
 const getBrandActionTypeLabel = (brand) => {
   const type = String(brand.nextActionType || '').trim();
-=======
-  const key = String(campaign?.startMethod || '').trim();
-  if (!key) return 'Não informado';
-  if (key === 'other' && String(campaign?.startMethodOther || '').trim()) return String(campaign.startMethodOther).trim();
-  return campaignStartLabels[key] || key;
-};
-const getBrandActionTypeLabel = (brand) => {
-  const type = String(brand?.nextActionType || '').trim();
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (!type) return 'Sem pendência';
   const option = nextActionOptions.includes(type) ? type : '';
   if (!option) return 'Sem pendência';
@@ -144,16 +96,11 @@ const getBrandActionTypeLabel = (brand) => {
     entregar_conteudo: 'Entregar conteúdo',
     revisar_ajustes: 'Revisar ajustes',
     cobrar_pagamento: 'Cobrar pagamento',
-<<<<<<< HEAD
     outro: brand.nextActionCustomType || 'Outro'
-=======
-    outro: brand?.nextActionCustomType || 'Outro'
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   };
   return labels[option] || 'Sem pendência';
 };
 
-<<<<<<< HEAD
 const escapeHtmlText = (value) =>
   String(value || '')
     .replace(/&/g, '&amp;')
@@ -185,8 +132,6 @@ const normalizeCampaignResourceCategory = (value) => {
 const getCampaignResourceCategoryLabel = (value) =>
   campaignResourceCategoryLabels[normalizeCampaignResourceCategory(value)] || 'Arquivo';
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 const getCampaignDueModal = () => ({
   modal: document.getElementById('campaign-due-modal'),
   form: document.getElementById('campaign-due-form'),
@@ -204,7 +149,6 @@ const getCampaignPeekModal = () => ({
   body: document.querySelector('[data-campaign-peek-body]'),
   title: document.querySelector('[data-campaign-peek-title]'),
   subtitle: document.querySelector('[data-campaign-peek-subtitle]'),
-<<<<<<< HEAD
   editButton: document.querySelector('[data-action="edit-campaign-from-peek"]'),
   assetsButton: document.querySelector('[data-action="open-campaign-assets-from-peek"]')
 });
@@ -432,11 +376,6 @@ const openCampaignResourceItem = (campaignId, resourceId) => {
   window.open(resource.url, '_blank', 'noopener');
 };
 
-=======
-  editButton: document.querySelector('[data-action="edit-campaign-from-peek"]')
-});
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 const openCampaignDueModal = (campaignId) => {
   const campaign = getCampaignById(campaignId);
   const { modal, form, msg } = getCampaignDueModal();
@@ -483,21 +422,13 @@ const closeCampaignValueModal = () => {
 
 const openCampaignPeekModal = (campaignId) => {
   const campaign = getCampaignById(campaignId);
-<<<<<<< HEAD
   const { modal, body, title, subtitle, editButton, assetsButton } = getCampaignPeekModal();
   if (!campaign || !modal || !body || !title || !subtitle || !editButton || !assetsButton) return;
-=======
-  const { modal, body, title, subtitle, editButton } = getCampaignPeekModal();
-  if (!campaign || !modal || !body || !title || !subtitle || !editButton) return;
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   title.textContent = campaign.title || campaign.brand || 'Campanha';
   subtitle.textContent = campaign.brand ? `${campaign.brand} · resumo rápido do cadastro` : 'Resumo rápido do cadastro';
   editButton.dataset.campaignId = campaign.id;
-<<<<<<< HEAD
   assetsButton.dataset.campaignId = campaign.id;
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   const paidPercent = Number.isFinite(campaign.paymentPercent) ? campaign.paymentPercent : parseInt(String(campaign.paymentPercent || '0'), 10) || 0;
   const paymentLabel = campaign.paymentReceivedAt
@@ -511,16 +442,12 @@ const openCampaignPeekModal = (campaignId) => {
     { label: '% já pago', value: `${paidPercent}%` },
     { label: 'Data de pagamento', value: paymentLabel },
     { label: 'Etapa atual', value: getCampaignStageLabel(campaign) },
-<<<<<<< HEAD
     { label: 'Prazo', value: formatDateBR(campaign.dueDate) },
     {
       label: 'Entregas previstas',
       value: `${Number.isFinite(campaign.photoCount) ? campaign.photoCount : 0} foto(s) · ${Number.isFinite(campaign.videoCount) ? campaign.videoCount : 0} vídeo(s)`
     },
     { label: 'Arquivos armazenados', value: `${(Array.isArray(campaign.resources) ? campaign.resources : []).length} item(ns)` }
-=======
-    { label: 'Prazo', value: formatDateBR(campaign.dueDate) }
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   ];
 
   body.innerHTML = metaItems
@@ -539,11 +466,7 @@ const openCampaignPeekModal = (campaignId) => {
 };
 
 const closeCampaignPeekModal = () => {
-<<<<<<< HEAD
   const { modal, body, title, subtitle, editButton, assetsButton } = getCampaignPeekModal();
-=======
-  const { modal, body, title, subtitle, editButton } = getCampaignPeekModal();
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (!modal) return;
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
@@ -551,10 +474,7 @@ const closeCampaignPeekModal = () => {
   if (title) title.textContent = 'Campanha';
   if (subtitle) subtitle.textContent = 'Resumo rápido do cadastro.';
   if (editButton) delete editButton.dataset.campaignId;
-<<<<<<< HEAD
   if (assetsButton) delete assetsButton.dataset.campaignId;
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const getBrandActionModal = () => ({
@@ -580,11 +500,7 @@ const populateBrandActionSelect = (selectedId = '') => {
   if (!form) return;
   const select = form.querySelector('select[name="brandIdSelect"]');
   if (!select) return;
-<<<<<<< HEAD
   const brands = (Array.isArray(state.brands) ? state.brands : []).slice().sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'pt-BR'));
-=======
-  const brands = (Array.isArray(state.brands) ? state.brands : []).slice().sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || ''), 'pt-BR'));
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   select.innerHTML = ['<option value="">Escolher...</option>']
     .concat(brands.map((brand) => `<option value="${brand.id}">${String(brand.name || 'Marca')}</option>`))
     .join('');
@@ -628,7 +544,6 @@ const closeBrandActionModal = () => {
   modal.setAttribute('aria-hidden', 'true');
   if (form) form.reset();
   if (msg) msg.textContent = '';
-<<<<<<< HEAD
   if (title) title.textContent = 'Nova ação de marca';
   setBrandActionCustomVisibility('');
 };
@@ -829,12 +744,6 @@ const handleProspectionSubmit = (event) => {
   showToast(current ? 'Prospecção atualizada.' : 'Prospecção criada.');
 };
 
-=======
-  if (title) title.textContent = 'Nova aÃ§Ã£o de marca';
-  setBrandActionCustomVisibility('');
-};
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 const handleBrandActionSubmit = (event) => {
   event.preventDefault();
   const { form, msg } = getBrandActionModal();
@@ -851,7 +760,6 @@ const handleBrandActionSubmit = (event) => {
 
   if (msg) msg.textContent = '';
   if (!brand) {
-<<<<<<< HEAD
     if (msg) msg.textContent = 'Escolha uma marca válida.';
     return;
   }
@@ -861,17 +769,6 @@ const handleBrandActionSubmit = (event) => {
   }
   if (!nextActionDate) {
     if (msg) msg.textContent = 'Defina a data da ação.';
-=======
-    if (msg) msg.textContent = 'Escolha uma marca vÃ¡lida.';
-    return;
-  }
-  if (!nextActionType) {
-    if (msg) msg.textContent = 'Escolha a prÃ³xima aÃ§Ã£o.';
-    return;
-  }
-  if (!nextActionDate) {
-    if (msg) msg.textContent = 'Defina a data da aÃ§Ã£o.';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     return;
   }
   if (nextActionType === 'outro' && !nextActionCustomType) {
@@ -883,19 +780,12 @@ const handleBrandActionSubmit = (event) => {
   brand.nextActionCustomType = nextActionType === 'outro' ? nextActionCustomType : '';
   brand.nextActionDate = nextActionDate;
   brand.nextActionNote = nextActionNote;
-<<<<<<< HEAD
   brand.updatedAt = new Date().toISOString();
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   saveState();
   renderAll();
   closeBrandActionModal();
-<<<<<<< HEAD
   showToast('Ação da marca salva.');
-=======
-  showToast('AÃ§Ã£o da marca salva.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const handleCampaignDueSubmit = (event) => {
@@ -936,7 +826,6 @@ const handleCampaignValueSubmit = (event) => {
   showToast('Valor atualizado.');
 };
 
-<<<<<<< HEAD
 const handleCampaignAssetsSubmit = async (event) => {
   event.preventDefault();
   const { form, msg } = getCampaignAssetsModal();
@@ -997,10 +886,6 @@ const handleCampaignAssetsSubmit = async (event) => {
 
 /* Posi\u00e7\u00e3o global de (status, stage) no pipeline.
    Total: 15 posi\u00e7\u00f5es, 14 transi\u00e7\u00f5es -> 100 XP para pipeline completo. */
-=======
-/* Posi\u00e7\u00e3o global de (status, stage) no pipeline.
-   Total: 15 posi\u00e7\u00f5es, 14 transi\u00e7\u00f5es â†’ 100 XP para pipeline completo. */
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 const getGlobalStagePos = (status, stage) => {
   let pos = 0;
   for (const s of campaignStatusOrder) {
@@ -1047,7 +932,6 @@ const handleBrandInteractionSubmit = (event) => {
   const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
 
   if (!brand) {
-<<<<<<< HEAD
     showToast('Marca não encontrada.');
     return;
   }
@@ -1057,17 +941,6 @@ const handleBrandInteractionSubmit = (event) => {
   }
   if (!['dm', 'email', 'call'].includes(type)) {
     showToast('Escolha um tipo válido de interação.');
-=======
-    showToast('Marca nÃ£o encontrada.');
-    return;
-  }
-  if (!date) {
-    showToast('Defina a data da interaÃ§Ã£o.');
-    return;
-  }
-  if (!['dm', 'email', 'call'].includes(type)) {
-    showToast('Escolha um tipo vÃ¡lido de interaÃ§Ã£o.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     return;
   }
 
@@ -1083,11 +956,7 @@ const handleBrandInteractionSubmit = (event) => {
 
   saveState();
   renderAll();
-<<<<<<< HEAD
   showToast('Interação registrada.');
-=======
-  showToast('InteraÃ§Ã£o registrada.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const isInteractiveCampaignTarget = (target) => {
@@ -1144,11 +1013,7 @@ const handleActionClick = (event) => {
         'ugcQuestSessionUserName'
       ].forEach((k) => localStorage.removeItem(k));
     } catch (e) {}
-<<<<<<< HEAD
     window.location.replace('app.html');
-=======
-    window.location.replace('index.html');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     return;
   }
 
@@ -1193,7 +1058,6 @@ const handleActionClick = (event) => {
     return;
   }
 
-<<<<<<< HEAD
   if (action === 'goto-plans') {
     setActivePage('plans');
     saveState();
@@ -1212,8 +1076,6 @@ const handleActionClick = (event) => {
     return;
   }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (action === 'goto-metrics' || action === 'goto-performance') {
     setActivePage('metrics');
     saveState();
@@ -1293,11 +1155,7 @@ const handleActionClick = (event) => {
   if (action === 'open-metrics-status') {
     const status = String(actionEl.dataset.metricsStatus || '').trim();
     if (!['prospeccao', 'producao', 'finalizacao', 'concluida'].includes(status)) return;
-<<<<<<< HEAD
     state.ui.metricsStatusOpen = status;
-=======
-    state.ui.metricsStatusOpen = state.ui.metricsStatusOpen === status ? '' : status;
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     saveState();
     renderAll();
     return;
@@ -1323,7 +1181,6 @@ const handleActionClick = (event) => {
     return;
   }
 
-<<<<<<< HEAD
   if (action === 'open-prospection-modal') {
     openProspectionModal();
     return;
@@ -1357,8 +1214,6 @@ const handleActionClick = (event) => {
     return;
   }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (action === 'toggle-finance-campaign') {
     const campaignId = String(actionEl.dataset.campaignId || '').trim();
     if (!campaignId) return;
@@ -1405,19 +1260,11 @@ const handleActionClick = (event) => {
   if (action === 'copy-brand-email') {
     const brandId = String(actionEl.dataset.brandId || '').trim();
     const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
-<<<<<<< HEAD
     if (!brand || !brand.email) {
       showToast('Essa marca não tem e-mail cadastrado.');
       return;
     }
     copyText(brand.email, 'E-mail copiado.');
-=======
-    if (!brand?.email) {
-      showToast('Essa marca nÃ£o tem email cadastrado.');
-      return;
-    }
-    copyText(brand.email, 'Email copiado.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     return;
   }
 
@@ -1495,7 +1342,6 @@ const handleActionClick = (event) => {
     return;
   }
 
-<<<<<<< HEAD
   if (action === 'open-campaign-assets-from-peek') {
     const campaignId = String(actionEl.dataset.campaignId || '').trim();
     if (!campaignId) return;
@@ -1523,8 +1369,6 @@ const handleActionClick = (event) => {
     return;
   }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (action === 'edit-campaign-from-peek') {
     const campaignId = String(actionEl.dataset.campaignId || '').trim();
     closeCampaignPeekModal();
@@ -1532,7 +1376,6 @@ const handleActionClick = (event) => {
     return;
   }
 
-<<<<<<< HEAD
   if (action === 'open-campaign-resource') {
     const campaignId = String(actionEl.dataset.campaignId || '').trim();
     const resourceId = String(actionEl.dataset.resourceId || '').trim();
@@ -1555,17 +1398,11 @@ const handleActionClick = (event) => {
     return;
   }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (action === 'open-campaign') {
     const id = actionEl.dataset.campaignId;
     if (id) {
       setActivePage('campaigns');
-<<<<<<< HEAD
       setTimeout(() => { if (window.__ugcModals.openCampaignModal) window.__ugcModals.openCampaignModal(id); }, 120);
-=======
-      setTimeout(() => { if (window.__ugcModals?.openCampaignModal) window.__ugcModals.openCampaignModal(id); }, 120);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     }
     return;
   }
@@ -1583,11 +1420,7 @@ const handleActionClick = (event) => {
     if (source !== 'brand') item.updatedAt = new Date().toISOString();
     saveState();
     renderAll();
-<<<<<<< HEAD
     showToast('Ação concluída.');
-=======
-    showToast('AÃ§Ã£o concluÃ­da.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     return;
   }
 
@@ -1608,11 +1441,7 @@ const handleActionClick = (event) => {
     return;
   }
 
-<<<<<<< HEAD
   /* -- Performance tabs -- */
-=======
-  /* â”€â”€ Performance tabs â”€â”€ */
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (action === 'perf-tab') {
     const tab = actionEl.dataset.perfTab;
     if (!tab) return;
@@ -1636,11 +1465,7 @@ const handleActionClick = (event) => {
     const modal = document.getElementById('meta-modal');
     const input = document.getElementById('meta-modal-input');
     if (!modal || !input) return;
-<<<<<<< HEAD
     const current = state.settings.monthlyGoal || 0;
-=======
-    const current = state.settings?.monthlyGoal || 0;
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     input.value = current > 0 ? formatMoneyInput(String(current)) : '';
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
@@ -1670,15 +1495,6 @@ const handleActionClick = (event) => {
   }
 
   if (action === 'new-campaign') {
-<<<<<<< HEAD
-=======
-    const brands = Array.isArray(state.brands) ? state.brands : [];
-    if (!brands.length) {
-      openBrandModal('', { returnTo: 'campaign' });
-      showToast('Crie uma marca antes de cadastrar a campanha.');
-      return;
-    }
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     openCampaignModal();
     injectOnboardingHeader();
     return;
@@ -1750,11 +1566,7 @@ const handleActionClick = (event) => {
       });
       saveState();
       renderAll();
-<<<<<<< HEAD
       showToast(`Avanou: ${nextStage.label}`);
-=======
-      showToast(`Avan?ou: ${nextStage.label}`);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     } else if (!isLastStatus) {
       const previousStatus = campaign.status;
       const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
@@ -1780,11 +1592,7 @@ const handleActionClick = (event) => {
       }
       saveState();
       renderAll();
-<<<<<<< HEAD
       showToast(`Avanou: ${statusLabels[campaign.status] || campaign.status}`);
-=======
-      showToast(`Avan?ou: ${statusLabels[campaign.status] || campaign.status}`);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     }
     return;
   }
@@ -1794,11 +1602,7 @@ const handleActionClick = (event) => {
     const campaign = state.campaigns.find((item) => item.id === campaignId);
     if (!campaign) return;
     
-<<<<<<< HEAD
     // Se já é prioridade, apenas remove
-=======
-    // Se jÃ¡ Ã© prioridade, apenas remove
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     if (campaign.priority) {
       campaign.priority = false;
       campaign.updatedAt = new Date().toISOString();
@@ -1811,11 +1615,7 @@ const handleActionClick = (event) => {
     // Limite de 2 campanhas prioritarias ao mesmo tempo
     const priorityCount = state.campaigns.reduce((acc, c) => acc + (c.priority ? 1 : 0), 0);
     if (priorityCount >= 2) {
-<<<<<<< HEAD
       showToast('Você pode priorizar no máximo 2 campanhas.');
-=======
-      showToast('Voce pode priorizar no maximo 2 campanhas.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       return;
     }
     
@@ -1864,11 +1664,7 @@ const handleActionClick = (event) => {
     const current = currentId ? state.scripts.find((item) => item.id === currentId) : null;
     if (!current) return;
     if (current.finalized) {
-<<<<<<< HEAD
       showToast('Este roteiro já está finalizado.');
-=======
-      showToast('Este roteiro jÃ¡ estÃ¡ finalizado.');
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       return;
     }
     current.finalized = true;
@@ -1884,21 +1680,6 @@ const handleActionClick = (event) => {
     return;
   }
 
-<<<<<<< HEAD
-=======
-  if (action === 'send-weekly-summary') {
-    sendWeeklySummaryNow();
-    return;
-  }
-
-  if (action === 'copy-weekly-preview') {
-    const preview = document.getElementById('weekly-summary-preview');
-    if (!preview) return;
-    copyText(preview.textContent, 'Resumo copiado.');
-    return;
-  }
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (action === 'pause-campaign') {
     const campaignId = actionEl.dataset.campaignId;
     const campaign = state.campaigns.find((item) => item.id === campaignId);
@@ -1949,10 +1730,7 @@ const handleNavClick = (event) => {
   setActivePage(target);
   if (target === 'settings') {
     initAdminTrackerCard();
-<<<<<<< HEAD
     initAdminPartnerCommissions();
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   }
   if (target === 'campaigns') {
     trackEvent('campaigns_viewed');
@@ -1963,13 +1741,10 @@ const handleNavClick = (event) => {
     saveState();
     renderAll();
   }
-<<<<<<< HEAD
   if (target === 'prospeccao') {
     saveState();
     renderAll();
   }
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (target === 'finance') {
     saveState();
     renderAll();
@@ -1978,13 +1753,10 @@ const handleNavClick = (event) => {
     saveState();
     renderAll();
   }
-<<<<<<< HEAD
   if (target === 'plans') {
     saveState();
     renderAll();
   }
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const handleFilterClick = (event) => {
@@ -2000,11 +1772,7 @@ const handleFilterClick = (event) => {
 
 const getStageLabelForHistory = (status, stageId) => {
   const found = getCampaignStageOptions(status).find((opt) => opt.id === stageId);
-<<<<<<< HEAD
   return found.label || stageId || 'Sem etapa';
-=======
-  return found?.label || stageId || 'Sem etapa';
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 };
 
 const handleChange = (event) => {
@@ -2034,7 +1802,6 @@ const handleChange = (event) => {
     return;
   }
 
-<<<<<<< HEAD
   if (target.matches('[data-prospection-status]')) {
     const prospectionId = String(target.dataset.prospectionId || '').trim();
     const item = getProspectionById(prospectionId);
@@ -2047,8 +1814,6 @@ const handleChange = (event) => {
     return;
   }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (target.matches('[data-campaign-status]')) {
     const campaignId = target.dataset.campaignId;
     const campaign = state.campaigns.find((item) => item.id === campaignId);
@@ -2072,11 +1837,7 @@ const handleChange = (event) => {
 
     appendCampaignHistoryEntry(campaign, {
       type: statusDirection === 'advanced' ? 'status_advanced' : statusDirection === 'regressed' ? 'status_regressed' : 'status_updated',
-<<<<<<< HEAD
       title: statusDirection === 'advanced' ? 'Status avançou' : statusDirection === 'regressed' ? 'Status regrediu' : 'Status atualizado',
-=======
-      title: statusDirection === 'advanced' ? 'Status avanÃ§ou' : statusDirection === 'regressed' ? 'Status regrediu' : 'Status atualizado',
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       description: `${previousStatusLabel} -> ${nextStatusLabel}`,
       occurredAt: campaign.updatedAt
     });
@@ -2084,11 +1845,7 @@ const handleChange = (event) => {
     if (campaign.stage && campaign.stage !== previousStage) {
       appendCampaignHistoryEntry(campaign, {
         type: delta < 0 ? 'stage_regressed' : 'stage_advanced',
-<<<<<<< HEAD
         title: delta < 0 ? 'Etapa regrediu' : 'Etapa avançou',
-=======
-        title: delta < 0 ? 'Etapa regrediu' : 'Etapa avanÃ§ou',
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
         description: `${previousStageLabel} -> ${nextStageLabel}`,
         occurredAt: campaign.updatedAt
       });
@@ -2142,11 +1899,7 @@ const handleChange = (event) => {
 
     appendCampaignHistoryEntry(campaign, {
       type: stageDelta > 0 ? 'stage_advanced' : stageDelta < 0 ? 'stage_regressed' : 'stage_updated',
-<<<<<<< HEAD
       title: stageDelta > 0 ? 'Etapa avançou' : stageDelta < 0 ? 'Etapa regrediu' : 'Etapa atualizada',
-=======
-      title: stageDelta > 0 ? 'Etapa avanÃ§ou' : stageDelta < 0 ? 'Etapa regrediu' : 'Etapa atualizada',
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
       description: `${getStageLabelForHistory(campaign.status, previousStage)} -> ${getStageLabelForHistory(campaign.status, campaign.stage)}`,
       occurredAt: campaign.updatedAt
     });
@@ -2170,15 +1923,9 @@ const handleChange = (event) => {
 
   if (target.matches('[data-brand-status]')) {
     const brandId = target.dataset.brandId;
-<<<<<<< HEAD
     const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
     if (!brand) return;
     brand.status = ['lead', 'negociando', 'cliente_ativo', 'cliente_recorrente', 'inativa', 'perdida'].includes(target.value) ? target.value : 'lead';
-=======
-    const brand = state.brands.find((item) => item.id === brandId);
-    if (!brand) return;
-    brand.status = target.value;
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     brand.updatedAt = new Date().toISOString();
     saveState();
     renderAll();
@@ -2190,15 +1937,6 @@ const handleChange = (event) => {
     const key = target.dataset.setting;
     state.settings[key] = target.checked;
     saveState();
-<<<<<<< HEAD
-=======
-    if (key === 'weekly') {
-      renderAll();
-      syncWeeklySetting(target.checked);
-      return;
-    }
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
     if (key === 'alerts') {
       if (target.checked) {
         showToast('Alertas ligados. Vou te lembrar por aqui.');
@@ -2218,11 +1956,7 @@ const handleChange = (event) => {
     showToast('Config salva.');
   }
 
-<<<<<<< HEAD
   /* -- Metas Financeiras -- */
-=======
-  /* â”€â”€ Metas Financeiras â”€â”€ */
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (target.matches('[data-goals]')) {
     const key = target.dataset.goals;
     state.settings[key] = target.type === 'number' ? Number(target.value) || 0 : target.value;
@@ -2231,11 +1965,7 @@ const handleChange = (event) => {
     return;
   }
 
-<<<<<<< HEAD
   /* -- Perfil do Criador -- */
-=======
-  /* â”€â”€ Perfil do Criador â”€â”€ */
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (target.matches('[data-creator]')) {
     const key = target.dataset.creator;
     state.settings[key] = target.value;
@@ -2251,28 +1981,16 @@ const handleChange = (event) => {
     return;
   }
 
-<<<<<<< HEAD
   /* -- Configuração da IA -- */
-=======
-  /* â”€â”€ ConfiguraÃ§Ã£o da IA â”€â”€ */
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (target.matches('[data-ai]')) {
     const key = target.dataset.ai;
     state.settings[key] = target.value;
     saveState();
-<<<<<<< HEAD
     showToast('Configuração de IA salva.');
     return;
   }
 
   /* -- Alertas Inteligentes -- */
-=======
-    showToast('ConfiguraÃ§Ã£o de IA salva.');
-    return;
-  }
-
-  /* â”€â”€ Alertas Inteligentes â”€â”€ */
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (target.matches('[data-smart-alert]')) {
     const key = target.dataset.smartAlert;
     state.settings[key] = target.checked;
@@ -2287,11 +2005,7 @@ const handleChange = (event) => {
     return;
   }
 
-<<<<<<< HEAD
   /* -- Campaign sort -- */
-=======
-  /* â”€â”€ Campaign sort â”€â”€ */
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   if (target.matches('[data-campaign-sort]')) {
     state.ui.campaignSort = target.value || 'updatedAt';
     saveState();
@@ -2315,13 +2029,8 @@ const initActions = () => {
   safeInit('initBrandDeleteFeature', initBrandDeleteFeature);
   safeInit('initCampaignForm', initCampaignForm);
   safeInit('initCampaignDeleteFeature', initCampaignDeleteFeature);
-<<<<<<< HEAD
   safeInit('initAdminTrackerCard', initAdminTrackerCard);
   safeInit('initAdminPartnerCommissions', initAdminPartnerCommissions);
-=======
-  safeInit('initAccountForm', initAccountForm);
-  safeInit('initAdminTrackerCard', initAdminTrackerCard);
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
 
   const brandActionForm = document.getElementById('brand-action-form');
   if (brandActionForm && brandActionForm.dataset.bound !== '1') {
@@ -2370,7 +2079,6 @@ const initActions = () => {
     }
   }
 
-<<<<<<< HEAD
   const campaignAssetsForm = document.getElementById('campaign-assets-form');
   if (campaignAssetsForm && campaignAssetsForm.dataset.bound !== '1') {
     campaignAssetsForm.dataset.bound = '1';
@@ -2401,8 +2109,6 @@ const initActions = () => {
     });
   }
 
-=======
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
   // Expose modal functions for quiz convert-to-real flow
   window.__ugcModals = { openCampaignModal };
 
@@ -2445,8 +2151,3 @@ const initActions = () => {
 };
 
 export { initActions };
-
-<<<<<<< HEAD
-=======
-
->>>>>>> 902074b4211073f9129513d97dbf8b86232764f7
