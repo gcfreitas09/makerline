@@ -857,6 +857,93 @@ function waitlist_store_remote_table()
     return $table !== '' ? $table : 'landing_pre_signups';
 }
 
+function waitlist_store_remote_row_to_entry($row)
+{
+    if (!is_array($row)) return null;
+
+    $payload = is_array($row['payload'] ?? null) ? $row['payload'] : [];
+    $payload['id'] = waitlist_store_string($row['id'] ?? ($payload['id'] ?? ''), 80);
+    $payload['name'] = waitlist_store_string($row['name'] ?? ($payload['name'] ?? ''), 160);
+    $payload['whatsapp'] = waitlist_store_string($row['whatsapp'] ?? ($payload['whatsapp'] ?? ''), 40);
+    if (waitlist_store_string($payload['phone'] ?? '', 40) === '') {
+        $payload['phone'] = $payload['whatsapp'];
+    }
+    $payload['instagram'] = waitlist_store_string($row['instagram'] ?? ($payload['instagram'] ?? ''), 80);
+    $payload['leadStatus'] = waitlist_store_normalize_lead_status($row['lead_status'] ?? ($payload['leadStatus'] ?? ''));
+    $payload['isTest'] = waitlist_store_boolean($row['is_test'] ?? ($payload['isTest'] ?? false));
+    $payload['createdAt'] = waitlist_store_string($row['created_at'] ?? ($payload['createdAt'] ?? ''), 40);
+    $payload['updatedAt'] = waitlist_store_string($row['updated_at'] ?? ($payload['updatedAt'] ?? $payload['createdAt']), 40);
+    $payload['originLabel'] = waitlist_store_string($payload['originLabel'] ?? ($row['origin_label'] ?? ''), 180);
+    $payload['referralCode'] = waitlist_store_string($payload['referralCode'] ?? ($row['referral_code'] ?? ''), 80);
+    $payload['partnerCode'] = waitlist_store_string($payload['partnerCode'] ?? ($row['partner_code'] ?? ''), 80);
+    $payload['partnerName'] = waitlist_store_string($payload['partnerName'] ?? ($row['partner_name'] ?? ''), 160);
+
+    return waitlist_store_ensure_entry_defaults($payload);
+}
+
+function waitlist_store_remote_load_all()
+{
+    $table = waitlist_store_remote_table();
+    if ($table === '') return null;
+    if (!function_exists('supabase_client_request')) return null;
+
+    $entries = [];
+    $offset = 0;
+    $pageSize = 1000;
+
+    while (true) {
+        $response = supabase_client_request(
+            'GET',
+            $table,
+            [
+                'select' => '*',
+                'order' => 'created_at.asc',
+                'limit' => (string)$pageSize,
+                'offset' => (string)$offset,
+            ],
+            null
+        );
+
+        if (($response['ok'] ?? false) !== true) {
+            waitlist_store_set_remote_error((string)($response['error'] ?? 'Nao consegui carregar pre-cadastros do Supabase.'));
+            return $offset === 0 ? null : $entries;
+        }
+
+        $rows = is_array($response['data'] ?? null) ? $response['data'] : [];
+        foreach ($rows as $row) {
+            $entry = waitlist_store_remote_row_to_entry($row);
+            if ($entry) $entries[] = $entry;
+        }
+
+        if (count($rows) < $pageSize) break;
+        $offset += $pageSize;
+    }
+
+    return $entries;
+}
+
+function waitlist_store_remote_delete_by_id($entryId)
+{
+    $table = waitlist_store_remote_table();
+    if ($table === '') return true;
+    if (!function_exists('supabase_client_request')) return true;
+
+    $response = supabase_client_request(
+        'DELETE',
+        $table,
+        ['id' => 'eq.' . waitlist_store_string($entryId, 80)],
+        null,
+        ['Prefer' => 'return=minimal']
+    );
+
+    if (($response['ok'] ?? false) === true) {
+        return true;
+    }
+
+    waitlist_store_set_remote_error((string)($response['error'] ?? 'Nao consegui excluir o pre-cadastro no Supabase.'));
+    return false;
+}
+
 function waitlist_store_remote_payload($entry)
 {
     $entry = waitlist_store_ensure_entry_defaults($entry);
@@ -1038,6 +1125,11 @@ function waitlist_store_migrate_json_to_db($pdo = null, $file = MAKERLINE_WAITLI
 
 function waitlist_store_load_all($file = MAKERLINE_WAITLIST_FILE)
 {
+    $remoteEntries = waitlist_store_remote_load_all();
+    if (is_array($remoteEntries)) {
+        return $remoteEntries;
+    }
+
     $dbEntries = waitlist_store_db_load_all();
     if ($dbEntries) {
         return $dbEntries;
@@ -1086,6 +1178,10 @@ function waitlist_store_delete_by_id($entryId, $file = MAKERLINE_WAITLIST_FILE)
     }
 
     $deleted = $entries[$deleteIndex];
+
+    if (!waitlist_store_remote_delete_by_id($safeId)) {
+        return ['ok' => false, 'error' => waitlist_store_last_remote_error() ?: 'Nao consegui excluir o pre-cadastro no Supabase.'];
+    }
 
     $dbTouched = true;
     if (waitlist_store_db()) {

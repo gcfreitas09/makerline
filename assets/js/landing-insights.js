@@ -48,8 +48,16 @@ const TAB_OPTIONS = [
   { id: 'acquisition', label: 'Aquisicao' },
   { id: 'signups', label: 'Pre-cadastros' },
   { id: 'partners', label: 'Parceiros' },
+  { id: 'commissions', label: 'Comissoes' },
+  { id: 'updates', label: 'Atualizacoes' },
   { id: 'events', label: 'Eventos tecnicos' },
 ];
+
+const STANDALONE_TABS = ['commissions', 'updates'];
+
+// Abas escondidas do menu por pedido do time -- o codigo e os dados de cada uma
+// continuam intactos (renderCurrentTab ainda sabe renderiza-las), so o botao some.
+const VISIBLE_TAB_IDS = ['overview', 'acquisition', 'partners'];
 const PERIOD_OPTIONS = [
   { id: 'today', label: 'Hoje' },
   { id: '7d', label: '7 dias' },
@@ -92,6 +100,22 @@ const state = {
     channel: '',
     onlyLeads: false,
     onlyErrors: false,
+  },
+  commissions: {
+    loaded: false,
+    loading: false,
+    error: '',
+    data: null,
+  },
+  updates: {
+    loaded: false,
+    loading: false,
+    error: '',
+    items: [],
+    draft: '',
+    submitting: false,
+    editingId: '',
+    editDraft: '',
   },
 };
 
@@ -149,6 +173,17 @@ const formatDate = (value) => {
   const date = value ? new Date(value) : null;
   if (!date || Number.isNaN(date.getTime())) return '';
   return date.toISOString().slice(0, 10);
+};
+
+const formatMoneyCents = (cents) =>
+  (Number(cents || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+const formatMonthLabel = (isoDate) => {
+  const safe = String(isoDate || '').slice(0, 7);
+  if (!/^\d{4}-\d{2}$/.test(safe)) return safe || 'Sem mes';
+  const [year, month] = safe.split('-');
+  const date = new Date(Number(year), Number(month) - 1, 1);
+  return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 };
 
 const formatTrialDays = (value) => {
@@ -943,6 +978,202 @@ const renderPartners = () => {
   `;
 };
 
+const renderCommissions = () => {
+  if (state.commissions.loading && !state.commissions.data) {
+    return `<section class="li-panel"><div class="li-empty">Carregando comissoes...</div></section>`;
+  }
+
+  if (state.commissions.error) {
+    return `
+      <section class="li-panel li-panel--empty">
+        <h2>Nao consegui carregar as comissoes</h2>
+        <p>${escapeHtml(state.commissions.error)}</p>
+        <button class="li-btn li-btn--primary" type="button" data-action="reload-commissions">Tentar de novo</button>
+      </section>
+    `;
+  }
+
+  const data = state.commissions.data;
+  if (!data) {
+    return `<section class="li-panel"><div class="li-empty">Ainda sem dados.</div></section>`;
+  }
+
+  const totals = data.totals || {};
+  const balances = Array.isArray(data.balances) ? data.balances : [];
+  const summary = Array.isArray(data.summary) ? data.summary : [];
+  const recent = Array.isArray(data.recent) ? data.recent : [];
+
+  return `
+    <section class="li-section-stack">
+      <section class="li-panel">
+        <div class="li-panel__head">
+          <div>
+            <p class="li-kicker">Comissoes de parceiros</p>
+            <h2>Quanto cada parceiro ja ganhou</h2>
+          </div>
+        </div>
+        <div class="li-card-grid">
+          <div class="li-metric-card">
+            <span class="li-metric-label">Bruto recebido</span>
+            <strong class="li-metric-value">${formatMoneyCents(totals.grossAmountCents)}</strong>
+          </div>
+          <div class="li-metric-card">
+            <span class="li-metric-label">Comissao total</span>
+            <strong class="li-metric-value">${formatMoneyCents(totals.commissionAmountCents)}</strong>
+          </div>
+          <div class="li-metric-card">
+            <span class="li-metric-label">Liquido pra Makerline</span>
+            <strong class="li-metric-value">${formatMoneyCents(totals.platformAmountCents)}</strong>
+          </div>
+          <div class="li-metric-card">
+            <span class="li-metric-label">Clientes pagantes</span>
+            <strong class="li-metric-value">${formatNumber(totals.payingClients)}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="li-panel">
+        <div class="li-panel__head">
+          <div>
+            <p class="li-kicker">Por parceiro</p>
+            <h2>Saldo acumulado</h2>
+          </div>
+        </div>
+        ${renderDataTable(
+          [
+            { key: 'partnerName', label: 'Parceiro' },
+            { key: 'payingClients', label: 'Clientes', render: (row) => formatNumber(row.payingClients) },
+            { key: 'paidInvoices', label: 'Cobrancas pagas', render: (row) => formatNumber(row.paidInvoices) },
+            { key: 'grossAmountCents', label: 'Bruto', render: (row) => formatMoneyCents(row.grossAmountCents) },
+            { key: 'commissionAmountCents', label: 'Comissao', render: (row) => formatMoneyCents(row.commissionAmountCents) },
+            { key: 'latestPayoutMonth', label: 'Ultimo mes', render: (row) => formatMonthLabel(row.latestPayoutMonth) },
+          ],
+          balances
+        )}
+      </section>
+
+      <section class="li-panel">
+        <div class="li-panel__head">
+          <div>
+            <p class="li-kicker">Mes a mes</p>
+            <h2>Fechamento mensal por parceiro</h2>
+          </div>
+        </div>
+        ${renderDataTable(
+          [
+            { key: 'payout_month', label: 'Mes', render: (row) => formatMonthLabel(row.payout_month) },
+            { key: 'partner_name', label: 'Parceiro' },
+            { key: 'paying_clients', label: 'Clientes', render: (row) => formatNumber(row.paying_clients) },
+            { key: 'gross_amount_cents', label: 'Bruto', render: (row) => formatMoneyCents(row.gross_amount_cents) },
+            { key: 'commission_amount_cents', label: 'Comissao', render: (row) => formatMoneyCents(row.commission_amount_cents) },
+            { key: 'platform_net_amount_cents', label: 'Liquido Makerline', render: (row) => formatMoneyCents(row.platform_net_amount_cents) },
+          ],
+          summary
+        )}
+      </section>
+
+      <section class="li-panel">
+        <div class="li-panel__head">
+          <div>
+            <p class="li-kicker">Lancamentos recentes</p>
+            <h2>Ultimas cobrancas com comissao</h2>
+          </div>
+        </div>
+        ${renderDataTable(
+          [
+            { key: 'paid_at', label: 'Data', render: (row) => formatDateTime(row.paid_at) },
+            { key: 'partner_name', label: 'Parceiro' },
+            { key: 'user_email', label: 'Cliente' },
+            { key: 'plan_code', label: 'Plano', render: (row) => (row.plan_code === 'annual' ? 'Anual' : row.plan_code === 'monthly' ? 'Mensal' : row.plan_code || '-') },
+            { key: 'amount_paid_cents', label: 'Valor pago', render: (row) => formatMoneyCents(row.amount_paid_cents) },
+            { key: 'commission_amount_cents', label: 'Comissao', render: (row) => formatMoneyCents(row.commission_amount_cents) },
+          ],
+          recent
+        )}
+      </section>
+    </section>
+  `;
+};
+
+const renderUpdates = () => {
+  const items = Array.isArray(state.updates.items) ? state.updates.items : [];
+
+  return `
+    <section class="li-section-stack">
+      <section class="li-panel">
+        <div class="li-panel__head">
+          <div>
+            <p class="li-kicker">Atualizacoes da equipe</p>
+            <h2>O que aconteceu essa semana</h2>
+          </div>
+        </div>
+        <div class="li-update-form">
+          <textarea
+            id="update-draft-input"
+            class="li-update-textarea"
+            rows="3"
+            placeholder="Escreve aqui o que voce aprendeu, fez ou quer registrar essa semana..."
+          >${escapeHtml(state.updates.draft)}</textarea>
+          <button class="li-btn li-btn--primary" type="button" data-action="publish-update" ${state.updates.submitting ? 'disabled' : ''}>
+            ${state.updates.submitting ? 'Publicando...' : 'Publicar'}
+          </button>
+        </div>
+      </section>
+
+      <section class="li-panel">
+        <div class="li-panel__head">
+          <div>
+            <p class="li-kicker">Linha do tempo</p>
+            <h2>${formatNumber(items.length)} atualizacao${items.length === 1 ? '' : 'es'}</h2>
+          </div>
+        </div>
+        ${
+          state.updates.loading && !items.length
+            ? '<div class="li-empty">Carregando atualizacoes...</div>'
+            : state.updates.error
+            ? `<div class="li-empty">${escapeHtml(state.updates.error)}</div>`
+            : !items.length
+            ? '<div class="li-empty">Nenhuma atualizacao publicada ainda.</div>'
+            : `
+              <div class="li-timeline">
+                ${items
+                  .map((item) => {
+                    const isEditing = state.updates.editingId === item.id;
+                    return `
+                      <article class="li-timeline-item">
+                        <div class="li-timeline-item__head">
+                          <strong>${escapeHtml(item.author_name || 'Equipe')}</strong>
+                          <span>${formatDateTime(item.created_at)}</span>
+                        </div>
+                        ${
+                          isEditing
+                            ? `
+                              <textarea class="li-update-textarea" rows="3" data-update-edit-input="${escapeHtml(item.id)}">${escapeHtml(state.updates.editDraft)}</textarea>
+                              <div class="li-timeline-item__actions">
+                                <button class="li-btn li-btn--primary" type="button" data-update-action="save" data-update-id="${escapeHtml(item.id)}">Salvar</button>
+                                <button class="li-btn li-btn--ghost" type="button" data-update-action="cancel-edit" data-update-id="${escapeHtml(item.id)}">Cancelar</button>
+                              </div>
+                            `
+                            : `
+                              <p class="li-timeline-item__message">${escapeHtml(item.message).replaceAll('\n', '<br />')}</p>
+                              <div class="li-timeline-item__actions">
+                                <button class="li-btn li-btn--ghost" type="button" data-update-action="edit" data-update-id="${escapeHtml(item.id)}">Editar</button>
+                                <button class="li-btn li-btn--danger" type="button" data-update-action="delete" data-update-id="${escapeHtml(item.id)}">Apagar</button>
+                              </div>
+                            `
+                        }
+                      </article>
+                    `;
+                  })
+                  .join('')}
+              </div>
+            `
+        }
+      </section>
+    </section>
+  `;
+};
+
 const buildTechnicalFilterOptions = (events) => {
   const unique = (values) => [...new Set(values.filter(Boolean))].sort();
   return {
@@ -1227,10 +1458,10 @@ const renderHeader = () => {
       <section class="li-tab-panel">
         <div class="li-toolbar-card__head">
           <strong>Abas</strong>
-          <span>Navegue entre visao geral, funil, parceiros, pre-cadastros e eventos tecnicos.</span>
+          <span>Navegue entre visao geral, parceiros, comissoes e atualizacoes.</span>
         </div>
         <nav class="li-tabs" aria-label="Abas do tracker">
-          ${TAB_OPTIONS.map(
+          ${TAB_OPTIONS.filter((tab) => VISIBLE_TAB_IDS.includes(tab.id)).map(
             (tab) => `
               <button class="li-tab ${state.activeTab === tab.id ? 'is-active' : ''}" type="button" data-tab="${escapeHtml(tab.id)}">
                 ${escapeHtml(tab.label)}
@@ -1250,6 +1481,8 @@ const renderCurrentTab = () => {
   if (state.activeTab === 'acquisition') return renderAcquisition();
   if (state.activeTab === 'signups') return renderSignups();
   if (state.activeTab === 'partners') return renderPartners();
+  if (state.activeTab === 'commissions') return renderCommissions();
+  if (state.activeTab === 'updates') return renderUpdates();
   if (state.activeTab === 'events') return renderEvents();
   return renderOverview();
 };
@@ -1291,9 +1524,10 @@ const render = () => {
   }
 
   const hasData = Array.isArray(state.data?.overview?.cards) && state.data.overview.cards.length > 0;
+  const showEmpty = !hasData && !STANDALONE_TABS.includes(state.activeTab);
   app.innerHTML = `
     ${renderHeader()}
-    ${hasData ? renderCurrentTab() : renderEmpty()}
+    ${showEmpty ? renderEmpty() : renderCurrentTab()}
   `;
 };
 
@@ -1567,6 +1801,172 @@ const cleanupTestData = async () => {
   }
 };
 
+const loadCommissions = async ({ force = false } = {}) => {
+  if (!state.auth?.token) return;
+  if (state.commissions.loaded && !force) return;
+
+  state.commissions.loading = true;
+  state.commissions.error = '';
+  render();
+
+  try {
+    const response = await fetch('api/admin_tracker_commissions.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: state.auth.token }),
+    });
+
+    const { data, text } = await readApiResponse(response);
+    if (!response.ok || !data || data.ok !== true) {
+      state.commissions.loading = false;
+      state.commissions.error =
+        (data && data.error) || (text ? `Erro ao carregar comissoes: ${text}` : `Erro HTTP ${response.status || 0}.`);
+      render();
+      return;
+    }
+
+    state.commissions.data = data;
+    state.commissions.loaded = true;
+    state.commissions.loading = false;
+    render();
+  } catch (error) {
+    state.commissions.loading = false;
+    state.commissions.error = 'Nao consegui carregar as comissoes agora.';
+    render();
+  }
+};
+
+const loadUpdates = async ({ force = false } = {}) => {
+  if (!state.auth?.token) return;
+  if (state.updates.loaded && !force) return;
+
+  state.updates.loading = true;
+  state.updates.error = '';
+  render();
+
+  try {
+    const response = await fetch('api/admin_tracker_updates.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: state.auth.token, action: 'list' }),
+    });
+
+    const { data, text } = await readApiResponse(response);
+    if (!response.ok || !data || data.ok !== true) {
+      state.updates.loading = false;
+      state.updates.error =
+        (data && data.error) || (text ? `Erro ao carregar atualizacoes: ${text}` : `Erro HTTP ${response.status || 0}.`);
+      render();
+      return;
+    }
+
+    state.updates.items = Array.isArray(data.updates) ? data.updates : [];
+    state.updates.loaded = true;
+    state.updates.loading = false;
+    render();
+  } catch (error) {
+    state.updates.loading = false;
+    state.updates.error = 'Nao consegui carregar as atualizacoes agora.';
+    render();
+  }
+};
+
+const submitNewUpdate = async () => {
+  const message = state.updates.draft.trim();
+  if (!state.auth?.token || !message || state.updates.submitting) return;
+
+  state.updates.submitting = true;
+  render();
+
+  try {
+    const response = await fetch('api/admin_tracker_updates.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: state.auth.token, action: 'create', message }),
+    });
+
+    const { data, text } = await readApiResponse(response);
+    if (!response.ok || !data || data.ok !== true) {
+      state.updates.submitting = false;
+      showMessage(
+        (data && data.error) || (text ? `Erro ao publicar: ${text}` : `Erro HTTP ${response.status || 0}.`),
+        'is-error'
+      );
+      render();
+      return;
+    }
+
+    state.updates.items = [data.update, ...state.updates.items];
+    state.updates.draft = '';
+    state.updates.submitting = false;
+    render();
+    showMessage('Atualizacao publicada.', 'is-success');
+  } catch (error) {
+    state.updates.submitting = false;
+    showMessage('Nao consegui publicar a atualizacao agora.', 'is-error');
+    render();
+  }
+};
+
+const saveEditedUpdate = async (id) => {
+  const message = state.updates.editDraft.trim();
+  if (!state.auth?.token || !id || !message) return;
+
+  try {
+    const response = await fetch('api/admin_tracker_updates.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: state.auth.token, action: 'update', id, message }),
+    });
+
+    const { data, text } = await readApiResponse(response);
+    if (!response.ok || !data || data.ok !== true) {
+      showMessage(
+        (data && data.error) || (text ? `Erro ao editar: ${text}` : `Erro HTTP ${response.status || 0}.`),
+        'is-error'
+      );
+      return;
+    }
+
+    state.updates.items = state.updates.items.map((item) => (item.id === id ? data.update : item));
+    state.updates.editingId = '';
+    state.updates.editDraft = '';
+    render();
+    showMessage('Atualizacao editada.', 'is-success');
+  } catch (error) {
+    showMessage('Nao consegui editar a atualizacao agora.', 'is-error');
+  }
+};
+
+const deleteUpdateEntry = async (id) => {
+  if (!state.auth?.token || !id) return;
+  const confirmed = window.confirm('Apagar essa atualizacao permanentemente?');
+  if (!confirmed) return;
+
+  try {
+    const response = await fetch('api/admin_tracker_updates.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: state.auth.token, action: 'delete', id }),
+    });
+
+    const { data, text } = await readApiResponse(response);
+    if (!response.ok || !data || data.ok !== true) {
+      showMessage(
+        (data && data.error) || (text ? `Erro ao apagar: ${text}` : `Erro HTTP ${response.status || 0}.`),
+        'is-error'
+      );
+      return;
+    }
+
+    state.updates.items = state.updates.items.filter((item) => item.id !== id);
+    render();
+    showMessage('Atualizacao apagada.', 'is-success');
+  } catch (error) {
+    showMessage('Nao consegui apagar a atualizacao agora.', 'is-error');
+  }
+};
+
 const updateLeadStatus = async (leadId, status) => {
   if (!state.auth?.token || !leadId || !status) return;
 
@@ -1713,12 +2113,49 @@ document.addEventListener('click', (event) => {
       logoutTracker();
       return;
     }
+    if (action === 'reload-commissions') {
+      loadCommissions({ force: true });
+      return;
+    }
+    if (action === 'publish-update') {
+      submitNewUpdate();
+      return;
+    }
+  }
+
+  const updateAction = event.target.closest('[data-update-action]')?.getAttribute('data-update-action') || '';
+  const updateId = event.target.closest('[data-update-action]')?.getAttribute('data-update-id') || '';
+  if (updateAction && updateId) {
+    if (updateAction === 'edit') {
+      const item = state.updates.items.find((entry) => entry.id === updateId);
+      if (!item) return;
+      state.updates.editingId = updateId;
+      state.updates.editDraft = item.message;
+      render();
+      return;
+    }
+    if (updateAction === 'cancel-edit') {
+      state.updates.editingId = '';
+      state.updates.editDraft = '';
+      render();
+      return;
+    }
+    if (updateAction === 'save') {
+      saveEditedUpdate(updateId);
+      return;
+    }
+    if (updateAction === 'delete') {
+      deleteUpdateEntry(updateId);
+      return;
+    }
   }
 
   const tabId = event.target.closest('[data-tab]')?.getAttribute('data-tab');
   if (tabId) {
     state.activeTab = tabId;
     render();
+    if (tabId === 'commissions') loadCommissions();
+    if (tabId === 'updates') loadUpdates();
     return;
   }
 
@@ -1790,6 +2227,17 @@ document.addEventListener('change', (event) => {
 });
 
 document.addEventListener('input', (event) => {
+  if (event.target.id === 'update-draft-input') {
+    state.updates.draft = event.target.value;
+    return;
+  }
+
+  const editId = event.target.getAttribute('data-update-edit-input');
+  if (editId) {
+    state.updates.editDraft = event.target.value;
+    return;
+  }
+
   const signupFilter = event.target.getAttribute('data-signup-filter');
   if (!signupFilter) return;
   state.signupFilters[signupFilter] = event.target.value;
