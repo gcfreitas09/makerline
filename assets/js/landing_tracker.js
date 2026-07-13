@@ -306,6 +306,16 @@
     return state.maxScrollDepth;
   }
 
+  function detectTrackerPage() {
+    if (typeof window.MAKERLINE_TRACKER_PAGE === 'string' && window.MAKERLINE_TRACKER_PAGE) {
+      return window.MAKERLINE_TRACKER_PAGE;
+    }
+    const path = String(window.location.pathname || '').toLowerCase().replace(/\/+$/, '');
+    if (path.indexOf('lancamento') !== -1 || path === '' || path === '/index') return 'lancamento';
+    if (path.indexOf('landing') !== -1) return 'landing';
+    return 'lancamento';
+  }
+
   function buildBasePayload() {
     updateScrollDepth();
     const utm = getUtmParams();
@@ -315,7 +325,7 @@
       visitor_id: state.visitorId,
       session_id: state.sessionId,
       page_instance_id: pageInstanceId,
-      page: 'landing',
+      page: detectTrackerPage(),
       page_url: trimText(window.location.href || '', 500),
       page_path: trimText(window.location.pathname || '', 255),
       section_id: trimText(state.lastSectionId || '', 80),
