@@ -1,15 +1,16 @@
 AddDefaultCharset UTF-8
-DirectoryIndex landing.html index.html
+DirectoryIndex lancamento.html index.html
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteRule ^index\.html$ landing.html [L,QSA,NC]
+  RewriteRule ^index\.html$ lancamento.html [L,QSA,NC]
   RewriteRule ^app\.html$ - [L,NC]
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
-  RewriteRule ^$ landing.html [L]
-  RewriteRule ^app/?$ landing.html [L,QSA,NC]
+  RewriteRule ^$ lancamento.html [L]
+  RewriteRule ^app/?$ lancamento.html [L,QSA,NC]
+  RewriteRule ^tracker/?$ tracker.html [L,QSA,NC]
   RewriteRule ^(admin|intelligence|landing-insights|verify|reset)/?$ $1.html [L,QSA,NC]
 </IfModule>
 
@@ -26,7 +27,7 @@ DirectoryIndex landing.html index.html
   </IfModule>
 </FilesMatch>
 
-<FilesMatch "^(index|app|landing)\.html$">
+<FilesMatch "^(index|app|landing|lancamento)\.html$">
   <IfModule mod_headers.c>
     Header set Cache-Control "no-cache, no-store, must-revalidate"
     Header set Pragma "no-cache"
@@ -34,7 +35,7 @@ DirectoryIndex landing.html index.html
   </IfModule>
 </FilesMatch>
 
-<FilesMatch "^(app|admin|intelligence|landing-insights|reset|verify)\.html$">
+<FilesMatch "^(app|admin|intelligence|landing-insights|tracker|reset|verify)\.html$">
   <IfModule mod_headers.c>
     Header set X-Robots-Tag "noindex, nofollow"
   </IfModule>

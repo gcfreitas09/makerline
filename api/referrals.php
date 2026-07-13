@@ -32,7 +32,7 @@ function referrals_partners()
             'instagram' => '@rickolavo',
             'instagramUrl' => 'https://instagram.com/rickolavo',
             'urlSlug' => 'RickOlavo',
-            'commissionPercent' => 10,
+            'commissionPercent' => 35,
             'trialDays' => 30,
             'aliases' => ['rick-olavo'],
         ],
@@ -44,7 +44,7 @@ function referrals_partners()
             'instagram' => '@keilabraganteugc',
             'instagramUrl' => 'https://instagram.com/keilabraganteugc',
             'urlSlug' => 'KeilaBragante_30',
-            'commissionPercent' => 10,
+            'commissionPercent' => 25,
             'trialDays' => 30,
             'aliases' => ['keilabragante30'],
         ],
@@ -56,7 +56,7 @@ function referrals_partners()
             'instagram' => '@keilabraganteugc',
             'instagramUrl' => 'https://instagram.com/keilabraganteugc',
             'urlSlug' => 'KeilaBragante_15',
-            'commissionPercent' => 10,
+            'commissionPercent' => 25,
             'trialDays' => 15,
             'aliases' => ['keilabragante-1', 'keilabragante1', 'keilabragante-2', 'keilabragante2'],
         ],
@@ -182,7 +182,7 @@ function referrals_public_partner_payload($partner)
     $slug = trim((string)($partner['urlSlug'] ?? ''));
     $signupUrl = $slug !== ''
         ? ugc_base_url() . '/' . rawurlencode($slug)
-        : ugc_base_url() . '/landing.html?ref=' . rawurlencode((string)($partner['code'] ?? ''));
+        : ugc_base_url() . '/lancamento.html?ref=' . rawurlencode((string)($partner['code'] ?? ''));
 
     return [
         'partnerCode' => (string)($partner['partnerCode'] ?? $partner['code'] ?? ''),
