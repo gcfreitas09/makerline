@@ -7,6 +7,7 @@ error_reporting(0);
 
 require_once __DIR__ . '/users_store.php';
 require_once __DIR__ . '/states_store.php';
+require_once __DIR__ . '/landing_insights_access.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -107,6 +108,12 @@ if (strlen($token) < 10) {
 $tokenHash = hash('sha256', $token);
 $now = time();
 $foundUser = users_store_find_by_session_token_hash($tokenHash);
+if (!$foundUser) {
+    $privateAuth = landing_private_authenticate_token($token);
+    if (!empty($privateAuth['ok']) && is_array($privateAuth['user'] ?? null)) {
+        $foundUser = $privateAuth['user'];
+    }
+}
 if (!$foundUser) {
     respond(401, ['error' => 'Sessão inválida. Faz login de novo.']);
 }

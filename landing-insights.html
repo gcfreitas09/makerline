@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>Makerline Landing Insights</title>
+    <script>
+      if (window.top === window.self && !new URLSearchParams(window.location.search).has('embed')) {
+        window.location.replace('tracker?view=landing');
+      }
+    </script>
     <link rel="icon" type="image/png" href="assets/img/logo.png" />
     <link rel="apple-touch-icon" href="assets/img/logo.png" />
     <link rel="stylesheet" href="assets/css/app2.css?v=20260217c" />
-    <link rel="stylesheet" href="assets/css/landing-insights.css?v=20260608a" />
+    <link rel="stylesheet" href="assets/css/landing-insights.css?v=20260710a" />
   </head>
   <body class="li-body">
     <main class="li-shell">
@@ -16,6 +21,6 @@
       <div id="landing-insights-app"></div>
     </main>
 
-    <script type="module" src="assets/js/landing-insights.js?v=20260608d"></script>
+    <script type="module" src="assets/js/landing-insights.js?v=20260712a"></script>
   </body>
 </html>

@@ -531,6 +531,24 @@ body.ml-body.ml-panel-open {
   z-index: 1;
 }
 
+.ml-table th.ml-col-actions,
+.ml-table td.ml-col-actions {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--ml-bg);
+  box-shadow: -8px 0 12px -6px rgba(0, 0, 0, 0.45);
+}
+
+.ml-table th.ml-col-actions {
+  z-index: 3;
+  background: rgba(7, 14, 26, 0.96);
+}
+
+.ml-table tbody tr:hover td.ml-col-actions {
+  background: #0c1729;
+}
+
 .ml-table tbody tr {
   transition: background 160ms ease, transform 160ms ease;
 }

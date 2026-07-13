@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/users_store.php';
 require_once __DIR__ . '/states_store.php';
+require_once __DIR__ . '/landing_insights_access.php';
+require_once __DIR__ . '/referrals.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -39,6 +41,20 @@ function load_admin_emails($adminsFile, $exampleFile)
         $clean[] = $safe;
     }
     return array_values(array_unique($clean));
+}
+
+function intelligence_internal_excluded_emails()
+{
+    $emails = access_internal_emails();
+
+    foreach (referrals_partners() as $partner) {
+        $partnerEmail = trim(strtolower((string)($partner['email'] ?? '')));
+        if ($partnerEmail !== '') $emails[] = $partnerEmail;
+    }
+
+    return array_values(array_unique(array_map(function ($email) {
+        return trim(strtolower((string)$email));
+    }, $emails)));
 }
 
 function sanitize_state_file_user_id($userId)
@@ -138,8 +154,11 @@ function build_onboarding_snapshot($state, $campaignSummary)
         ],
     ];
 
+    $tutorialCompleted = !empty($onboarding['quizDone']) && !empty($onboarding['firstCampaignCreated']) && !empty($onboarding['tooltipsDone']);
+
     return [
         'steps' => $steps,
+        'tutorialCompleted' => $tutorialCompleted,
         'raw' => $onboarding,
     ];
 }
@@ -233,12 +252,16 @@ $tokenHash = hash('sha256', $token);
 $now = time();
 $foundUser = users_store_find_by_session_token_hash($tokenHash);
 if (!$foundUser) {
-    respond_json(401, ['error' => 'Sessão inválida. Faz login de novo.']);
-}
-
-$expires = (int)($foundUser['sessionTokenExpires'] ?? 0);
-if ($expires && $expires < $now) {
-    respond_json(401, ['error' => 'Sessão expirada. Faz login de novo.']);
+    $privateAuth = landing_private_authenticate_token($token);
+    if (empty($privateAuth['ok']) || !is_array($privateAuth['user'] ?? null)) {
+        respond_json((int)($privateAuth['status'] ?? 401), ['error' => $privateAuth['error'] ?? 'Sessão inválida. Faça login novamente.']);
+    }
+    $foundUser = $privateAuth['user'];
+} else {
+    $expires = (int)($foundUser['sessionTokenExpires'] ?? 0);
+    if ($expires && $expires < $now) {
+        respond_json(401, ['error' => 'Sessão expirada. Faz login de novo.']);
+    }
 }
 
 $adminEmails = load_admin_emails($adminsFile, $adminsExampleFile);
@@ -253,10 +276,12 @@ if (
 
 $users = users_store_load_all();
 $list = [];
+$excludedEmails = intelligence_internal_excluded_emails();
 
 foreach ($users as $user) {
     $email = strtolower(trim((string)($user['email'] ?? '')));
     if ($email === '') continue;
+    if (in_array($email, $excludedEmails, true)) continue;
 
     $id = (string)($user['id'] ?? '');
     $statePayload = $id !== '' ? load_state_payload_for_user($id, $statesDir) : ['state' => null, 'updatedAt' => null, 'backend' => 'none'];
@@ -264,11 +289,18 @@ foreach ($users as $user) {
     $campaignSummary = summarize_campaigns_from_state($state);
     $onboarding = build_onboarding_snapshot($state, $campaignSummary);
     $signals = extract_state_signals($state, $statePayload['updatedAt'] ?? null);
+    $referredBy = trim((string)($user['referredBy'] ?? ''));
+    $referralPartner = $referredBy !== '' ? referrals_partner_by_code($referredBy) : null;
+    $referralOrigin = $referralPartner
+        ? trim((string)($referralPartner['name'] ?? $referralPartner['partnerCode'] ?? $referredBy))
+        : ($referredBy !== '' ? $referredBy : 'Direto / orgânico');
 
     $list[] = [
         'id' => $id,
         'name' => (string)($user['name'] ?? ''),
         'email' => $email,
+        'referredBy' => $referredBy,
+        'referralOrigin' => $referralOrigin,
         'createdAt' => (string)($user['createdAt'] ?? ''),
         'accessCount' => (int)($user['accessCount'] ?? 0),
         'timeSpentSeconds' => (int)($user['timeSpentSeconds'] ?? 0),

@@ -157,6 +157,7 @@ const UserRow = (user) => `
         </span>
       </button>
     </td>
+    <td><span class="ml-badge ${user.referredBy ? 'is-accent' : 'is-muted'}">${user.referralOrigin || 'Direto / orgânico'}</span></td>
     <td>${renderDateCell(formatDate(user.createdAt))}</td>
     <td>${renderDateCell(formatDate(user.lastLoginAt))}</td>
     <td>${renderDateCell(formatDate(user.lastSeenAt))}</td>
@@ -175,7 +176,8 @@ const UserRow = (user) => `
         ${ProgressBar({ score: user.onboardingProgress.percentage })}
       </div>
     </td>
-    <td>
+    <td><span class="ml-badge ${user.onboarding?.tutorialCompleted ? 'is-success' : 'is-muted'}">${user.onboarding?.tutorialCompleted ? 'Concluído' : 'Pendente'}</span></td>
+    <td class="ml-col-actions">
       <div class="ml-row-actions">
         <button class="ml-icon-btn" type="button" data-action="open-user" data-user-id="${user.id}" title="Ver detalhes">${renderIcon('search')}</button>
         <button class="ml-icon-btn" type="button" data-action="copy-email" data-user-id="${user.id}" title="Copiar e-mail">${renderIcon('copy')}</button>
@@ -200,15 +202,18 @@ const UserCard = (user) => `
     </div>
     <div class="ml-user-card__metrics">
       <div><span>Cadastro</span><strong>${formatShortDate(user.createdAt)}</strong></div>
+      <div><span>Origem</span><strong>${user.referralOrigin || 'Direto / orgânico'}</strong></div>
       <div><span>Último login</span><strong>${formatShortDate(user.lastLoginAt)}</strong></div>
       <div><span>Campanhas</span><strong>${user.campaignCount}/${user.activeCampaignCount}</strong></div>
       <div><span>Onboarding</span><strong>${user.onboardingProgress.percentage}%</strong></div>
+      <div><span>Tutorial</span><strong>${user.onboarding?.tutorialCompleted ? 'Concluído' : 'Pendente'}</strong></div>
     </div>
     <div class="ml-user-card__actions">
       <button class="ml-btn ml-btn--primary" type="button" data-action="open-user" data-user-id="${user.id}">Ver detalhes</button>
       <button class="ml-btn ml-btn--ghost" type="button" data-action="copy-email" data-user-id="${user.id}">Copiar e-mail</button>
       <button class="ml-btn ml-btn--ghost" type="button" data-action="mark-contact" data-user-id="${user.id}">Marcar contato</button>
       <button class="ml-btn ml-btn--ghost" type="button" data-action="reset-password" data-user-id="${user.id}">Redefinir senha</button>
+      <button class="ml-btn ml-btn--danger" type="button" data-action="delete-user" data-user-id="${user.id}">Excluir usuário</button>
     </div>
   </article>
 `;
@@ -239,6 +244,7 @@ const UsersTable = (users) => {
         <thead>
           <tr>
             <th>Usuário</th>
+            <th>Origem</th>
             <th>Cadastro</th>
             <th>Último login</th>
             <th>Última atividade</th>
@@ -247,7 +253,8 @@ const UsersTable = (users) => {
             <th>Tempo total</th>
             <th>Campanhas</th>
             <th>Onboarding</th>
-            <th>Ações</th>
+            <th>Tutorial</th>
+            <th class="ml-col-actions">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -265,6 +272,7 @@ const UserMetricsCards = (user) => `
   <div class="ml-detail-metrics ml-detail-metrics--dense">
     ${[
       ['Data de cadastro', formatDate(user.createdAt)],
+      ['Origem', user.referralOrigin || 'Direto / orgânico'],
       ['Último login', formatDate(user.lastLoginAt)],
       ['Última atividade', formatDate(user.lastSeenAt)],
       ['Acessos 7 dias', safeNumber(user.accesses7d)],
@@ -407,6 +415,7 @@ const UserDetailsPanel = (user) => {
           content: `
             <div class="ml-diagnostic-grid">
               <article><span>Cadastro</span><strong>${formatDate(user.createdAt)}</strong></article>
+              <article><span>Origem</span><strong>${user.referralOrigin || 'Direto / orgânico'}</strong></article>
               <article><span>Último login</span><strong>${formatDate(user.lastLoginAt)}</strong></article>
               <article><span>Última atividade</span><strong>${formatDate(user.lastSeenAt)}</strong></article>
               <article><span>Etapa atual</span><strong>${user.onboardingProgress.stalledAt}</strong></article>

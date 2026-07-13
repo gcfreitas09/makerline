@@ -15,7 +15,7 @@ import {
   UserDetailsPanel,
   UserFilters,
   UsersTable,
-} from './intelligence-components.js?v=20260616a';
+} from './intelligence-components.js?v=20260713a';
 
 const getFromStorage = (key) => {
   try {
@@ -39,20 +39,50 @@ const setLocal = (key, value) => {
   } catch (error) {}
 };
 
-const sessionToken = getFromStorage('ugcQuestToken') || getFromLocal('ugcQuestSessionToken');
+const readPrivateTrackerAuth = () => {
+  try {
+    const raw = sessionStorage.getItem('makerlineLandingInsightsAuth');
+    const parsed = raw ? JSON.parse(raw) : null;
+    const expiresAt = parsed?.expiresAt ? new Date(parsed.expiresAt).getTime() : 0;
+    if (!parsed?.token || !parsed?.email || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
+    return parsed;
+  } catch (error) {
+    return null;
+  }
+};
+
+const privateTrackerAuth = readPrivateTrackerAuth();
+const isEmbeddedTracker = new URLSearchParams(window.location.search).get('embed') === '1';
+const appSessionToken = getFromStorage('ugcQuestToken') || getFromLocal('ugcQuestSessionToken');
+const sessionToken = (isEmbeddedTracker ? privateTrackerAuth?.token : '') || appSessionToken || privateTrackerAuth?.token || '';
 const sessionUserId = getFromStorage('ugcQuestUserId') || getFromLocal('ugcQuestSessionUserId');
-const sessionEmail = (getFromStorage('ugcQuestUserEmail') || getFromLocal('ugcQuestUserEmail') || '').trim().toLowerCase();
+const sessionEmail = (
+  (isEmbeddedTracker ? privateTrackerAuth?.email : '') ||
+  getFromStorage('ugcQuestUserEmail') ||
+  getFromLocal('ugcQuestUserEmail') ||
+  privateTrackerAuth?.email ||
+  ''
+).trim().toLowerCase();
 const hasSession =
-  (getFromStorage('ugcQuestLoggedIn') === '1' && Boolean(sessionToken) && Boolean(sessionUserId)) ||
-  (getFromLocal('ugcQuestSessionLoggedIn') === '1' && Boolean(sessionToken) && Boolean(sessionUserId));
+  (getFromStorage('ugcQuestLoggedIn') === '1' && Boolean(appSessionToken) && Boolean(sessionUserId)) ||
+  (getFromLocal('ugcQuestSessionLoggedIn') === '1' && Boolean(appSessionToken) && Boolean(sessionUserId)) ||
+  Boolean(privateTrackerAuth?.token);
 const TRACKER_ALLOWED_EMAILS = new Set(['fgui3662@gmail.com', 'lorenzo.ritter27@gmail.com']);
 
-if (!hasSession) {
-  window.location.replace('index.html');
+const isTopLevelWindow = window.top === window.self;
+
+const goToLoginIfTopLevel = () => {
+  if (isTopLevelWindow) {
+    window.location.replace('index.html');
+  }
+};
+
+if (!hasSession && isTopLevelWindow) {
+  window.location.replace('tracker?view=landing');
 }
 
-if (!sessionEmail || !TRACKER_ALLOWED_EMAILS.has(sessionEmail)) {
-  window.location.replace('app.html');
+if ((!sessionEmail || !TRACKER_ALLOWED_EMAILS.has(sessionEmail)) && isTopLevelWindow) {
+  window.location.replace('tracker?view=landing');
 }
 
 const CONTACTS_KEY = 'makerlineIntelligenceContacts';
@@ -249,6 +279,14 @@ const stripTableRowActions = () => {
   app.querySelectorAll('.ml-table-desktop .ml-row-actions [data-action="open-user"], .ml-table-desktop .ml-row-actions [data-action="copy-email"], .ml-table-desktop .ml-row-actions [data-action="mark-contact"]').forEach((button) => {
     button.remove();
   });
+
+  if (isEmbeddedTracker) {
+    app.querySelectorAll('[data-action="back"], [data-action="logout"]').forEach((button) => button.remove());
+  }
+
+  if (privateTrackerAuth) {
+    app.querySelectorAll('[data-action="migrate-users"], [data-action="migrate-states"], [data-action="reset-password"]').forEach((button) => button.remove());
+  }
 };
 
 const render = () => {
@@ -363,7 +401,7 @@ const logout = () => {
 };
 
 const migrateUsersIfNeeded = async (force = false) => {
-  if (window.location.protocol === 'file:' || !sessionToken || (migrationAttempted && !force)) return null;
+  if (privateTrackerAuth || window.location.protocol === 'file:' || !sessionToken || (migrationAttempted && !force)) return null;
   migrationAttempted = true;
   const res = await fetch('api/admin_migrate_users.php', {
     method: 'POST',
@@ -372,14 +410,14 @@ const migrateUsersIfNeeded = async (force = false) => {
   });
   const data = await res.json().catch(() => null);
   if (res.status === 401) {
-    window.location.replace('index.html');
+    goToLoginIfTopLevel();
     return null;
   }
   return res.ok && data?.ok ? data : null;
 };
 
 const migrateStatesIfNeeded = async (force = false) => {
-  if (window.location.protocol === 'file:' || !sessionToken || (statesMigrationAttempted && !force)) return null;
+  if (privateTrackerAuth || window.location.protocol === 'file:' || !sessionToken || (statesMigrationAttempted && !force)) return null;
   statesMigrationAttempted = true;
   const res = await fetch('api/admin_migrate_states.php', {
     method: 'POST',
@@ -388,7 +426,7 @@ const migrateStatesIfNeeded = async (force = false) => {
   });
   const data = await res.json().catch(() => null);
   if (res.status === 401) {
-    window.location.replace('index.html');
+    goToLoginIfTopLevel();
     return null;
   }
   return res.ok && data?.ok ? data : null;
@@ -424,7 +462,7 @@ const loadUsers = async ({ skipMigration = false, progressImport = false } = {})
     const data = await res.json().catch(() => null);
     if (!res.ok || !data?.ok) {
       if (res.status === 401) {
-        window.location.replace('index.html');
+        goToLoginIfTopLevel();
         return;
       }
       throw new Error(data?.error || 'Não consegui carregar o Intelligence agora.');
@@ -505,7 +543,7 @@ const confirmResetPassword = async () => {
     });
     const data = await res.json().catch(() => null);
     if (res.status === 401) {
-      window.location.replace('index.html');
+      goToLoginIfTopLevel();
       return;
     }
     if (!res.ok || !data?.ok) {
@@ -533,7 +571,7 @@ const confirmDeleteUser = async () => {
     });
     const data = await res.json().catch(() => null);
     if (res.status === 401) {
-      window.location.replace('index.html');
+      goToLoginIfTopLevel();
       return;
     }
     if (!res.ok || !data?.ok) {
