@@ -7,5 +7,6 @@
   "table_pre_signups": "landing_pre_signups",
   "table_partner_commissions": "partner_commissions",
   "table_landing_insights": "landing_insights_events",
+  "table_client_feedback": "client_feedback",
   "timeout": 12
 }

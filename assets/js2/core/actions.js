@@ -1,5 +1,5 @@
 import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
-import { setActivePage, showToast } from './ui.js?v=20260625b';
+import { setActivePage, showToast } from './ui.js?v=20260711a';
 import { formatCurrency } from './state.js';
 import { prospectionContactOptions, prospectionStatusOptions } from './state.js';
 import { trackEvent } from './gamification.js?v=20260302g';
@@ -32,11 +32,9 @@ import {
   openScriptDeleteModal
 } from '../features/scripts/delete.js?v=20260304c';
 import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js?v=20260302f';
-import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260507a';
-import { initAdminPartnerCommissions } from '../features/settings/admin_partner_commissions.js?v=20260623a';
 import { openBillingCheckout, openBillingPortal } from '../features/settings/billing.js?v=20260628a';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260628b';
+import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260712a';
 
 /* -- Money mask helper -- */
 const formatMoneyInput = (raw) => {
@@ -1728,10 +1726,6 @@ const handleNavClick = (event) => {
   if (!navItem) return;
   const target = navItem.dataset.target;
   setActivePage(target);
-  if (target === 'settings') {
-    initAdminTrackerCard();
-    initAdminPartnerCommissions();
-  }
   if (target === 'campaigns') {
     trackEvent('campaigns_viewed');
     saveState();
@@ -2029,8 +2023,6 @@ const initActions = () => {
   safeInit('initBrandDeleteFeature', initBrandDeleteFeature);
   safeInit('initCampaignForm', initCampaignForm);
   safeInit('initCampaignDeleteFeature', initCampaignDeleteFeature);
-  safeInit('initAdminTrackerCard', initAdminTrackerCard);
-  safeInit('initAdminPartnerCommissions', initAdminPartnerCommissions);
 
   const brandActionForm = document.getElementById('brand-action-form');
   if (brandActionForm && brandActionForm.dataset.bound !== '1') {

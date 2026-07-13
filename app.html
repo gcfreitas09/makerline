@@ -28,7 +28,7 @@
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-  <link rel="stylesheet" href="assets/css/app2.css?v=20260628a" />
+  <link rel="stylesheet" href="assets/css/app2.css?v=20260711d" />
   <link rel="stylesheet" href="assets/css/mobile.css?v=20260628b">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="assets/js2/core/customSelect.js?v=20260507b"></script>
@@ -179,6 +179,12 @@
           </svg>
           Planos
         </button>
+        <button class="nav-item" data-target="feedback" data-founder-only="1" type="button" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          Feedbacks
+        </button>
         <button class="nav-item" data-target="settings" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3" />
@@ -188,6 +194,18 @@
         </button>
         </div>
       </nav>
+
+      <button class="sidebar-feedback-btn" data-action="open-feedback-modal" type="button">
+        <span class="sidebar-feedback-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        </span>
+        <span class="sidebar-feedback-copy">
+          <strong>Fale com o fundador</strong>
+          <span>Feedbacks e bugs</span>
+        </span>
+      </button>
     </aside>
 
     <div class="sidebar-scrim" data-action="close-menu"></div>
@@ -549,42 +567,22 @@
           </div>
         </div>
         <div style="margin-top: 18px;"></div>
-        <div class="card" id="admin-tracker-card" style="display: none;">
-          <div class="section-header" style="margin-bottom: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <div class="brand-icon" style="width: 38px; height: 38px; border-radius: 12px;">
-                <img src="assets/img/logo.png" alt="Makerline" />
-              </div>
-              <div>
-                <h3>Makerline Private Analytics</h3>
-                <p class="section-subtitle">Painéis privados da operação do produto e da performance da landing.</p>
-              </div>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-              <a class="btn btn-ghost" href="intelligence.html">Abrir Intelligence</a>
-              <a class="btn btn-ghost" href="landing-insights.html">Abrir Landing Insights Privado</a>
-            </div>
-          </div>
-          <div class="muted" id="admin-tracker-msg"></div>
-          <div class="muted" style="margin-top: 8px;">Landing Insights mostra origem, UTM, scroll, CTA, formulario, erros e leads capturados com acesso via login privado.</div>
-        </div>
-
-        <div style="margin-top: 18px;"></div>
-        <div class="card admin-commissions-card" data-admin-commissions-card style="display: none;">
-          <div class="section-header admin-commissions-header">
-            <div>
-              <h3>Divisão de assinaturas por parceiro</h3>
-              <p class="section-subtitle">Comissões dos parceiros separadas do saldo da plataforma para dividir entre os sócios.</p>
-            </div>
-            <span class="billing-pill">Privado</span>
-          </div>
-          <div class="muted" data-admin-commissions-status></div>
-          <div class="admin-commissions-summary" data-admin-commissions-summary></div>
-          <div class="admin-commissions-recent" data-admin-commissions-recent></div>
-        </div>
-
-        <div style="margin-top: 18px;"></div>
         <button class="btn btn-ghost" data-action="logout" type="button" style="color: #f87171; font-size: 13px;">Sair da conta</button>
+      </section>
+
+      <section class="page-section" data-section="feedback">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Feedbacks</h1>
+            <p class="section-subtitle">Tudo que os clientes mandaram direto pelo app.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="muted" data-feedback-status>Carregando feedbacks...</div>
+          <div class="feedback-list" data-feedback-list></div>
+        </div>
       </section>
 
       <section class="page-section" data-section="plans">
@@ -611,7 +609,6 @@
         <div class="modal-header">
         <div>
           <h3 data-campaign-modal-title>Nova campanha</h3>
-          <p class="muted" data-campaign-modal-subtitle>Só o básico para começar.</p>
         </div>
         <div class="modal-header-actions">
           <button class="btn btn-ghost btn-small" id="campaign-assets-header-btn" data-action="open-campaign-assets-from-modal" type="button" style="display:none;">Arquivos</button>
@@ -705,7 +702,6 @@
               <option value="1">Permuta: sim</option>
             </select>
           </div>
-          <div class="muted" data-campaign-create-only="value-help">Pode ser dinheiro, permuta ou os dois. Se não recebeu em dinheiro, deixa R$ 0.</div>
         </div>
 
         <div class="form-row" data-campaign-step="2" data-campaign-create-only="payment-date">
@@ -722,7 +718,6 @@
         <div class="form-row" data-campaign-step="3" data-campaign-create-only="due-date">
           <label>Prazo</label>
           <input class="input" name="dueDate" type="date" />
-          <div class="muted" data-campaign-create-only="due-date-help">Para não deixar nada escapar.</div>
         </div>
 
         <div class="form-row" data-campaign-step="3">
@@ -1445,7 +1440,54 @@
     </div>
   </div>
 
-  <script type="module" src="assets/js2/app.js?v=20260628b"></script>
+  <div class="modal" id="feedback-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-feedback-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3>Fale com o fundador</h3>
+          <p class="muted">Manda um feedback, elogio ou bug. A gente lê tudo por aqui.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-feedback-modal" type="button">Fechar</button>
+      </div>
+      <form id="feedback-form">
+        <div class="form-row">
+          <label for="feedback-message">Sua mensagem</label>
+          <textarea class="textarea" id="feedback-message" name="message" rows="5" placeholder="Conta pra gente o que aconteceu ou o que você gostaria de ver no Makerline..." required></textarea>
+        </div>
+        <div class="form-row">
+          <label for="feedback-images">Imagens (opcional)</label>
+          <div class="feedback-dropzone" data-feedback-dropzone>
+            <input class="input" id="feedback-images" name="images" type="file" accept="image/*" multiple />
+            <span class="feedback-dropzone-hint">ou arraste e solte as imagens aqui</span>
+          </div>
+          <div class="feedback-image-previews" data-feedback-image-previews></div>
+        </div>
+        <button class="btn btn-primary" type="submit" id="feedback-submit">Enviar feedback</button>
+        <div class="muted" id="feedback-msg" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="feedback-detail-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-feedback-detail-modal"></div>
+    <div class="modal-panel card">
+      <div class="modal-header">
+        <div>
+          <h3 data-feedback-detail-name>Feedback</h3>
+          <p class="muted" data-feedback-detail-meta></p>
+        </div>
+        <button class="btn btn-ghost btn-small" data-action="close-feedback-detail-modal" type="button">Fechar</button>
+      </div>
+      <p class="feedback-detail-message" data-feedback-detail-message></p>
+      <div class="feedback-detail-images" data-feedback-detail-images></div>
+      <button class="btn btn-ghost feedback-detail-delete" type="button" data-action="delete-feedback-item">
+        Apagar feedback
+      </button>
+    </div>
+  </div>
+
+  <script type="module" src="assets/js2/app.js?v=20260712a"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

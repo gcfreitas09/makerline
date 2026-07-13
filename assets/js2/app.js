@@ -1,10 +1,9 @@
 import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
-import { renderAll } from './core/renderers.js?v=20260628a';
-import { setActivePage } from './core/ui.js?v=20260507b';
-import { initActions } from './core/actions.js?v=20260628b';
-import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260628b';
-import { initAdminTrackerCard } from './features/settings/admin_tracker.js?v=20260515b';
-import { initAdminPartnerCommissions } from './features/settings/admin_partner_commissions.js?v=20260623a';
+import { renderAll } from './core/renderers.js?v=20260710a';
+import { setActivePage } from './core/ui.js?v=20260711a';
+import { initActions } from './core/actions.js?v=20260712a';
+import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260712a';
+import { initFeedbackWidget, initAdminFeedback } from './features/feedback/feedback.js?v=20260711c';
 import { applyOptimisticBillingPlanFromPending, clearPendingCheckoutPlan, getBillingSnapshot, refreshBillingStatus, waitForBillingActivation, writeCachedBilling } from './features/settings/billing.js?v=20260628a';
 
 const applyTheme = (theme) => {
@@ -280,7 +279,7 @@ const restoreSessionFromPersistentStorage = () => {
     saveState();
   };
 
-const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'prospeccao', 'finance', 'metrics', 'plans', 'settings']);
+const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'prospeccao', 'finance', 'metrics', 'plans', 'settings', 'feedback']);
 
 const getRequestedPage = () => {
   try {
@@ -715,8 +714,8 @@ const hydrateStateFromServer = async () => {
     safeRun('setActivePage(initial)', () => setActivePage(getRequestedPage()));
     safeRun('enforceBillingAccess', enforceBillingAccess);
     safeRun('initActions', initActions);
-    safeRun('initAdminTrackerCard', initAdminTrackerCard);
-    safeRun('initAdminPartnerCommissions', initAdminPartnerCommissions);
+    safeRun('initFeedbackWidget', initFeedbackWidget);
+    safeRun('initAdminFeedback', initAdminFeedback);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -768,8 +767,8 @@ const hydrateStateFromServer = async () => {
       // Inicializar features
       safeRun('setActivePage(initial)', () => setActivePage(getRequestedPage()));
       safeRun('enforceBillingAccess', enforceBillingAccess);
-      safeRun('initAdminTrackerCard', initAdminTrackerCard);
-      safeRun('initAdminPartnerCommissions', initAdminPartnerCommissions);
+      safeRun('initFeedbackWidget', initFeedbackWidget);
+      safeRun('initAdminFeedback', initAdminFeedback);
     })();
     window.__ugcAppLoaded = true;
   });
