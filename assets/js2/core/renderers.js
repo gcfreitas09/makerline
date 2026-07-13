@@ -3138,8 +3138,8 @@ const renderPlansPage = () => {
         <h2>Escolha o seu nível de operação comercial.</h2>
         <p>Traga mais contexto, organização e previsibilidade para marcas, campanhas e receita dentro do mesmo painel.</p>
         <div class="plans-cycle-pills">
-          <span class="plans-cycle-pill is-active">Plano mensal</span>
-          <span class="plans-cycle-pill">Plano anual</span>
+          <span class="plans-cycle-pill">Plano mensal</span>
+          <span class="plans-cycle-pill is-active">Plano anual</span>
         </div>
         <div class="plans-current-note">${escapeHtml(currentPlanNote)}</div>
         ${notice ? `<div class="plans-current-note">${escapeHtml(notice)}</div>` : ''}
@@ -3169,7 +3169,7 @@ const renderPlansPage = () => {
         </article>
 
         <article class="plans-offer-card plans-offer-card--featured">
-          <div class="plans-offer-badge">Recomendado</div>
+          <div class="plans-offer-badge">Economize R$ 128,90</div>
           <div class="plans-offer-head">
             <h3>Plano anual</h3>
             <p>Melhor custo para operar com menos atrito ao longo do ano.</p>

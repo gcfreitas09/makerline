@@ -536,39 +536,10 @@ const initOnboardingListeners = () => {
 /* ── campaign modal onboarding header ───────────────────────── */
 
 const injectOnboardingHeader = () => {
-  const ob = ensureOnboardingQuiz();
-  if (ob.firstCampaignCreated || ob.tooltipsDone || isOnboardingComplete() || areOnboardingTooltipsSnoozed()) return;
-
-  const modal = document.getElementById('campaign-modal');
-  if (!modal) return;
-  if (document.getElementById('campaign-onboarding-header')) return;
-
-  const panel = modal.querySelector('.modal-panel');
-  if (!panel) return;
-
-  const header = document.createElement('div');
-  header.id = 'campaign-onboarding-header';
-  header.className = 'onboarding-modal-header';
-  header.innerHTML = `
-    <div class="onboarding-modal-header-main">
-      <div class="onboarding-modal-header-copy">
-        <span class="onboarding-modal-kicker" data-onboarding-progress-label>Passo 1/6</span>
-        <strong class="onboarding-modal-title">Cadastre a campanha primeiro</strong>
-        <p>Preencha o essencial agora. A marca pode ser vinculada depois, sem travar o cadastro.</p>
-      </div>
-      <button class="onboarding-modal-skip" type="button" data-action="skip-campaign-onboarding">Ocultar guia</button>
-    </div>
-    <div class="onboarding-modal-steps" aria-hidden="true">
-      <span class="onboarding-modal-step is-active" data-onboarding-header-step="1">Campanha</span>
-      <span class="onboarding-modal-step" data-onboarding-header-step="2">Financeiro</span>
-      <span class="onboarding-modal-step" data-onboarding-header-step="3">Entrega</span>
-    </div>
-    <div class="onboarding-field-tip-slot" data-onboarding-tip-slot></div>
-  `;
-  panel.insertBefore(header, panel.firstChild);
-  header.querySelector('[data-action="skip-campaign-onboarding"]')?.addEventListener('click', dismissOnboardingTooltips);
-
-  setTimeout(() => startFieldTooltips(), 500);
+  // Onboarding guide box + field-by-field "Passo X/6" tooltips removed by request:
+  // the campaign modal already has its own 1/2/3 step wizard, so this extra guide
+  // was redundant clutter. Kept as a no-op so existing call sites stay harmless.
+  return;
 };
 
 /* ── field-by-field tooltips inside Campaign modal ──────────── */
@@ -725,12 +696,11 @@ const initOnboardingQuiz = () => {
   const ob = ensureOnboardingQuiz();
   initOnboardingListeners();
 
-  // Expose openCampaignModal for convert-to-real flow
-  try {
-    import('../../features/campaigns/modal.js').then((mod) => {
-      window.__ugcModals = { openCampaignModal: mod.openCampaignModal };
-    });
-  } catch (e) {}
+  // window.__ugcModals.openCampaignModal is registered by initActions using the
+  // same modal.js module instance that binds the wizard buttons. Do NOT import
+  // modal.js again here: a second import (different URL/version query) loads a
+  // duplicate module instance with its own wizard state, which desyncs the
+  // "Proximo" button from the open handler and silently breaks step navigation.
 
   if (isQuizNeeded()) {
     openQuiz();
