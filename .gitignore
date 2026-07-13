@@ -11,6 +11,7 @@ yarn-error.log*
 storage/*.json
 !storage/*.example.json
 storage/*.sqlite
+storage/*.log
 storage/backups/
 storage/states/
 storage/market/*.json
