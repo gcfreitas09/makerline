@@ -9,7 +9,7 @@ import {
   closeCampaignModal,
   initCampaignForm,
   openCampaignModal
-} from '../features/campaigns/modal.js?v=20260624a';
+} from '../features/campaigns/modal.js?v=20260713a';
 import {
   closeBrandModal,
   initBrandForm,

@@ -257,12 +257,12 @@ const applyCampaignWizardStep = () => {
 
   if (prevBtn) prevBtn.style.visibility = campaignWizardEnabled && campaignWizardStep > 1 ? 'visible' : 'hidden';
   if (nextBtn) {
-    if (!campaignWizardEnabled) {
+    if (!campaignWizardEnabled || campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL) {
       nextBtn.style.display = 'none';
     } else {
       nextBtn.style.display = '';
-      nextBtn.textContent = campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL ? 'Revisar dados' : 'Próximo';
-      nextBtn.disabled = campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL;
+      nextBtn.textContent = 'Próximo';
+      nextBtn.disabled = false;
     }
   }
 };
