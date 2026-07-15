@@ -291,9 +291,10 @@ foreach ($users as $user) {
     $signals = extract_state_signals($state, $statePayload['updatedAt'] ?? null);
     $referredBy = trim((string)($user['referredBy'] ?? ''));
     $referralPartner = $referredBy !== '' ? referrals_partner_by_code($referredBy) : null;
+    $internalLinkLabel = $referredBy !== '' ? referrals_internal_tracking_label($referredBy) : null;
     $referralOrigin = $referralPartner
         ? trim((string)($referralPartner['name'] ?? $referralPartner['partnerCode'] ?? $referredBy))
-        : ($referredBy !== '' ? $referredBy : 'Direto / orgânico');
+        : ($internalLinkLabel ?: ($referredBy !== '' ? $referredBy : 'Direto / orgânico'));
 
     $list[] = [
         'id' => $id,

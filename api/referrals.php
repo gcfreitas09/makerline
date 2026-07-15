@@ -11,6 +11,7 @@ function access_internal_emails()
         'fgui3662@gmail.com',
         'lorenzo.ritter13@gmail.com',
         'lorenzo.ritter27@gmail.com',
+        'assessoriaricardoolavo@gmail.com',
     ];
 }
 
@@ -128,10 +129,31 @@ function referrals_partner_by_email($email)
     return null;
 }
 
+// Links internos (bio do Instagram, etc.) que servem só pra saber de onde o cadastro veio --
+// nunca sao parceiros de comissao (referrals_partner_by_code sempre retorna null pra eles),
+// entao guardar o codigo em referredBy e seguro e nao aciona nenhuma logica de pagamento.
+function referrals_internal_tracking_links()
+{
+    return [
+        'bio' => ['label' => 'Bio do Instagram (Makerline)'],
+        'biol' => ['label' => 'Bio do Lorenzo'],
+    ];
+}
+
+function referrals_internal_tracking_label($code)
+{
+    $links = referrals_internal_tracking_links();
+    $safe = referrals_normalize_code($code);
+    return $links[$safe]['label'] ?? null;
+}
+
 function referrals_valid_code_or_null($value)
 {
     $code = referrals_normalize_code($value);
     if ($code === '') return null;
+
+    if (referrals_internal_tracking_label($code)) return $code;
+
     $partner = referrals_partner_by_code($code);
     return $partner ? (string)$partner['code'] : null;
 }

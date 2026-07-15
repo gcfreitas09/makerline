@@ -128,16 +128,6 @@ function tracker_lancamento_origin_key($session)
     return 'direct';
 }
 
-// Links internos de bio (Instagram, etc.) que so servem pra rastrear origem: nao sao
-// parceiros cadastrados em referrals_partners() e por isso nunca geram comissao.
-function tracker_lancamento_internal_link_labels()
-{
-    return [
-        'bio' => 'Bio do Instagram (Makerline)',
-        'biol' => 'Bio do Lorenzo',
-    ];
-}
-
 // Mapa unico: valor cru (utm_source OU channel) -> slug canonico -> nome legivel.
 // Usado tanto pra agrupar (mesma rede = mesma linha) quanto pra exibir o nome.
 function tracker_lancamento_channel_aliases()
@@ -200,9 +190,8 @@ function tracker_lancamento_origin_label($session)
         return $session['partner_code'];
     }
     if ($session['referral_code'] !== '') {
-        $internalLabels = tracker_lancamento_internal_link_labels();
-        $internalKey = strtolower($session['referral_code']);
-        if (isset($internalLabels[$internalKey])) return $internalLabels[$internalKey];
+        $internalLabel = referrals_internal_tracking_label($session['referral_code']);
+        if ($internalLabel) return $internalLabel;
 
         $partner = referrals_partner_by_code($session['referral_code']);
         if ($partner) {
