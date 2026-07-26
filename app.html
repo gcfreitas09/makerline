@@ -28,7 +28,13 @@
   <meta name="twitter:image" content="assets/img/share.png" />
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-  <link rel="stylesheet" href="assets/css/app2.css?v=20260711d" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0b111b" />
+  <!-- Necessario pro iPhone: sem instalar na tela de inicio, o iOS nao entrega push. -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Makerline" />
+  <link rel="stylesheet" href="assets/css/app2.css?v=20260721a" />
   <link rel="stylesheet" href="assets/css/mobile.css?v=20260628b">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="assets/js2/core/customSelect.js?v=20260507b"></script>
@@ -541,6 +547,13 @@
               <p class="muted">Salva seu progresso aqui no navegador.</p>
             </div>
             <input type="checkbox" data-setting="backup" />
+          </div>
+          <div class="toggle" data-push-row hidden>
+            <div>
+              <div>Avisos no celular</div>
+              <p class="muted" data-push-hint>Receba um toque quando uma entrega estiver vencendo ou um pagamento estiver previsto.</p>
+            </div>
+            <input type="checkbox" data-setting="push" id="push-toggle" />
           </div>
           <button class="toggle settings-shortcut-card" data-action="goto-plans" type="button">
             <div>
@@ -1487,7 +1500,7 @@
     </div>
   </div>
 
-  <script type="module" src="assets/js2/app.js?v=20260712a"></script>
+  <script type="module" src="assets/js2/app.js?v=20260721a"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

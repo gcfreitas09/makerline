@@ -8,5 +8,7 @@
   "table_partner_commissions": "partner_commissions",
   "table_landing_insights": "landing_insights_events",
   "table_client_feedback": "client_feedback",
+  "table_push_subscriptions": "push_subscriptions",
+  "table_push_sent_log": "push_sent_log",
   "timeout": 12
 }

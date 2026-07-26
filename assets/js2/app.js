@@ -1,9 +1,18 @@
 import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
 import { renderAll } from './core/renderers.js?v=20260710a';
-import { setActivePage } from './core/ui.js?v=20260711a';
+import { setActivePage, showToast } from './core/ui.js?v=20260711a';
 import { initActions } from './core/actions.js?v=20260712a';
 import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260712a';
 import { initFeedbackWidget, initAdminFeedback } from './features/feedback/feedback.js?v=20260711c';
+import { initClarity, identifyClarityUser } from './core/clarity.js?v=20260721a';
+import {
+  initPushRuntime,
+  enablePushNotifications,
+  disablePushNotifications,
+  isPushActive,
+  isSupported as isPushSupported,
+  isIosNeedsInstall,
+} from './core/push.js?v=20260721a';
 import { applyOptimisticBillingPlanFromPending, clearPendingCheckoutPlan, getBillingSnapshot, refreshBillingStatus, waitForBillingActivation, writeCachedBilling } from './features/settings/billing.js?v=20260628a';
 
 const applyTheme = (theme) => {
@@ -699,6 +708,61 @@ const hydrateStateFromServer = async () => {
   }
 };
 
+/**
+ * Liga o botão de avisos no celular. No iPhone, push só existe depois que a pessoa
+ * adiciona o app à tela de início, então nesse caso mostramos a instrução em vez de
+ * pedir uma permissão que o navegador recusaria em silêncio.
+ */
+const initPushToggle = async () => {
+  const row = document.querySelector('[data-push-row]');
+  const input = document.getElementById('push-toggle');
+  const hint = document.querySelector('[data-push-hint]');
+  if (!row || !input) return;
+
+  if (!isPushSupported()) {
+    row.hidden = true;
+    return;
+  }
+
+  row.hidden = false;
+
+  if (isIosNeedsInstall()) {
+    input.disabled = true;
+    if (hint) {
+      hint.textContent =
+        'No iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início". Depois disso, volte aqui para ativar os avisos.';
+    }
+    return;
+  }
+
+  input.checked = await isPushActive();
+
+  input.addEventListener('change', async () => {
+    input.disabled = true;
+    try {
+      if (input.checked) {
+        const result = await enablePushNotifications();
+        if (!result.ok) {
+          input.checked = false;
+          const mensagens = {
+            denied: 'Você bloqueou as notificações. Libere nas configurações do navegador para ativar.',
+            'no-session': 'Entre na sua conta para ativar os avisos.',
+            unsupported: 'Este navegador não suporta notificações.',
+          };
+          showToast(mensagens[result.reason] || 'Não consegui ativar os avisos agora.');
+        } else {
+          showToast('Pronto! Você vai receber avisos de entregas e pagamentos.');
+        }
+      } else {
+        await disablePushNotifications();
+        showToast('Avisos desativados.');
+      }
+    } finally {
+      input.disabled = false;
+    }
+  });
+};
+
   safeRun('initThemeToggle', initThemeToggle);
   if (!hasSession) {
     safeRun('setAuthMode(true)', () => setAuthMode(true));
@@ -716,6 +780,15 @@ const hydrateStateFromServer = async () => {
     safeRun('initActions', initActions);
     safeRun('initFeedbackWidget', initFeedbackWidget);
     safeRun('initAdminFeedback', initAdminFeedback);
+    safeRun('initClarity', () => {
+      initClarity();
+      identifyClarityUser(
+        getStoredAuth('ugcQuestUserId', 'ugcQuestSessionUserId'),
+        getStoredAuth('ugcQuestUserEmail', 'ugcQuestSessionUserEmail')
+      );
+    });
+    safeRun('initPushRuntime', initPushRuntime);
+    safeRun('initPushToggle', initPushToggle);
   }
 
   document.addEventListener('DOMContentLoaded', () => {

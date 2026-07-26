@@ -1,0 +1,32 @@
+{
+  "name": "Makerline",
+  "short_name": "Makerline",
+  "description": "Campanhas, prazos, prospecção e recebimentos de UGC em um só lugar.",
+  "lang": "pt-BR",
+  "start_url": "/app.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b111b",
+  "theme_color": "#0b111b",
+  "icons": [
+    {
+      "src": "/assets/img/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
