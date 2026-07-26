@@ -182,6 +182,44 @@ $subsTable = push_table('table_push_subscriptions', 'push_subscriptions');
 $logTable = push_table('table_push_sent_log', 'push_sent_log');
 $dryRun = !empty($_GET['dry']);
 
+// ?teste=1 dispara um aviso de teste pra todo mundo que estiver inscrito, sem
+// depender de existir prazo ou pagamento de verdade. Serve pra confirmar que a
+// corrente inteira funciona: navegador -> banco -> servidor -> notificacao.
+if (!empty($_GET['teste'])) {
+    $subsResponse = supabase_client_request('GET', $subsTable, ['select' => '*', 'limit' => '200'], null);
+    $subscriptions = is_array($subsResponse['data'] ?? null) ? $subsResponse['data'] : [];
+
+    if (!$subscriptions) {
+        push_send_respond(200, [
+            'ok' => true,
+            'aviso' => 'Nenhum aparelho inscrito ainda. Ative "Avisos no celular" nas Configuracoes do app primeiro.',
+            'inscricoes' => 0,
+        ]);
+    }
+
+    $resultados = [];
+    foreach ($subscriptions as $sub) {
+        $r = push_send_notification($sub, [
+            'title' => 'Makerline funcionando',
+            'body' => 'Se voce esta lendo isso, as notificacoes estao ativas.',
+            'tag' => 'teste',
+            'url' => '/app.html',
+        ]);
+        $resultados[] = [
+            'email' => $sub['user_email'] ?? '',
+            'enviado' => !empty($r['ok']),
+            'status' => $r['status'] ?? 0,
+            'erro' => $r['error'] ?? '',
+        ];
+
+        if (!empty($r['expired'])) {
+            supabase_client_request('DELETE', $subsTable, ['endpoint' => 'eq.' . $sub['endpoint']], null, ['Prefer' => 'return=minimal']);
+        }
+    }
+
+    push_send_respond(200, ['ok' => true, 'modo' => 'teste', 'inscricoes' => count($subscriptions), 'resultados' => $resultados]);
+}
+
 $subsResponse = supabase_client_request('GET', $subsTable, [
     'select' => '*',
     'limit' => '1000',

@@ -18,9 +18,19 @@ const CLARITY_PROJECT_ID = '';
 const isTrackableEnvironment = () => {
   const host = String(window.location.hostname || '').toLowerCase();
   if (!host) return false;
-  if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local')) return false;
   if (window.location.protocol === 'file:') return false;
-  return true;
+
+  const isLocal = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
+  if (!isLocal) return true;
+
+  // Em local o Clarity fica desligado pra nao sujar as metricas com sessao de
+  // desenvolvimento. Pra testar mesmo assim, rode no console do navegador:
+  //   localStorage.setItem('makerlineClarityLocal', '1')
+  try {
+    return localStorage.getItem('makerlineClarityLocal') === '1';
+  } catch (error) {
+    return false;
+  }
 };
 
 const initClarity = () => {
