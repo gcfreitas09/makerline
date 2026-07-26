@@ -486,13 +486,19 @@ const buildDailySeries = (users, field, days = 30) => {
   }));
 };
 
+// Conta pelo id do passo, e nao pela posicao dele na lista: contar por posicao assumia que
+// o onboarding e sempre concluido em ordem e quebrava sempre que um passo novo era inserido.
+const hasCompletedStep = (user, stepId) =>
+  (user.onboardingProgress?.steps || []).some((step) => step.id === stepId && step.completed);
+
 const buildChartsData = (users) => {
   const onboardingFunnel = [
     { label: 'Conta criada', value: users.length },
-    { label: 'Primeiro login', value: users.filter((user) => user.onboardingProgress.completedSteps >= 2).length },
-    { label: 'Primeira campanha', value: users.filter((user) => user.onboardingProgress.completedSteps >= 3).length },
-    { label: 'Campanha ativa', value: users.filter((user) => user.onboardingProgress.completedSteps >= 4).length },
-    { label: 'Retorno 7d', value: users.filter((user) => user.onboardingProgress.completedSteps >= 5).length },
+    { label: 'Primeiro login', value: users.filter((user) => hasCompletedStep(user, 'first_login')).length },
+    { label: 'Primeira campanha', value: users.filter((user) => hasCompletedStep(user, 'first_campaign_created')).length },
+    { label: 'Campanha ativa', value: users.filter((user) => hasCompletedStep(user, 'first_campaign_activated')).length },
+    { label: 'Prospecção', value: users.filter((user) => hasCompletedStep(user, 'first_prospection_created')).length },
+    { label: 'Retorno 7d', value: users.filter((user) => hasCompletedStep(user, 'returned_after_7_days')).length },
   ];
 
   return {

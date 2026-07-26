@@ -4,7 +4,7 @@ import {
   filterUsers,
   normalizeUser,
   sortUsers,
-} from './intelligence-utils.js?v=20260507a';
+} from './intelligence-utils.js?v=20260721a';
 import {
   CriticalUsersSection,
   DashboardCharts,

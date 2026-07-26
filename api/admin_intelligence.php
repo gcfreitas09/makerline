@@ -114,12 +114,42 @@ function summarize_campaigns_from_state($state)
     return $summary;
 }
 
-function build_onboarding_snapshot($state, $campaignSummary)
+function summarize_prospections_from_state($state)
+{
+    $summary = ['prospectionCount' => 0, 'firstProspectionAt' => null];
+    if (!is_array($state)) return $summary;
+
+    $prospections = $state['prospections'] ?? null;
+    if (!is_array($prospections)) return $summary;
+
+    $summary['prospectionCount'] = count($prospections);
+
+    foreach ($prospections as $prospection) {
+        if (!is_array($prospection)) continue;
+        $createdAt = trim((string)($prospection['createdAt'] ?? ''));
+        if ($createdAt === '') continue;
+        if ($summary['firstProspectionAt'] === null || strcmp($createdAt, $summary['firstProspectionAt']) < 0) {
+            $summary['firstProspectionAt'] = $createdAt;
+        }
+    }
+
+    return $summary;
+}
+
+function build_onboarding_snapshot($state, $campaignSummary, $user = [])
 {
     $progress = is_array($state['progress'] ?? null) ? $state['progress'] : [];
     $onboarding = is_array($progress['onboarding'] ?? null) ? $progress['onboarding'] : [];
     $campaignCount = (int)($campaignSummary['campaignCount'] ?? 0);
     $activeCampaignCount = (int)($campaignSummary['activeCampaignCount'] ?? 0);
+    $prospectionSummary = summarize_prospections_from_state($state);
+    $prospectionCount = (int)($prospectionSummary['prospectionCount'] ?? 0);
+
+    // O login real vem do registro do usuario (lastLoginAt), nao de uma flag no state:
+    // as flags welcomeGranted/welcomeAwarded so existem em gamification_v2.js, que nao e
+    // importado por ninguem, entao nunca eram gravadas e esse passo ficava eternamente pendente.
+    $lastLoginAt = trim((string)($user['lastLoginAt'] ?? ''));
+    $firstLoginAt = $onboarding['welcomeAt'] ?? ($lastLoginAt !== '' ? $lastLoginAt : null);
 
     $steps = [
         [
@@ -131,13 +161,16 @@ function build_onboarding_snapshot($state, $campaignSummary)
         [
             'id' => 'first_login',
             'label' => 'Fez primeiro login',
-            'completed' => !empty($onboarding['welcomeGranted']) || !empty($onboarding['welcomeAwarded']),
-            'completedAt' => $onboarding['welcomeAt'] ?? null,
+            'completed' => $lastLoginAt !== '' || !empty($onboarding['welcomeGranted']) || !empty($onboarding['welcomeAwarded']),
+            'completedAt' => $firstLoginAt,
         ],
         [
+            // Só conta campanha que existe de verdade na conta. hasCampaigns NAO entra aqui:
+            // ela é a resposta do quiz para "voce ja tem campanhas?" (fora do app), entao
+            // marcava esse passo como concluido para quem nunca criou nada dentro do produto.
             'id' => 'first_campaign_created',
             'label' => 'Criou primeira campanha',
-            'completed' => $campaignCount > 0 || !empty($onboarding['firstCampaignCreated']) || !empty($onboarding['hasCampaigns']),
+            'completed' => $campaignCount > 0 || !empty($onboarding['firstCampaignCreated']),
             'completedAt' => $campaignSummary['firstCampaignCreatedAt'] ?? null,
         ],
         [
@@ -145,6 +178,12 @@ function build_onboarding_snapshot($state, $campaignSummary)
             'label' => 'Ativou primeira campanha',
             'completed' => $activeCampaignCount > 0,
             'completedAt' => $campaignSummary['firstActiveCampaignAt'] ?? null,
+        ],
+        [
+            'id' => 'first_prospection_created',
+            'label' => 'Criou prospecção',
+            'completed' => $prospectionCount > 0,
+            'completedAt' => $prospectionSummary['firstProspectionAt'] ?? null,
         ],
         [
             'id' => 'returned_after_7_days',
@@ -159,6 +198,7 @@ function build_onboarding_snapshot($state, $campaignSummary)
     return [
         'steps' => $steps,
         'tutorialCompleted' => $tutorialCompleted,
+        'prospectionCount' => $prospectionCount,
         'raw' => $onboarding,
     ];
 }
@@ -287,7 +327,7 @@ foreach ($users as $user) {
     $statePayload = $id !== '' ? load_state_payload_for_user($id, $statesDir) : ['state' => null, 'updatedAt' => null, 'backend' => 'none'];
     $state = is_array($statePayload['state'] ?? null) ? $statePayload['state'] : null;
     $campaignSummary = summarize_campaigns_from_state($state);
-    $onboarding = build_onboarding_snapshot($state, $campaignSummary);
+    $onboarding = build_onboarding_snapshot($state, $campaignSummary, $user);
     $signals = extract_state_signals($state, $statePayload['updatedAt'] ?? null);
     $referredBy = trim((string)($user['referredBy'] ?? ''));
     $referralPartner = $referredBy !== '' ? referrals_partner_by_code($referredBy) : null;
@@ -310,6 +350,7 @@ foreach ($users as $user) {
         'lastSeenAt' => (string)($user['lastSeenAt'] ?? ''),
         'campaignCount' => (int)($campaignSummary['campaignCount'] ?? 0),
         'activeCampaignCount' => (int)($campaignSummary['activeCampaignCount'] ?? 0),
+        'prospectionCount' => (int)($onboarding['prospectionCount'] ?? 0),
         'stateUpdatedAt' => (string)($statePayload['updatedAt'] ?? ''),
         'stateBackend' => (string)($statePayload['backend'] ?? 'none'),
         'firstCampaignCreatedAt' => $campaignSummary['firstCampaignCreatedAt'],
