@@ -682,26 +682,41 @@ const hydrateStateFromServer = async () => {
     if (!res.ok || !data || typeof data !== 'object') return;
     if (!data.state || typeof data.state !== 'object') return;
 
-    // Verificar se o estado remoto tem dados válidos (não é um estado vazio/default)
     const remoteState = data.state;
-    const hasValidRemoteData = (
-      (remoteState.campaigns && remoteState.campaigns.length > 0) ||
-      (remoteState.brands && remoteState.brands.length > 0) ||
-      Boolean(String(remoteState.meta.updatedAt || '').trim())
-    );
 
-    // Se o estado remoto tem dados válidos, usar ele
-    // Caso contrário, manter o estado local
-    if (hasValidRemoteData) {
-      console.log('[Sync] Carregando estado do servidor:', {
-        campanhas: remoteState.campaigns.length || 0,
-        marcas: remoteState.brands.length || 0
-      });
+    // Quanto trabalho real existe de cada lado. Isso e a protecao contra o caso em que
+    // o salvamento no servidor falhou (sessao expirada, rede caindo): o navegador tem a
+    // campanha recem-criada e o servidor nao. Antes bastava o estado remoto ter um
+    // meta.updatedAt -- que toda gravacao escreve, mesmo vazia -- pra ele ser considerado
+    // "valido" e sobrescrever o local, apagando o trabalho de vez.
+    const contentWeight = (candidate) => {
+      if (!candidate || typeof candidate !== 'object') return 0;
+      const count = (key) => (Array.isArray(candidate[key]) ? candidate[key].length : 0);
+      return count('campaigns') + count('brands') + count('prospections') + count('scripts');
+    };
+
+    const remoteWeight = contentWeight(remoteState);
+    const localWeight = contentWeight(state);
+    const remoteUpdatedAt = String(remoteState.meta?.updatedAt || '').trim();
+    const localUpdatedAt = String(state.meta?.updatedAt || '').trim();
+
+    // So aceita o remoto quando ele nao representa perda: ou tem tanto conteudo quanto o
+    // local, ou o local esta vazio. Empatou em conteudo, decide quem foi salvo por ultimo.
+    const remoteIsSafe =
+      remoteWeight > localWeight ||
+      (remoteWeight === localWeight && remoteUpdatedAt >= localUpdatedAt);
+
+    if (remoteIsSafe) {
       replaceState(remoteState);
       initProfileFromSession();
       sanitizeActiveUiState();
     } else {
-      console.log('[Sync] Estado remoto vazio, mantendo estado local');
+      console.warn('[Sync] Estado local tem mais dados que o servidor. Mantendo o local e reenviando.', {
+        local: localWeight,
+        servidor: remoteWeight,
+      });
+      // O que esta aqui ainda nao chegou no servidor: forca um novo envio.
+      saveState();
     }
   } catch (e) {
     console.warn('[Sync] Erro ao carregar estado:', e);
