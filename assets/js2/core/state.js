@@ -914,6 +914,49 @@ const REMOTE_SAVE_DEBOUNCE_MS = 900;
 
 const enableRemoteSave = () => { remoteSaveEnabled = true; };
 
+// Reenvio de alteracoes que falharam ao salvar no servidor.
+const REMOTE_SAVE_RETRY_BASE_MS = 3000;
+const REMOTE_SAVE_RETRY_MAX_MS = 60000;
+const REMOTE_SAVE_WARN_AFTER = 3;
+let remoteSaveFailureCount = 0;
+let saveWarningShown = false;
+
+/**
+ * Depois de algumas tentativas seguidas sem sucesso, avisa a pessoa na tela.
+ * Perder uma campanha em silencio e pior do que assustar com um aviso.
+ */
+const notifySaveFailing = (status = 0) => {
+  if (saveWarningShown) return;
+  saveWarningShown = true;
+
+  let bar = document.getElementById('sync-warning-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'sync-warning-bar';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = [
+      'position:fixed', 'left:0', 'right:0', 'bottom:0', 'z-index:99999',
+      'padding:12px 16px', 'background:#b3261e', 'color:#fff',
+      'font:600 14px/1.4 Inter,system-ui,sans-serif', 'text-align:center',
+    ].join(';');
+    document.body?.appendChild(bar);
+  }
+
+  // Sessao expirada nao adianta reenviar: o token esta morto e so um novo login resolve.
+  bar.textContent = status === 401
+    ? 'Sua sessão expirou e o que você fez agora não foi salvo. Faça login de novo antes de fechar esta aba.'
+    : 'Não estamos conseguindo salvar suas alterações no servidor. Deixe esta aba aberta: vamos continuar tentando.';
+
+  bar.style.display = 'block';
+};
+
+const notifySaveRecovered = () => {
+  if (!saveWarningShown) return;
+  saveWarningShown = false;
+  const bar = document.getElementById('sync-warning-bar');
+  if (bar) bar.style.display = 'none';
+};
+
 const getSessionToken = () => {
   try {
     return sessionStorage.getItem('ugcQuestToken') || localStorage.getItem('ugcQuestSessionToken') || '';
@@ -955,29 +998,56 @@ const flushRemoteSave = async () => {
   remoteSavePending = false;
   remoteSaveInFlight = true;
 
+  let saveFailed = false;
+  let lastSaveStatus = 0;
+
   try {
     const token = getSessionToken();
-    console.log('[Sync] Salvando estado no servidor...');
     const res = await fetch('api/state.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'save', token, state })
     });
-    
+
     if (!res.ok) {
+      saveFailed = true;
+      lastSaveStatus = res.status;
       console.error('[Sync] Erro ao salvar estado:', res.status, res.statusText);
     } else {
       const data = await res.json().catch(() => null);
       if (data?.ok === true) {
-        console.log('[Sync] Estado salvo com sucesso no servidor');
+        remoteSaveFailureCount = 0;
+        notifySaveRecovered();
       } else {
+        saveFailed = true;
         console.warn('[Sync] Resposta inesperada do servidor:', data);
       }
     }
   } catch (error) {
+    saveFailed = true;
     console.error('[Sync] Falha ao salvar estado no servidor:', error);
   } finally {
     remoteSaveInFlight = false;
+
+    if (saveFailed) {
+      // Antes daqui a falha era so um log no console: o trabalho da pessoa (campanha
+      // recem-criada, por exemplo) ficava so na memoria do navegador e sumia ao fechar
+      // a aba. Agora a alteracao continua pendente e e reenviada com espera crescente.
+      remoteSaveFailureCount += 1;
+      remoteSavePending = true;
+
+      if (remoteSaveFailureCount >= REMOTE_SAVE_WARN_AFTER) {
+        notifySaveFailing(lastSaveStatus);
+      }
+
+      const delay = Math.min(
+        REMOTE_SAVE_RETRY_BASE_MS * Math.pow(2, remoteSaveFailureCount - 1),
+        REMOTE_SAVE_RETRY_MAX_MS
+      );
+      setTimeout(() => { flushRemoteSave(); }, delay);
+      return;
+    }
+
     if (remoteSavePending) {
       scheduleRemoteSave();
     }
