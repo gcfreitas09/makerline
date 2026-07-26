@@ -10620,3 +10620,89 @@ body[data-theme="light"] .page-section[data-section="brands"] > .section-header 
   color: #f8fafc;
 }
 
+
+/* ==========================================================================
+   Tema claro: superfícies que estavam com cor escura fixa
+   --------------------------------------------------------------------------
+   Estas seções (Financeiro, Métricas, Campanhas, Prospecção, Planos, login)
+   foram escritas com gradientes/cores escuras direto na regra, em vez das
+   variáveis do tema. No modo claro elas continuavam escuras, deixando texto
+   escuro sobre fundo escuro. Aqui elas passam a seguir as variáveis do tema.
+   ========================================================================== */
+
+body[data-theme="light"] .finance-stat-card,
+body[data-theme="light"] .finance-flow-item,
+body[data-theme="light"] .finance-indicator-card,
+body[data-theme="light"] .finance-campaign-item,
+body[data-theme="light"] .finance-calendar-item,
+body[data-theme="light"] .finance-flow-spotlight,
+body[data-theme="light"] .metrics-stat-card,
+body[data-theme="light"] .metrics-funnel-step,
+body[data-theme="light"] .metrics-status-panel,
+body[data-theme="light"] .metrics-status-item,
+body[data-theme="light"] .metrics-indicator-card,
+body[data-theme="light"] .metrics-status-panel-insight,
+body[data-theme="light"] .campaign-card,
+body[data-theme="light"] .campaign-onboarding-card,
+body[data-theme="light"] .campaign-assets-empty,
+body[data-theme="light"] .folder-card,
+body[data-theme="light"] .insight-item,
+body[data-theme="light"] .perf-card,
+body[data-theme="light"] .brand-detail-empty,
+body[data-theme="light"] .prospection-empty,
+body[data-theme="light"] .auth-card {
+  background: var(--card-strong);
+  border-color: rgba(84, 105, 124, 0.16);
+  color: var(--text);
+}
+
+body[data-theme="light"] .finance-card--hero,
+body[data-theme="light"] .plans-hero {
+  background: linear-gradient(145deg, #ffffff, #eef3f7);
+  color: var(--text);
+}
+
+body[data-theme="light"] .campaign-table tbody td {
+  background: var(--card-strong);
+  border-top-color: rgba(84, 105, 124, 0.14);
+  border-bottom-color: rgba(84, 105, 124, 0.14);
+}
+
+body[data-theme="light"] .prospection-tabs,
+body[data-theme="light"] .modal-wizard-step,
+body[data-theme="light"] .stripe-test-grid div,
+body[data-theme="light"] .finance-flow-anchor {
+  background: rgba(226, 233, 240, 0.7);
+}
+
+body[data-theme="light"] .metrics-funnel-step.is-active,
+body[data-theme="light"] .modal-wizard-step.is-active {
+  background: rgba(115, 195, 183, 0.18);
+  border-color: rgba(115, 195, 183, 0.42);
+}
+
+/* O miolo do gráfico de rosca precisa ter a cor do card, senão fica um buraco
+   escuro no meio do gráfico quando o tema é claro. */
+body[data-theme="light"] .campaign-pie::after,
+body[data-theme="light"] .admin-pie::after {
+  background: var(--card-strong);
+}
+
+body[data-theme="light"] .btn-next-step {
+  background: linear-gradient(145deg, #ffffff, #e8eff5);
+  color: var(--text);
+}
+
+body[data-theme="light"] .btn-next-step:hover {
+  background: linear-gradient(145deg, #ffffff, #dde7f0);
+}
+
+body[data-theme="light"] .btn-next-step.is-complete {
+  background: linear-gradient(145deg, rgba(115, 195, 183, 0.22), rgba(115, 195, 183, 0.12));
+}
+
+body[data-theme="light"] .prospection-empty strong,
+body[data-theme="light"] .campaign-assets-empty strong,
+body[data-theme="light"] .brand-detail-empty strong {
+  color: var(--text);
+}
