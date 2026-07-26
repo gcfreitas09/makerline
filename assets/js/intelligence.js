@@ -4,7 +4,7 @@ import {
   filterUsers,
   normalizeUser,
   sortUsers,
-} from './intelligence-utils.js?v=20260721a';
+} from './intelligence-utils.js?v=20260721b';
 import {
   CriticalUsersSection,
   DashboardCharts,
@@ -15,7 +15,7 @@ import {
   UserDetailsPanel,
   UserFilters,
   UsersTable,
-} from './intelligence-components.js?v=20260713a';
+} from './intelligence-components.js?v=20260721b';
 
 const getFromStorage = (key) => {
   try {

@@ -495,6 +495,7 @@ const buildChartsData = (users) => {
   const onboardingFunnel = [
     { label: 'Conta criada', value: users.length },
     { label: 'Primeiro login', value: users.filter((user) => hasCompletedStep(user, 'first_login')).length },
+    { label: 'Primeira marca', value: users.filter((user) => hasCompletedStep(user, 'first_brand_created')).length },
     { label: 'Primeira campanha', value: users.filter((user) => hasCompletedStep(user, 'first_campaign_created')).length },
     { label: 'Campanha ativa', value: users.filter((user) => hasCompletedStep(user, 'first_campaign_activated')).length },
     { label: 'Prospecção', value: users.filter((user) => hasCompletedStep(user, 'first_prospection_created')).length },

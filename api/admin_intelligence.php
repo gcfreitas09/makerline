@@ -136,6 +136,28 @@ function summarize_prospections_from_state($state)
     return $summary;
 }
 
+function summarize_brands_from_state($state)
+{
+    $summary = ['brandCount' => 0, 'firstBrandAt' => null];
+    if (!is_array($state)) return $summary;
+
+    $brands = $state['brands'] ?? null;
+    if (!is_array($brands)) return $summary;
+
+    $summary['brandCount'] = count($brands);
+
+    foreach ($brands as $brand) {
+        if (!is_array($brand)) continue;
+        $createdAt = trim((string)($brand['createdAt'] ?? ''));
+        if ($createdAt === '') continue;
+        if ($summary['firstBrandAt'] === null || strcmp($createdAt, $summary['firstBrandAt']) < 0) {
+            $summary['firstBrandAt'] = $createdAt;
+        }
+    }
+
+    return $summary;
+}
+
 function build_onboarding_snapshot($state, $campaignSummary, $user = [])
 {
     $progress = is_array($state['progress'] ?? null) ? $state['progress'] : [];
@@ -144,6 +166,8 @@ function build_onboarding_snapshot($state, $campaignSummary, $user = [])
     $activeCampaignCount = (int)($campaignSummary['activeCampaignCount'] ?? 0);
     $prospectionSummary = summarize_prospections_from_state($state);
     $prospectionCount = (int)($prospectionSummary['prospectionCount'] ?? 0);
+    $brandSummary = summarize_brands_from_state($state);
+    $brandCount = (int)($brandSummary['brandCount'] ?? 0);
 
     // O login real vem do registro do usuario (lastLoginAt), nao de uma flag no state:
     // as flags welcomeGranted/welcomeAwarded so existem em gamification_v2.js, que nao e
@@ -163,6 +187,15 @@ function build_onboarding_snapshot($state, $campaignSummary, $user = [])
             'label' => 'Fez primeiro login',
             'completed' => $lastLoginAt !== '' || !empty($onboarding['welcomeGranted']) || !empty($onboarding['welcomeAwarded']),
             'completedAt' => $firstLoginAt,
+        ],
+        [
+            // Cadastrar a primeira marca e, na pratica, o primeiro passo real dentro do
+            // produto: e onde a maioria para hoje. Sem medir isso, quem cadastrou marca e
+            // quem nao fez absolutamente nada apareciam com a mesma porcentagem.
+            'id' => 'first_brand_created',
+            'label' => 'Cadastrou primeira marca',
+            'completed' => $brandCount > 0,
+            'completedAt' => $brandSummary['firstBrandAt'] ?? null,
         ],
         [
             // Só conta campanha que existe de verdade na conta. hasCampaigns NAO entra aqui:
@@ -199,6 +232,7 @@ function build_onboarding_snapshot($state, $campaignSummary, $user = [])
         'steps' => $steps,
         'tutorialCompleted' => $tutorialCompleted,
         'prospectionCount' => $prospectionCount,
+        'brandCount' => $brandCount,
         'raw' => $onboarding,
     ];
 }
@@ -351,6 +385,7 @@ foreach ($users as $user) {
         'campaignCount' => (int)($campaignSummary['campaignCount'] ?? 0),
         'activeCampaignCount' => (int)($campaignSummary['activeCampaignCount'] ?? 0),
         'prospectionCount' => (int)($onboarding['prospectionCount'] ?? 0),
+        'brandCount' => (int)($onboarding['brandCount'] ?? 0),
         'stateUpdatedAt' => (string)($statePayload['updatedAt'] ?? ''),
         'stateBackend' => (string)($statePayload['backend'] ?? 'none'),
         'firstCampaignCreatedAt' => $campaignSummary['firstCampaignCreatedAt'],

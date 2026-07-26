@@ -166,6 +166,12 @@ const UserRow = (user) => `
     <td>${formatDuration(user.timeSpentSeconds)}</td>
     <td>
       <div class="ml-two-metrics">
+        <span>Marcas <strong>${safeNumber(user.brandCount)}</strong></span>
+        <span>Prospecções <strong>${safeNumber(user.prospectionCount)}</strong></span>
+      </div>
+    </td>
+    <td>
+      <div class="ml-two-metrics">
         <span>Criadas <strong>${safeNumber(user.campaignCount)}</strong></span>
         <span>Ativas <strong>${safeNumber(user.activeCampaignCount)}</strong></span>
       </div>
@@ -204,6 +210,7 @@ const UserCard = (user) => `
       <div><span>Cadastro</span><strong>${formatShortDate(user.createdAt)}</strong></div>
       <div><span>Origem</span><strong>${user.referralOrigin || 'Direto / orgânico'}</strong></div>
       <div><span>Último login</span><strong>${formatShortDate(user.lastLoginAt)}</strong></div>
+      <div><span>Marcas</span><strong>${safeNumber(user.brandCount)}</strong></div>
       <div><span>Campanhas</span><strong>${user.campaignCount}/${user.activeCampaignCount}</strong></div>
       <div><span>Onboarding</span><strong>${user.onboardingProgress.percentage}%</strong></div>
       <div><span>Tutorial</span><strong>${user.onboarding?.tutorialCompleted ? 'Concluído' : 'Pendente'}</strong></div>
@@ -251,6 +258,7 @@ const UsersTable = (users) => {
             <th>Acessos 7d</th>
             <th>Acessos 30d</th>
             <th>Tempo total</th>
+            <th>Atividade</th>
             <th>Campanhas</th>
             <th>Onboarding</th>
             <th>Tutorial</th>
