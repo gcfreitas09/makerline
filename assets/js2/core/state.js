@@ -224,6 +224,9 @@ const defaultState = {
     },
     selectedBrandId: null,
     pendingCampaignBrandId: null,
+    // Preenchido pelo fluxo de precificacao do onboarding e consumido (e
+    // limpo) pelo modal de campanha na primeira abertura.
+    pendingCampaignPrefill: null,
     missionDate: todayKey(),
     weeklyDate: weekKey()
   }
@@ -461,6 +464,9 @@ const normalizeUiState = (currentState) => {
 
   if (typeof currentState.ui.selectedBrandId !== 'string') currentState.ui.selectedBrandId = null;
   if (typeof currentState.ui.pendingCampaignBrandId !== 'string') currentState.ui.pendingCampaignBrandId = null;
+  if (!currentState.ui.pendingCampaignPrefill || typeof currentState.ui.pendingCampaignPrefill !== 'object') {
+    currentState.ui.pendingCampaignPrefill = null;
+  }
 };
 
 const normalizeBrandIds = (currentState) => {

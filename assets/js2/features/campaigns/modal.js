@@ -399,6 +399,28 @@ const openCampaignModal = (campaignId) => {
         if (contactEmailInput && !contactEmailInput.value) contactEmailInput.value = selectedBrand.email || '';
       }
     }
+
+    // Pre-preenchimento vindo do fluxo de precificacao do onboarding: valor
+    // sugerido e quantidade de entregas, para o usuario nao redigitar o que ja
+    // respondeu. Continua editavel, e so um ponto de partida.
+    const prefill = state.ui.pendingCampaignPrefill;
+    if (prefill && typeof prefill === 'object') {
+      // Number(null) e 0, entao null precisa ser descartado antes da conversao,
+      // senao um campo que o fluxo deixou em branco vira um zero explicito.
+      const numeroDoPrefill = (valor) => {
+        if (valor === null || valor === undefined || valor === '') return null;
+        const convertido = Number(valor);
+        return Number.isFinite(convertido) ? convertido : null;
+      };
+
+      const valorSugerido = numeroDoPrefill(prefill.value);
+      const fotos = numeroDoPrefill(prefill.photoCount);
+      const videos = numeroDoPrefill(prefill.videoCount);
+
+      if (valueInput && valorSugerido !== null) valueInput.value = formatMoneyBRL(valorSugerido) || 'R$ 0';
+      if (photoCountInput && fotos !== null) photoCountInput.value = fotos;
+      if (videoCountInput && videos !== null) videoCountInput.value = videos;
+    }
   }
 
   setCampaignWizardMode(campaignId ? 'edit' : 'create');
@@ -419,6 +441,7 @@ const openCampaignModal = (campaignId) => {
   }
 
   state.ui.pendingCampaignBrandId = null;
+  state.ui.pendingCampaignPrefill = null;
 
   try {
     document.dispatchEvent(new CustomEvent('ugc:campaign-modal-opened', {
