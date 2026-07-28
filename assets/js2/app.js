@@ -1,8 +1,8 @@
 import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
 import { renderAll } from './core/renderers.js?v=20260710a';
 import { setActivePage, showToast } from './core/ui.js?v=20260711a';
-import { initActions } from './core/actions.js?v=20260728a';
-import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260728a';
+import { initActions } from './core/actions.js?v=20260728k';
+import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260728k';
 import { initFeedbackWidget, initAdminFeedback } from './features/feedback/feedback.js?v=20260711c';
 import { initClarity, identifyClarityUser } from './core/clarity.js?v=20260727e';
 import {
@@ -293,7 +293,7 @@ const restoreSessionFromPersistentStorage = () => {
     saveState();
   };
 
-const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'prospeccao', 'finance', 'metrics', 'plans', 'settings', 'feedback']);
+const ACTIVE_PAGES = new Set(['dashboard', 'brands', 'campaigns', 'prospeccao', 'pricing', 'finance', 'metrics', 'plans', 'settings', 'feedback']);
 
 const getRequestedPage = () => {
   try {

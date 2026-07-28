@@ -222,6 +222,15 @@ const CAMPAIGN_WIZARD_TOTAL = 3;
 let campaignWizardEnabled = false;
 let campaignWizardStep = 1;
 
+/**
+ * Preview do onboarding: o mesmo formulario, so que preenchido com um exemplo,
+ * sem edicao e sem salvar nada. Fica null quando o modal esta em uso normal.
+ * @type {{ onVoltar: (() => void)|null, onConcluir: (() => void)|null }|null}
+ */
+let campaignPreview = null;
+
+const isCampaignPreview = () => campaignPreview !== null;
+
 const getCampaignWizardRefs = () => {
   const form = document.getElementById('campaign-form');
   return {
@@ -255,13 +264,15 @@ const applyCampaignWizardStep = () => {
     item.setAttribute('aria-current', active ? 'step' : 'false');
   });
 
-  if (prevBtn) prevBtn.style.visibility = campaignWizardEnabled && campaignWizardStep > 1 ? 'visible' : 'hidden';
+  // No preview o "Voltar" do primeiro passo sai do preview em vez de sumir, e o
+  // ultimo passo termina em "Concluir" porque nao existe salvar.
+  if (prevBtn) prevBtn.style.visibility = campaignWizardEnabled && (campaignWizardStep > 1 || isCampaignPreview()) ? 'visible' : 'hidden';
   if (nextBtn) {
-    if (!campaignWizardEnabled || campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL) {
+    if (!campaignWizardEnabled || (campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL && !isCampaignPreview())) {
       nextBtn.style.display = 'none';
     } else {
       nextBtn.style.display = '';
-      nextBtn.textContent = 'Próximo';
+      nextBtn.textContent = isCampaignPreview() && campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL ? 'Concluir' : 'Próximo';
       nextBtn.disabled = false;
     }
   }
@@ -269,6 +280,17 @@ const applyCampaignWizardStep = () => {
 
 const setCampaignWizardMode = (mode) => {
   campaignWizardEnabled = mode === 'create';
+  campaignWizardStep = 1;
+  applyCampaignWizardStep();
+};
+
+/**
+ * Desliga o wizard de 3 passos e devolve todas as linhas do formulario para o
+ * fluxo normal do documento. O registro guiado em cards precisa disso: quem
+ * controla a visibilidade campo a campo passa a ser ele.
+ */
+const disableCampaignWizard = () => {
+  campaignWizardEnabled = false;
   campaignWizardStep = 1;
   applyCampaignWizardStep();
 };
@@ -281,9 +303,22 @@ const setCampaignWizardStep = (step) => {
   return true;
 };
 
-const openCampaignModal = (campaignId) => {
+/**
+ * Verdadeiro quando outro fluxo esta apresentando o formulario fora do modal
+ * (hoje, o registro guiado em cards do onboarding).
+ */
+const formularioEmOutroFluxo = () => {
+  const { modal, form } = getCampaignModal();
+  return Boolean(modal && form && !modal.contains(form));
+};
+
+const openCampaignModal = (campaignId, opcoes = {}) => {
   const { modal, form, msg } = getCampaignModal();
   if (!modal || !form) return;
+
+  // Reabrir o modal enquanto outro fluxo conduz o mesmo formulario mostraria um
+  // modal vazio por cima dele e, pior, o reset apagaria o cadastro em andamento.
+  if (formularioEmOutroFluxo()) return;
 
   form.reset();
   resetCampaignDraftResources();
@@ -443,21 +478,120 @@ const openCampaignModal = (campaignId) => {
   state.ui.pendingCampaignBrandId = null;
   state.ui.pendingCampaignPrefill = null;
 
-  try {
-    document.dispatchEvent(new CustomEvent('ugc:campaign-modal-opened', {
-      detail: {
-        campaignId: campaignId || '',
-        mode: campaignId ? 'edit' : 'create'
-      }
-    }));
-  } catch (error) {}
+  // O preview do onboarding abre o modal so para exibicao, entao nao avisa o
+  // resto do app que um cadastro comecou.
+  if (!opcoes.silencioso) {
+    try {
+      document.dispatchEvent(new CustomEvent('ugc:campaign-modal-opened', {
+        detail: {
+          campaignId: campaignId || '',
+          mode: campaignId ? 'edit' : 'create'
+        }
+      }));
+    } catch (error) {}
 
-  if (brandSelect) brandSelect.focus();
+    if (brandSelect) brandSelect.focus();
+  }
+};
+
+/* ── preview do onboarding ──────────────────────────────────── */
+
+const CAMPAIGN_PREVIEW_BRAND_VALUE = '__preview-brand';
+
+/** Botoes que continuam clicaveis no preview, porque sao a navegacao. */
+const CAMPAIGN_PREVIEW_NAV_IDS = ['campaign-step-prev-btn', 'campaign-step-next-btn'];
+
+/**
+ * Preenche o formulario real com os dados de exemplo. As chaves de `campos` sao
+ * os proprios `name` dos inputs, entao um campo novo no formulario passa a ser
+ * preenchivel sem mudar nada aqui.
+ */
+const preencherCamposDePreview = (form, campos) => {
+  const brandSelect = form.querySelector('select[name="brandId"]');
+  const marca = String(campos.brandName || '').trim();
+  if (brandSelect && marca) {
+    const opcao = document.createElement('option');
+    opcao.value = CAMPAIGN_PREVIEW_BRAND_VALUE;
+    opcao.textContent = marca;
+    brandSelect.appendChild(opcao);
+    brandSelect.value = CAMPAIGN_PREVIEW_BRAND_VALUE;
+  }
+
+  Object.entries(campos).forEach(([nome, valor]) => {
+    if (nome === 'brandName') return;
+    const campo = form.querySelector(`[name="${nome}"]`);
+    if (!campo) return;
+    if (campo.dataset.money !== undefined) {
+      campo.value = formatMoneyBRL(valor) || 'R$ 0';
+      return;
+    }
+    campo.value = valor === null || valor === undefined ? '' : String(valor);
+  });
+
+  // Campos condicionais do formulario real reagem a mudanca de select; no
+  // preview nao ha evento de usuario, entao o estado e aplicado na mao.
+  toggleNextActionCustomRow(form, String(campos.nextActionType || ''));
+  const startOtherRow = document.getElementById('campaign-start-other-row');
+  if (startOtherRow) startOtherRow.style.display = campos.startMethod === 'other' ? '' : 'none';
+};
+
+const travarCamposDePreview = (form, travar) => {
+  form.querySelectorAll('input, select, textarea, button').forEach((campo) => {
+    if (CAMPAIGN_PREVIEW_NAV_IDS.includes(campo.id)) return;
+    campo.disabled = travar;
+  });
+  form.classList.toggle('campaign-form--preview', travar);
+
+  const badge = document.querySelector('[data-campaign-preview-badge]');
+  if (badge) badge.hidden = !travar;
+};
+
+/** Desfaz o preview no DOM. Nao dispara callbacks nem toca em state. */
+const desmontarPreview = () => {
+  const { form } = getCampaignModal();
+  campaignPreview = null;
+  if (!form) return;
+  travarCamposDePreview(form, false);
+  const opcaoDeExemplo = form.querySelector(`select[name="brandId"] option[value="${CAMPAIGN_PREVIEW_BRAND_VALUE}"]`);
+  if (opcaoDeExemplo) opcaoDeExemplo.remove();
+};
+
+/**
+ * Abre o formulario real de campanha em modo demonstracao: campos preenchidos
+ * com o exemplo recebido, navegacao pelos mesmos passos, nada editavel e nada
+ * salvo.
+ *
+ * @param {Object} opcoes
+ * @param {Record<string, string|number>} opcoes.campos Dados de exemplo.
+ * @param {() => void} [opcoes.onVoltar] Chamado ao sair pelo "Voltar"/"Fechar".
+ * @param {() => void} [opcoes.onConcluir] Chamado ao terminar o ultimo passo.
+ * @returns {boolean} false se o formulario nao existe na pagina.
+ */
+const openCampaignPreview = ({ campos = {}, onVoltar = null, onConcluir = null } = {}) => {
+  const { modal, form } = getCampaignModal();
+  if (!modal || !form) return false;
+
+  campaignPreview = { onVoltar, onConcluir };
+  openCampaignModal(null, { silencioso: true });
+  preencherCamposDePreview(form, campos);
+  travarCamposDePreview(form, true);
+  applyCampaignWizardStep();
+  return true;
+};
+
+/** Fecha o preview sem disparar o retorno para o card anterior. */
+const closeCampaignPreview = () => {
+  if (campaignPreview) campaignPreview = { onVoltar: null, onConcluir: null };
+  closeCampaignModal();
 };
 
 const closeCampaignModal = () => {
   const { modal, form, msg } = getCampaignModal();
   if (!modal) return;
+
+  const previewAtivo = campaignPreview;
+  if (previewAtivo) desmontarPreview();
+
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
   if (form) form.reset();
@@ -470,6 +604,10 @@ const closeCampaignModal = () => {
   campaignWizardEnabled = false;
   campaignWizardStep = 1;
   applyCampaignWizardStep();
+
+  // Fechar o preview pelo "Fechar" do modal devolve o usuario para o card que
+  // abriu a demonstracao, em vez de largar ele no app no meio do onboarding.
+  if (previewAtivo && typeof previewAtivo.onVoltar === 'function') previewAtivo.onVoltar();
 };
 
 const applyLifecycle = (campaign, lifecycle) => {
@@ -490,6 +628,8 @@ const applyLifecycle = (campaign, lifecycle) => {
 
 const handleCampaignSubmit = (event) => {
   event.preventDefault();
+  // O preview e so demonstracao: nenhum dado dele pode virar campanha.
+  if (isCampaignPreview()) return;
   const { form, msg } = getCampaignModal();
   if (!form) return;
 
@@ -523,12 +663,21 @@ const handleCampaignSubmit = (event) => {
       : '';
   const brandRecord = getBrandById(brandId);
   const brand = brandRecord ? String(brandRecord.name || '').trim() : '';
+  // `campoInvalido` diz a quem apresenta o formulario qual campo recusou, para
+  // o registro guiado em cards conseguir levar o usuario ate ele.
+  if (msg) delete msg.dataset.campoInvalido;
   if (nextActionType && !nextActionDate) {
-    if (msg) msg.textContent = 'Defina a data da próxima ação.';
+    if (msg) {
+      msg.textContent = 'Defina a data da próxima ação.';
+      msg.dataset.campoInvalido = 'nextActionDate';
+    }
     return;
   }
   if (nextActionType === 'outro' && !nextActionCustomType) {
-    if (msg) msg.textContent = 'Descreva o tipo personalizado da próxima ação.';
+    if (msg) {
+      msg.textContent = 'Descreva o tipo personalizado da próxima ação.';
+      msg.dataset.campoInvalido = 'nextActionCustomType';
+    }
     return;
   }
 
@@ -614,8 +763,8 @@ const handleCampaignSubmit = (event) => {
     title,
     brandId: brandRecord ? brandRecord.id : '',
     brand,
-    status: 'prospeccao',
-    stage: getDefaultCampaignStage('prospeccao'),
+    status: 'negociacao',
+    stage: getDefaultCampaignStage('negociacao'),
     value,
     barter,
     dueDate,
@@ -640,6 +789,25 @@ const handleCampaignSubmit = (event) => {
     updatedAt: nowIso
   };
   applyLifecycle(campaign, lifecycle);
+
+  // Quem chegou aqui vindo do precificador traz as respostas junto: é delas que
+  // sai o checklist de gravação mais adiante no ciclo.
+  const precificacaoPendente = state.ui.pendingCampaignPricing;
+  if (precificacaoPendente && typeof precificacaoPendente === 'object') {
+    campaign.pricing = {
+      respostas: precificacaoPendente.respostas || null,
+      resultado: precificacaoPendente.resultado
+        ? {
+            minimo: precificacaoPendente.resultado.minimo,
+            justo: precificacaoPendente.resultado.justo,
+            ideal: precificacaoPendente.resultado.ideal
+          }
+        : null,
+      detalhamento: precificacaoPendente.resultado?.detalhamento || null,
+      atualizadoEm: nowIso
+    };
+    state.ui.pendingCampaignPricing = null;
+  }
 
   state.campaigns.unshift(campaign);
   trackEvent('campaign_created', { campaignId: campaign.id, campaign });
@@ -725,6 +893,10 @@ const initCampaignForm = () => {
     prevStepBtn.dataset.bound = '1';
     prevStepBtn.addEventListener('click', () => {
       if (!campaignWizardEnabled) return;
+      if (isCampaignPreview() && campaignWizardStep <= 1) {
+        closeCampaignModal();
+        return;
+      }
       setCampaignWizardStep(campaignWizardStep - 1);
     });
   }
@@ -732,6 +904,13 @@ const initCampaignForm = () => {
     nextStepBtn.dataset.bound = '1';
     nextStepBtn.addEventListener('click', () => {
       if (!campaignWizardEnabled) return;
+
+      if (isCampaignPreview() && campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL) {
+        const concluir = campaignPreview.onConcluir;
+        closeCampaignPreview();
+        if (typeof concluir === 'function') concluir();
+        return;
+      }
 
       const { msg } = getCampaignModal();
       if (msg) msg.textContent = '';
@@ -791,4 +970,11 @@ const initCampaignForm = () => {
   window.__ugcCampaignWizard.isEnabled = () => campaignWizardEnabled;
 };
 
-export { openCampaignModal, closeCampaignModal, initCampaignForm };
+export {
+  openCampaignModal,
+  closeCampaignModal,
+  openCampaignPreview,
+  closeCampaignPreview,
+  disableCampaignWizard,
+  initCampaignForm
+};

@@ -34,7 +34,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Makerline" />
-  <link rel="stylesheet" href="assets/css/app2.css?v=20260728c" />
+  <link rel="stylesheet" href="assets/css/app2.css?v=20260728k" />
   <link rel="stylesheet" href="assets/css/mobile.css?v=20260628b">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="assets/js2/core/customSelect.js?v=20260727c"></script>
@@ -159,6 +159,13 @@
             <path d="M22 2l-7 20-4-9-9-4z" />
           </svg>
           Prospecção
+        </button>
+        <button class="nav-item" data-target="pricing" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v10M14.5 9.5c0-1.1-1.1-1.8-2.5-1.8s-2.5.7-2.5 1.8 1.1 1.6 2.5 2 2.5.9 2.5 2-1.1 1.8-2.5 1.8-2.5-.7-2.5-1.8" />
+          </svg>
+          Precificador
         </button>
         <button class="nav-item" data-target="finance" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -287,9 +294,9 @@
 
         <div class="filter-row">
           <button class="filter-btn active" data-filter="all" type="button">Todas</button>
-          <button class="filter-btn" data-filter="prospeccao" type="button">Prospecção</button>
+          <button class="filter-btn" data-filter="negociacao" type="button">Negociação</button>
           <button class="filter-btn" data-filter="producao" type="button">Produção</button>
-          <button class="filter-btn" data-filter="finalizacao" type="button">Finalização</button>
+          <button class="filter-btn" data-filter="entrega" type="button">Entrega</button>
           <button class="filter-btn" data-filter="concluida" type="button">Concluída</button>
           <select class="select select--compact" data-campaign-sort aria-label="Ordenar por">
             <option value="updatedAt">Recente</option>
@@ -328,6 +335,18 @@
             <div class="prospection-list" data-prospection-list></div>
           </div>
         </div>
+      </section>
+
+      <section class="page-section" data-section="pricing">
+        <div class="section-header">
+          <div class="section-title-block">
+            <button class="menu-toggle" data-action="toggle-menu" type="button">Menu</button>
+            <h1 class="section-title">Precificador</h1>
+            <p class="section-subtitle">Descubra quanto cobrar por uma campanha antes de responder a marca.</p>
+          </div>
+        </div>
+
+        <div class="pricing-page" data-pricing-page></div>
       </section>
 
       <section class="page-section" data-section="brands">
@@ -620,8 +639,9 @@
     <div class="modal-scrim" data-action="close-campaign-modal"></div>
     <div class="modal-panel card">
         <div class="modal-header">
-        <div>
+        <div class="campaign-modal-heading">
           <h3 data-campaign-modal-title>Nova campanha</h3>
+          <span class="campaign-preview-badge" data-campaign-preview-badge hidden>Exemplo</span>
         </div>
         <div class="modal-header-actions">
           <button class="btn btn-ghost btn-small" id="campaign-assets-header-btn" data-action="open-campaign-assets-from-modal" type="button" style="display:none;">Arquivos</button>
@@ -1351,6 +1371,30 @@
     <div class="pricing-stage" id="pricing-stage"></div>
   </div>
 
+  <!-- Onboarding: primeira campanha (ramo "ainda nao tenho campanha") -->
+  <div class="quiz-overlay pricing-overlay" id="first-campaign-quiz">
+    <div class="quiz-backdrop"></div>
+    <div class="pricing-stage" id="first-campaign-stage"></div>
+  </div>
+
+  <!-- Onboarding: cadastro da primeira campanha em cards (usa o proprio #campaign-form) -->
+  <div class="quiz-overlay pricing-overlay" id="register-quiz">
+    <div class="quiz-backdrop"></div>
+    <div class="pricing-stage" id="register-stage"></div>
+  </div>
+
+  <!-- Precificador de uma campanha (micro "Escopo definido") -->
+  <div class="quiz-overlay pricing-overlay" id="campaign-pricing">
+    <div class="quiz-backdrop"></div>
+    <div class="pricing-stage" id="campaign-pricing-stage"></div>
+  </div>
+
+  <!-- Retrospectiva da campanha (micro "Pago") -->
+  <div class="quiz-overlay pricing-overlay" id="campaign-retrospective">
+    <div class="quiz-backdrop"></div>
+    <div class="pricing-stage" id="campaign-retrospective-stage"></div>
+  </div>
+
   <div class="modal" id="brand-action-modal" aria-hidden="true">
     <div class="modal-scrim" data-action="close-brand-action-modal"></div>
     <div class="modal-panel card">
@@ -1506,7 +1550,7 @@
     </div>
   </div>
 
-  <script type="module" src="assets/js2/app.js?v=20260728a"></script>
+  <script type="module" src="assets/js2/app.js?v=20260728k"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

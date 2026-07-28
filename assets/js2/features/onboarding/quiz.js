@@ -2,7 +2,9 @@ import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js?v=20260429d';
 import { setActivePage, showToast } from '../../core/ui.js?v=20260304b';
 import { trackEvent } from '../../core/gamification.js?v=20260302g';
-import { abrirFluxoDePrecificacao } from './pricing-flow.js?v=20260728a';
+import { abrirFluxoDePrecificacao } from './pricing-flow.js?v=20260728k';
+import { abrirFluxoPrimeiraCampanha } from './first-campaign-flow.js?v=20260728k';
+import { abrirRegistroGuiado } from '../campaigns/register-flow.js?v=20260728k';
 
 /* ── helpers ────────────────────────────────────────────────── */
 
@@ -94,6 +96,9 @@ const openGuidedCampaignModal = () => {
   renderAll();
   setActivePage('campaigns');
   setTimeout(() => {
+    // Cadastro de campanha e em cards, igual ao resto do onboarding.
+    if (abrirRegistroGuiado()) return;
+
     const openModal = window.__ugcModals?.openCampaignModal;
     if (typeof openModal === 'function') {
       openModal();
@@ -130,7 +135,11 @@ const handleQuizAction = (action, el) => {
       closeQuiz();
       if (!abrirFluxoDePrecificacao()) showScreen(8);
     } else {
-      showScreen(4); // register a prospection
+      // Sem campanha fechada nao ha dado real para precificar, entao esse ramo
+      // mostra como sera o cadastro da primeira. A tela 4 fica como fallback se
+      // o overlay do fluxo nao existir.
+      closeQuiz();
+      if (!abrirFluxoPrimeiraCampanha()) showScreen(4);
     }
     return true;
   }
@@ -232,8 +241,8 @@ const createModelCampaign = (brandType, outreachGoal) => {
     id: `c-model-${Date.now()}`,
     title: `Prospecção - ${brandLabel}`,
     brand: `Prospecção - ${brandLabel}`,
-    status: 'prospeccao',
-    stage: getDefaultCampaignStage('prospeccao'),
+    status: 'negociacao',
+    stage: getDefaultCampaignStage('negociacao'),
     value: 0,
     barter: false,
     dueDate: '',
@@ -712,6 +721,10 @@ const initOnboardingQuiz = () => {
     // precificacao, retoma de onde parou em vez de reiniciar o quiz.
     if (ob.hasCampaigns === true && ob.pricing && ob.pricing.concluido !== true) {
       if (abrirFluxoDePrecificacao()) return;
+    }
+    // Mesma retomada para quem respondeu "ainda nao tenho campanha".
+    if (ob.hasCampaigns === false && ob.primeiraCampanha && ob.primeiraCampanha.concluido !== true) {
+      if (abrirFluxoPrimeiraCampanha()) return;
     }
     openQuiz();
     return;

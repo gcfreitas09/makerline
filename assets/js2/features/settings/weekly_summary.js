@@ -6,8 +6,8 @@ const buildSnapshot = () => {
   const totalReceived = state.campaigns
     .filter((c) => c.status === 'concluida')
     .reduce((sum, c) => sum + (Number(c.value) || 0), 0);
-  const pending = state.campaigns.filter((c) => c.status === 'prospeccao').length;
-  const negotiating = state.campaigns.filter((c) => c.status === 'prospeccao' && c.stage === 'negociacao').length;
+  const pending = state.campaigns.filter((c) => c.status === 'negociacao').length;
+  const negotiating = state.campaigns.filter((c) => c.status === 'negociacao' && c.stage === 'proposta_enviada').length;
   const done = state.campaigns.filter((c) => c.status === 'concluida').length;
 
   return {

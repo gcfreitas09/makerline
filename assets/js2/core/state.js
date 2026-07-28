@@ -1,3 +1,15 @@
+import {
+  campaignStagesByStatus,
+  campaignStatusOrder,
+  getCampaignStageLabel,
+  getCampaignStageOptions,
+  getDefaultCampaignStage,
+  migrarFiltroDeStatus,
+  migrarStatusEEtapa,
+  statusDot,
+  statusLabels
+} from './campaigns/pipeline.js?v=20260728k';
+
 const STORAGE_KEY_BASE = 'ugcQuestState';
 const PREFS_KEY_BASE = 'ugcQuestPrefs';
 
@@ -232,65 +244,13 @@ const defaultState = {
   }
 };
 
-const statusLabels = {
-  prospeccao: 'Prospecção',
-  producao: 'Produção',
-  finalizacao: 'Finalização',
-  concluida: 'Concluída'
-};
-
-const campaignStatusOrder = ['prospeccao', 'producao', 'finalizacao', 'concluida'];
-
-const campaignStagesByStatus = {
-  prospeccao: [
-    { id: 'abordagem', label: 'Abordagem/Inscrição' },
-    { id: 'negociacao', label: 'Negociação' },
-    { id: 'aprovado', label: 'Aprovado' }
-  ],
-  producao: [
-    { id: 'aguardando_produto', label: 'Aguardando produto' },
-    { id: 'produto_recebido', label: 'Produto recebido' },
-    { id: 'roteiro_enviado', label: 'Roteiro enviado' },
-    { id: 'aguardando_aprovacao_roteiro', label: 'Aguardando aprovação do roteiro' },
-    { id: 'roteiro_aprovado', label: 'Roteiro aprovado' },
-    { id: 'gravacao', label: 'Gravação' },
-    { id: 'conteudo_enviado', label: 'Conteúdo enviado' },
-    { id: 'aguardando_aprovacao_conteudo', label: 'Aguardando aprovação do conteúdo' },
-    { id: 'ajustes', label: 'Regravação / ajustes' }
-  ],
-  finalizacao: [
-    { id: 'conteudo_aprovado', label: 'Conteúdo aprovado' },
-    { id: 'aguardando_pagamento', label: 'Aguardando pagamento' }
-  ],
-  concluida: [{ id: 'pago', label: 'Pago' }]
-};
-
-const activePages = new Set(['dashboard', 'brands', 'campaigns', 'prospeccao', 'finance', 'metrics', 'plans', 'settings']);
-
-const getCampaignStageOptions = (status) => campaignStagesByStatus[String(status || '').trim()] || [];
-
-const getDefaultCampaignStage = (status) => getCampaignStageOptions(status)[0].id || '';
-
-const getCampaignStageLabel = (status, stageId) => {
-  const wanted = String(stageId || '').trim();
-  if (!wanted) return '';
-  const options = getCampaignStageOptions(status);
-  const found = options.find((opt) => opt.id === wanted);
-  return found ? found.label : '';
-};
+const activePages = new Set(['dashboard', 'brands', 'campaigns', 'prospeccao', 'pricing', 'finance', 'metrics', 'plans', 'settings']);
 
 const typeLabels = {
   review: 'Review',
   unboxing: 'Unboxing',
   tutorial: 'Tutorial',
   storytelling: 'Storytelling'
-};
-
-const statusDot = {
-  prospeccao: 'dot-prospeccao',
-  producao: 'dot-producao',
-  finalizacao: 'dot-finalizacao',
-  concluida: 'dot-concluida'
 };
 
 const brandStatuses = {
@@ -371,64 +331,46 @@ const normalizeCampaignPipeline = (currentState) => {
   campaigns.forEach((campaign) => {
     if (!campaign || typeof campaign !== 'object') return;
 
-    const rawStatus = String(campaign.status || '').trim().toLowerCase();
-    const rawStage = String(campaign.stage || '').trim();
-    const rawPipeline = String(campaign.pipeline || '').trim().toLowerCase();
-
     const paymentPercentRaw = Number.isFinite(campaign.paymentPercent)
       ? campaign.paymentPercent
       : parseInt(String(campaign.paymentPercent || ''), 10);
     const paymentPercent = Number.isFinite(paymentPercentRaw) ? Math.max(0, Math.min(100, Math.round(paymentPercentRaw))) : 0;
 
-    // Migração de status antigo (pendente/negociando/realizado).
-    if (rawStatus === 'pendente') {
-      campaign.status = 'prospeccao';
-      if (!rawStage) campaign.stage = 'abordagem';
-    } else if (rawStatus === 'negociando') {
-      campaign.status = 'prospeccao';
-      if (!rawStage) campaign.stage = 'negociacao';
-    } else if (rawStatus === 'realizado') {
-      if (paymentPercent >= 100) {
-        campaign.status = 'concluida';
-        campaign.stage = 'pago';
-      } else {
-        campaign.status = 'finalizacao';
-        if (!rawStage) campaign.stage = 'aguardando_pagamento';
-      }
+    // Campo "pipeline" de uma versão bem antiga, quando não havia micro-etapa.
+    const rawPipeline = String(campaign.pipeline || '').trim().toLowerCase();
+    if (rawPipeline === 'entrega' && !String(campaign.stage || '').trim()) {
+      campaign.status = 'producao';
+      campaign.stage = 'conteudo_enviado';
     }
 
-    // Migração simples do campo antigo "pipeline" (quando existir).
-    if (rawPipeline && !String(campaign.stage || '').trim()) {
-      if (rawPipeline === 'entrega') {
-        campaign.status = 'producao';
-        campaign.stage = 'conteudo_enviado';
-      }
+    const migrado = migrarStatusEEtapa({
+      status: campaign.status,
+      stage: campaign.stage,
+      paymentPercent
+    });
+    campaign.status = migrado.status;
+    campaign.stage = migrado.stage;
+
+    // Prospecção saiu do ciclo: as campanhas-modelo que o onboarding antigo
+    // criava viram campanhas comuns, sem perder nada do que foi preenchido.
+    if (campaign.isModel) {
+      delete campaign.isModel;
+      delete campaign.modelMeta;
     }
 
-    // Garante status válido.
-    const statusSafe = String(campaign.status || '').trim();
-    if (!campaignStatusOrder.includes(statusSafe)) {
-      campaign.status = 'prospeccao';
-    }
-
-    // Garante etapa válida pro status.
-    const stageSafe = String(campaign.stage || '').trim();
-    const options = getCampaignStageOptions(campaign.status);
-    const hasStage = stageSafe && options.some((opt) => opt.id === stageSafe);
-    if (!hasStage) {
-      campaign.stage = getDefaultCampaignStage(campaign.status);
-    }
-
-    // Limpa campo legado.
     if (campaign.pipeline !== undefined) delete campaign.pipeline;
   });
 
-  // Migra o filtro antigo salvo no UI.
+  // Migra os filtros salvos na interface.
   if (currentState.ui && typeof currentState.ui === 'object') {
-    const filter = String(currentState.ui.campaignFilter || 'all').trim().toLowerCase();
-    if (filter === 'pendente' || filter === 'negociando') currentState.ui.campaignFilter = 'prospeccao';
-    if (filter === 'realizado') currentState.ui.campaignFilter = 'finalizacao';
-    if (typeof currentState.ui.campaignDashboardFilter !== 'string') currentState.ui.campaignDashboardFilter = '';
+    currentState.ui.campaignFilter = migrarFiltroDeStatus(currentState.ui.campaignFilter);
+    if (typeof currentState.ui.campaignDashboardFilter !== 'string') {
+      currentState.ui.campaignDashboardFilter = '';
+    } else {
+      const painel = String(currentState.ui.campaignDashboardFilter || '').trim().toLowerCase();
+      if (painel === 'prospeccao') currentState.ui.campaignDashboardFilter = 'negociacao';
+      if (painel === 'finalizacao') currentState.ui.campaignDashboardFilter = 'entrega';
+    }
   }
 };
 
@@ -452,7 +394,7 @@ const normalizeUiState = (currentState) => {
   const metricsRangeDays = Number(currentState.ui.metricsRangeDays);
   currentState.ui.metricsRangeDays = [0, 15, 30, 45, 90].includes(metricsRangeDays) ? metricsRangeDays : 30;
   const metricsStatusOpen = String(currentState.ui.metricsStatusOpen || '').trim();
-  currentState.ui.metricsStatusOpen = ['prospeccao', 'producao', 'finalizacao', 'concluida'].includes(metricsStatusOpen)
+  currentState.ui.metricsStatusOpen = ['negociacao', 'producao', 'entrega', 'concluida'].includes(metricsStatusOpen)
      metricsStatusOpen
     : '';
   if (typeof currentState.ui.campaignPaymentFilter !== 'string') currentState.ui.campaignPaymentFilter = 'all';
@@ -1200,7 +1142,7 @@ const achievementPoolLegacy = [
     xp: 250,
     isUnlocked: (current) => {
       const campaigns = Array.isArray(current.campaigns) ? current.campaigns : [];
-      return campaigns.filter((c) => ['producao', 'finalizacao', 'concluida'].includes(c.status)).length >= 5;
+      return campaigns.filter((c) => ['producao', 'entrega', 'concluida'].includes(c.status)).length >= 5;
     }
   },
   {
@@ -1209,7 +1151,7 @@ const achievementPoolLegacy = [
     desc: 'Finalizar 5 campanhas.',
     xp: 300,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['finalizacao', 'concluida'].includes(c.status)).length >= 5
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['entrega', 'concluida'].includes(c.status)).length >= 5
   },
   {
     id: 'ach-contact',
@@ -1300,7 +1242,7 @@ const achievementPoolLegacy = [
     desc: 'Finalizar 1 campanha.',
     xp: 150,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['finalizacao', 'concluida'].includes(c.status)).length >= 1
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['entrega', 'concluida'].includes(c.status)).length >= 1
   },
   {
     id: 'ach-2-closes',
@@ -1308,7 +1250,7 @@ const achievementPoolLegacy = [
     desc: 'Finalizar 2 campanhas.',
     xp: 200,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['finalizacao', 'concluida'].includes(c.status)).length >= 2
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['entrega', 'concluida'].includes(c.status)).length >= 2
   },
   {
     id: 'ach-level3',
@@ -1352,7 +1294,7 @@ const achievementPool = [
     xp: 250,
     isUnlocked: (current) => {
       const campaigns = Array.isArray(current.campaigns) ? current.campaigns : [];
-      return campaigns.filter((c) => ['producao', 'finalizacao', 'concluida'].includes(c.status)).length >= 5;
+      return campaigns.filter((c) => ['producao', 'entrega', 'concluida'].includes(c.status)).length >= 5;
     }
   },
   {
@@ -1378,7 +1320,7 @@ const achievementPool = [
     desc: 'Finalizar 5 campanhas.',
     xp: 300,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['finalizacao', 'concluida'].includes(c.status)).length >= 5
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['entrega', 'concluida'].includes(c.status)).length >= 5
   },
   {
     id: 'ach-organizer',
@@ -1445,7 +1387,7 @@ const achievementCatalog = [
     xp: 250,
     isUnlocked: (current) => {
       const campaigns = Array.isArray(current.campaigns) ? current.campaigns : [];
-      return campaigns.filter((campaign) => campaign.status === 'prospeccao' && campaign.stage === 'negociacao' && isCampaignActive(campaign)).length >= 3;
+      return campaigns.filter((campaign) => campaign.status === 'negociacao' && campaign.stage === 'proposta_enviada' && isCampaignActive(campaign)).length >= 3;
     }
   },
   {
@@ -1521,7 +1463,7 @@ const achievementCatalog = [
     desc: 'Finalizar 1 campanha.',
     xp: 150,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['finalizacao', 'concluida'].includes(c.status)).length >= 1
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['entrega', 'concluida'].includes(c.status)).length >= 1
   },
   {
     id: 'ach-contacts-10',
@@ -1547,7 +1489,7 @@ const achievementCatalog = [
     desc: 'Finalizar 2 campanhas.',
     xp: 200,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((campaign) => ['finalizacao', 'concluida'].includes(campaign.status)).length >= 2
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((campaign) => ['entrega', 'concluida'].includes(campaign.status)).length >= 2
   },
   {
     id: 'ach-level3',

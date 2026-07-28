@@ -26,9 +26,9 @@
   --camp-pay-pending: #f59e0b;
   --camp-pay-partial: #f59e0b;
   --camp-pay-paid: #22c55e;
-  --status-prospeccao: #38bdf8;
+  --status-negociacao: #38bdf8;
   --status-producao: #7ba4d9;
-  --status-finalizacao: #f59e0b;
+  --status-entrega: #f59e0b;
   --status-concluida: #22c55e;
   --success: #34d399;
   --warning: #f59e0b;
@@ -876,7 +876,7 @@ body[data-theme="light"] .dashboard-pipeline-step {
   box-shadow: 0 16px 36px rgba(68, 86, 108, 0.14);
 }
 
-body[data-theme="light"] .dashboard-pipeline-step--prospeccao {
+body[data-theme="light"] .dashboard-pipeline-step--negociacao {
   border-color: rgba(96, 165, 250, 0.24);
   background:
     radial-gradient(circle at top right, rgba(96, 165, 250, 0.2), transparent 28%),
@@ -890,7 +890,7 @@ body[data-theme="light"] .dashboard-pipeline-step--producao {
     linear-gradient(150deg, rgba(238, 252, 249, 0.98), rgba(228, 243, 241, 0.95));
 }
 
-body[data-theme="light"] .dashboard-pipeline-step--finalizacao {
+body[data-theme="light"] .dashboard-pipeline-step--entrega {
   border-color: rgba(251, 191, 36, 0.24);
   background:
     radial-gradient(circle at top right, rgba(251, 191, 36, 0.18), transparent 28%),
@@ -1201,7 +1201,7 @@ body[data-theme="light"] select[data-campaign-stage] {
   box-shadow: 0 8px 18px rgba(68, 86, 108, 0.08);
 }
 
-body[data-theme="light"] select[data-campaign-status].status-prospeccao {
+body[data-theme="light"] select[data-campaign-status].status-negociacao {
   background: rgba(219, 234, 254, 0.96);
   border-color: rgba(59, 130, 246, 0.3);
   color: #1d4ed8;
@@ -1213,7 +1213,7 @@ body[data-theme="light"] select[data-campaign-status].status-producao {
   color: #7e22ce;
 }
 
-body[data-theme="light"] select[data-campaign-status].status-finalizacao {
+body[data-theme="light"] select[data-campaign-status].status-entrega {
   background: rgba(254, 243, 199, 0.96);
   border-color: rgba(245, 158, 11, 0.3);
   color: #b45309;
@@ -1225,7 +1225,7 @@ body[data-theme="light"] select[data-campaign-status].status-concluida {
   color: #15803d;
 }
 
-body[data-theme="light"] select[data-campaign-stage].stage-prospeccao {
+body[data-theme="light"] select[data-campaign-stage].stage-negociacao {
   background: rgba(239, 246, 255, 0.98);
   border-color: rgba(59, 130, 246, 0.22);
   color: #2563eb;
@@ -1237,7 +1237,7 @@ body[data-theme="light"] select[data-campaign-stage].stage-producao {
   color: #7c3aed;
 }
 
-body[data-theme="light"] select[data-campaign-stage].stage-finalizacao {
+body[data-theme="light"] select[data-campaign-stage].stage-entrega {
   background: rgba(255, 251, 235, 0.98);
   border-color: rgba(245, 158, 11, 0.22);
   color: #b45309;
@@ -4818,7 +4818,7 @@ body[data-theme="light"] .dashboard-eyebrow {
   font-weight: 600;
 }
 
-.dashboard-pipeline-step--prospeccao {
+.dashboard-pipeline-step--negociacao {
   border-color: rgba(96, 165, 250, 0.18);
   background:
     radial-gradient(circle at top right, rgba(96, 165, 250, 0.16), transparent 28%),
@@ -4832,7 +4832,7 @@ body[data-theme="light"] .dashboard-eyebrow {
     linear-gradient(150deg, rgba(14, 30, 35, 0.94), rgba(9, 18, 29, 0.82));
 }
 
-.dashboard-pipeline-step--finalizacao {
+.dashboard-pipeline-step--entrega {
   border-color: rgba(251, 191, 36, 0.18);
   background:
     radial-gradient(circle at top right, rgba(251, 191, 36, 0.14), transparent 28%),
@@ -5213,7 +5213,7 @@ body[data-theme="light"] .dashboard-eyebrow {
   background: #22c55e;
 }
 
-.dot-prospeccao {
+.dot-negociacao {
   background: #60a5fa;
 }
 
@@ -5221,7 +5221,7 @@ body[data-theme="light"] .dashboard-eyebrow {
   background: #a855f7;
 }
 
-.dot-finalizacao {
+.dot-entrega {
   background: #f59e0b;
 }
 
@@ -5248,7 +5248,7 @@ select[data-campaign-status] {
   padding-right: 12px;
 }
 
-select[data-campaign-status].status-prospeccao {
+select[data-campaign-status].status-negociacao {
   background: rgba(59, 130, 246, 0.12);
   border-color: rgba(59, 130, 246, 0.4);
   color: #60a5fa;
@@ -5260,7 +5260,7 @@ select[data-campaign-status].status-producao {
   color: #c084fc;
 }
 
-select[data-campaign-status].status-finalizacao {
+select[data-campaign-status].status-entrega {
   background: rgba(245, 158, 11, 0.12);
   border-color: rgba(245, 158, 11, 0.4);
   color: #fbbf24;
@@ -5283,7 +5283,7 @@ select[data-campaign-stage] {
   padding-right: 12px;
 }
 
-select[data-campaign-stage].stage-prospeccao {
+select[data-campaign-stage].stage-negociacao {
   background: rgba(59, 130, 246, 0.08);
   border-color: rgba(59, 130, 246, 0.3);
   color: #93c5fd;
@@ -5295,7 +5295,7 @@ select[data-campaign-stage].stage-producao {
   color: #d8b4fe;
 }
 
-select[data-campaign-stage].stage-finalizacao {
+select[data-campaign-stage].stage-entrega {
   background: rgba(245, 158, 11, 0.08);
   border-color: rgba(245, 158, 11, 0.3);
   color: #fcd34d;
@@ -5320,7 +5320,7 @@ select[data-campaign-stage]:focus {
 }
 
 /* Cores para chips de marca baseadas no status */
-.chip.brand-status-prospeccao {
+.chip.brand-status-negociacao {
   background: rgba(59, 130, 246, 0.15);
   color: #bfdbfe;
   border: 1px solid rgba(59, 130, 246, 0.3);
@@ -5332,7 +5332,7 @@ select[data-campaign-stage]:focus {
   border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
-.chip.brand-status-finalizacao {
+.chip.brand-status-entrega {
   background: rgba(245, 158, 11, 0.15);
   color: #fde68a;
   border: 1px solid rgba(245, 158, 11, 0.3);
@@ -8280,9 +8280,9 @@ button[data-action="bonus-xp"] {
   color: #fff;
   transition: width .4s;
 }
-.metric-stack-seg.seg-prospeccao { background: #f59e0b; }
+.metric-stack-seg.seg-negociacao { background: #f59e0b; }
 .metric-stack-seg.seg-producao { background: #3b82f6; }
-.metric-stack-seg.seg-finalizacao { background: #8b5cf6; }
+.metric-stack-seg.seg-entrega { background: #8b5cf6; }
 
 .metric-stack-legend {
   display: flex;
@@ -8301,9 +8301,9 @@ button[data-action="bonus-xp"] {
   height: 10px;
   border-radius: 50%;
 }
-.metric-legend-item.seg-prospeccao .metric-legend-dot { background: #f59e0b; }
+.metric-legend-item.seg-negociacao .metric-legend-dot { background: #f59e0b; }
 .metric-legend-item.seg-producao .metric-legend-dot { background: #3b82f6; }
-.metric-legend-item.seg-finalizacao .metric-legend-dot { background: #8b5cf6; }
+.metric-legend-item.seg-entrega .metric-legend-dot { background: #8b5cf6; }
 
 /* ── Onboarding Quiz ──────────────────────────────────────── */
 
@@ -10734,10 +10734,17 @@ body[data-theme="light"] .brand-detail-empty strong {
   justify-content: center;
 }
 
+/* Trocar de pergunta acontece a cada clique, então a entrada do card é curta e
+   discreta: o suficiente para a troca não ser seca, sem virar espera. */
 .pricing-card {
   position: relative;
-  animation: quizFadeIn 0.28s ease;
+  animation: pricingCardIn 0.16s ease-out;
   padding: 36px 30px 30px;
+}
+
+@keyframes pricingCardIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .pricing-card--result {
@@ -11006,4 +11013,384 @@ body[data-theme="light"] .pricing-range-item {
 body[data-theme="light"] .pricing-range-item.is-highlight {
   border-color: var(--accent);
   background: rgba(115, 195, 183, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ONBOARDING: PREVIEW DA PRIMEIRA CAMPANHA
+   O card do meio desse ramo é o próprio formulário de campanha em
+   modo demonstração. Aqui só o que marca "isto é exemplo".
+   ═══════════════════════════════════════════════════════════════ */
+
+.campaign-modal-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.campaign-preview-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  background: rgba(115, 195, 183, 0.16);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+/* O selo acompanha a rolagem do modal, para o aviso nunca sair da tela. */
+.modal-panel:has(.campaign-form--preview) .modal-header {
+  position: sticky;
+  top: -24px;
+  z-index: 3;
+  padding-top: 8px;
+  margin-top: -8px;
+  background: var(--card);
+}
+
+.campaign-form--preview .campaign-submit-actions,
+.campaign-form--preview .campaign-draft-assets-actions {
+  display: none;
+}
+
+.campaign-form--preview .form-row {
+  opacity: 0.92;
+}
+
+.campaign-form--preview .input[disabled],
+.campaign-form--preview .select[disabled] {
+  cursor: default;
+  opacity: 1;
+}
+
+body[data-theme="light"] .campaign-preview-badge {
+  background: rgba(115, 195, 183, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ONBOARDING: CADASTRO DA PRIMEIRA CAMPANHA EM CARDS
+   O #campaign-form é movido para dentro do card e só uma linha
+   fica visível por vez. Aqui só o que esconde o chrome do modal
+   e adapta o campo ao card.
+   ═══════════════════════════════════════════════════════════════ */
+
+.register-card {
+  width: 100%;
+  text-align: center;
+}
+
+.register-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--card-strong);
+  color: var(--muted);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s;
+}
+
+.register-close:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.register-slot {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+/* Chrome do modal não faz sentido dentro do card: os passos 1/2/3, a
+   navegação do wizard e o botão de salvar viram os controles do card. */
+.campaign-form--cards {
+  gap: 0;
+}
+
+.campaign-form--cards .campaign-wizard-progress,
+.campaign-form--cards .campaign-wizard-actions,
+.campaign-form--cards .campaign-submit-actions {
+  display: none !important;
+}
+
+.campaign-form--cards .form-row.register-row-hidden {
+  display: none !important;
+}
+
+/* O rótulo do campo já é o título do card. Rótulos internos (Fotos,
+   Vídeos, Categoria...) continuam aparecendo. */
+.campaign-form--cards .form-row > label:first-child {
+  display: none;
+}
+
+.campaign-form--cards .form-row > .muted,
+.campaign-form--cards .form-row .campaign-step-help {
+  font-size: 12px;
+}
+
+.campaign-form--cards #campaign-msg:not(:empty) {
+  margin-top: 12px;
+  color: var(--warn, #f2b661);
+  text-align: center;
+}
+
+/* Durante o registro em cards, o card vive num overlay acima dos modais.
+   Qualquer modal aberto a partir dele (nova marca, por exemplo) precisa subir
+   junto, senão abre atrás do card. */
+body.register-cards-open .modal {
+  z-index: 1100;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AÇÕES POR ETAPA (dentro do detalhe da campanha)
+   ═══════════════════════════════════════════════════════════════ */
+
+.stage-action {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(115, 195, 183, 0.28);
+  background: rgba(115, 195, 183, 0.08);
+  margin-bottom: 4px;
+}
+
+.stage-action-step {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+
+.stage-action-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stage-action-title {
+  display: block;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.stage-action-sub {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.stage-action-badge {
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--card-strong);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.stage-action-badge.is-late {
+  border-color: rgba(242, 182, 97, 0.5);
+  color: var(--warn, #f2b661);
+}
+
+.stage-action-message {
+  margin: 0;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--card-strong);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.stage-action .btn {
+  align-self: flex-start;
+}
+
+.stage-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stage-checklist-item label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.stage-checklist-item input {
+  margin-top: 2px;
+  width: 17px;
+  height: 17px;
+  flex: none;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.stage-checklist-item.is-done span {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+/* ── retrospectiva ──────────────────────────────────────────── */
+
+.retrospective-card {
+  text-align: center;
+}
+
+.retrospective-crest {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+}
+
+.retrospective-crest svg {
+  width: 100%;
+  height: 100%;
+}
+
+.retrospective-eyebrow {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.retrospective-highlight {
+  margin: 8px 0 4px;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--accent);
+}
+
+.retrospective-list {
+  list-style: none;
+  margin: 22px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.retrospective-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.retrospective-list li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.retrospective-list strong {
+  color: var(--text);
+  text-align: right;
+}
+
+/* ── precificador como seção do menu ────────────────────────── */
+
+.pricing-page {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 32px;
+}
+
+.pricing-page .pricing-card {
+  max-width: 480px;
+}
+
+body[data-theme="light"] .stage-action {
+  background: rgba(115, 195, 183, 0.12);
+}
+
+body[data-theme="light"] .stage-action-message,
+body[data-theme="light"] .stage-action-badge {
+  border-color: rgba(23, 33, 45, 0.12);
+  background: #ffffff;
+}
+
+/* Precificador da seção: 3 telas, cada uma com um punhado de perguntas. */
+.pricing-card--group {
+  text-align: left;
+}
+
+.pricing-card--group .quiz-title {
+  text-align: center;
+}
+
+.pricing-group-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.pricing-group-question {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.pricing-group-field .quiz-options {
+  margin: 0;
+}
+
+.pricing-group-field .quiz-option {
+  padding: 12px 14px;
+  font-size: 13.5px;
+}
+
+.pricing-group-field .pricing-field,
+.pricing-group-field .pricing-field--split {
+  margin-bottom: 0;
+}
+
+.pricing-group-field .pricing-input {
+  font-size: 17px;
+  padding: 12px;
 }

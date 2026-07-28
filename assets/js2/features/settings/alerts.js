@@ -17,8 +17,8 @@ const plural = (value, singular, pluralWord = null) => {
 };
 
 const buildAlertsMessage = () => {
-  const pendentes = state.campaigns.filter((c) => c.status === 'prospeccao' && c.stage === 'abordagem').length;
-  const negociando = state.campaigns.filter((c) => c.status === 'prospeccao' && c.stage === 'negociacao').length;
+  const pendentes = state.campaigns.filter((c) => c.status === 'negociacao' && c.stage === 'contato_recebido').length;
+  const negociando = state.campaigns.filter((c) => c.status === 'negociacao' && c.stage === 'proposta_enviada').length;
   const realizadosSemValor = state.campaigns.filter(
     (c) => c.status === 'concluida' && c.stage === 'pago' && (!c.value || Number(c.value) <= 0) && !c.barter
   ).length;

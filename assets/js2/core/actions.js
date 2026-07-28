@@ -7,9 +7,11 @@ import { renderAll } from './renderers.js?v=20260628a';
 
 import {
   closeCampaignModal,
+  disableCampaignWizard,
   initCampaignForm,
-  openCampaignModal
-} from '../features/campaigns/modal.js?v=20260728a';
+  openCampaignModal,
+  openCampaignPreview
+} from '../features/campaigns/modal.js?v=20260728k';
 import {
   closeBrandModal,
   initBrandForm,
@@ -34,8 +36,23 @@ import {
 import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js?v=20260302f';
 import { openBillingCheckout, openBillingPortal } from '../features/settings/billing.js?v=20260628a';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260728a';
-import { handlePricingFlowAction } from '../features/onboarding/pricing-flow.js?v=20260728a';
+import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260728k';
+import { handleFirstCampaignFlowAction } from '../features/onboarding/first-campaign-flow.js?v=20260728k';
+import { abrirRegistroGuiado, handleRegisterFlowAction, initRegisterFlow } from '../features/campaigns/register-flow.js?v=20260728k';
+import { renderStageAction, alternarItemDoChecklist } from '../features/campaigns/stage-actions.js?v=20260728k';
+import { abrirPrecificadorDaCampanha } from '../features/campaigns/pricing-modal.js?v=20260728k';
+import { abrirRetrospectiva, fecharRetrospectiva } from '../features/campaigns/retrospective.js?v=20260728k';
+import { registrarMudancaDeEtapa } from './campaigns/timeline.js?v=20260728k';
+
+/**
+ * Cadastrar campanha e sempre em cards, uma pergunta por tela. O modal padrao
+ * continua valendo para edicao, e como fallback se o overlay dos cards nao
+ * estiver na pagina.
+ */
+const abrirCadastroDeCampanha = () => {
+  if (abrirRegistroGuiado()) return;
+  openCampaignModal();
+};
 
 /* -- Money mask helper -- */
 const formatMoneyInput = (raw) => {
@@ -449,7 +466,8 @@ const openCampaignPeekModal = (campaignId) => {
     { label: 'Arquivos armazenados', value: `${(Array.isArray(campaign.resources) ? campaign.resources : []).length} item(ns)` }
   ];
 
-  body.innerHTML = metaItems
+  // A ação da etapa atual vem antes do cadastro: é o que a pessoa veio fazer.
+  body.innerHTML = renderStageAction(campaign) + metaItems
     .map(
       (item) => `
         <article class="campaign-peek-item">
@@ -899,6 +917,15 @@ const getGlobalStagePos = (status, stage) => {
 };
 const TOTAL_TRANSITIONS = 14;
 
+/**
+ * Chegar em "Pago" fecha o ciclo: a retrospectiva abre sozinha, porque é o
+ * momento em que o resultado do trabalho inteiro faz sentido junto.
+ */
+const celebrarSePago = (campaign) => {
+  if (!campaign || campaign.stage !== 'pago') return;
+  setTimeout(() => abrirRetrospectiva(campaign.id), 220);
+};
+
 const copyText = (text, doneMessage) => {
   const value = String(text || '').trim();
   if (!value) return;
@@ -995,7 +1022,8 @@ const handleActionClick = (event) => {
   const action = actionEl.dataset.action;
 
   // Quiz / onboarding actions
-  if (handlePricingFlowAction(action, actionEl)) return;
+  if (handleRegisterFlowAction(action, actionEl)) return;
+  if (handleFirstCampaignFlowAction(action, actionEl)) return;
   if (handleQuizAction(action, actionEl)) return;
 
   if (action === 'logout') {
@@ -1138,11 +1166,10 @@ const handleActionClick = (event) => {
   if (action === 'open-dashboard-pipeline-filter') {
     const pipelineFilter = String(actionEl.dataset.pipelineFilter || '').trim();
     const statusByPipelineFilter = {
-      prospeccao: 'prospeccao',
+      negociacao: 'negociacao',
       producao: 'producao',
-      finalizacao: 'finalizacao',
+      entrega: 'entrega',
       concluida: 'concluida',
-      negociacao: 'prospeccao',
       aprovacao: 'producao',
       concluidas: 'concluida'
     };
@@ -1158,7 +1185,7 @@ const handleActionClick = (event) => {
 
   if (action === 'open-metrics-status') {
     const status = String(actionEl.dataset.metricsStatus || '').trim();
-    if (!['prospeccao', 'producao', 'finalizacao', 'concluida'].includes(status)) return;
+    if (!['negociacao', 'producao', 'entrega', 'concluida'].includes(status)) return;
     state.ui.metricsStatusOpen = status;
     saveState();
     renderAll();
@@ -1169,7 +1196,7 @@ const handleActionClick = (event) => {
     const status = String(actionEl.dataset.metricsStatus || '').trim();
     if (!status) return;
     state.ui.campaignDashboardFilter = '';
-    state.ui.campaignFilter = ['prospeccao', 'producao', 'finalizacao', 'concluida'].includes(status) ? status : 'all';
+    state.ui.campaignFilter = ['negociacao', 'producao', 'entrega', 'concluida'].includes(status) ? status : 'all';
     state.ui.metricsStatusOpen = '';
     saveState();
     setActivePage('campaigns');
@@ -1285,7 +1312,7 @@ const handleActionClick = (event) => {
     const brandId = String(actionEl.dataset.brandId || '').trim();
     if (!brandId) return;
     state.ui.pendingCampaignBrandId = brandId;
-    openCampaignModal();
+    abrirCadastroDeCampanha();
     injectOnboardingHeader();
     return;
   }
@@ -1499,7 +1526,7 @@ const handleActionClick = (event) => {
   }
 
   if (action === 'new-campaign') {
-    openCampaignModal();
+    abrirCadastroDeCampanha();
     injectOnboardingHeader();
     return;
   }
@@ -1509,6 +1536,37 @@ const handleActionClick = (event) => {
     if (!id) return;
     closeCampaignPeekModal();
     openCampaignModal(id);
+    return;
+  }
+
+  /* ── ações da etapa atual ─────────────────────────────────── */
+
+  if (action === 'copy-stage-message') {
+    const bloco = actionEl.closest('[data-stage-action]');
+    const texto = bloco ? String(bloco.querySelector('[data-stage-message]')?.textContent || '') : '';
+    if (!texto) return;
+    copyText(texto, 'Mensagem copiada.');
+    return;
+  }
+
+  if (action === 'open-campaign-pricing') {
+    const id = String(actionEl.dataset.campaignId || '').trim();
+    if (!id) return;
+    closeCampaignPeekModal();
+    abrirPrecificadorDaCampanha(id);
+    return;
+  }
+
+  if (action === 'open-campaign-retrospective') {
+    const id = String(actionEl.dataset.campaignId || '').trim();
+    if (!id) return;
+    closeCampaignPeekModal();
+    abrirRetrospectiva(id);
+    return;
+  }
+
+  if (action === 'close-campaign-retrospective') {
+    fecharRetrospectiva();
     return;
   }
 
@@ -1527,8 +1585,8 @@ const handleActionClick = (event) => {
     const clone = {
       ...JSON.parse(JSON.stringify(original)),
       id: `c-${Date.now()}`,
-      status: 'prospeccao',
-      stage: getDefaultCampaignStage('prospeccao'),
+      status: 'negociacao',
+      stage: getDefaultCampaignStage('negociacao'),
       priority: false,
       paused: false,
       archived: false,
@@ -1559,8 +1617,7 @@ const handleActionClick = (event) => {
 
     if (!isLastStage) {
       const nextStage = stageOptions[currentStageIndex + 1];
-      campaign.stage = nextStage.id;
-      campaign.updatedAt = new Date().toISOString();
+      registrarMudancaDeEtapa(campaign, { status: campaign.status, stage: nextStage.id });
       trackEvent('campaign_stage_changed', {
         campaignId: campaign.id,
         status: campaign.status,
@@ -1570,13 +1627,12 @@ const handleActionClick = (event) => {
       });
       saveState();
       renderAll();
-      showToast(`Avanou: ${nextStage.label}`);
+      showToast(`Avançou: ${nextStage.label}`);
+      celebrarSePago(campaign);
     } else if (!isLastStatus) {
       const previousStatus = campaign.status;
       const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
-      campaign.status = nextStatus;
-      campaign.stage = getDefaultCampaignStage(nextStatus);
-      campaign.updatedAt = new Date().toISOString();
+      registrarMudancaDeEtapa(campaign, { status: nextStatus, stage: getDefaultCampaignStage(nextStatus) });
       trackEvent('campaign_status_changed', {
         campaignId: campaign.id,
         previousStatus,
@@ -1596,7 +1652,8 @@ const handleActionClick = (event) => {
       }
       saveState();
       renderAll();
-      showToast(`Avanou: ${statusLabels[campaign.status] || campaign.status}`);
+      showToast(`Avançou: ${statusLabels[campaign.status] || campaign.status}`);
+      celebrarSePago(campaign);
     }
     return;
   }
@@ -1825,9 +1882,7 @@ const handleChange = (event) => {
     const newPos = getGlobalStagePos(newStatus, getDefaultCampaignStage(newStatus));
     const delta = newPos - oldPos;
     
-    campaign.status = newStatus;
-    campaign.stage = getDefaultCampaignStage(campaign.status);
-    campaign.updatedAt = new Date().toISOString();
+    registrarMudancaDeEtapa(campaign, { status: newStatus, stage: getDefaultCampaignStage(newStatus) });
 
     const previousStatusLabel = statusLabels[previousStatus] || previousStatus;
     const nextStatusLabel = statusLabels[campaign.status] || campaign.status;
@@ -1894,8 +1949,10 @@ const handleChange = (event) => {
     const stageDelta = stageNewPos - stageOldPos;
     
     const isValid = options.some((opt) => opt.id === nextStage);
-    campaign.stage = isValid ? nextStage : getDefaultCampaignStage(campaign.status);
-    campaign.updatedAt = new Date().toISOString();
+    registrarMudancaDeEtapa(campaign, {
+      status: campaign.status,
+      stage: isValid ? nextStage : getDefaultCampaignStage(campaign.status)
+    });
 
     appendCampaignHistoryEntry(campaign, {
       type: stageDelta > 0 ? 'stage_advanced' : stageDelta < 0 ? 'stage_regressed' : 'stage_updated',
@@ -1918,6 +1975,24 @@ const handleChange = (event) => {
     saveState();
     renderAll();
     showToast('Etapa atualizada.');
+    celebrarSePago(campaign);
+    return;
+  }
+
+  // Checklist de gravação, dentro do detalhe da campanha.
+  if (target.matches('[data-stage-checklist-item]')) {
+    const bloco = target.closest('[data-stage-action]');
+    const campaignId = String(bloco?.dataset.campaignId || '').trim();
+    const campanha = alternarItemDoChecklist(campaignId, target.dataset.stageChecklistItem, target.checked);
+    if (!campanha) return;
+    const item = target.closest('.stage-checklist-item');
+    if (item) item.classList.toggle('is-done', target.checked);
+    const contador = bloco.querySelector('.stage-action-badge');
+    if (contador) {
+      const total = bloco.querySelectorAll('[data-stage-checklist-item]').length;
+      const feitos = bloco.querySelectorAll('[data-stage-checklist-item]:checked').length;
+      contador.textContent = `${feitos}/${total}`;
+    }
     return;
   }
 
@@ -2107,8 +2182,17 @@ const initActions = () => {
     });
   }
 
-  // Expose modal functions for quiz convert-to-real flow
-  window.__ugcModals = { openCampaignModal };
+  // Expose modal functions for quiz convert-to-real flow e para os fluxos de
+  // onboarding (preview e registro guiado), que precisam da mesma instancia do
+  // modulo do modal.
+  window.__ugcModals = {
+    openCampaignModal,
+    closeCampaignModal,
+    openCampaignPreview,
+    disableCampaignWizard,
+    abrirCadastroDeCampanha
+  };
+  initRegisterFlow();
 
   if (document.body.dataset.actionsBound !== '2') {
     // O seletor mobile intercepta alguns cliques no documento. Registrar os

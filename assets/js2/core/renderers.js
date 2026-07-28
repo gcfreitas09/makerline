@@ -17,6 +17,8 @@ import {
   badgeCatalog,
   getBadgeById
 } from './state.js';
+import { CAMPAIGN_PIPELINE } from './campaigns/pipeline.js?v=20260728k';
+import { renderPricingPage } from '../features/pricing/page.js?v=20260728k';
 import { setScriptOutput } from './ui.js';
 import { getBillingNotice, getBillingSnapshot } from '../features/settings/billing.js?v=20260628a';
 
@@ -251,22 +253,19 @@ const renderChallenges = () => {
    DASHBOARD – Ações, Financeiro, Pipeline e Meta
    -------------------------------------------- */
 
+// As macro-etapas vem de core/campaigns/pipeline.js: aqui so entra o texto que
+// e proprio do dashboard, e os recortes que nao sao uma macro-etapa inteira.
 const dashboardFilterMeta = {
-  prospeccao: { label: 'Campanhas em prospecção' },
-  producao: { label: 'Campanhas em produção' },
-  finalizacao: { label: 'Campanhas em finalização' },
+  ...CAMPAIGN_PIPELINE.reduce((acc, macro) => {
+    acc[macro.id] = { label: `Campanhas em ${macro.label.toLowerCase()}` };
+    return acc;
+  }, {}),
   concluida: { label: 'Campanhas concluídas' },
-  negociacao: { label: 'Campanhas em negociação' },
   aprovacao: { label: 'Aguardando aprovação' },
   concluidas: { label: 'Campanhas concluídas' }
 };
 
-const dashboardPipelineStages = [
-  { key: 'prospeccao', label: 'Prospecção' },
-  { key: 'producao', label: 'Produção' },
-  { key: 'finalizacao', label: 'Finalização' },
-  { key: 'concluida', label: 'Concluído' }
-];
+const dashboardPipelineStages = CAMPAIGN_PIPELINE.map((macro) => ({ key: macro.id, label: macro.label }));
 
 const formatDateFullBR = (value) => {
   const safe = String(value || '').trim();
@@ -279,18 +278,12 @@ const formatDateFullBR = (value) => {
 const matchesDashboardCampaignFilter = (campaign, key) => {
   if (!key) return true;
   if (!campaign || campaign.archived) return false;
+  // Uma macro-etapa filtra por status; os recortes abaixo são atalhos que
+  // cruzam etapas diferentes.
+  if (campaignStatusOrder.includes(key)) return campaign.status === key;
   switch (key) {
-    case 'prospeccao':
-      return campaign.status === 'prospeccao';
-    case 'producao':
-      return campaign.status === 'producao';
-    case 'finalizacao':
-      return campaign.status === 'finalizacao';
-    case 'concluida':
     case 'concluidas':
       return campaign.status === 'concluida';
-    case 'negociacao':
-      return campaign.status === 'prospeccao' && campaign.stage === 'negociacao';
     case 'aprovacao':
       return ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage);
     default:
@@ -1368,18 +1361,16 @@ const metricsRangeLabelMap = {
   0: 'Todo histórico'
 };
 
-const metricsStatusMeta = {
-  prospeccao: { label: 'Prospecção' },
-  producao: { label: 'Produção' },
-  finalizacao: { label: 'Finalização' },
-  concluida: { label: 'Concluído' }
-};
+const metricsStatusMeta = CAMPAIGN_PIPELINE.reduce((acc, macro) => {
+  acc[macro.id] = { label: macro.label };
+  return acc;
+}, {});
 
 const computeMetricsPageData = () => {
   const campaigns = (Array.isArray(state.campaigns) ? state.campaigns : [])
     .filter((campaign) => campaign && !campaign.archived && campaign.isModel !== true);
   const rangeDays = [0, 15, 30, 45, 90].includes(Number(state.ui.metricsRangeDays)) ? Number(state.ui.metricsRangeDays) : 30;
-  const statusOrder = ['prospeccao', 'producao', 'finalizacao', 'concluida'];
+  const statusOrder = campaignStatusOrder;
   const now = new Date();
   const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
   const todayKey = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`;
@@ -2108,7 +2099,7 @@ const renderCampaigns = () => {
         <tbody>
           ${list
             .map((campaign) => {
-              const statusSafe = Object.prototype.hasOwnProperty.call(statusLabels, campaign.status) ? campaign.status : 'prospeccao';
+              const statusSafe = Object.prototype.hasOwnProperty.call(statusLabels, campaign.status) ? campaign.status : campaignStatusOrder[0];
               const stageOptions = getCampaignStageOptions(statusSafe);
               const stageSafe = stageOptions.some((opt) => opt.id === campaign.stage) ? campaign.stage : stageOptions[0].id || '';
               const stageDisabled = stageOptions.length ? '' : 'disabled';
@@ -3283,6 +3274,7 @@ const renderAll = () => {
   run('dashboardFinancials', renderDashboardFinancials);
   run('campaigns', renderCampaigns);
   run('prospection', renderProspectionPage);
+  run('pricing', renderPricingPage);
   run('brands', renderBrands);
   run('finance', renderFinancePage);
   run('metrics', renderMetricsPage);
