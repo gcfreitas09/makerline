@@ -2,6 +2,7 @@ import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js?v=20260429d';
 import { setActivePage, showToast } from '../../core/ui.js?v=20260304b';
 import { trackEvent } from '../../core/gamification.js?v=20260302g';
+import { abrirFluxoDePrecificacao } from './pricing-flow.js?v=20260728a';
 
 /* ── helpers ────────────────────────────────────────────────── */
 
@@ -123,7 +124,11 @@ const handleQuizAction = (action, el) => {
     ob.hasCampaigns = answer === 'yes';
     saveState();
     if (answer === 'yes') {
-      showScreen(8); // register an active campaign
+      // Quem ja tem campanha ativa vai direto descobrir quanto cobrar por ela.
+      // O fluxo de precificacao termina levando ao registro guiado, entao a
+      // tela 8 so continua valendo como fallback se o overlay nao existir.
+      closeQuiz();
+      if (!abrirFluxoDePrecificacao()) showScreen(8);
     } else {
       showScreen(4); // register a prospection
     }
@@ -703,6 +708,11 @@ const initOnboardingQuiz = () => {
   // "Proximo" button from the open handler and silently breaks step navigation.
 
   if (isQuizNeeded()) {
+    // Se o usuario ja respondeu "tenho campanha ativa" e parou no meio da
+    // precificacao, retoma de onde parou em vez de reiniciar o quiz.
+    if (ob.hasCampaigns === true && ob.pricing && ob.pricing.concluido !== true) {
+      if (abrirFluxoDePrecificacao()) return;
+    }
     openQuiz();
     return;
   }

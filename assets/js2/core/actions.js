@@ -9,7 +9,7 @@ import {
   closeCampaignModal,
   initCampaignForm,
   openCampaignModal
-} from '../features/campaigns/modal.js?v=20260727a';
+} from '../features/campaigns/modal.js?v=20260728a';
 import {
   closeBrandModal,
   initBrandForm,
@@ -34,7 +34,8 @@ import {
 import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js?v=20260302f';
 import { openBillingCheckout, openBillingPortal } from '../features/settings/billing.js?v=20260628a';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260712a';
+import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260728a';
+import { handlePricingFlowAction } from '../features/onboarding/pricing-flow.js?v=20260728a';
 
 /* -- Money mask helper -- */
 const formatMoneyInput = (raw) => {
@@ -994,6 +995,7 @@ const handleActionClick = (event) => {
   const action = actionEl.dataset.action;
 
   // Quiz / onboarding actions
+  if (handlePricingFlowAction(action, actionEl)) return;
   if (handleQuizAction(action, actionEl)) return;
 
   if (action === 'logout') {
