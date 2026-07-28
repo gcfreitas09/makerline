@@ -43,13 +43,33 @@ function load_admin_emails($adminsFile, $exampleFile)
     return array_values(array_unique($clean));
 }
 
-function intelligence_internal_excluded_emails()
+// Fundadores testando a própria conta nunca representam uso real de cliente,
+// então ficam sempre fora da lista, sem opção de mostrar.
+function intelligence_founder_emails()
 {
-    $emails = access_internal_emails();
+    return array_values(array_unique(array_map(function ($email) {
+        return trim(strtolower((string)$email));
+    }, ['fgui3662@gmail.com', 'lorenzo.ritter13@gmail.com', 'lorenzo.ritter27@gmail.com'])));
+}
 
+// Parceiros (Rick, Keila) ficam fora da base de clientes por padrão, pra não
+// distorcer taxa de ativação e afins, mas podem ser trazidos de volta com
+// includePartners=true quando o objetivo é analisar o uso deles mesmos.
+function intelligence_partner_emails()
+{
+    $emails = [];
     foreach (referrals_partners() as $partner) {
         $partnerEmail = trim(strtolower((string)($partner['email'] ?? '')));
         if ($partnerEmail !== '') $emails[] = $partnerEmail;
+    }
+    return array_values(array_unique($emails));
+}
+
+function intelligence_internal_excluded_emails($includePartners = false)
+{
+    $emails = intelligence_founder_emails();
+    if (!$includePartners) {
+        $emails = array_merge($emails, intelligence_partner_emails());
     }
 
     return array_values(array_unique(array_map(function ($email) {
@@ -203,7 +223,9 @@ function build_onboarding_snapshot($state, $campaignSummary, $user = [])
             // marcava esse passo como concluido para quem nunca criou nada dentro do produto.
             'id' => 'first_campaign_created',
             'label' => 'Criou primeira campanha',
-            'completed' => $campaignCount > 0 || !empty($onboarding['firstCampaignCreated']),
+            // A flag do onboarding e apenas da interface e pode ser salva antes
+            // de o sync terminar. O painel usa somente a campanha persistida.
+            'completed' => $campaignCount > 0,
             'completedAt' => $campaignSummary['firstCampaignCreatedAt'] ?? null,
         ],
         [
@@ -289,6 +311,11 @@ function load_state_payload_for_user($userId, $statesDir)
             if ($remoteScore > $fileScore || ($remoteScore === $fileScore && strcmp((string)$remoteUpdatedAt, (string)$fileUpdatedAt) >= 0)) {
                 return ['state' => $remoteState, 'updatedAt' => $remoteUpdatedAt, 'backend' => 'supabase'];
             }
+
+            // O arquivo pode conter a campanha que ainda nao chegou ao Supabase.
+            // Antes o fluxo caia no retorno remoto logo abaixo mesmo quando o
+            // arquivo tinha mais dados, e o admin exibia "Criadas 0".
+            return ['state' => $fileState, 'updatedAt' => $fileUpdatedAt, 'backend' => 'file'];
         }
 
         if ($remoteState) {
@@ -348,9 +375,12 @@ if (
     respond_json(403, ['error' => 'Sem permissão para ver isso.']);
 }
 
+$includePartners = !empty($body['includePartners']);
+$partnerEmails = intelligence_partner_emails();
+
 $users = users_store_load_all();
 $list = [];
-$excludedEmails = intelligence_internal_excluded_emails();
+$excludedEmails = intelligence_internal_excluded_emails($includePartners);
 
 foreach ($users as $user) {
     $email = strtolower(trim((string)($user['email'] ?? '')));
@@ -374,6 +404,7 @@ foreach ($users as $user) {
         'id' => $id,
         'name' => (string)($user['name'] ?? ''),
         'email' => $email,
+        'isPartner' => in_array($email, $partnerEmails, true),
         'referredBy' => $referredBy,
         'referralOrigin' => $referralOrigin,
         'createdAt' => (string)($user['createdAt'] ?? ''),

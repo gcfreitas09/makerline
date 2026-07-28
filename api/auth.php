@@ -34,6 +34,9 @@ function auth_public_user($user, $fallbackEmail = '')
         'name' => $user['name'] ?? '',
         'email' => $user['email'] ?? $fallbackEmail,
         'instagram' => $instagram,
+        // Mantem a regra de exclusao no servidor; o navegador recebe apenas o
+        // resultado, sem precisar conhecer os e-mails da equipe.
+        'clarityExcluded' => auth_should_exclude_from_clarity($user, $fallbackEmail),
         'billing' => billing_snapshot_from_user($user, billing_is_stripe_enabled()),
     ];
 }
@@ -128,6 +131,22 @@ function auth_is_trusted_access_email($email)
     }
 
     return false;
+}
+
+function auth_should_exclude_from_clarity($user, $fallbackEmail = '')
+{
+    $email = trim(strtolower((string)(is_array($user) ? ($user['email'] ?? '') : '')));
+    if ($email === '') {
+        $email = trim(strtolower((string)$fallbackEmail));
+    }
+    if ($email === '') return true;
+
+    // Fundadores, administradores e acessos internos.
+    if (auth_is_trusted_access_email($email)) return true;
+
+    // Parceiros de indicacao tambem usam o app internamente e nao devem
+    // contaminar as gravacoes de clientes.
+    return is_array(referrals_partner_by_email($email));
 }
 
 function auth_normalize_instagram($value)

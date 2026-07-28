@@ -6581,6 +6581,17 @@ body[data-theme="light"] .script-card.active {
   text-align: left;
 }
 
+.toggle[data-push-row] > div > div {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.toggle[data-push-row] [data-push-hint] {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
 .settings-shortcut-card:hover {
   border-color: rgba(125, 225, 225, 0.42);
   background: rgba(125, 225, 225, 0.08);

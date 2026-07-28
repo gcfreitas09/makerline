@@ -12,6 +12,7 @@ function access_internal_emails()
         'lorenzo.ritter13@gmail.com',
         'lorenzo.ritter27@gmail.com',
         'assessoriaricardoolavo@gmail.com',
+        'contatokeilabragante@gmail.com',
     ];
 }
 

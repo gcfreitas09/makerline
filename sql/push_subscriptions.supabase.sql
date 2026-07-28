@@ -21,13 +21,10 @@ create index if not exists push_subscriptions_user_id_idx on public.push_subscri
 
 alter table public.push_subscriptions enable row level security;
 
+-- Nao crie policy para anon/authenticated. Estes registros contem chaves de
+-- entrega do navegador e so devem ser acessados pelo backend com service_role,
+-- que ignora RLS. O frontend fala exclusivamente com api/push_subscribe.php.
 drop policy if exists "push_subscriptions_service" on public.push_subscriptions;
-create policy "push_subscriptions_service"
-  on public.push_subscriptions
-  for all
-  to anon, authenticated
-  using (true)
-  with check (true);
 
 -- Registro do que ja foi enviado, pra nao notificar a mesma coisa duas vezes.
 create table if not exists public.push_sent_log (
@@ -42,9 +39,3 @@ create unique index if not exists push_sent_log_dedupe_idx on public.push_sent_l
 alter table public.push_sent_log enable row level security;
 
 drop policy if exists "push_sent_log_service" on public.push_sent_log;
-create policy "push_sent_log_service"
-  on public.push_sent_log
-  for all
-  to anon, authenticated
-  using (true)
-  with check (true);

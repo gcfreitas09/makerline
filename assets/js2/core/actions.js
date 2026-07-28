@@ -9,7 +9,7 @@ import {
   closeCampaignModal,
   initCampaignForm,
   openCampaignModal
-} from '../features/campaigns/modal.js?v=20260713a';
+} from '../features/campaigns/modal.js?v=20260727a';
 import {
   closeBrandModal,
   initBrandForm,
@@ -1016,11 +1016,15 @@ const handleActionClick = (event) => {
   }
 
   if (action === 'toggle-menu') {
+    // Este clique sÃ³ controla a gaveta mobile. Impede que ouvintes genÃ©ricos
+    // adicionados por widgets da tela processem o mesmo evento e a fechem logo em seguida.
+    event.stopImmediatePropagation();
     document.body.classList.toggle('sidebar-open');
     return;
   }
 
   if (action === 'close-menu') {
+    event.stopImmediatePropagation();
     document.body.classList.remove('sidebar-open');
     return;
   }
@@ -2104,12 +2108,16 @@ const initActions = () => {
   // Expose modal functions for quiz convert-to-real flow
   window.__ugcModals = { openCampaignModal };
 
-  if (document.body.dataset.actionsBound !== '1') {
-    document.body.dataset.actionsBound = '1';
-    document.body.addEventListener('click', handleActionClick);
-    document.body.addEventListener('click', handleNavClick);
-    document.body.addEventListener('click', handleFilterClick);
-    document.body.addEventListener('click', handleCampaignRowClick);
+  if (document.body.dataset.actionsBound !== '2') {
+    // O seletor mobile intercepta alguns cliques no documento. Registrar os
+    // delegadores na fase de captura garante que botoes, navegacao, filtros e
+    // linhas do app continuem respondendo mesmo depois de interacoes com
+    // selects customizados.
+    document.body.dataset.actionsBound = '2';
+    document.addEventListener('click', handleActionClick, true);
+    document.addEventListener('click', handleNavClick, true);
+    document.addEventListener('click', handleFilterClick, true);
+    document.addEventListener('click', handleCampaignRowClick, true);
     document.body.addEventListener('change', handleChange);
     document.body.addEventListener('submit', handleBrandInteractionSubmit);
     document.body.addEventListener('keydown', handleCampaignRowKeydown);

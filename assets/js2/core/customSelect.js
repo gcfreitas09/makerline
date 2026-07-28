@@ -429,7 +429,13 @@
   };
 
   const handlePointerDown = (event) => {
-    if (!openInstance) return;
+    // Um novo toque/clique real deve poder interagir normalmente. Mantemos a
+    // supressao apenas para o "ghost click" sem novo pointerdown que pode vir
+    // logo apos escolher uma opcao no celular.
+    if (!openInstance) {
+      suppressInteractionsUntil = 0;
+      return;
+    }
     const target = event.target;
     if (openInstance.display.contains(target)) return;
     if (openInstance.dropdown.contains(target)) return;
@@ -442,6 +448,10 @@
 
   const handleSuppressedInteraction = (event) => {
     if (!shouldSuppressInteraction()) return;
+    // Nunca cancele o evento click global: ele tambem e usado pelos botoes e
+    // pela navegacao do app. O pointerup e suficiente para conter o toque
+    // residual depois da escolha de uma opcao.
+    if (event.type === 'click') return;
     event.preventDefault();
     event.stopPropagation();
   };

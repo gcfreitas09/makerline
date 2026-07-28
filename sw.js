@@ -11,7 +11,9 @@
  * (prazos, valores, status), e cache errado aqui causaria confusao real.
  */
 
-const NOTIFICATION_ICON = '/assets/img/logo.png';
+// Mantem o push funcional tanto no dominio final quanto no XAMPP em /saas-ugc/.
+const appUrl = (path = 'app.html') => new URL(String(path).replace(/^\/+/, ''), self.registration.scope).href;
+const NOTIFICATION_ICON = appUrl('assets/img/logo.png');
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -37,7 +39,7 @@ self.addEventListener('push', (event) => {
     tag: payload.tag || 'makerline',
     // Notificacao nova do mesmo assunto substitui a anterior em vez de empilhar.
     renotify: Boolean(payload.tag),
-    data: { url: payload.url || '/app.html' },
+    data: { url: appUrl(payload.url || 'app.html') },
     lang: 'pt-BR',
   };
 
@@ -46,7 +48,7 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || '/app.html';
+  const target = (event.notification.data && event.notification.data.url) || appUrl('app.html');
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {

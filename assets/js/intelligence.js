@@ -15,7 +15,7 @@ import {
   UserDetailsPanel,
   UserFilters,
   UsersTable,
-} from './intelligence-components.js?v=20260721b';
+} from './intelligence-components.js?v=20260721c';
 
 const getFromStorage = (key) => {
   try {
@@ -98,6 +98,7 @@ const state = {
     query: '',
     onboarding: 'all',
     sort: 'last_activity',
+    includePartners: false,
   },
 };
 
@@ -456,7 +457,7 @@ const loadUsers = async ({ skipMigration = false, progressImport = false } = {})
     const res = await fetch('api/admin_intelligence.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: sessionToken }),
+      body: JSON.stringify({ token: sessionToken, includePartners: state.filters.includePartners }),
     });
 
     const data = await res.json().catch(() => null);
@@ -612,7 +613,15 @@ const handleFilterChange = (target) => {
   const filter = target.dataset.filter;
   if (!filter) return;
   const key = filter === 'sort' ? 'sort' : filter;
-  state.filters[key] = target.value;
+  state.filters[key] = target.type === 'checkbox' ? target.checked : target.value;
+
+  // includePartners é resolvido no servidor (o excluído nem chega no front),
+  // então precisa recarregar em vez de só refiltrar o que já tem em memória.
+  if (filter === 'includePartners') {
+    loadUsers({ skipMigration: true });
+    return;
+  }
+
   const shouldRestoreFocus = filter === 'query';
   render();
   if (shouldRestoreFocus) {
@@ -665,7 +674,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (action === 'export') exportVisibleUsers();
     if (action === 'reload') loadUsers({ skipMigration: true });
     if (action === 'reset-filters') {
-      state.filters = { query: '', onboarding: 'all', sort: 'last_activity' };
+      // includePartners fica de fora do reset: e uma escolha deliberada de qual base
+      // olhar, nao um filtro de busca/ordenacao pra "limpar".
+      state.filters = { query: '', onboarding: 'all', sort: 'last_activity', includePartners: state.filters.includePartners };
       render();
     }
     if (action === 'open-user') openSidePanel(userId);

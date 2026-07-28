@@ -5,15 +5,13 @@
  * e cole em CLARITY_PROJECT_ID abaixo. Enquanto estiver vazio, este arquivo nao
  * carrega nada e nao faz nenhuma requisicao externa.
  *
- * Privacidade: o app mostra valores de pagamento, contatos de marcas e e-mails.
- * Por isso o Clarity sobe em modo mascarado por padrao (mask: true), que substitui
- * o texto por blocos na gravacao. Continua dando pra ver onde a pessoa clicou, onde
- * travou e onde deu "rage click", que e o que interessa pra achar atrito de UX,
- * sem expor dado de cliente. Marque com data-clarity-unmask="true" o que puder
- * aparecer legivel (rotulos de UI, titulos de secao).
+ * Privacidade: o Clarity usa a mascara equilibrada configurada no projeto, que
+ * protege campos de formulario e dados sensiveis. Nao aplicamos uma mascara no
+ * documento inteiro, pois ela deixaria toda a gravacao ilegivel. Para esconder
+ * uma area especifica, use data-clarity-mask="true" no elemento correspondente.
  */
 
-const CLARITY_PROJECT_ID = '';
+const CLARITY_PROJECT_ID = 'xt9lj90oeb';
 
 const isTrackableEnvironment = () => {
   const host = String(window.location.hostname || '').toLowerCase();
@@ -53,25 +51,22 @@ const initClarity = () => {
       y.parentNode.insertBefore(t, y);
     })(window, document, 'clarity', 'script', projectId);
 
-    // Mascara o conteudo por padrao: a gravacao mostra layout e interacao,
-    // mas nao o texto real de valores, contatos e e-mails.
+    // O app nao possui banner de cookies proprio. Este sinal permite que o
+    // Clarity respeite o consentimento configurado no projeto da Microsoft.
     window.clarity('consent');
-    window.clarity('set', 'mask', 'true');
   } catch (error) {
     // Analytics nunca pode derrubar o app.
   }
 };
 
 /** Identifica a sessao pra cruzar gravacao com usuario no tracker. */
-const identifyClarityUser = (userId, userEmail) => {
+const identifyClarityUser = (userId) => {
   if (!window.clarity) return;
   const safeId = String(userId || '').trim();
   if (!safeId) return;
 
   try {
     window.clarity('identify', safeId);
-    const safeEmail = String(userEmail || '').trim().toLowerCase();
-    if (safeEmail) window.clarity('set', 'userEmail', safeEmail);
   } catch (error) {
     // Silencioso de proposito.
   }

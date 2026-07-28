@@ -1,10 +1,10 @@
 import { state, saveState, replaceState, enableRemoteSave } from './core/state.js';
 import { renderAll } from './core/renderers.js?v=20260710a';
 import { setActivePage, showToast } from './core/ui.js?v=20260711a';
-import { initActions } from './core/actions.js?v=20260712a';
+import { initActions } from './core/actions.js?v=20260727d';
 import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260712a';
 import { initFeedbackWidget, initAdminFeedback } from './features/feedback/feedback.js?v=20260711c';
-import { initClarity, identifyClarityUser } from './core/clarity.js?v=20260721b';
+import { initClarity, identifyClarityUser } from './core/clarity.js?v=20260727e';
 import {
   initPushRuntime,
   enablePushNotifications,
@@ -59,6 +59,7 @@ const persistSession = ({ token, user }) => {
   const safeUserId = String(user?.id || '').trim();
   const safeEmail = String(user?.email || '').trim();
   const safeName = String(user?.name || '').trim();
+  const clarityExcluded = user?.clarityExcluded === true;
   if (!safeToken || !safeUserId) return false;
 
   try {
@@ -67,6 +68,7 @@ const persistSession = ({ token, user }) => {
     sessionStorage.setItem('ugcQuestUserId', safeUserId);
     if (safeEmail) sessionStorage.setItem('ugcQuestUserEmail', safeEmail);
     if (safeName) sessionStorage.setItem('ugcQuestUserName', safeName);
+    sessionStorage.setItem('ugcQuestClarityExcluded', clarityExcluded ? '1' : '0');
   } catch (error) {}
 
   try {
@@ -75,6 +77,7 @@ const persistSession = ({ token, user }) => {
     localStorage.setItem('ugcQuestSessionUserId', safeUserId);
     if (safeEmail) localStorage.setItem('ugcQuestSessionUserEmail', safeEmail);
     if (safeName) localStorage.setItem('ugcQuestSessionUserName', safeName);
+    localStorage.setItem('ugcQuestSessionClarityExcluded', clarityExcluded ? '1' : '0');
   } catch (error) {}
 
   if (user && typeof user.billing === 'object' && user.billing) {
@@ -252,6 +255,7 @@ const restoreSessionFromPersistentStorage = () => {
   const userId = getStoredAuth('ugcQuestUserId', 'ugcQuestSessionUserId');
   const email = getStoredAuth('ugcQuestUserEmail', 'ugcQuestSessionUserEmail');
   const name = getStoredAuth('ugcQuestUserName', 'ugcQuestSessionUserName');
+  const clarityExcluded = getStoredAuth('ugcQuestClarityExcluded', 'ugcQuestSessionClarityExcluded');
   const loggedIn = getStoredAuth('ugcQuestLoggedIn', 'ugcQuestSessionLoggedIn') === '1';
   if (!loggedIn || !token || !userId) return false;
 
@@ -261,6 +265,7 @@ const restoreSessionFromPersistentStorage = () => {
     sessionStorage.setItem('ugcQuestUserId', userId);
     if (email) sessionStorage.setItem('ugcQuestUserEmail', email);
     if (name) sessionStorage.setItem('ugcQuestUserName', name);
+    if (clarityExcluded) sessionStorage.setItem('ugcQuestClarityExcluded', clarityExcluded);
   } catch (error) {}
 
   return true;
@@ -796,11 +801,11 @@ const initPushToggle = async () => {
     safeRun('initFeedbackWidget', initFeedbackWidget);
     safeRun('initAdminFeedback', initAdminFeedback);
     safeRun('initClarity', () => {
+      // Sessões antigas sem essa flag ficam fora por segurança até o próximo login.
+      const excluded = getStoredAuth('ugcQuestClarityExcluded', 'ugcQuestSessionClarityExcluded') !== '0';
+      if (excluded) return;
       initClarity();
-      identifyClarityUser(
-        getStoredAuth('ugcQuestUserId', 'ugcQuestSessionUserId'),
-        getStoredAuth('ugcQuestUserEmail', 'ugcQuestSessionUserEmail')
-      );
+      identifyClarityUser(getStoredAuth('ugcQuestUserId', 'ugcQuestSessionUserId'));
     });
     safeRun('initPushRuntime', initPushRuntime);
     safeRun('initPushToggle', initPushToggle);

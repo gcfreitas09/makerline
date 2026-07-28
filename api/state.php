@@ -231,6 +231,19 @@ if ($action === 'load') {
     if ($remotePayload) {
         $filePayload = state_payload_from_file($stateFile);
         $best = choose_best_state_payload($remotePayload, $filePayload);
+
+        // Se o fallback local venceu, repara o Supabase automaticamente. Assim
+        // o proximo acesso (inclusive pelo admin) nao volta a enxergar a copia
+        // remota incompleta.
+        if (($best['backend'] ?? '') === 'file') {
+            $repairUpdatedAt = (string)($best['updatedAt'] ?? date('c'));
+            if (states_store_upsert_by_user_id($userId, $best['state'], $repairUpdatedAt)) {
+                $best['backend'] = 'supabase';
+            } else {
+                $warning = states_store_last_error() ?: 'Falha ao reparar o state no Supabase.';
+            }
+        }
+
         respond(200, [
             'ok' => true,
             'state' => $best['state'],

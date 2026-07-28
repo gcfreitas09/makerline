@@ -66,7 +66,12 @@ $endpoint = trim((string)($body['endpoint'] ?? ''));
 if ($action === 'unsubscribe') {
     if ($endpoint === '') push_subscribe_respond(400, ['ok' => false, 'error' => 'Endpoint obrigatorio.']);
 
-    supabase_client_request('DELETE', $table, ['endpoint' => 'eq.' . $endpoint], null, ['Prefer' => 'return=minimal']);
+    // O endpoint sozinho nao basta: uma sessao valida nao pode remover a
+    // inscricao pertencente a outra conta.
+    supabase_client_request('DELETE', $table, [
+        'endpoint' => 'eq.' . $endpoint,
+        'user_id' => 'eq.' . (string)($user['id'] ?? ''),
+    ], null, ['Prefer' => 'return=minimal']);
     push_subscribe_respond(200, ['ok' => true, 'removed' => true]);
 }
 
@@ -75,6 +80,9 @@ $auth = trim((string)($body['auth'] ?? ''));
 
 if ($endpoint === '' || $p256dh === '' || $auth === '') {
     push_subscribe_respond(400, ['ok' => false, 'error' => 'Dados da inscricao incompletos.']);
+}
+if (strlen($endpoint) > 2048 || strlen($p256dh) > 512 || strlen($auth) > 256) {
+    push_subscribe_respond(400, ['ok' => false, 'error' => 'Dados da inscricao invalidos.']);
 }
 if (!filter_var($endpoint, FILTER_VALIDATE_URL) || stripos($endpoint, 'https://') !== 0) {
     push_subscribe_respond(400, ['ok' => false, 'error' => 'Endpoint invalido.']);

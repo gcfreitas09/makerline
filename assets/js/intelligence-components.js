@@ -143,16 +143,20 @@ const UserFilters = (filters) => `
         <option value="onboarding"${filters.sort === 'onboarding' ? ' selected' : ''}>Onboarding</option>
       </select>
     </label>
+    <label class="ml-field ml-field--toggle">
+      <input type="checkbox" data-filter="includePartners" ${filters.includePartners ? 'checked' : ''} />
+      <span>Mostrar parceiros (Keila, Rick)</span>
+    </label>
   </section>
 `;
 
 const UserRow = (user) => `
-  <tr data-user-id="${user.id}">
+  <tr data-user-id="${user.id}" class="${user.isPartner ? 'is-partner-row' : ''}">
     <td>
       <button class="ml-user-cell" type="button" data-action="open-user" data-user-id="${user.id}">
         <span class="ml-avatar">${user.initials}</span>
         <span>
-          <strong>${user.name || 'Usuário sem nome'}</strong>
+          <strong>${user.name || 'Usuário sem nome'}${user.isPartner ? ' <span class="ml-badge is-accent ml-badge--inline">Parceiro</span>' : ''}</strong>
           <small>${user.email}</small>
         </span>
       </button>
@@ -196,12 +200,12 @@ const UserRow = (user) => `
 `;
 
 const UserCard = (user) => `
-  <article class="ml-user-card" data-user-id="${user.id}">
+  <article class="ml-user-card ${user.isPartner ? 'is-partner-row' : ''}" data-user-id="${user.id}">
     <div class="ml-user-card__top">
       <button class="ml-user-cell" type="button" data-action="open-user" data-user-id="${user.id}">
         <span class="ml-avatar">${user.initials}</span>
         <span>
-          <strong>${user.name || 'Usuário sem nome'}</strong>
+          <strong>${user.name || 'Usuário sem nome'}${user.isPartner ? ' <span class="ml-badge is-accent ml-badge--inline">Parceiro</span>' : ''}</strong>
           <small>${user.email}</small>
         </span>
       </button>
