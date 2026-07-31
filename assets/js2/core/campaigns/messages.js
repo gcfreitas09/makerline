@@ -1,13 +1,14 @@
-import { MESSAGE_TEMPLATES, TRECHOS } from './message-templates.js?v=20260728k';
-import { diasDeAtraso, diasNaEtapaAtual } from './timeline.js?v=20260728k';
+import { MESSAGE_TEMPLATES, TRECHOS } from './message-templates.js?v=20260728o';
+import { diasDeAtraso, diasNaEtapaAtual } from './timeline.js?v=20260728o';
 
 /**
  * Monta as mensagens de cobranca a partir dos templates e dos dados reais da
  * campanha. Modulo puro: nao toca no DOM.
  */
 
+/** Troca {{variavel}} pelo valor correspondente; o que não existir some. */
 const preencher = (texto, dados) =>
-  String(texto || '').replace(/\{(\w+)\}/g, (_, chave) => {
+  String(texto || '').replace(/\{\{\s*(\w+)\s*\}\}/g, (_, chave) => {
     const valor = dados[chave];
     return valor === null || valor === undefined ? '' : String(valor);
   });
@@ -28,9 +29,9 @@ const formatarDataBR = (iso) => {
 /** "hoje", "ontem" ou "há N dias" — o texto vem do arquivo de templates. */
 const escreverDias = (dias) => {
   const seguro = Math.max(0, Number(dias) || 0);
-  if (seguro <= 0) return TRECHOS.diasTexto.hoje;
-  if (seguro === 1) return TRECHOS.diasTexto.ontem;
-  return preencher(TRECHOS.diasTexto.varios, { dias: seguro });
+  if (seguro <= 0) return TRECHOS.tempo_espera.hoje;
+  if (seguro === 1) return TRECHOS.tempo_espera.ontem;
+  return preencher(TRECHOS.tempo_espera.varios, { dias_na_etapa: seguro });
 };
 
 /** Descreve o que foi enviado usando as entregas cadastradas na campanha. */
@@ -61,18 +62,18 @@ const gerarMensagem = (templateId, campaign) => {
   const atraso = diasDeAtraso(campaign.paymentDate);
 
   const dados = {
-    marca: nomeDaMarca(campaign),
-    dias,
-    diasTexto: escreverDias(dias),
+    nome_marca: nomeDaMarca(campaign),
+    dias_na_etapa: dias,
+    tempo_espera: escreverDias(dias),
     itens: templateId === 'cobranca_roteiro'
       ? descreverEntregas(campaign, TRECHOS.itensPadrao.roteiro)
       : descreverEntregas(campaign, TRECHOS.itensPadrao.conteudo),
     valor: formatarReais(campaign.value),
     prazo: formatarDataBR(campaign.paymentDate),
-    atraso,
-    atrasoTexto: atraso > 0
-      ? preencher(TRECHOS.atrasoTexto.atrasado, { atraso })
-      : TRECHOS.atrasoTexto.emDia
+    dias_atraso: atraso,
+    aviso_atraso: atraso > 0
+      ? preencher(TRECHOS.aviso_atraso.atrasado, { dias_atraso: atraso })
+      : TRECHOS.aviso_atraso.emDia
   };
 
   return {

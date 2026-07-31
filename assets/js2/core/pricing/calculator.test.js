@@ -1,25 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-// A query de versao acompanha a que calculator.js usa, para o teste enxergar
-// exatamente a mesma instancia de config que o app carrega no browser.
 import { calcularPrecoCampanha } from './calculator.js';
-import { PRICING_CONFIG } from './config.js?v=20260728a';
+import { PRICING_CONFIG } from './config.js?v=20260728o';
 
 /**
- * Respostas de um usuario que so produz video, sem nenhum extra. Serve de base
- * para os testes sobrescreverem apenas o que importa em cada cenario.
+ * Respostas de uma criadora iniciante que so produz video, sem nenhum extra.
+ * Serve de base para os testes sobrescreverem apenas o que importa em cada
+ * cenario.
  */
 const respostasBase = {
+  nivelDeExperiencia: 'iniciante',
   postaNaPropriaConta: false,
   tipoDeConteudo: 'video_tiktok',
   quantidade: 1,
   usoComoAnuncio: false,
   usoPerpetuo: false,
-  seguidores: { instagram: 0, tiktok: 0 },
+  redeDePostagem: 'instagram',
+  seguidores: 0,
   exclusividade: false,
+  duracaoExclusividade: '',
   footageBruto: false,
-  gravacaoPresencial: false,
   viaPlataforma: false
 };
 
@@ -27,112 +28,195 @@ const responder = (extra = {}) => ({ ...respostasBase, ...extra });
 
 const idsDosFatores = (resultado) => resultado.fatores.map((fator) => fator.id);
 
-test('so producao, sem extras, devolve a faixa base do video', () => {
+const faixa = (resultado) => ({
+  minimo: resultado.minimo,
+  justo: resultado.justo,
+  ideal: resultado.ideal
+});
+
+/* ── base por nivel ─────────────────────────────────────────── */
+
+test('so producao, sem extras, devolve a faixa base do nivel', () => {
   const resultado = calcularPrecoCampanha(responder());
-  assert.deepEqual(
-    { minimo: resultado.minimo, justo: resultado.justo, ideal: resultado.ideal },
-    { minimo: 200, justo: 250, ideal: 300 }
-  );
+  // Iniciante, video: 200 a 250. O justo e o meio da faixa.
+  assert.deepEqual(faixa(resultado), { minimo: 200, justo: 230, ideal: 250 });
   assert.deepEqual(resultado.fatores, []);
 });
 
-test('producao com ads e footage bruto compoe dobro, desconto de volume e 30%', () => {
+test('cada nivel tem sua propria base, para video e para foto', () => {
+  const video = (nivel) => faixa(calcularPrecoCampanha(responder({ nivelDeExperiencia: nivel })));
+  const foto = (nivel) => faixa(calcularPrecoCampanha(responder({ nivelDeExperiencia: nivel, tipoDeConteudo: 'foto_ugc' })));
+
+  assert.deepEqual(video('iniciante'), { minimo: 200, justo: 230, ideal: 250 });
+  assert.deepEqual(video('intermediario'), { minimo: 500, justo: 530, ideal: 550 });
+  assert.deepEqual(video('avancado'), { minimo: 700, justo: 750, ideal: 800 });
+
+  assert.deepEqual(foto('iniciante'), { minimo: 40, justo: 50, ideal: 50 });
+  assert.deepEqual(foto('intermediario'), { minimo: 60, justo: 70, ideal: 80 });
+  assert.deepEqual(foto('avancado'), { minimo: 90, justo: 100, ideal: 100 });
+});
+
+test('nivel ausente ou desconhecido cai no padrao configurado', () => {
+  assert.equal(calcularPrecoCampanha({}).detalhamento.nivelDeExperiencia, PRICING_CONFIG.nivelPadrao);
+  assert.equal(
+    calcularPrecoCampanha(responder({ nivelDeExperiencia: 'lenda' })).detalhamento.nivelDeExperiencia,
+    PRICING_CONFIG.nivelPadrao
+  );
+});
+
+/* ── os tres cenarios de sempre ─────────────────────────────── */
+
+test('producao com ads e footage bruto compoe a cadeia e o desconto de pacote', () => {
   const resultado = calcularPrecoCampanha(responder({
     quantidade: 3,
     usoComoAnuncio: true,
     footageBruto: true
   }));
 
-  // 200x2 = 400 por peca, x3 = 1200, -10% = 1080, +30% = 1404, arredondado.
-  assert.equal(resultado.minimo, 1400);
-  assert.equal(resultado.justo, 1760);
-  assert.equal(resultado.ideal, 2110);
-  assert.deepEqual(idsDosFatores(resultado), ['anuncioPago', 'descontoVolume', 'footageBruto']);
+  // Minimo: 200 x1.3 (ads) x1.3 (footage) = 338 por peca, x3 = 1014, -10% = 912,6.
+  assert.equal(resultado.minimo, 910);
+  // Ideal: 250 x1.5 x1.3 = 487,5 por peca, x3 = 1462,5, -10% = 1316,25.
+  assert.equal(resultado.ideal, 1320);
+  assert.equal(resultado.justo, 1120);
+  assert.deepEqual(idsDosFatores(resultado), ['anuncioPago', 'footageBruto', 'descontoPacote']);
 });
 
-test('postagem na conta propria com exclusividade soma faixa de seguidores e 10%', () => {
+test('postagem na conta propria com exclusividade multiplica em cadeia', () => {
   const resultado = calcularPrecoCampanha(responder({
     tipoDeConteudo: 'reels_stories',
     postaNaPropriaConta: true,
-    seguidores: { instagram: 25000, tiktok: 8000 },
-    exclusividade: true
+    redeDePostagem: 'instagram',
+    seguidores: 25000,
+    exclusividade: true,
+    duracaoExclusividade: 'um_mes'
   }));
 
-  // 200 x (1 + 0.40 + 0.10) = 300.
-  assert.equal(resultado.minimo, 300);
-  assert.equal(resultado.justo, 380);
-  assert.equal(resultado.ideal, 450);
+  // 200 x1.1 (1 mes) x1.3 (10 a 50 mil) = 286.
+  assert.equal(resultado.minimo, 290);
+  // 250 x1.1 x1.3 = 357,5.
+  assert.equal(resultado.ideal, 360);
   assert.deepEqual(idsDosFatores(resultado), ['exclusividade', 'postarNaPropriaConta']);
 });
 
-test('foto UGC usa a faixa propria, do piso simples ao teto profissional', () => {
-  const resultado = calcularPrecoCampanha(responder({ tipoDeConteudo: 'foto_ugc' }));
-  assert.deepEqual(
-    { minimo: resultado.minimo, justo: resultado.justo, ideal: resultado.ideal },
-    { minimo: 40, justo: 60, ideal: 100 }
-  );
-});
-
-test('desconto por volume vale o maior degrau que couber', () => {
-  const duas = calcularPrecoCampanha(responder({ quantidade: 2 }));
-  const tres = calcularPrecoCampanha(responder({ quantidade: 3 }));
-  const quatro = calcularPrecoCampanha(responder({ quantidade: 4 }));
-  const cinco = calcularPrecoCampanha(responder({ quantidade: 5 }));
-
-  assert.equal(duas.detalhamento.descontoVolume, 0);
-  assert.equal(tres.detalhamento.descontoVolume, 0.1);
-  assert.equal(quatro.detalhamento.descontoVolume, 0.1);
-  assert.equal(cinco.detalhamento.descontoVolume, 0.15);
-
-  assert.equal(duas.minimo, 400);
-  assert.equal(tres.minimo, 540);
-  assert.equal(cinco.minimo, 850);
-});
-
-test('tipo video para ads ja dobra sozinho e nao dobra duas vezes', () => {
-  const semMarcar = calcularPrecoCampanha(responder({ tipoDeConteudo: 'video_ads' }));
-  const marcando = calcularPrecoCampanha(responder({ tipoDeConteudo: 'video_ads', usoComoAnuncio: true }));
-
-  assert.equal(semMarcar.minimo, 400);
-  assert.equal(marcando.minimo, 400);
-  assert.equal(marcando.detalhamento.multiplicadorAnuncio, 2);
-});
-
-test('uso perpetuo soma o adicional configurado', () => {
-  const resultado = calcularPrecoCampanha(responder({ usoPerpetuo: true }));
-  assert.equal(resultado.detalhamento.adicionalPercentual, PRICING_CONFIG.modificadores.usoPerpetuo.adicionalPercentual);
-  assert.equal(resultado.minimo, 220);
-});
-
-test('gravacao presencial entra como adicional fixo depois do percentual', () => {
-  const resultado = calcularPrecoCampanha(responder({ gravacaoPresencial: true }));
-  assert.equal(resultado.detalhamento.adicionalFixo, 150);
-  assert.equal(resultado.minimo, 350);
-  assert.ok(idsDosFatores(resultado).includes('gravacaoPresencial'));
-});
-
-test('faixa de seguidores usa a maior entre Instagram e TikTok', () => {
+test('cenario novo: video intermediario com ads, exclusividade de 3 meses e uso perpetuo', () => {
   const resultado = calcularPrecoCampanha(responder({
-    postaNaPropriaConta: true,
-    seguidores: { instagram: 3000, tiktok: 120000 }
+    nivelDeExperiencia: 'intermediario',
+    usoComoAnuncio: true,
+    exclusividade: true,
+    duracaoExclusividade: 'tres_meses',
+    usoPerpetuo: true
   }));
-  assert.equal(resultado.detalhamento.faixaDeSeguidores.ate, 200000);
-  assert.equal(resultado.detalhamento.adicionalPercentual, 0.7);
+
+  // Minimo: 500 x1.3 = 650, x1.3 (3 meses) = 845, x2 (perpetuo) = 1690.
+  assert.equal(resultado.minimo, 1690);
+  // Ideal: 550 x1.5 = 825, x1.3 = 1072,5, x2 = 2145.
+  assert.equal(resultado.ideal, 2150);
+  assert.equal(resultado.justo, 1920);
+
+  // A ordem da cadeia e o que garante esses numeros.
+  assert.deepEqual(resultado.detalhamento.cadeia, ['anuncioPago', 'exclusividade', 'usoPerpetuo']);
+  assert.equal(resultado.detalhamento.mesesDeExclusividade, 3);
+});
+
+/* ── cadeia ─────────────────────────────────────────────────── */
+
+test('a cadeia aplica cada modificador sobre o resultado do anterior, nao sobre a base', () => {
+  const emCadeia = calcularPrecoCampanha(responder({
+    usoComoAnuncio: true,
+    usoPerpetuo: true
+  }));
+
+  // Em cadeia: 200 x1.3 x2 = 520. Se fosse soma de percentuais sobre a base,
+  // daria 200 x (1 + 0.3 + 1) = 460.
+  assert.equal(emCadeia.minimo, 520);
+  assert.notEqual(emCadeia.minimo, 460);
+});
+
+test('exclusividade cobra 10% por mes de duracao', () => {
+  const meses = (duracao) => calcularPrecoCampanha(responder({ exclusividade: true, duracaoExclusividade: duracao })).minimo;
+
+  assert.equal(meses('um_mes'), 220); // 200 x1.1
+  assert.equal(meses('tres_meses'), 260); // 200 x1.3
+  assert.equal(meses('seis_meses'), 320); // 200 x1.6
+  assert.equal(meses('mais_de_seis'), 440); // 200 x2.2, "mais de 6" conta 12 meses
+});
+
+test('uso perpetuo dobra o valor acumulado ate ele', () => {
+  const semPerpetuo = calcularPrecoCampanha(responder({ usoComoAnuncio: true }));
+  const comPerpetuo = calcularPrecoCampanha(responder({ usoComoAnuncio: true, usoPerpetuo: true }));
+  assert.equal(comPerpetuo.minimo, semPerpetuo.minimo * 2);
+});
+
+/* ── seguidores ─────────────────────────────────────────────── */
+
+test('o adicional de seguidores sai da rede escolhida, sem somar as duas', () => {
+  const noTikTok = calcularPrecoCampanha(responder({
+    postaNaPropriaConta: true,
+    redeDePostagem: 'tiktok',
+    seguidores: { instagram: 300000, tiktok: 4000 }
+  }));
+
+  // Vale a faixa do TikTok (4 mil, +20%), nao a do Instagram nem a soma.
+  assert.equal(noTikTok.detalhamento.seguidores.rede, 'tiktok');
+  assert.equal(noTikTok.detalhamento.seguidores.total, 4000);
+  assert.equal(noTikTok.minimo, 240); // 200 x1.2
+});
+
+test('as tres faixas de seguidores valem 20%, 30% e 40%', () => {
+  const comSeguidores = (quantos) => calcularPrecoCampanha(responder({
+    postaNaPropriaConta: true,
+    seguidores: quantos
+  }));
+
+  assert.equal(comSeguidores(5000).detalhamento.adicionais.postarNaPropriaConta.minimo, 0.2);
+  assert.equal(comSeguidores(30000).detalhamento.adicionais.postarNaPropriaConta.minimo, 0.3);
+  assert.equal(comSeguidores(80000).detalhamento.adicionais.postarNaPropriaConta.minimo, 0.4);
 });
 
 test('sem postar na propria conta os seguidores sao ignorados', () => {
   const resultado = calcularPrecoCampanha(responder({
     postaNaPropriaConta: false,
-    seguidores: { instagram: 500000, tiktok: 500000 }
+    seguidores: 500000
   }));
-  assert.equal(resultado.detalhamento.adicionalPercentual, 0);
+  assert.equal(resultado.detalhamento.seguidores, null);
   assert.equal(resultado.minimo, 200);
 });
 
-test('via plataforma hoje e neutro e nao cria fator', () => {
-  const resultado = calcularPrecoCampanha(responder({ viaPlataforma: true }));
-  assert.equal(resultado.minimo, 200);
-  assert.equal(idsDosFatores(resultado).includes('viaPlataforma'), false);
+/* ── pacote ─────────────────────────────────────────────────── */
+
+test('desconto por pacote vale o maior degrau que couber, sobre o total', () => {
+  const pecas = (quantidade) => calcularPrecoCampanha(responder({ quantidade }));
+
+  assert.equal(pecas(2).detalhamento.descontoPacote, 0);
+  assert.equal(pecas(3).detalhamento.descontoPacote, 0.1);
+  assert.equal(pecas(4).detalhamento.descontoPacote, 0.1);
+  assert.equal(pecas(5).detalhamento.descontoPacote, 0.15);
+
+  assert.equal(pecas(2).minimo, 400);
+  assert.equal(pecas(3).minimo, 540); // 600 -10%
+  assert.equal(pecas(5).minimo, 850); // 1000 -15%
+});
+
+/* ── configuracao ───────────────────────────────────────────── */
+
+test('gravacao presencial saiu da precificacao e nao altera mais o valor', () => {
+  const semCampo = calcularPrecoCampanha(responder());
+  const comCampoAntigo = calcularPrecoCampanha(responder({ gravacaoPresencial: true }));
+
+  assert.equal(comCampoAntigo.minimo, semCampo.minimo);
+  assert.equal(idsDosFatores(comCampoAntigo).includes('gravacaoPresencial'), false);
+  assert.equal(PRICING_CONFIG.modificadores.gravacaoPresencial, undefined);
+});
+
+test('trocar um peso no config muda o resultado sem alterar o calculo', () => {
+  const config = structuredClone(PRICING_CONFIG);
+  config.modificadores.exclusividade.adicionalPercentualPorMes = 0.2;
+
+  const padrao = calcularPrecoCampanha(responder({ exclusividade: true, duracaoExclusividade: 'tres_meses' }));
+  const ajustado = calcularPrecoCampanha(responder({ exclusividade: true, duracaoExclusividade: 'tres_meses' }), config);
+
+  assert.equal(padrao.minimo, 260); // 200 x1.3
+  assert.equal(ajustado.minimo, 320); // 200 x1.6
 });
 
 test('ligar o bloqueio de plataforma no config derruba os adicionais de negociacao sem tocar na logica', () => {
@@ -143,30 +227,18 @@ test('ligar o bloqueio de plataforma no config derruba os adicionais de negociac
     viaPlataforma: true,
     usoPerpetuo: true,
     exclusividade: true,
-    gravacaoPresencial: true,
+    duracaoExclusividade: 'seis_meses',
     footageBruto: true,
     postaNaPropriaConta: true,
-    seguidores: { instagram: 300000, tiktok: 0 }
+    seguidores: 300000
   });
 
   const resultado = calcularPrecoCampanha(respostas, config);
 
   // Footage sobrevive porque e escopo de entrega, nao termo de negociacao.
-  assert.equal(resultado.detalhamento.adicionalPercentual, config.modificadores.footageBruto.adicionalPercentual);
-  assert.equal(resultado.detalhamento.adicionalFixo, 0);
-  assert.equal(resultado.minimo, 260);
+  assert.deepEqual(resultado.detalhamento.cadeia, ['footageBruto']);
+  assert.equal(resultado.minimo, 260); // 200 x1.3
   assert.ok(idsDosFatores(resultado).includes('viaPlataforma'));
-});
-
-test('trocar um peso no config muda o resultado sem alterar o calculo', () => {
-  const config = structuredClone(PRICING_CONFIG);
-  config.modificadores.exclusividade.adicionalPercentual = 0.5;
-
-  const padrao = calcularPrecoCampanha(responder({ exclusividade: true }));
-  const ajustado = calcularPrecoCampanha(responder({ exclusividade: true }), config);
-
-  assert.equal(padrao.minimo, 220);
-  assert.equal(ajustado.minimo, 300);
 });
 
 test('quantidade fora do intervalo e normalizada', () => {
@@ -184,8 +256,8 @@ test('tipo de conteudo desconhecido cai no primeiro configurado', () => {
 test('a faixa devolvida sempre respeita minimo, justo e ideal', () => {
   const combinacoes = [
     responder({ quantidade: 5, usoComoAnuncio: true, footageBruto: true, usoPerpetuo: true }),
-    responder({ tipoDeConteudo: 'foto_ugc', quantidade: 10, exclusividade: true }),
-    responder({ postaNaPropriaConta: true, seguidores: { instagram: 900000 }, gravacaoPresencial: true })
+    responder({ nivelDeExperiencia: 'avancado', tipoDeConteudo: 'foto_ugc', quantidade: 10, exclusividade: true, duracaoExclusividade: 'mais_de_seis' }),
+    responder({ nivelDeExperiencia: 'intermediario', postaNaPropriaConta: true, seguidores: 900000 })
   ];
 
   combinacoes.forEach((respostas) => {

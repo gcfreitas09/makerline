@@ -11,9 +11,21 @@
  */
 
 /**
+ * @typedef {Object} AcaoDaEtapa
+ * @property {'precificar'|'mensagem'|'checklist'|'contador'|'retrospectiva'} tipo
+ * @property {string} [template] Chave do template, quando tipo e `mensagem`.
+ * @property {string} [atalho] Texto do selo mostrado na linha da campanha. Sem
+ *   atalho, a etapa nao anuncia nada na lista (caso do contador, que e so
+ *   informativo).
+ */
+
+/**
  * @typedef {Object} MicroEtapa
  * @property {string} id Chave gravada em `campaign.stage`.
  * @property {string} label Texto exibido.
+ * @property {AcaoDaEtapa} [acao] O que essa etapa faz alem de mudar o status.
+ * @property {string} [marcador] Sinal curto exibido na lista de selecao, para a
+ *   pessoa ver antes de escolher que essa etapa faz algo alem de mudar status.
  */
 
 /**
@@ -30,7 +42,14 @@ const CAMPAIGN_PIPELINE = [
     label: 'Negociação',
     micros: [
       { id: 'contato_recebido', label: 'Contato recebido' },
-      { id: 'escopo_definido', label: 'Escopo definido' },
+      // Marcar esse micro abre a confirmacao de precificacao: e o momento em que
+      // o creator sabe formato, quantidade e condicoes, e ainda nao mandou preco.
+      {
+        id: 'escopo_definido',
+        label: 'Escopo definido',
+        marcador: '🧮',
+        acao: { tipo: 'precificar', atalho: 'Calcular preço' }
+      },
       { id: 'proposta_enviada', label: 'Proposta enviada' },
       { id: 'aguardando_aprovacao_marca', label: 'Aguardando aprovação da marca' },
       { id: 'negociacao_fechada', label: 'Negociação fechada' }
@@ -40,14 +59,45 @@ const CAMPAIGN_PIPELINE = [
     id: 'producao',
     label: 'Produção',
     micros: [
-      { id: 'aguardando_produto', label: 'Aguardando produto' },
+      // Contador é só informativo: não vira selo na lista de campanhas.
+      { id: 'aguardando_produto', label: 'Aguardando produto', acao: { tipo: 'contador' } },
       { id: 'produto_recebido', label: 'Produto recebido' },
-      { id: 'roteiro_enviado', label: 'Roteiro enviado' },
-      { id: 'aguardando_aprovacao_roteiro', label: 'Aguardando aprovação do roteiro' },
-      { id: 'roteiro_aprovado', label: 'Roteiro aprovado' },
-      { id: 'gravacao', label: 'Gravação' },
-      { id: 'conteudo_enviado', label: 'Conteúdo enviado' },
-      { id: 'aguardando_aprovacao_conteudo', label: 'Aguardando aprovação do conteúdo' },
+      {
+        id: 'roteiro_enviado',
+        label: 'Roteiro enviado',
+        marcador: '✉️',
+        acao: { tipo: 'mensagem', template: 'cobranca_roteiro', atalho: 'Cobrança pronta' }
+      },
+      {
+        id: 'aguardando_aprovacao_roteiro',
+        label: 'Aguardando aprovação do roteiro',
+        marcador: '✉️',
+        acao: { tipo: 'mensagem', template: 'cobranca_roteiro', atalho: 'Cobrança pronta' }
+      },
+      {
+        id: 'roteiro_aprovado',
+        label: 'Roteiro aprovado',
+        marcador: '☑️',
+        acao: { tipo: 'checklist', atalho: 'Checklist de gravação' }
+      },
+      {
+        id: 'gravacao',
+        label: 'Gravação',
+        marcador: '☑️',
+        acao: { tipo: 'checklist', atalho: 'Checklist de gravação' }
+      },
+      {
+        id: 'conteudo_enviado',
+        label: 'Conteúdo enviado',
+        marcador: '✉️',
+        acao: { tipo: 'mensagem', template: 'cobranca_conteudo', atalho: 'Cobrança pronta' }
+      },
+      {
+        id: 'aguardando_aprovacao_conteudo',
+        label: 'Aguardando aprovação do conteúdo',
+        marcador: '✉️',
+        acao: { tipo: 'mensagem', template: 'cobranca_conteudo', atalho: 'Cobrança pronta' }
+      },
       { id: 'ajustes', label: 'Regravação / ajustes' }
     ]
   },
@@ -56,13 +106,25 @@ const CAMPAIGN_PIPELINE = [
     label: 'Entrega',
     micros: [
       { id: 'conteudo_aprovado', label: 'Conteúdo aprovado' },
-      { id: 'aguardando_pagamento', label: 'Aguardando pagamento' }
+      {
+        id: 'aguardando_pagamento',
+        label: 'Aguardando pagamento',
+        marcador: '✉️',
+        acao: { tipo: 'mensagem', template: 'cobranca_pagamento', atalho: 'Cobrança pronta' }
+      }
     ]
   },
   {
     id: 'concluida',
     label: 'Concluída',
-    micros: [{ id: 'pago', label: 'Pago' }]
+    micros: [
+      {
+        id: 'pago',
+        label: 'Pago',
+        marcador: '🏆',
+        acao: { tipo: 'retrospectiva', atalho: 'Ver retrospectiva' }
+      }
+    ]
   }
 ];
 
@@ -95,6 +157,36 @@ const getCampaignStageLabel = (status, stageId) => {
   if (!procurado) return '';
   const encontrado = getCampaignStageOptions(status).find((micro) => micro.id === procurado);
   return encontrado ? encontrado.label : '';
+};
+
+/** Definicao completa de um micro, buscando em todas as macro-etapas. */
+const getMicro = (stageId) => {
+  const procurado = String(stageId || '').trim();
+  if (!procurado) return null;
+  for (const macro of CAMPAIGN_PIPELINE) {
+    const micro = macro.micros.find((item) => item.id === procurado);
+    if (micro) return micro;
+  }
+  return null;
+};
+
+/** Acao que o micro dispara, ou null quando ele so muda o status. */
+const getAcaoDoMicro = (stageId) => getMicro(stageId)?.acao || null;
+
+/**
+ * Texto do selo que anuncia a acao na lista de campanhas. Vazio quando a etapa
+ * nao tem acao, ou quando a acao e apenas informativa.
+ */
+const getAtalhoDaEtapa = (stageId) => getAcaoDoMicro(stageId)?.atalho || '';
+
+/**
+ * Rotulo do micro com o marcador de acao, para listas de selecao.
+ * `<option>` so aceita texto, entao o marcador e um caractere, nao um SVG.
+ */
+const getLabelComMarcador = (stageId) => {
+  const micro = getMicro(stageId);
+  if (!micro) return '';
+  return micro.marcador ? `${micro.label} ${micro.marcador}` : micro.label;
 };
 
 /** Macro-etapa onde um micro vive, independente do status gravado. */
@@ -196,6 +288,10 @@ export {
   getCampaignStageOptions,
   getDefaultCampaignStage,
   getCampaignStageLabel,
+  getMicro,
+  getAcaoDoMicro,
+  getAtalhoDaEtapa,
+  getLabelComMarcador,
   getStatusDoMicro,
   migrarStatusEEtapa,
   migrarFiltroDeStatus

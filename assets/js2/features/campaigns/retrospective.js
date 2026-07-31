@@ -1,11 +1,11 @@
 import { state, saveState } from '../../core/state.js';
-import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728a';
-import { formatarReais } from '../../core/campaigns/messages.js?v=20260728k';
+import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728o';
+import { formatarReais } from '../../core/campaigns/messages.js?v=20260728o';
 import {
   duracaoDoCiclo,
   primeiraEntradaEm,
   quantidadeDeRegravacoes
-} from '../../core/campaigns/timeline.js?v=20260728k';
+} from '../../core/campaigns/timeline.js?v=20260728o';
 
 /**
  * Retrospectiva da campanha, aberta quando ela chega em "Pago".
@@ -56,7 +56,7 @@ const montarRetrospectiva = (campaign) => {
     valor,
     valorFormatado: formatarReais(valor),
     dias,
-    inicio: primeiraEntradaEm(campaign, 'contato_recebido') || campaign?.createdAt || '',
+    inicio: campaign?.createdAt || primeiraEntradaEm(campaign, 'contato_recebido') || '',
     pagamento: campaign?.paymentReceivedAt || primeiraEntradaEm(campaign, 'pago') || '',
     tipoDeConteudo: definicao ? definicao.label : (entregas.length ? entregas.join(' e ') : 'Não informado'),
     entregas: entregas.length ? entregas.join(' e ') : '—',
@@ -75,7 +75,7 @@ const render = (campaign) => {
   const linhas = [
     { label: 'Valor final', valor: dados.permuta ? `${dados.valorFormatado} + permuta` : dados.valorFormatado },
     { label: 'Ciclo completo', valor: `${dados.dias} ${plural(dados.dias, 'dia', 'dias')}` },
-    { label: 'Do contato ao pagamento', valor: `${formatarDataBR(dados.inicio)} → ${formatarDataBR(dados.pagamento)}` },
+    { label: 'Da criação ao pagamento', valor: `${formatarDataBR(dados.inicio)} → ${formatarDataBR(dados.pagamento)}` },
     { label: 'Tipo de conteúdo', valor: dados.tipoDeConteudo },
     { label: 'Entregas', valor: dados.entregas },
     {

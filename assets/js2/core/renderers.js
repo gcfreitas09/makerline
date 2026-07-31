@@ -17,8 +17,8 @@ import {
   badgeCatalog,
   getBadgeById
 } from './state.js';
-import { CAMPAIGN_PIPELINE } from './campaigns/pipeline.js?v=20260728k';
-import { renderPricingPage } from '../features/pricing/page.js?v=20260728k';
+import { CAMPAIGN_PIPELINE, getAtalhoDaEtapa, getLabelComMarcador } from './campaigns/pipeline.js?v=20260728o';
+import { renderPricingPage } from '../features/pricing/page.js?v=20260728o';
 import { setScriptOutput } from './ui.js';
 import { getBillingNotice, getBillingSnapshot } from '../features/settings/billing.js?v=20260628a';
 
@@ -2092,7 +2092,6 @@ const renderCampaigns = () => {
             <th>Valor</th>
             <th>Status</th>
             <th>Etapa</th>
-            <th>Avan\u00e7ar</th>
             <th>A\u00e7\u00f5es</th>
           </tr>
         </thead>
@@ -2107,40 +2106,15 @@ const renderCampaigns = () => {
               const stageOptionsHtml = stageOptions.length
                 ? stageOptions
                   .map((opt) => {
-                      return `<option value="${opt.id}" ${opt.id === stageSafe ? 'selected' : ''}>${opt.label}</option>`;
+                      // Etapas que disparam uma ação vêm com marcador no rótulo,
+                      // para a escolha não surpreender.
+                      return `<option value="${opt.id}" ${opt.id === stageSafe ? 'selected' : ''}>${getLabelComMarcador(opt.id)}</option>`;
                     })
                     .join('')
                 : '<option value="">-</option>';
 
-              // Calcular próxima etapa para botão de avanço
-              const currentStageIndex = stageOptions.findIndex((opt) => opt.id === stageSafe);
-              const isLastStage = currentStageIndex >= stageOptions.length - 1;
-              const currentStatusIndex = campaignStatusOrder.indexOf(statusSafe);
-              const isLastStatus = currentStatusIndex >= campaignStatusOrder.length - 1;
-
-              let advanceBtnHtml = '';
-              if (!isLastStatus || !isLastStage) {
-                if (!isLastStage) {
-                  const nextStage = stageOptions[currentStageIndex + 1];
-                  advanceBtnHtml = `
-                    <button class="btn-advance" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
-                      <span class="btn-advance-label">Avançar: ${escapeHtml(nextStage.label)}</span>
-                    </button>`;
-                } else if (!isLastStatus) {
-                  const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
-                  const nextStatusLabel = statusLabels[nextStatus] || nextStatus;
-                  advanceBtnHtml = `
-                    <button class="btn-advance btn-advance-status" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
-                      <span class="btn-advance-label">Avançar: ${escapeHtml(nextStatusLabel)}</span>
-                    </button>`;
-                }
-              } else {
-                advanceBtnHtml = `
-                  <span class="btn-advance btn-advance-disabled" aria-disabled="true">
-                    <span class="btn-advance-label">Etapa final</span>
-                  </span>`;
-              }
-
+              // A coluna "Avançar" saiu da lista: quem muda a etapa é o próprio
+              // seletor ao lado, sem um segundo caminho para a mesma coisa.
 
               const isPriority = campaign.priority === true;
               const isModel = campaign.isModel === true;
@@ -2148,7 +2122,6 @@ const renderCampaigns = () => {
                 ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'
                 : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
 
-              const modelConvertBtn = isModel ? renderModelAdvanceBtn(campaign) : null;
               const modelOutreach = isModel ? renderModelOutreachBar(campaign) : '';
 
               const rate = getHourlyRate(campaign);
@@ -2198,11 +2171,9 @@ const renderCampaigns = () => {
                       ? `<span class="select select-compact stage-${statusSafe} model-select-locked">${stageOptions.find(o => o.id === stageSafe).label || '—'}</span>`
                       : `<select class="select select-compact stage-${statusSafe}" ${stageDisabled} data-campaign-stage data-campaign-id="${campaign.id}">${stageOptionsHtml}</select>`
                     }
-                  </td>
-                  <td data-label="Avançar" ${isModel ? 'colspan="1"' : ''}>
-                    <div class="stage-btns">
-                      ${isModel ? (modelConvertBtn || '') : advanceBtnHtml}
-                    </div>
+                    ${!isModel && getAtalhoDaEtapa(stageSafe)
+                      ? `<button class="stage-action-chip" data-action="open-campaign-actions" data-campaign-id="${campaign.id}" type="button">${getAtalhoDaEtapa(stageSafe)}</button>`
+                      : ''}
                   </td>
                   <td data-label="Ações">
                     ${isModel

@@ -1,29 +1,16 @@
 import { state, saveState } from '../../core/state.js';
-import { getCampaignStageLabel } from '../../core/campaigns/pipeline.js?v=20260728k';
-import { diasNaEtapaAtual, diasDeAtraso } from '../../core/campaigns/timeline.js?v=20260728k';
-import { gerarMensagem } from '../../core/campaigns/messages.js?v=20260728k';
-import { montarChecklistDeGravacao, rotuloDoTipoDeConteudo } from '../../core/campaigns/shooting-checklist.js?v=20260728k';
+import { getAcaoDoMicro, getCampaignStageLabel } from '../../core/campaigns/pipeline.js?v=20260728o';
+import { diasNaEtapaAtual, diasDeAtraso } from '../../core/campaigns/timeline.js?v=20260728o';
+import { gerarMensagem } from '../../core/campaigns/messages.js?v=20260728o';
+import { montarChecklistDeGravacao, rotuloDoTipoDeConteudo } from '../../core/campaigns/shooting-checklist.js?v=20260728o';
 
 /**
  * A acao real da etapa em que a campanha esta, exibida no detalhe da campanha.
  *
- * Cada micro-etapa que pede acao tem uma entrada em ACOES_POR_ETAPA. Etapa sem
- * entrada simplesmente nao mostra bloco nenhum: nada de texto de enfeite.
+ * Que etapa tem qual acao e decidido em core/campaigns/pipeline.js, junto da
+ * definicao do ciclo. Aqui fica so a apresentacao. Etapa sem acao nao mostra
+ * bloco nenhum: nada de texto de enfeite.
  */
-
-/** Qual acao cada micro-etapa dispara. */
-const ACOES_POR_ETAPA = {
-  escopo_definido: { tipo: 'precificar' },
-  aguardando_produto: { tipo: 'contador' },
-  roteiro_enviado: { tipo: 'mensagem', template: 'cobranca_roteiro' },
-  aguardando_aprovacao_roteiro: { tipo: 'mensagem', template: 'cobranca_roteiro' },
-  roteiro_aprovado: { tipo: 'checklist' },
-  gravacao: { tipo: 'checklist' },
-  conteudo_enviado: { tipo: 'mensagem', template: 'cobranca_conteudo' },
-  aguardando_aprovacao_conteudo: { tipo: 'mensagem', template: 'cobranca_conteudo' },
-  aguardando_pagamento: { tipo: 'mensagem', template: 'cobranca_pagamento' },
-  pago: { tipo: 'retrospectiva' }
-};
 
 const escapar = (texto) => String(texto ?? '')
   .replace(/&/g, '&amp;')
@@ -143,7 +130,7 @@ const renderRetrospectivaAtalho = (campaign) => `
  */
 const renderStageAction = (campaign) => {
   if (!campaign) return '';
-  const definicao = ACOES_POR_ETAPA[String(campaign.stage || '').trim()];
+  const definicao = getAcaoDoMicro(campaign.stage);
   if (!definicao) return '';
 
   let corpo = '';
@@ -175,4 +162,4 @@ const alternarItemDoChecklist = (campaignId, itemId, marcado) => {
   return campaign;
 };
 
-export { renderStageAction, alternarItemDoChecklist, ACOES_POR_ETAPA };
+export { renderStageAction, alternarItemDoChecklist };

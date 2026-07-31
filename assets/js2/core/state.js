@@ -8,7 +8,7 @@ import {
   migrarStatusEEtapa,
   statusDot,
   statusLabels
-} from './campaigns/pipeline.js?v=20260728k';
+} from './campaigns/pipeline.js?v=20260728o';
 
 const STORAGE_KEY_BASE = 'ugcQuestState';
 const PREFS_KEY_BASE = 'ugcQuestPrefs';

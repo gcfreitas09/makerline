@@ -877,12 +877,6 @@ body.custom-select-open {
     margin-top: 2px;
   }
 
-  .campaign-table td[data-label="Avançar"],
-  .campaign-table td[data-label="Avançar"] {
-    margin-top: 4px;
-    padding-top: 8px;
-  }
-
   .campaign-table td[data-label="Ações"],
   .campaign-table td[data-label="Ações"] {
     margin-top: 6px;
@@ -913,11 +907,6 @@ body.custom-select-open {
 
   .campaign-table td[data-label="Valor"] {
     grid-column: span 1;
-  }
-
-  .campaign-table td[data-label="Avan\00e7ar"] {
-    margin-top: 4px;
-    padding-top: 8px;
   }
 
   .campaign-table td[data-label="A\00e7\00f5es"] {

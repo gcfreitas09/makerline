@@ -5,40 +5,54 @@
  * Componentes e a logica de calculo apenas leem daqui, entao trocar qualquer
  * peso, percentual ou faixa NAO exige alterar calculator.js nem a UI.
  *
- * Valores marcados com PROVISORIO ainda aguardam validacao externa e devem
- * mudar nos proximos dias. Os demais vieram de pesquisa de mercado confirmada.
+ * Todos os numeros abaixo foram validados com usuaria parceira. Sao definitivos
+ * ate nova validacao, e nao provisorios como na versao anterior.
  *
- * Ordem de calculo aplicada por calculator.js (a mesma para minimo/justo/ideal):
- *   1. base por peca, conforme o tipo de conteudo
- *   2. multiplicador de anuncio pago (dobra a base)
- *   3. multiplica pela quantidade de pecas
- *   4. desconto por volume
- *   5. adicionais percentuais (footage, perpetuo, exclusividade, conta propria)
- *   6. adicionais fixos (gravacao presencial)
- *   7. regra de plataforma
+ * Ordem de calculo aplicada por calculator.js. Cada passo incide sobre o
+ * resultado do passo anterior, nao sobre a base isolada:
+ *   1. valor base por peca, conforme nivel de experiencia e familia (video/foto)
+ *   2. anuncio pago
+ *   3. exclusividade, +10% por mes de duracao
+ *   4. uso perpetuo, +100%
+ *   5. postagem na propria conta, por faixa de seguidores da rede escolhida
+ *   6. footage bruto, +30%
+ *   7. multiplica pela quantidade e aplica o desconto de pacote sobre o total
  *   8. arredondamento
  */
 
 /**
- * @typedef {'reels_stories'|'video_tiktok'|'foto_ugc'|'video_ads'} TipoDeConteudo
+ * @typedef {'iniciante'|'intermediario'|'avancado'} NivelDeExperiencia
+ */
+
+/**
+ * @typedef {'video'|'foto'} FamiliaDeConteudo
+ */
+
+/**
+ * @typedef {'reels_stories'|'video_tiktok'|'foto_ugc'} TipoDeConteudo
  */
 
 /**
  * @typedef {Object} FaixaDeValor
  * @property {number} minimo Piso defensavel para a entrega.
- * @property {number} justo Valor de referencia de mercado.
  * @property {number} ideal Teto realista para quem entrega bem.
+ */
+
+/**
+ * @typedef {Object} DefinicaoDeNivel
+ * @property {string} label Texto exibido ao usuario.
+ * @property {string} descricao Uma linha que ajuda a pessoa a se reconhecer.
+ * @property {Record<FamiliaDeConteudo, FaixaDeValor>} base Valor por peca.
  */
 
 /**
  * @typedef {Object} DefinicaoDeConteudo
  * @property {string} label Texto exibido ao usuario.
- * @property {FaixaDeValor} base Valor por peca, antes de qualquer modificador.
- * @property {boolean} jaEhAnuncio Se o proprio tipo ja pressupoe uso em ads.
+ * @property {FamiliaDeConteudo} familia De qual tabela de base ele puxa o valor.
  */
 
 /**
- * @typedef {Object} DegrauDeVolume
+ * @typedef {Object} DegrauDePacote
  * @property {number} minimoPecas Quantidade a partir da qual o degrau vale.
  * @property {number} desconto Fracao descontada do total (0.10 = 10%).
  */
@@ -53,8 +67,11 @@
 /**
  * @typedef {Object} PricingConfig
  * @property {number} arredondamento
+ * @property {NivelDeExperiencia} nivelPadrao
+ * @property {Record<NivelDeExperiencia, DefinicaoDeNivel>} niveis
  * @property {Record<TipoDeConteudo, DefinicaoDeConteudo>} tiposDeConteudo
- * @property {DegrauDeVolume[]} descontoPorVolume
+ * @property {Record<string, {label: string, meses: number}>} duracoesDeExclusividade
+ * @property {DegrauDePacote[]} descontoPorPacote
  * @property {Object} modificadores
  * @property {Object} quantidade
  */
@@ -71,94 +88,108 @@ const PRICING_CONFIG = {
     padrao: 1
   },
 
-  tiposDeConteudo: {
-    // CONFIRMADO: 1 video entre R$200 e R$300.
-    reels_stories: {
-      label: 'Reels / Stories',
-      base: { minimo: 200, justo: 250, ideal: 300 },
-      jaEhAnuncio: false
+  nivelPadrao: 'iniciante',
+
+  // VALIDADO: o nivel de experiencia define o valor base de tudo, tanto video
+  // quanto foto. E a primeira pergunta do formulario por isso.
+  niveis: {
+    iniciante: {
+      label: 'Iniciante',
+      descricao: 'Comecei agora, ainda montando portfólio',
+      base: {
+        video: { minimo: 200, ideal: 250 },
+        foto: { minimo: 40, ideal: 50 }
+      }
     },
-    // CONFIRMADO: mesma faixa de video.
-    video_tiktok: {
-      label: 'Vídeo TikTok',
-      base: { minimo: 200, justo: 250, ideal: 300 },
-      jaEhAnuncio: false
+    intermediario: {
+      label: 'Intermediário',
+      descricao: 'Já entrego com constância para marcas',
+      base: {
+        video: { minimo: 500, ideal: 550 },
+        foto: { minimo: 60, ideal: 80 }
+      }
     },
-    // CONFIRMADO: R$40 a R$50 na entrega simples, R$60 a R$100 na mais
-    // profissional. Em vez de virar mais uma pergunta, a variacao de qualidade
-    // aparece na propria banda: piso da simples, teto da profissional.
-    foto_ugc: {
-      label: 'Foto (UGC estático)',
-      base: { minimo: 40, justo: 60, ideal: 100 },
-      jaEhAnuncio: false
-    },
-    // CONFIRMADO: conteudo para ads vale o dobro do organico. O dobro vem do
-    // multiplicador em modificadores.anuncioPago, nao da base, para nao contar
-    // duas vezes quando o usuario tambem marcar "anuncio pago" no card 5.
-    video_ads: {
-      label: 'Vídeo para anúncio (ads)',
-      base: { minimo: 200, justo: 250, ideal: 300 },
-      jaEhAnuncio: true
+    avancado: {
+      label: 'Avançado',
+      descricao: 'Tenho portfólio forte e clientes recorrentes',
+      base: {
+        video: { minimo: 700, ideal: 800 },
+        foto: { minimo: 90, ideal: 100 }
+      }
     }
   },
 
-  // CONFIRMADO: pacote de 3 tem 10% de desconto, pacote de 5 tem 15%.
-  // Avaliado de cima para baixo: vale o primeiro degrau que couber.
-  descontoPorVolume: [
+  // O tipo nao carrega mais valor: ele so diz de qual tabela de base puxar.
+  tiposDeConteudo: {
+    reels_stories: { label: 'Reels / Stories', familia: 'video' },
+    video_tiktok: { label: 'Vídeo TikTok', familia: 'video' },
+    foto_ugc: { label: 'Foto (UGC estático)', familia: 'foto' }
+  },
+
+  // VALIDADO: exclusividade cobra +10% por mes de duracao. "Mais de 6 meses"
+  // conta como um ano fechado.
+  duracoesDeExclusividade: {
+    um_mes: { label: '1 mês', meses: 1 },
+    tres_meses: { label: '3 meses', meses: 3 },
+    seis_meses: { label: '6 meses', meses: 6 },
+    mais_de_seis: { label: 'Mais de 6 meses', meses: 12 }
+  },
+
+  // VALIDADO: pacote de 3 tem 10% de desconto, pacote de 5 tem 15%. Avaliado de
+  // cima para baixo: vale o primeiro degrau que couber.
+  descontoPorPacote: [
     { minimoPecas: 5, desconto: 0.15 },
     { minimoPecas: 3, desconto: 0.1 }
   ],
 
   modificadores: {
-    // CONFIRMADO: conteudo usado como anuncio vale o dobro do organico.
+    // VALIDADO: uso em anuncio pago acrescenta de 30% a 50%. O piso vale para a
+    // banda minima e o teto para a ideal, entao a incerteza aparece na faixa em
+    // vez de virar mais uma pergunta.
     anuncioPago: {
       label: 'Conteúdo usado como anúncio pago',
-      multiplicadorBase: 2
+      adicionalPercentual: { minimo: 0.3, ideal: 0.5 }
     },
 
-    // PROVISORIO: aguarda validacao externa.
+    // VALIDADO: +10% por mes de exclusividade, sobre o valor que ja veio com
+    // anuncio pago aplicado.
+    exclusividade: {
+      label: 'Exclusividade com a marca',
+      adicionalPercentualPorMes: 0.1
+    },
+
+    // VALIDADO: uso sem prazo dobra o valor acumulado ate aqui.
     usoPerpetuo: {
       label: 'Uso perpétuo, sem prazo',
-      adicionalPercentual: 0.1
+      adicionalPercentual: 1
     },
 
-    // CONFIRMADO: material bruto sem edicao custa 30% a mais sobre a entrega.
+    // VALIDADO: material bruto sem edicao custa 30% a mais sobre a entrega.
     footageBruto: {
       label: 'Material bruto sem edição',
       adicionalPercentual: 0.3
     },
 
-    // PROVISORIO: aguarda validacao externa.
-    exclusividade: {
-      label: 'Exclusividade com a marca',
-      adicionalPercentual: 0.1
-    },
-
-    // PROVISORIO: aguarda validacao externa. Suporta os dois formatos ao mesmo
-    // tempo, entao trocar de fixo para percentual e so mexer nestes numeros.
-    gravacaoPresencial: {
-      label: 'Gravação presencial ou deslocamento',
-      adicionalPercentual: 0,
-      adicionalFixo: 150
-    },
-
-    // PROVISORIO: aguarda validacao externa. Faixas avaliadas de cima para
-    // baixo pelo maior numero de seguidores entre Instagram e TikTok.
+    // VALIDADO: o adicional sai da rede onde o conteudo vai ser publicado.
+    // Somar os seguidores das duas redes cobraria por audiencia que nao vai ver
+    // o post, entao a rede escolhida e a unica que conta.
     postarNaPropriaConta: {
       label: 'Publicação no seu próprio perfil',
-      usarMaiorEntrePlataformas: true,
+      redes: {
+        instagram: { label: 'Instagram' },
+        tiktok: { label: 'TikTok' }
+      },
+      redePadrao: 'instagram',
       faixasDeSeguidores: [
         { ate: 10000, adicionalPercentual: 0.2, label: 'até 10 mil seguidores' },
-        { ate: 50000, adicionalPercentual: 0.4, label: '10 mil a 50 mil seguidores' },
-        { ate: 200000, adicionalPercentual: 0.7, label: '50 mil a 200 mil seguidores' },
-        { ate: Infinity, adicionalPercentual: 1, label: 'acima de 200 mil seguidores' }
+        { ate: 50000, adicionalPercentual: 0.3, label: '10 mil a 50 mil seguidores' },
+        { ate: Infinity, adicionalPercentual: 0.4, label: 'acima de 50 mil seguidores' }
       ]
     },
 
-    // PROVISORIO: a regra de plataforma ainda nao foi definida. Hoje o
-    // multiplicador e neutro. Se ficar decidido que a plataforma entrega valor
-    // ja fechado, basta ligar bloqueiaAdicionaisDeNegociacao aqui: a logica ja
-    // le essa flag e nao precisa de alteracao.
+    // A regra de plataforma continua neutra. Se ficar decidido que a plataforma
+    // entrega valor ja fechado, basta ligar bloqueiaAdicionaisDeNegociacao: a
+    // logica ja le essa flag e nao precisa de alteracao.
     viaPlataforma: {
       label: 'Campanha através de plataforma',
       multiplicador: 1,
@@ -169,7 +200,7 @@ const PRICING_CONFIG = {
   // Quais modificadores contam como "adicional de negociacao", ou seja, os que
   // deixam de valer quando a plataforma entrega um valor ja fechado. Footage
   // fica de fora de proposito: e escopo de entrega, nao termo de negociacao.
-  adicionaisDeNegociacao: ['usoPerpetuo', 'exclusividade', 'gravacaoPresencial', 'postarNaPropriaConta']
+  adicionaisDeNegociacao: ['usoPerpetuo', 'exclusividade', 'postarNaPropriaConta']
 };
 
 export { PRICING_CONFIG };

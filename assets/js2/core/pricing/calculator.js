@@ -1,23 +1,29 @@
-import { PRICING_CONFIG } from './config.js?v=20260728a';
+import { PRICING_CONFIG } from './config.js?v=20260728o';
 
 /**
  * Calculo de preco de campanha UGC.
  *
  * Modulo puro: nao toca no DOM, nao le estado global e nao contem nenhum valor
  * de precificacao literal. Tudo vem de config.js.
+ *
+ * O calculo e uma CADEIA: cada modificador incide sobre o valor que saiu do
+ * modificador anterior, nao sobre a base. Trocar a ordem muda o resultado, por
+ * isso ela esta explicita em ORDEM_DA_CADEIA.
  */
 
 /**
  * @typedef {Object} RespostasDePrecificacao
+ * @property {'iniciante'|'intermediario'|'avancado'} nivelDeExperiencia
  * @property {boolean} postaNaPropriaConta
  * @property {string} tipoDeConteudo Chave de PRICING_CONFIG.tiposDeConteudo.
  * @property {number} quantidade
  * @property {boolean} usoComoAnuncio
  * @property {boolean} usoPerpetuo
- * @property {{instagram?: number, tiktok?: number}} [seguidores]
+ * @property {'instagram'|'tiktok'} [redeDePostagem] Onde o conteudo vai sair.
+ * @property {number} [seguidores] Seguidores na rede escolhida.
  * @property {boolean} exclusividade
+ * @property {string} [duracaoExclusividade] Chave de duracoesDeExclusividade.
  * @property {boolean} footageBruto
- * @property {boolean} gravacaoPresencial
  * @property {boolean} viaPlataforma
  */
 
@@ -26,7 +32,7 @@ import { PRICING_CONFIG } from './config.js?v=20260728a';
  * @property {string} id
  * @property {string} label
  * @property {'aumento'|'reducao'|'neutro'} efeito
- * @property {string} detalhe Ex: "+30%", "-15%", "+R$ 150".
+ * @property {string} detalhe Ex: "+30%", "-15%".
  */
 
 /**
@@ -38,7 +44,11 @@ import { PRICING_CONFIG } from './config.js?v=20260728a';
  * @property {Object} detalhamento
  */
 
-const BANDAS = ['minimo', 'justo', 'ideal'];
+/** As duas pontas da faixa. O "justo" e a media, calculada no fim. */
+const PONTAS = ['minimo', 'ideal'];
+
+/** A ordem importa: esta e a sequencia que a validacao definiu. */
+const ORDEM_DA_CADEIA = ['anuncioPago', 'exclusividade', 'usoPerpetuo', 'postarNaPropriaConta', 'footageBruto'];
 
 const numero = (valor, padrao = 0) => {
   const convertido = Number(valor);
@@ -54,10 +64,15 @@ const arredondar = (valor, passo) => {
   return Math.round(valor / passo) * passo;
 };
 
-/**
- * Resolve o tipo de conteudo, caindo no primeiro tipo configurado quando a
- * resposta vier vazia ou desconhecida.
- */
+/** Nivel de experiencia, caindo no padrao configurado quando vier vazio. */
+const resolverNivel = (nivel, config) => {
+  const chave = String(nivel || '').trim();
+  if (chave && config.niveis[chave]) return { chave, definicao: config.niveis[chave] };
+  const padrao = config.niveis[config.nivelPadrao] ? config.nivelPadrao : Object.keys(config.niveis)[0];
+  return { chave: padrao, definicao: config.niveis[padrao] };
+};
+
+/** Tipo de conteudo, caindo no primeiro configurado quando vier desconhecido. */
 const resolverTipoDeConteudo = (tipo, config) => {
   const tipos = config.tiposDeConteudo;
   if (tipo && tipos[tipo]) return { chave: tipo, definicao: tipos[tipo] };
@@ -70,20 +85,38 @@ const resolverQuantidade = (quantidade, config) => {
   return Math.max(config.quantidade.minimo, Math.min(config.quantidade.maximo, bruta));
 };
 
-const resolverDescontoDeVolume = (quantidade, config) => {
-  const degrau = config.descontoPorVolume.find((item) => quantidade >= item.minimoPecas);
+const resolverDescontoDePacote = (quantidade, config) => {
+  const degrau = config.descontoPorPacote.find((item) => quantidade >= item.minimoPecas);
   return degrau ? degrau.desconto : 0;
 };
 
-const resolverFaixaDeSeguidores = (seguidores, config) => {
+/** Meses de exclusividade a partir da duracao escolhida. */
+const resolverMesesDeExclusividade = (duracao, config) => {
+  const definicao = config.duracoesDeExclusividade[String(duracao || '').trim()];
+  if (definicao) return { meses: definicao.meses, label: definicao.label };
+  const primeira = Object.values(config.duracoesDeExclusividade)[0];
+  return { meses: primeira.meses, label: primeira.label };
+};
+
+/**
+ * Faixa de seguidores da rede onde o conteudo vai ser publicado. Aceita tanto o
+ * numero direto quanto o objeto por rede que as respostas antigas usavam.
+ */
+const resolverFaixaDeSeguidores = (respostas, config) => {
   const regra = config.modificadores.postarNaPropriaConta;
-  const instagram = Math.max(0, numero(seguidores?.instagram, 0));
-  const tiktok = Math.max(0, numero(seguidores?.tiktok, 0));
-  const total = regra.usarMaiorEntrePlataformas
-    ? Math.max(instagram, tiktok)
-    : instagram + tiktok;
-  const faixa = regra.faixasDeSeguidores.find((item) => total <= item.ate);
-  return { total, faixa: faixa || regra.faixasDeSeguidores[regra.faixasDeSeguidores.length - 1] };
+  const rede = regra.redes[String(respostas.redeDePostagem || '').trim()]
+    ? String(respostas.redeDePostagem).trim()
+    : regra.redePadrao;
+
+  const bruto = respostas.seguidores;
+  const total = bruto && typeof bruto === 'object'
+    ? Math.max(0, numero(bruto[rede], 0))
+    : Math.max(0, numero(bruto, 0));
+
+  const faixa = regra.faixasDeSeguidores.find((item) => total <= item.ate)
+    || regra.faixasDeSeguidores[regra.faixasDeSeguidores.length - 1];
+
+  return { rede, redeLabel: regra.redes[rede].label, total, faixa };
 };
 
 /**
@@ -92,6 +125,7 @@ const resolverFaixaDeSeguidores = (seguidores, config) => {
  * @returns {ResultadoDePreco}
  */
 const calcularPrecoCampanha = (respostas = {}, config = PRICING_CONFIG) => {
+  const { chave: nivelChave, definicao: nivel } = resolverNivel(respostas.nivelDeExperiencia, config);
   const { chave: tipoChave, definicao: tipo } = resolverTipoDeConteudo(respostas.tipoDeConteudo, config);
   const quantidade = resolverQuantidade(respostas.quantidade, config);
   const mods = config.modificadores;
@@ -102,98 +136,89 @@ const calcularPrecoCampanha = (respostas = {}, config = PRICING_CONFIG) => {
 
   const fatores = [];
 
-  // 1 e 2. Base por peca, dobrada se o conteudo for para anuncio pago. O tipo
-  // "video para ads" ja pressupoe esse uso, entao a duplicacao vale uma vez so
-  // mesmo que o usuario tambem marque anuncio pago no card seguinte.
-  const ehAnuncio = Boolean(respostas.usoComoAnuncio) || Boolean(tipo.jaEhAnuncio);
-  const multiplicadorAnuncio = ehAnuncio ? mods.anuncioPago.multiplicadorBase : 1;
+  /**
+   * Cada elo da cadeia devolve o percentual a acrescentar, por ponta da faixa.
+   * Percentual 0 significa que o elo nao se aplica a esta campanha.
+   */
+  const elos = {};
+
+  // 2. Anuncio pago: a faixa 30%~50% vira as duas pontas do resultado.
+  const ehAnuncio = Boolean(respostas.usoComoAnuncio);
   if (ehAnuncio) {
+    const faixa = mods.anuncioPago.adicionalPercentual;
+    elos.anuncioPago = { minimo: faixa.minimo, ideal: faixa.ideal };
     fatores.push({
       id: 'anuncioPago',
       label: mods.anuncioPago.label,
       efeito: 'aumento',
-      detalhe: `${mods.anuncioPago.multiplicadorBase}x o valor orgânico`
+      detalhe: `+${formatarPercentual(faixa.minimo)} a ${formatarPercentual(faixa.ideal)}`
     });
   }
 
-  // 4. Desconto por volume.
-  const descontoVolume = resolverDescontoDeVolume(quantidade, config);
-  if (descontoVolume > 0) {
+  // 3. Exclusividade: +10% por mes, sobre o valor que ja veio com anuncio.
+  let mesesDeExclusividade = 0;
+  if (respostas.exclusividade && negociacaoValida('exclusividade')) {
+    const duracao = resolverMesesDeExclusividade(respostas.duracaoExclusividade, config);
+    mesesDeExclusividade = duracao.meses;
+    const percentual = mods.exclusividade.adicionalPercentualPorMes * duracao.meses;
+    elos.exclusividade = { minimo: percentual, ideal: percentual };
     fatores.push({
-      id: 'descontoVolume',
-      label: `Pacote de ${quantidade} peças`,
-      efeito: 'reducao',
-      detalhe: `-${formatarPercentual(descontoVolume)}`
+      id: 'exclusividade',
+      label: `${mods.exclusividade.label}, ${duracao.label}`,
+      efeito: 'aumento',
+      detalhe: `+${formatarPercentual(percentual)}`
     });
   }
 
-  // 5. Adicionais percentuais.
-  let somaPercentual = 0;
-
+  // 4. Uso perpetuo: dobra o que veio acumulado ate aqui.
   if (respostas.usoPerpetuo && negociacaoValida('usoPerpetuo')) {
-    somaPercentual += mods.usoPerpetuo.adicionalPercentual;
+    const percentual = mods.usoPerpetuo.adicionalPercentual;
+    elos.usoPerpetuo = { minimo: percentual, ideal: percentual };
     fatores.push({
       id: 'usoPerpetuo',
       label: mods.usoPerpetuo.label,
       efeito: 'aumento',
-      detalhe: `+${formatarPercentual(mods.usoPerpetuo.adicionalPercentual)}`
+      detalhe: `+${formatarPercentual(percentual)}`
     });
   }
 
-  if (respostas.footageBruto && negociacaoValida('footageBruto')) {
-    somaPercentual += mods.footageBruto.adicionalPercentual;
+  // 5. Postagem na propria conta, pela faixa da rede escolhida.
+  let seguidoresResolvidos = null;
+  if (respostas.postaNaPropriaConta && negociacaoValida('postarNaPropriaConta')) {
+    seguidoresResolvidos = resolverFaixaDeSeguidores(respostas, config);
+    const percentual = seguidoresResolvidos.faixa.adicionalPercentual;
+    elos.postarNaPropriaConta = { minimo: percentual, ideal: percentual };
+    fatores.push({
+      id: 'postarNaPropriaConta',
+      label: `${mods.postarNaPropriaConta.label} no ${seguidoresResolvidos.redeLabel}, ${seguidoresResolvidos.faixa.label}`,
+      efeito: 'aumento',
+      detalhe: `+${formatarPercentual(percentual)}`
+    });
+  }
+
+  // 6. Footage bruto: incide sobre o valor da entrega ja composto.
+  if (respostas.footageBruto) {
+    const percentual = mods.footageBruto.adicionalPercentual;
+    elos.footageBruto = { minimo: percentual, ideal: percentual };
     fatores.push({
       id: 'footageBruto',
       label: mods.footageBruto.label,
       efeito: 'aumento',
-      detalhe: `+${formatarPercentual(mods.footageBruto.adicionalPercentual)}`
+      detalhe: `+${formatarPercentual(percentual)}`
     });
   }
 
-  if (respostas.exclusividade && negociacaoValida('exclusividade')) {
-    somaPercentual += mods.exclusividade.adicionalPercentual;
+  // 7. Desconto de pacote, sobre o total de todas as pecas.
+  const descontoPacote = resolverDescontoDePacote(quantidade, config);
+  if (descontoPacote > 0) {
     fatores.push({
-      id: 'exclusividade',
-      label: mods.exclusividade.label,
-      efeito: 'aumento',
-      detalhe: `+${formatarPercentual(mods.exclusividade.adicionalPercentual)}`
+      id: 'descontoPacote',
+      label: `Pacote de ${quantidade} peças`,
+      efeito: 'reducao',
+      detalhe: `-${formatarPercentual(descontoPacote)}`
     });
   }
 
-  if (respostas.gravacaoPresencial && negociacaoValida('gravacaoPresencial')) {
-    somaPercentual += mods.gravacaoPresencial.adicionalPercentual;
-  }
-
-  let faixaDeSeguidores = null;
-  if (respostas.postaNaPropriaConta && negociacaoValida('postarNaPropriaConta')) {
-    const resolvido = resolverFaixaDeSeguidores(respostas.seguidores, config);
-    faixaDeSeguidores = resolvido.faixa;
-    somaPercentual += faixaDeSeguidores.adicionalPercentual;
-    fatores.push({
-      id: 'postarNaPropriaConta',
-      label: `${mods.postarNaPropriaConta.label}, ${faixaDeSeguidores.label}`,
-      efeito: 'aumento',
-      detalhe: `+${formatarPercentual(faixaDeSeguidores.adicionalPercentual)}`
-    });
-  }
-
-  // 6. Adicionais fixos.
-  let somaFixa = 0;
-  if (respostas.gravacaoPresencial && negociacaoValida('gravacaoPresencial')) {
-    somaFixa += mods.gravacaoPresencial.adicionalFixo;
-    const percentual = mods.gravacaoPresencial.adicionalPercentual;
-    const detalhes = [];
-    if (mods.gravacaoPresencial.adicionalFixo > 0) detalhes.push(`+${formatarReais(mods.gravacaoPresencial.adicionalFixo)}`);
-    if (percentual > 0) detalhes.push(`+${formatarPercentual(percentual)}`);
-    fatores.push({
-      id: 'gravacaoPresencial',
-      label: mods.gravacaoPresencial.label,
-      efeito: 'aumento',
-      detalhe: detalhes.join(' e ')
-    });
-  }
-
-  // 7. Regra de plataforma.
   const multiplicadorPlataforma = viaPlataforma ? mods.viaPlataforma.multiplicador : 1;
   if (viaPlataforma && (multiplicadorPlataforma !== 1 || negociacaoBloqueada)) {
     fatores.push({
@@ -204,23 +229,33 @@ const calcularPrecoCampanha = (respostas = {}, config = PRICING_CONFIG) => {
     });
   }
 
+  const baseDaFamilia = nivel.base[tipo.familia] || nivel.base.video;
   const baseUnitaria = {};
+  const valorPorPeca = {};
   const valores = {};
-  BANDAS.forEach((banda) => {
-    const base = numero(tipo.base[banda], 0) * multiplicadorAnuncio;
-    baseUnitaria[banda] = base;
 
-    let total = base * quantidade;
-    total *= 1 - descontoVolume;
-    total *= 1 + somaPercentual;
-    total += somaFixa;
+  PONTAS.forEach((ponta) => {
+    const base = numero(baseDaFamilia[ponta], 0);
+    baseUnitaria[ponta] = base;
+
+    // A cadeia: cada elo multiplica o que veio do anterior.
+    let porPeca = base;
+    ORDEM_DA_CADEIA.forEach((id) => {
+      const elo = elos[id];
+      if (elo) porPeca *= 1 + elo[ponta];
+    });
+    valorPorPeca[ponta] = porPeca;
+
+    let total = porPeca * quantidade;
+    total *= 1 - descontoPacote;
     total *= multiplicadorPlataforma;
 
-    valores[banda] = Math.max(0, arredondar(total, config.arredondamento));
+    valores[ponta] = Math.max(0, arredondar(total, config.arredondamento));
   });
 
-  // Garante a ordem da faixa mesmo se alguem configurar uma base fora de ordem.
-  const ordenados = [valores.minimo, valores.justo, valores.ideal].sort((a, b) => a - b);
+  // O "justo" e o meio da faixa: nao existe tabela propria para ele.
+  const justo = arredondar((valores.minimo + valores.ideal) / 2, config.arredondamento);
+  const ordenados = [valores.minimo, justo, valores.ideal].sort((a, b) => a - b);
 
   return {
     minimo: ordenados[0],
@@ -228,19 +263,23 @@ const calcularPrecoCampanha = (respostas = {}, config = PRICING_CONFIG) => {
     ideal: ordenados[2],
     fatores,
     detalhamento: {
+      nivelDeExperiencia: nivelChave,
+      nivelLabel: nivel.label,
       tipoDeConteudo: tipoChave,
       tipoLabel: tipo.label,
+      familia: tipo.familia,
       quantidade,
       baseUnitaria,
-      multiplicadorAnuncio,
-      descontoVolume,
-      adicionalPercentual: somaPercentual,
-      adicionalFixo: somaFixa,
+      valorPorPeca,
+      cadeia: ORDEM_DA_CADEIA.filter((id) => elos[id]),
+      adicionais: elos,
+      mesesDeExclusividade,
+      descontoPacote,
       multiplicadorPlataforma,
       negociacaoBloqueada,
-      faixaDeSeguidores
+      seguidores: seguidoresResolvidos
     }
   };
 };
 
-export { calcularPrecoCampanha, formatarReais, formatarPercentual };
+export { calcularPrecoCampanha, formatarReais, formatarPercentual, ORDEM_DA_CADEIA };

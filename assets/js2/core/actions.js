@@ -11,7 +11,7 @@ import {
   initCampaignForm,
   openCampaignModal,
   openCampaignPreview
-} from '../features/campaigns/modal.js?v=20260728k';
+} from '../features/campaigns/modal.js?v=20260728o';
 import {
   closeBrandModal,
   initBrandForm,
@@ -36,13 +36,13 @@ import {
 import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js?v=20260302f';
 import { openBillingCheckout, openBillingPortal } from '../features/settings/billing.js?v=20260628a';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260728k';
-import { handleFirstCampaignFlowAction } from '../features/onboarding/first-campaign-flow.js?v=20260728k';
-import { abrirRegistroGuiado, handleRegisterFlowAction, initRegisterFlow } from '../features/campaigns/register-flow.js?v=20260728k';
-import { renderStageAction, alternarItemDoChecklist } from '../features/campaigns/stage-actions.js?v=20260728k';
-import { abrirPrecificadorDaCampanha } from '../features/campaigns/pricing-modal.js?v=20260728k';
-import { abrirRetrospectiva, fecharRetrospectiva } from '../features/campaigns/retrospective.js?v=20260728k';
-import { registrarMudancaDeEtapa } from './campaigns/timeline.js?v=20260728k';
+import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260728o';
+import { handleFirstCampaignFlowAction } from '../features/onboarding/first-campaign-flow.js?v=20260728o';
+import { abrirRegistroGuiado, handleRegisterFlowAction, initRegisterFlow } from '../features/campaigns/register-flow.js?v=20260728o';
+import { renderStageAction, alternarItemDoChecklist } from '../features/campaigns/stage-actions.js?v=20260728o';
+import { abrirPrecificadorDaCampanha } from '../features/campaigns/pricing-modal.js?v=20260728o';
+import { abrirRetrospectiva, fecharRetrospectiva } from '../features/campaigns/retrospective.js?v=20260728o';
+import { registrarMudancaDeEtapa } from './campaigns/timeline.js?v=20260728o';
 
 /**
  * Cadastrar campanha e sempre em cards, uma pergunta por tela. O modal padrao
@@ -926,6 +926,36 @@ const celebrarSePago = (campaign) => {
   setTimeout(() => abrirRetrospectiva(campaign.id), 220);
 };
 
+/* ── confirmação de precificação ao entrar em "Escopo definido" ── */
+
+const getScopePricingModal = () => document.getElementById('scope-pricing-modal');
+
+let campanhaDoEscopo = '';
+
+const fecharModalDeEscopo = () => {
+  const modal = getScopePricingModal();
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  campanhaDoEscopo = '';
+};
+
+/**
+ * "Escopo definido" é o único micro que pergunta algo ao ser marcado: é o ponto
+ * do ciclo em que dá para calcular preço com informação real. Só abre quando a
+ * campanha entra na etapa; remarcar a mesma etapa não repete a pergunta.
+ */
+const perguntarSobrePrecificacao = (campaign, etapaAnterior) => {
+  if (!campaign || campaign.stage !== 'escopo_definido') return;
+  if (etapaAnterior === 'escopo_definido') return;
+  const modal = getScopePricingModal();
+  if (!modal) return;
+
+  campanhaDoEscopo = campaign.id;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+};
+
 const copyText = (text, doneMessage) => {
   const value = String(text || '').trim();
   if (!value) return;
@@ -1570,6 +1600,27 @@ const handleActionClick = (event) => {
     return;
   }
 
+  // Selo da linha da campanha: leva direto para a ação da etapa atual.
+  if (action === 'open-campaign-actions') {
+    const id = String(actionEl.dataset.campaignId || '').trim();
+    if (id) openCampaignPeekModal(id);
+    return;
+  }
+
+  if (action === 'scope-pricing-calculate') {
+    const id = campanhaDoEscopo;
+    fecharModalDeEscopo();
+    if (id) abrirPrecificadorDaCampanha(id);
+    return;
+  }
+
+  // "Marcar sem calcular agora" e o clique fora só confirmam a etapa, que já
+  // foi gravada antes do modal aparecer.
+  if (action === 'scope-pricing-skip' || action === 'close-scope-pricing') {
+    fecharModalDeEscopo();
+    return;
+  }
+
   if (action === 'delete-campaign') {
     const id = actionEl.dataset.campaignId;
     if (!id) return;
@@ -1629,6 +1680,7 @@ const handleActionClick = (event) => {
       renderAll();
       showToast(`Avançou: ${nextStage.label}`);
       celebrarSePago(campaign);
+      perguntarSobrePrecificacao(campaign, currentStage);
     } else if (!isLastStatus) {
       const previousStatus = campaign.status;
       const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
@@ -1654,6 +1706,7 @@ const handleActionClick = (event) => {
       renderAll();
       showToast(`Avançou: ${statusLabels[campaign.status] || campaign.status}`);
       celebrarSePago(campaign);
+      perguntarSobrePrecificacao(campaign, currentStage);
     }
     return;
   }
@@ -1930,6 +1983,8 @@ const handleChange = (event) => {
     saveState();
     renderAll();
     showToast('Status atualizado.');
+    celebrarSePago(campaign);
+    perguntarSobrePrecificacao(campaign, previousStage);
     return;
   }
 
@@ -1976,6 +2031,7 @@ const handleChange = (event) => {
     renderAll();
     showToast('Etapa atualizada.');
     celebrarSePago(campaign);
+    perguntarSobrePrecificacao(campaign, previousStage);
     return;
   }
 

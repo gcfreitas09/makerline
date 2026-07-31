@@ -68,12 +68,15 @@ const diasNaEtapaAtual = (campaign) => {
   return dias === null ? 0 : Math.max(0, dias);
 };
 
-/** Dias entre o inicio do ciclo e o pagamento (ou hoje, se ainda nao pagou). */
+/**
+ * Ciclo completo: da criacao da campanha ate o pagamento confirmado. Enquanto
+ * nao houver pagamento, conta ate hoje, para o numero nunca ficar parado.
+ */
 const duracaoDoCiclo = (campaign) => {
-  const inicio = primeiraEntradaEm(campaign, 'contato_recebido') || campaign?.createdAt || '';
-  const fim = campaign?.stage === 'pago'
-    ? (primeiraEntradaEm(campaign, 'pago') || entradaNaEtapaAtual(campaign))
-    : agoraIso();
+  const inicio = campaign?.createdAt || primeiraEntradaEm(campaign, 'contato_recebido') || '';
+  const pagamentoConfirmado = campaign?.paymentReceivedAt || '';
+  const fim = pagamentoConfirmado
+    || (campaign?.stage === 'pago' ? (primeiraEntradaEm(campaign, 'pago') || entradaNaEtapaAtual(campaign)) : agoraIso());
   const dias = diasEntre(inicio, fim);
   return dias === null ? 0 : Math.max(0, dias);
 };

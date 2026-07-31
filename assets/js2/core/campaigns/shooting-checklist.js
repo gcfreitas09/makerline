@@ -1,4 +1,4 @@
-import { PRICING_CONFIG } from '../pricing/config.js?v=20260728a';
+import { PRICING_CONFIG } from '../pricing/config.js?v=20260728o';
 
 /**
  * Checklist de gravacao montado a partir do que a campanha ja respondeu no
@@ -60,7 +60,7 @@ const montarChecklistDeGravacao = (campaign) => {
   if (respostas.footageBruto === true) {
     itens.push({
       id: 'footage',
-      texto: 'Guardar todas as takes brutas sem edição, elas fazem parte da entrega'
+      texto: 'Separar arquivo bruto sem edição para entrega'
     });
   }
 
@@ -88,13 +88,6 @@ const montarChecklistDeGravacao = (campaign) => {
     itens.push({
       id: 'anuncio',
       texto: 'Deixar espaço de sobra no enquadramento para cortes de anúncio'
-    });
-  }
-
-  if (respostas.gravacaoPresencial === true) {
-    itens.push({
-      id: 'presencial',
-      texto: 'Confirmar endereço, horário e equipamento que vai levar para a gravação presencial'
     });
   }
 

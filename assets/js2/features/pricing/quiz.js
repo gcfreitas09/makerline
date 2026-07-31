@@ -1,5 +1,5 @@
-import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728a';
-import { calcularPrecoCampanha, formatarReais } from '../../core/pricing/calculator.js?v=20260728a';
+import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728o';
+import { calcularPrecoCampanha, formatarReais } from '../../core/pricing/calculator.js?v=20260728o';
 
 /**
  * Precificador em cards: uma pergunta por tela.
@@ -23,6 +23,17 @@ const CARDS = [
   {
     id: 'intro',
     tipo: 'intro'
+  },
+  {
+    // Primeira pergunta de todas: o nivel define o valor base de tudo o que vem
+    // depois, tanto para video quanto para foto.
+    id: 'nivelDeExperiencia',
+    tipo: 'escolha',
+    pergunta: 'Qual seu nível de experiência como criadora de UGC?',
+    opcoes: Object.entries(PRICING_CONFIG.niveis).map(([chave, definicao]) => ({
+      valor: chave,
+      label: `${definicao.label} — ${definicao.descricao}`
+    }))
   },
   {
     id: 'postaNaPropriaConta',
@@ -67,9 +78,11 @@ const CARDS = [
     ]
   },
   {
+    // O adicional sai da rede onde o post vai sair, entao a rede e os seguidores
+    // dela são a mesma pergunta.
     id: 'seguidores',
     tipo: 'seguidores',
-    pergunta: 'Quantos seguidores você tem?',
+    pergunta: 'Onde você vai postar, e quantos seguidores tem nessa rede?',
     condicao: (respostas) => respostas.postaNaPropriaConta === true
   },
   {
@@ -79,15 +92,20 @@ const CARDS = [
     opcoes: SIM_NAO
   },
   {
+    // Só aparece depois do "sim": a duração é o que define o quanto cobrar.
+    id: 'duracaoExclusividade',
+    tipo: 'escolha',
+    pergunta: 'Por quanto tempo é essa exclusividade?',
+    opcoes: Object.entries(PRICING_CONFIG.duracoesDeExclusividade).map(([chave, definicao]) => ({
+      valor: chave,
+      label: definicao.label
+    })),
+    condicao: (respostas) => respostas.exclusividade === true
+  },
+  {
     id: 'footageBruto',
     tipo: 'escolha',
     pergunta: 'A marca pediu o material bruto sem edição?',
-    opcoes: SIM_NAO
-  },
-  {
-    id: 'gravacaoPresencial',
-    tipo: 'escolha',
-    pergunta: 'Essa campanha exige gravação presencial ou deslocamento?',
     opcoes: SIM_NAO
   },
   {
@@ -113,31 +131,33 @@ const CARDS = [
 const GRUPOS_DE_PERGUNTAS = [
   {
     id: 'grupo_trabalho',
-    titulo: 'O que a marca pediu',
-    campos: ['postaNaPropriaConta', 'tipoDeConteudo', 'quantidade']
+    titulo: 'Você e o que a marca pediu',
+    campos: ['nivelDeExperiencia', 'postaNaPropriaConta', 'tipoDeConteudo', 'quantidade']
   },
   {
     id: 'grupo_uso',
     titulo: 'Como a marca vai usar',
-    campos: ['usoComoAnuncio', 'usoPerpetuo', 'exclusividade', 'footageBruto']
+    campos: ['usoComoAnuncio', 'usoPerpetuo', 'exclusividade', 'duracaoExclusividade', 'footageBruto']
   },
   {
     id: 'grupo_producao',
-    titulo: 'Você e a produção',
-    campos: ['seguidores', 'gravacaoPresencial', 'viaPlataforma']
+    titulo: 'Publicação e origem',
+    campos: ['seguidores', 'viaPlataforma']
   }
 ];
 
 const respostasPadrao = () => ({
+  nivelDeExperiencia: null,
   postaNaPropriaConta: null,
   tipoDeConteudo: null,
   quantidade: PRICING_CONFIG.quantidade.padrao,
   usoComoAnuncio: null,
   usoPerpetuo: null,
-  seguidores: { instagram: null, tiktok: null },
+  redeDePostagem: PRICING_CONFIG.modificadores.postarNaPropriaConta.redePadrao,
+  seguidores: null,
   exclusividade: null,
+  duracaoExclusividade: null,
   footageBruto: null,
-  gravacaoPresencial: null,
   viaPlataforma: null
 });
 
@@ -145,10 +165,22 @@ const respostasPadrao = () => ({
 const normalizarRespostas = (respostas) => {
   const base = respostasPadrao();
   if (!respostas || typeof respostas !== 'object') return base;
-  const seguidores = respostas.seguidores && typeof respostas.seguidores === 'object'
-    ? { instagram: respostas.seguidores.instagram ?? null, tiktok: respostas.seguidores.tiktok ?? null }
-    : base.seguidores;
-  return { ...base, ...respostas, seguidores };
+
+  // Respostas salvas antes da mudança guardavam seguidores por rede. Converte
+  // para o formato atual usando a rede com mais seguidores como a escolhida.
+  let { seguidores, redeDePostagem } = respostas;
+  if (seguidores && typeof seguidores === 'object') {
+    const instagram = Number(seguidores.instagram) || 0;
+    const tiktok = Number(seguidores.tiktok) || 0;
+    redeDePostagem = redeDePostagem || (tiktok > instagram ? 'tiktok' : 'instagram');
+    seguidores = redeDePostagem === 'tiktok' ? tiktok : instagram;
+  }
+  return {
+    ...base,
+    ...respostas,
+    seguidores: seguidores ?? base.seguidores,
+    redeDePostagem: redeDePostagem || base.redeDePostagem
+  };
 };
 
 const cardsVisiveis = (respostas) => CARDS.filter((card) => !card.condicao || card.condicao(respostas));
@@ -165,10 +197,7 @@ const cardPorId = (id) => CARDS.find((card) => card.id === id) || null;
 const perguntaRespondida = (card, respostas) => {
   if (!card) return true;
   if (card.tipo === 'numero') return Number(respostas.quantidade) >= PRICING_CONFIG.quantidade.minimo;
-  if (card.tipo === 'seguidores') {
-    const { instagram, tiktok } = respostas.seguidores || {};
-    return Number.isFinite(Number(instagram)) || Number.isFinite(Number(tiktok));
-  }
+  if (card.tipo === 'seguidores') return Number.isFinite(Number(respostas.seguidores));
   return respostas[card.id] !== null && respostas[card.id] !== undefined;
 };
 
@@ -274,30 +303,40 @@ const renderNumero = (card, respostas, indice, total) => `
   </div>
 `;
 
-const renderSeguidores = (card, respostas, indice, total) => {
-  const instagram = Number.isFinite(Number(respostas.seguidores?.instagram)) ? respostas.seguidores.instagram : '';
-  const tiktok = Number.isFinite(Number(respostas.seguidores?.tiktok)) ? respostas.seguidores.tiktok : '';
+/** Botões de rede + campo de seguidores dessa rede, compartilhado pelos modos. */
+const camposDeSeguidores = (respostas, acaoDaRede) => {
+  const redes = PRICING_CONFIG.modificadores.postarNaPropriaConta.redes;
+  const escolhida = respostas.redeDePostagem || PRICING_CONFIG.modificadores.postarNaPropriaConta.redePadrao;
+  const quantos = Number.isFinite(Number(respostas.seguidores)) ? respostas.seguidores : '';
+
+  const botoes = Object.entries(redes).map(([chave, definicao]) => `
+    <button class="quiz-option${chave === escolhida ? ' is-selected' : ''}" type="button"
+            data-pricing-action="${acaoDaRede}" data-field="redeDePostagem" data-value="${chave}">
+      ${definicao.label}
+    </button>
+  `).join('');
+
   return `
-    <div class="quiz-card pricing-card">
-      ${renderVoltar()}
-      ${renderProgresso(indice, total)}
-      <h2 class="quiz-title pricing-question">${card.pergunta}</h2>
-      <div class="pricing-field pricing-field--split">
-        <label class="pricing-label">
-          <span>Instagram</span>
-          <input class="input pricing-input" type="number" inputmode="numeric" min="0" step="1"
-                 data-pricing-input="seguidores.instagram" value="${instagram}" placeholder="0" />
-        </label>
-        <label class="pricing-label">
-          <span>TikTok</span>
-          <input class="input pricing-input" type="number" inputmode="numeric" min="0" step="1"
-                 data-pricing-input="seguidores.tiktok" value="${tiktok}" placeholder="0" />
-        </label>
-      </div>
-      <button class="btn btn-primary quiz-cta" data-pricing-action="avancar" type="button">Continuar</button>
+    <div class="quiz-options pricing-options pricing-redes">${botoes}</div>
+    <div class="pricing-field">
+      <label class="pricing-label">
+        <span>Seguidores no ${redes[escolhida].label}</span>
+        <input class="input pricing-input" type="number" inputmode="numeric" min="0" step="1"
+               data-pricing-input="seguidores" value="${quantos}" placeholder="0" />
+      </label>
     </div>
   `;
 };
+
+const renderSeguidores = (card, respostas, indice, total) => `
+  <div class="quiz-card pricing-card">
+    ${renderVoltar()}
+    ${renderProgresso(indice, total)}
+    <h2 class="quiz-title pricing-question">${card.pergunta}</h2>
+    ${camposDeSeguidores(respostas, 'marcar')}
+    <button class="btn btn-primary quiz-cta" data-pricing-action="avancar" type="button">Continuar</button>
+  </div>
+`;
 
 /* ── modo agrupado ──────────────────────────────────────────── */
 
@@ -327,23 +366,10 @@ const renderPerguntaNoGrupo = (card, respostas) => {
   }
 
   if (card.tipo === 'seguidores') {
-    const instagram = Number.isFinite(Number(respostas.seguidores?.instagram)) ? respostas.seguidores.instagram : '';
-    const tiktok = Number.isFinite(Number(respostas.seguidores?.tiktok)) ? respostas.seguidores.tiktok : '';
     return `
       <div class="pricing-group-field">
         <p class="pricing-group-question">${card.pergunta}</p>
-        <div class="pricing-field pricing-field--split">
-          <label class="pricing-label">
-            <span>Instagram</span>
-            <input class="input pricing-input" type="number" inputmode="numeric" min="0" step="1"
-                   data-pricing-input="seguidores.instagram" value="${instagram}" placeholder="0" />
-          </label>
-          <label class="pricing-label">
-            <span>TikTok</span>
-            <input class="input pricing-input" type="number" inputmode="numeric" min="0" step="1"
-                   data-pricing-input="seguidores.tiktok" value="${tiktok}" placeholder="0" />
-          </label>
-        </div>
+        ${camposDeSeguidores(respostas, 'marcar')}
       </div>
     `;
   }
@@ -522,9 +548,17 @@ const montarPrecificador = ({
           : Math.max(PRICING_CONFIG.quantidade.minimo, Math.min(PRICING_CONFIG.quantidade.maximo, valor));
         return;
       }
-      if (campo === 'seguidores.instagram') respostas.seguidores.instagram = valor;
-      if (campo === 'seguidores.tiktok') respostas.seguidores.tiktok = valor;
+      if (campo === 'seguidores') respostas.seguidores = valor;
     });
+  };
+
+  /** Perguntas que a tela atual está mostrando agora. */
+  const idsDasPerguntasDaTela = () => {
+    const telas = telasAtuais();
+    const tela = telas[indiceDaTela(telas, cardAtual)];
+    if (!tela) return [];
+    if (tela.tipo === 'grupo') return tela.perguntas.map((card) => card.id);
+    return [tela.id];
   };
 
   /**
@@ -566,10 +600,34 @@ const montarPrecificador = ({
     // perguntas embaixo. Também não redesenha o card: só a opção clicada muda
     // de estado, senão o que já foi digitado pisca a cada clique.
     if (acao === 'marcar') {
-      guardarResposta(alvo.dataset.field, alvo.dataset.value);
-      alvo.closest('.pricing-group-field')?.querySelectorAll('[data-pricing-action="marcar"]').forEach((botao) => {
+      const campo = alvo.dataset.field;
+      const perguntasAntes = idsDasPerguntasDaTela();
+      guardarResposta(campo, alvo.dataset.value);
+
+      // Uma resposta pode abrir ou fechar outra pergunta do mesmo card, como a
+      // duração da exclusividade. Só nesse caso vale redesenhar: fora dele, o
+      // redesenho a cada clique deixava o card piscando.
+      if (idsDasPerguntasDaTela().join('|') !== perguntasAntes.join('|')) {
+        capturarCamposNumericos();
+        avisarMudanca();
+        render();
+        return;
+      }
+
+      // O escopo é a pergunta: no modo agrupado ela é um bloco do card, no modo
+      // uma-por-tela ela é o card inteiro.
+      const escopo = alvo.closest('.pricing-group-field') || alvo.closest('.quiz-card') || container;
+      escopo.querySelectorAll('[data-pricing-action="marcar"][data-field="' + campo + '"]').forEach((botao) => {
         botao.classList.toggle('is-selected', botao === alvo);
       });
+
+      // Trocar de rede troca o rótulo do campo de seguidores logo abaixo.
+      if (campo === 'redeDePostagem') {
+        const rotulo = escopo.querySelector('.pricing-label span');
+        const rede = PRICING_CONFIG.modificadores.postarNaPropriaConta.redes[alvo.dataset.value];
+        if (rotulo && rede) rotulo.textContent = `Seguidores no ${rede.label}`;
+      }
+
       atualizarBotaoDoGrupo();
       avisarMudanca();
       return;

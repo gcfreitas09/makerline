@@ -2,9 +2,9 @@ import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js?v=20260429d';
 import { setActivePage, showToast } from '../../core/ui.js?v=20260304b';
 import { trackEvent } from '../../core/gamification.js?v=20260302g';
-import { abrirFluxoDePrecificacao } from './pricing-flow.js?v=20260728k';
-import { abrirFluxoPrimeiraCampanha } from './first-campaign-flow.js?v=20260728k';
-import { abrirRegistroGuiado } from '../campaigns/register-flow.js?v=20260728k';
+import { abrirFluxoDePrecificacao } from './pricing-flow.js?v=20260728o';
+import { abrirFluxoPrimeiraCampanha } from './first-campaign-flow.js?v=20260728o';
+import { abrirRegistroGuiado } from '../campaigns/register-flow.js?v=20260728o';
 
 /* ── helpers ────────────────────────────────────────────────── */
 

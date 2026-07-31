@@ -34,8 +34,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Makerline" />
-  <link rel="stylesheet" href="assets/css/app2.css?v=20260728k" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=20260628b">
+  <link rel="stylesheet" href="assets/css/app2.css?v=20260728o" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=20260728o">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="assets/js2/core/customSelect.js?v=20260727c"></script>
 </head>
@@ -1383,6 +1383,25 @@
     <div class="pricing-stage" id="register-stage"></div>
   </div>
 
+  <!-- Confirmação ao marcar o micro "Escopo definido" -->
+  <div class="modal" id="scope-pricing-modal" aria-hidden="true">
+    <div class="modal-scrim" data-action="close-scope-pricing"></div>
+    <div class="modal-panel card scope-pricing-panel">
+      <div class="scope-pricing-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="2.5" />
+          <path d="M8 6h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M16 15v4M8 19h6" />
+        </svg>
+      </div>
+      <h3 class="scope-pricing-title">Já sabe formato, quantidade e condições dessa campanha?</h3>
+      <p class="scope-pricing-text">Vamos calcular o valor sugerido agora.</p>
+      <div class="scope-pricing-actions">
+        <button class="btn btn-primary" data-action="scope-pricing-calculate" type="button">Calcular preço</button>
+        <button class="btn btn-ghost" data-action="scope-pricing-skip" type="button">Marcar sem calcular agora</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Precificador de uma campanha (micro "Escopo definido") -->
   <div class="quiz-overlay pricing-overlay" id="campaign-pricing">
     <div class="quiz-backdrop"></div>
@@ -1550,7 +1569,7 @@
     </div>
   </div>
 
-  <script type="module" src="assets/js2/app.js?v=20260728k"></script>
+  <script type="module" src="assets/js2/app.js?v=20260728o"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {

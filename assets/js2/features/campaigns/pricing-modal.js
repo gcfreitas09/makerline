@@ -1,7 +1,7 @@
 import { state, saveState } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js?v=20260728k';
+import { renderAll } from '../../core/renderers.js?v=20260728o';
 import { showToast } from '../../core/ui.js?v=20260711a';
-import { montarPrecificador } from '../pricing/quiz.js?v=20260728k';
+import { montarPrecificador } from '../pricing/quiz.js?v=20260728o';
 
 /**
  * Precificador aberto de dentro de uma campanha, no micro "Escopo definido".

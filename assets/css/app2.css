@@ -5459,19 +5459,27 @@ body[data-theme="light"] .select {
   border-radius: 0 18px 18px 0;
 }
 
+/* Sem a coluna "Avançar", as seis restantes dividem a largura por proporção em
+   vez de pixel fixo: a tabela acompanha a janela sem estourar nem sobrar. */
 @media (min-width: 721px) {
-  .campaign-table th:nth-child(4),
-  .campaign-table td[data-label="Status"] {
-    width: 150px;
+  .campaign-table {
+    table-layout: fixed;
   }
 
-  .campaign-table th:nth-child(5),
+  .campaign-table th:nth-child(1) { width: 24%; }
+  .campaign-table th:nth-child(2) { width: 10%; }
+  .campaign-table th:nth-child(3) { width: 12%; }
+  .campaign-table th:nth-child(4) { width: 15%; }
+  .campaign-table th:nth-child(5) { width: 22%; }
+  .campaign-table th:nth-child(6) { width: 17%; }
+
+  .campaign-table td[data-label="Status"],
   .campaign-table td[data-label="Etapa"] {
-    width: 230px;
+    min-width: 0;
   }
 
   .campaign-table td[data-label="Marca"] {
-    max-width: 220px;
+    max-width: none;
   }
 
   .campaign-table td[data-label="Marca"] > div {
@@ -5511,7 +5519,7 @@ body[data-theme="light"] .select {
   text-overflow: ellipsis;
 }
 
-.campaign-table td[data-label="Avançar"],
+.campaign-table td[data-label="Ações"],
 .campaign-table th:nth-child(6) {
   white-space: normal;
 }
@@ -5701,14 +5709,6 @@ body[data-theme="light"] .select {
 
   .campaign-table td[data-label="Etapa"] {
     padding-left: 2px;
-  }
-
-  .campaign-table td[data-label="Avançar"] {
-    padding-top: 10px;
-  }
-
-  .campaign-table td[data-label="Avançar"]::before {
-    margin-bottom: 8px;
   }
 
   .campaign-table td[data-label="Ações"] {
@@ -11393,4 +11393,94 @@ body[data-theme="light"] .stage-action-badge {
 .pricing-group-field .pricing-input {
   font-size: 17px;
   padding: 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONFIRMAÇÃO AO MARCAR "ESCOPO DEFINIDO"
+   ═══════════════════════════════════════════════════════════════ */
+
+.scope-pricing-panel {
+  max-width: 420px;
+  text-align: center;
+  padding: 32px 28px 26px;
+}
+
+.scope-pricing-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  border: 1px solid rgba(115, 195, 183, 0.3);
+  background: rgba(115, 195, 183, 0.12);
+}
+
+.scope-pricing-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.scope-pricing-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.scope-pricing-text {
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.scope-pricing-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.scope-pricing-actions .btn {
+  width: 100%;
+}
+
+body[data-theme="light"] .scope-pricing-icon {
+  background: rgba(115, 195, 183, 0.18);
+}
+
+/* Selo na linha da campanha: anuncia que a etapa atual tem ação pronta. */
+.stage-action-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(115, 195, 183, 0.4);
+  background: rgba(115, 195, 183, 0.12);
+  color: var(--accent);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.stage-action-chip::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.stage-action-chip:hover {
+  background: rgba(115, 195, 183, 0.22);
+  border-color: var(--accent);
+}
+
+body[data-theme="light"] .stage-action-chip {
+  background: rgba(115, 195, 183, 0.18);
 }
