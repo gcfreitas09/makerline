@@ -1,5 +1,5 @@
-import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728o';
-import { calcularPrecoCampanha, formatarReais } from '../../core/pricing/calculator.js?v=20260728o';
+import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728p';
+import { calcularPrecoCampanha, formatarReais } from '../../core/pricing/calculator.js?v=20260728p';
 
 /**
  * Precificador em cards: uma pergunta por tela.

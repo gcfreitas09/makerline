@@ -1,11 +1,11 @@
 import { state, saveState } from '../../core/state.js';
-import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728o';
-import { formatarReais } from '../../core/campaigns/messages.js?v=20260728o';
+import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728p';
+import { formatarReais } from '../../core/campaigns/messages.js?v=20260728p';
 import {
   duracaoDoCiclo,
   primeiraEntradaEm,
   quantidadeDeRegravacoes
-} from '../../core/campaigns/timeline.js?v=20260728o';
+} from '../../core/campaigns/timeline.js?v=20260728p';
 
 /**
  * Retrospectiva da campanha, aberta quando ela chega em "Pago".

@@ -1,7 +1,7 @@
 import { state, saveState } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js?v=20260429d';
 import { setActivePage } from '../../core/ui.js?v=20260304b';
-import { camposDeExemplo } from './first-campaign-example.js?v=20260728o';
+import { camposDeExemplo } from './first-campaign-example.js?v=20260728p';
 
 /**
  * Onboarding, ramo "ainda nao tenho campanha ativa".

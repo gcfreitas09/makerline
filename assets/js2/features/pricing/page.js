@@ -1,6 +1,6 @@
 import { state, saveState } from '../../core/state.js';
-import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728o';
-import { montarPrecificador } from './quiz.js?v=20260728o';
+import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728p';
+import { montarPrecificador } from './quiz.js?v=20260728p';
 
 /**
  * Precificador como secao propria do app: mesmas perguntas do onboarding, sem

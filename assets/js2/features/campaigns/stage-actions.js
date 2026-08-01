@@ -1,8 +1,8 @@
 import { state, saveState } from '../../core/state.js';
-import { getAcaoDoMicro, getCampaignStageLabel } from '../../core/campaigns/pipeline.js?v=20260728o';
-import { diasNaEtapaAtual, diasDeAtraso } from '../../core/campaigns/timeline.js?v=20260728o';
-import { gerarMensagem } from '../../core/campaigns/messages.js?v=20260728o';
-import { montarChecklistDeGravacao, rotuloDoTipoDeConteudo } from '../../core/campaigns/shooting-checklist.js?v=20260728o';
+import { getAcaoDoMicro, getCampaignStageLabel } from '../../core/campaigns/pipeline.js?v=20260728p';
+import { diasNaEtapaAtual, diasDeAtraso } from '../../core/campaigns/timeline.js?v=20260728p';
+import { gerarMensagem } from '../../core/campaigns/messages.js?v=20260728p';
+import { montarChecklistDeGravacao, rotuloDoTipoDeConteudo } from '../../core/campaigns/shooting-checklist.js?v=20260728p';
 
 /**
  * A acao real da etapa em que a campanha esta, exibida no detalhe da campanha.

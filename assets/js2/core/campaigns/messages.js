@@ -1,5 +1,5 @@
-import { MESSAGE_TEMPLATES, TRECHOS } from './message-templates.js?v=20260728o';
-import { diasDeAtraso, diasNaEtapaAtual } from './timeline.js?v=20260728o';
+import { MESSAGE_TEMPLATES, TRECHOS } from './message-templates.js?v=20260728p';
+import { diasDeAtraso, diasNaEtapaAtual } from './timeline.js?v=20260728p';
 
 /**
  * Monta as mensagens de cobranca a partir dos templates e dos dados reais da

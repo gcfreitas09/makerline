@@ -11,7 +11,7 @@ import {
   initCampaignForm,
   openCampaignModal,
   openCampaignPreview
-} from '../features/campaigns/modal.js?v=20260728o';
+} from '../features/campaigns/modal.js?v=20260728p';
 import {
   closeBrandModal,
   initBrandForm,
@@ -36,13 +36,13 @@ import {
 import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js?v=20260302f';
 import { openBillingCheckout, openBillingPortal } from '../features/settings/billing.js?v=20260628a';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260728o';
-import { handleFirstCampaignFlowAction } from '../features/onboarding/first-campaign-flow.js?v=20260728o';
-import { abrirRegistroGuiado, handleRegisterFlowAction, initRegisterFlow } from '../features/campaigns/register-flow.js?v=20260728o';
-import { renderStageAction, alternarItemDoChecklist } from '../features/campaigns/stage-actions.js?v=20260728o';
-import { abrirPrecificadorDaCampanha } from '../features/campaigns/pricing-modal.js?v=20260728o';
-import { abrirRetrospectiva, fecharRetrospectiva } from '../features/campaigns/retrospective.js?v=20260728o';
-import { registrarMudancaDeEtapa } from './campaigns/timeline.js?v=20260728o';
+import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260728p';
+import { handleFirstCampaignFlowAction } from '../features/onboarding/first-campaign-flow.js?v=20260728p';
+import { abrirRegistroGuiado, handleRegisterFlowAction, initRegisterFlow } from '../features/campaigns/register-flow.js?v=20260728p';
+import { renderStageAction, alternarItemDoChecklist } from '../features/campaigns/stage-actions.js?v=20260728p';
+import { abrirPrecificadorDaCampanha } from '../features/campaigns/pricing-modal.js?v=20260728p';
+import { abrirRetrospectiva, fecharRetrospectiva } from '../features/campaigns/retrospective.js?v=20260728p';
+import { registrarMudancaDeEtapa } from './campaigns/timeline.js?v=20260728p';
 
 /**
  * Cadastrar campanha e sempre em cards, uma pergunta por tela. O modal padrao

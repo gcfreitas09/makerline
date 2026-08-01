@@ -1,4 +1,4 @@
-import { PRICING_CONFIG } from '../pricing/config.js?v=20260728o';
+import { PRICING_CONFIG } from '../pricing/config.js?v=20260728p';
 
 /**
  * Checklist de gravacao montado a partir do que a campanha ja respondeu no

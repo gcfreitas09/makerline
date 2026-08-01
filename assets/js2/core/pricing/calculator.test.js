@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { calcularPrecoCampanha } from './calculator.js';
-import { PRICING_CONFIG } from './config.js?v=20260728o';
+import { PRICING_CONFIG } from './config.js?v=20260728p';
 
 /**
  * Respostas de uma criadora iniciante que so produz video, sem nenhum extra.
@@ -107,11 +107,11 @@ test('cenario novo: video intermediario com ads, exclusividade de 3 meses e uso 
     usoPerpetuo: true
   }));
 
-  // Minimo: 500 x1.3 = 650, x1.3 (3 meses) = 845, x2 (perpetuo) = 1690.
-  assert.equal(resultado.minimo, 1690);
-  // Ideal: 550 x1.5 = 825, x1.3 = 1072,5, x2 = 2145.
-  assert.equal(resultado.ideal, 2150);
-  assert.equal(resultado.justo, 1920);
+  // Minimo: 500 x1.3 = 650, x1.3 (3 meses) = 845, x1.5 (perpetuo) = 1267,5.
+  assert.equal(resultado.minimo, 1270);
+  // Ideal: 550 x1.5 = 825, x1.3 = 1072,5, x1.5 = 1608,75.
+  assert.equal(resultado.ideal, 1610);
+  assert.equal(resultado.justo, 1440);
 
   // A ordem da cadeia e o que garante esses numeros.
   assert.deepEqual(resultado.detalhamento.cadeia, ['anuncioPago', 'exclusividade', 'usoPerpetuo']);
@@ -126,10 +126,10 @@ test('a cadeia aplica cada modificador sobre o resultado do anterior, nao sobre 
     usoPerpetuo: true
   }));
 
-  // Em cadeia: 200 x1.3 x2 = 520. Se fosse soma de percentuais sobre a base,
-  // daria 200 x (1 + 0.3 + 1) = 460.
-  assert.equal(emCadeia.minimo, 520);
-  assert.notEqual(emCadeia.minimo, 460);
+  // Em cadeia: 200 x1.3 x1.5 = 390. Se fosse soma de percentuais sobre a base,
+  // daria 200 x (1 + 0.3 + 0.5) = 360.
+  assert.equal(emCadeia.minimo, 390);
+  assert.notEqual(emCadeia.minimo, 360);
 });
 
 test('exclusividade cobra 10% por mes de duracao', () => {
@@ -141,10 +141,11 @@ test('exclusividade cobra 10% por mes de duracao', () => {
   assert.equal(meses('mais_de_seis'), 440); // 200 x2.2, "mais de 6" conta 12 meses
 });
 
-test('uso perpetuo dobra o valor acumulado ate ele', () => {
+test('uso perpetuo acrescenta metade do valor acumulado ate ele', () => {
   const semPerpetuo = calcularPrecoCampanha(responder({ usoComoAnuncio: true }));
   const comPerpetuo = calcularPrecoCampanha(responder({ usoComoAnuncio: true, usoPerpetuo: true }));
-  assert.equal(comPerpetuo.minimo, semPerpetuo.minimo * 2);
+  assert.equal(comPerpetuo.minimo, semPerpetuo.minimo * 1.5);
+  assert.equal(PRICING_CONFIG.modificadores.usoPerpetuo.adicionalPercentual, 0.5);
 });
 
 /* ── seguidores ─────────────────────────────────────────────── */

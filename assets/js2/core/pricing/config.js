@@ -13,7 +13,7 @@
  *   1. valor base por peca, conforme nivel de experiencia e familia (video/foto)
  *   2. anuncio pago
  *   3. exclusividade, +10% por mes de duracao
- *   4. uso perpetuo, +100%
+ *   4. uso perpetuo, +50%
  *   5. postagem na propria conta, por faixa de seguidores da rede escolhida
  *   6. footage bruto, +30%
  *   7. multiplica pela quantidade e aplica o desconto de pacote sobre o total
@@ -158,10 +158,10 @@ const PRICING_CONFIG = {
       adicionalPercentualPorMes: 0.1
     },
 
-    // VALIDADO: uso sem prazo dobra o valor acumulado ate aqui.
+    // VALIDADO: uso sem prazo acrescenta metade do valor acumulado ate aqui.
     usoPerpetuo: {
       label: 'Uso perpétuo, sem prazo',
-      adicionalPercentual: 1
+      adicionalPercentual: 0.5
     },
 
     // VALIDADO: material bruto sem edicao custa 30% a mais sobre a entrega.

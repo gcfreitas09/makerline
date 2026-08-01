@@ -17,8 +17,8 @@ import {
   badgeCatalog,
   getBadgeById
 } from './state.js';
-import { CAMPAIGN_PIPELINE, getAtalhoDaEtapa, getLabelComMarcador } from './campaigns/pipeline.js?v=20260728o';
-import { renderPricingPage } from '../features/pricing/page.js?v=20260728o';
+import { CAMPAIGN_PIPELINE, getAtalhoDaEtapa, getLabelComMarcador } from './campaigns/pipeline.js?v=20260728p';
+import { renderPricingPage } from '../features/pricing/page.js?v=20260728p';
 import { setScriptOutput } from './ui.js';
 import { getBillingNotice, getBillingSnapshot } from '../features/settings/billing.js?v=20260628a';
 

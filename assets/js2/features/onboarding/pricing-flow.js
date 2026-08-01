@@ -1,9 +1,9 @@
 import { state, saveState } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js?v=20260429d';
 import { setActivePage } from '../../core/ui.js?v=20260304b';
-import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728o';
-import { montarPrecificador, respostasPadrao } from '../pricing/quiz.js?v=20260728o';
-import { abrirRegistroGuiado } from '../campaigns/register-flow.js?v=20260728o';
+import { PRICING_CONFIG } from '../../core/pricing/config.js?v=20260728p';
+import { montarPrecificador, respostasPadrao } from '../pricing/quiz.js?v=20260728p';
+import { abrirRegistroGuiado } from '../campaigns/register-flow.js?v=20260728p';
 
 /**
  * Onboarding, ramo "tenho campanha ativa": o precificador aparece no overlay do

@@ -1,4 +1,4 @@
-import { PRICING_CONFIG } from './config.js?v=20260728o';
+import { PRICING_CONFIG } from './config.js?v=20260728p';
 
 /**
  * Calculo de preco de campanha UGC.
@@ -170,7 +170,7 @@ const calcularPrecoCampanha = (respostas = {}, config = PRICING_CONFIG) => {
     });
   }
 
-  // 4. Uso perpetuo: dobra o que veio acumulado ate aqui.
+  // 4. Uso perpetuo: acrescenta metade do que veio acumulado ate aqui.
   if (respostas.usoPerpetuo && negociacaoValida('usoPerpetuo')) {
     const percentual = mods.usoPerpetuo.adicionalPercentual;
     elos.usoPerpetuo = { minimo: percentual, ideal: percentual };
