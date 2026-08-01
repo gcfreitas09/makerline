@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------------
+# Credenciais e dados de runtime.
+#
+# Nada em storage/ pode ser versionado: é aqui que ficam a service_role key do
+# Supabase, a senha do SMTP, as contas dos usuários (com hash de senha e token
+# de sessão) e o progresso de cada creator. Esses arquivos vivem só no
+# servidor.
+#
+# Os .example.json continuam versionados: são o modelo, sem segredo nenhum.
+# Quem for montar o ambiente copia o .example e preenche.
+# ---------------------------------------------------------------------------
+storage/*.json
+!storage/*.example.json
+
+storage/backups/
+storage/market/
+
+# states/ usa /* em vez de / porque o git não consegue re-incluir um arquivo
+# dentro de um diretório já excluído — sem isso o .gitkeep abaixo seria
+# ignorado junto e a pasta sumiria do repo.
+storage/states/*
+!storage/states/.gitkeep
+
+# db.json não existe hoje (o projeto está no Supabase), mas é o mesmo caso.
+storage/db.json
+
+# ---------------------------------------------------------------------------
+# Logs
+# ---------------------------------------------------------------------------
+api/error_log
+*.log
+
+# ---------------------------------------------------------------------------
+# Sistema operacional / editor
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
