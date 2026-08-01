@@ -1,4 +1,4 @@
-﻿import {
+import {
   state,
   statusLabels,
   campaignStatusOrder,
@@ -9,12 +9,35 @@
   typeLabels,
   statusDot,
   brandStatuses,
+  prospectionContactTypes,
+  prospectionStatuses,
+  prospectionStatusOptions,
   formatCurrency,
   formatPercent,
   badgeCatalog,
   getBadgeById
 } from './state.js';
+import { CAMPAIGN_PIPELINE, getAtalhoDaEtapa, getLabelComMarcador } from './campaigns/pipeline.js?v=20260728p';
+import { renderPricingPage } from '../features/pricing/page.js?v=20260728p';
 import { setScriptOutput } from './ui.js';
+import { getBillingNotice, getBillingSnapshot } from '../features/settings/billing.js?v=20260628a';
+
+const plur = (n, singular, plural) => `${n} ${n === 1 ? singular : plural}`;
+const escapeHtml = (value) =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+const getBillingPlanDisplayName = (billing = {}) => {
+  const plan = String(billing.plan || '').trim();
+  if (plan === 'internal') return 'Acesso interno';
+  if (plan === 'annual') return 'Plano anual';
+  if (plan === 'monthly') return 'Plano mensal';
+  return 'Teste grátis';
+};
 
 const ICONS = {
   radar: `
@@ -77,9 +100,11 @@ let metricsMonthlyChart = null;
 const renderProfile = () => {
   const greetings = document.querySelectorAll('[data-greeting]');
   const profileName = document.querySelectorAll('[data-profile-name]');
+  const profilePlan = document.querySelectorAll('[data-profile-plan]');
   const profileAvatar = document.querySelectorAll('[data-profile-avatar]');
   const profileMiniAvatar = document.querySelectorAll('[data-profile-mini-avatar]');
   const dashboardNarrative = document.querySelectorAll('[data-dashboard-narrative]');
+  const billing = getBillingSnapshot();
 
   const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
   const brands = Array.isArray(state.brands) ? state.brands : [];
@@ -91,27 +116,33 @@ const renderProfile = () => {
   const hour = now.getHours();
   const greeting = hour >= 5 && hour < 12 ? 'Bom dia' : hour >= 12 && hour < 18 ? 'Boa tarde' : 'Boa noite';
   const sessionName = typeof sessionStorage !== 'undefined' ? String(sessionStorage.getItem('ugcQuestUserName') || '').trim() : '';
-  const persistedName = String(state.profile?.name || '').trim();
+  const persistedName = String(state.profile.name || '').trim();
   const safeName = persistedName && persistedName.toLowerCase() !== 'criador' ? persistedName : (sessionName || 'Criador');
   const firstLetter = safeName.charAt(0).toUpperCase() || 'C';
+  const computedPlanText = getBillingPlanDisplayName(billing);
+  const currentPlanText = String(profilePlan[0]?.textContent || '').trim();
+  const planText = billing.loading && !billing.loaded && billing.plan === 'free'
+    ? (currentPlanText && currentPlanText !== 'Teste grátis' ? currentPlanText : 'Plano')
+    : computedPlanText;
   let narrative = '';
 
   if (!brands.length && !campaigns.length) {
-    narrative = 'Comece cadastrando uma marca ou campanha para organizar sua operação.';
+    narrative = 'Comece com uma marca ou campanha para colocar seu fluxo em movimento.';
   } else if (!brands.length) {
-    narrative = 'Cadastre suas marcas para centralizar follow-ups, histórico e campanhas.';
+    narrative = 'Cadastre suas marcas para ligar campanhas, follow-ups e histórico em um fluxo só.';
   } else if (!campaigns.length) {
-    narrative = 'Crie sua próxima campanha para alimentar o pipeline e o financeiro.';
+    narrative = 'Crie sua próxima campanha para dar contexto real ao seu dashboard.';
   } else if (overdue > 0) {
-    narrative = `${overdue} campanha(s) com prazo vencido pedem atenção hoje.`;
+    narrative = `${plur(overdue, 'campanha está', 'campanhas estão')} com prazo estourado e ${overdue === 1 ? 'merece' : 'merecem'} seu próximo movimento.`;
   } else if (pendingPayments > 0) {
-    narrative = `${pendingPayments} campanha(s) aguardam pagamento e impactam o fechamento do mês.`;
+    narrative = `${pendingPayments} recebimento(s) estão no radar e podem destravar seu mês.`;
   } else {
-    narrative = 'Seu dashboard está em dia. Use os blocos abaixo para mover a operação.';
+    narrative = 'Hoje está redondo. Use o painel para mover o que importa sem perder contexto.';
   }
 
   greetings.forEach((el) => (el.textContent = greeting));
   profileName.forEach((el) => (el.textContent = safeName));
+  profilePlan.forEach((el) => (el.textContent = planText));
   profileAvatar.forEach((el) => (el.textContent = firstLetter));
   profileMiniAvatar.forEach((el) => (el.textContent = firstLetter));
   dashboardNarrative.forEach((el) => (el.textContent = narrative));
@@ -121,9 +152,9 @@ const renderMissions = () => {
   const container = document.querySelector('[data-missions]');
   if (!container) return;
 
-  const onboarding = state.progress?.onboarding && typeof state.progress.onboarding === 'object' ? state.progress.onboarding : null;
+  const onboarding = state.progress.onboarding && typeof state.progress.onboarding === 'object' ? state.progress.onboarding : null;
   const welcomeCard =
-    onboarding?.welcomeAwarded === true
+    onboarding.welcomeAwarded === true
       ? `
         <div class="card mission-card mission-card--welcome">
           <div class="badge">boas-vindas</div>
@@ -135,16 +166,16 @@ const renderMissions = () => {
             <div class="progress-fill" style="width: 100%"></div>
           </div>
           <div class="mission-footer">
-            <span class="chip">+${onboarding?.welcomeXp ?? 30} XP</span>
+            <span class="chip">+${onboarding.welcomeXp ?? 30} XP</span>
             <span class="muted">Feito</span>
           </div>
         </div>
       `
       : '';
 
-  const tourDone = onboarding?.tourRewardGranted === true;
+  const tourDone = onboarding.tourRewardGranted === true;
   const tourCard =
-    onboarding?.welcomeAwarded === true
+    onboarding.welcomeAwarded === true
       ? `
         <div class="card mission-card mission-card--welcome">
           <div class="badge">boas-vindas</div>
@@ -156,7 +187,7 @@ const renderMissions = () => {
             <div class="progress-fill" style="width: ${tourDone ? 100 : 0}%"></div>
           </div>
           <div class="mission-footer">
-            <span class="chip">+${onboarding?.tourXp ?? 30} XP</span>
+            <span class="chip">+${onboarding.tourXp ?? 30} XP</span>
             <span class="muted">${tourDone ? 'Feito' : 'Automático'}</span>
           </div>
         </div>
@@ -218,26 +249,23 @@ const renderChallenges = () => {
     .join('');
 };
 
-/* ════════════════════════════════════════════
+/* --------------------------------------------
    DASHBOARD – Ações, Financeiro, Pipeline e Meta
-   ════════════════════════════════════════════ */
+   -------------------------------------------- */
 
+// As macro-etapas vem de core/campaigns/pipeline.js: aqui so entra o texto que
+// e proprio do dashboard, e os recortes que nao sao uma macro-etapa inteira.
 const dashboardFilterMeta = {
-  prospeccao: { label: 'Campanhas em prospecção' },
-  producao: { label: 'Campanhas em produção' },
-  finalizacao: { label: 'Campanhas em finalização' },
+  ...CAMPAIGN_PIPELINE.reduce((acc, macro) => {
+    acc[macro.id] = { label: `Campanhas em ${macro.label.toLowerCase()}` };
+    return acc;
+  }, {}),
   concluida: { label: 'Campanhas concluídas' },
-  negociacao: { label: 'Campanhas em negociação' },
   aprovacao: { label: 'Aguardando aprovação' },
   concluidas: { label: 'Campanhas concluídas' }
 };
 
-const dashboardPipelineStages = [
-  { key: 'prospeccao', label: 'Prospecção' },
-  { key: 'producao', label: 'Produção' },
-  { key: 'finalizacao', label: 'Finalização' },
-  { key: 'concluida', label: 'Concluído' }
-];
+const dashboardPipelineStages = CAMPAIGN_PIPELINE.map((macro) => ({ key: macro.id, label: macro.label }));
 
 const formatDateFullBR = (value) => {
   const safe = String(value || '').trim();
@@ -250,18 +278,12 @@ const formatDateFullBR = (value) => {
 const matchesDashboardCampaignFilter = (campaign, key) => {
   if (!key) return true;
   if (!campaign || campaign.archived) return false;
+  // Uma macro-etapa filtra por status; os recortes abaixo são atalhos que
+  // cruzam etapas diferentes.
+  if (campaignStatusOrder.includes(key)) return campaign.status === key;
   switch (key) {
-    case 'prospeccao':
-      return campaign.status === 'prospeccao';
-    case 'producao':
-      return campaign.status === 'producao';
-    case 'finalizacao':
-      return campaign.status === 'finalizacao';
-    case 'concluida':
     case 'concluidas':
       return campaign.status === 'concluida';
-    case 'negociacao':
-      return campaign.status === 'prospeccao' && campaign.stage === 'negociacao';
     case 'aprovacao':
       return ['aguardando_aprovacao_roteiro', 'aguardando_aprovacao_conteudo'].includes(campaign.stage);
     default:
@@ -298,7 +320,7 @@ const getDashboardPipelineDetailHtml = (pipelineStage) => {
         ${
           pipelineStage.items.length
             ? pipelineStage.items
-                .map((item) => `
+              .map((item) => `
                   <article class="dashboard-pipeline-panel-item">
                     <div class="dashboard-pipeline-panel-main">
                       <strong>${escapeHtml(item.title)}</strong>
@@ -306,7 +328,8 @@ const getDashboardPipelineDetailHtml = (pipelineStage) => {
                     </div>
                     <div class="dashboard-pipeline-panel-meta">
                       <span>${escapeHtml(item.stageLabel)}</span>
-                      <strong>${escapeHtml(formatDateFullBR(item.dueDate))}</strong>
+                      <span>${item.dueDate ? `Prazo ${escapeHtml(formatDateFullBR(item.dueDate))}` : 'Sem prazo definido'}</span>
+                      <strong>${formatCurrency(item.value)}</strong>
                     </div>
                   </article>
                 `)
@@ -322,7 +345,7 @@ const getMetricsStatusDetailHtml = (statusBucket) => {
   if (!statusBucket) {
     return `
       <div class="metrics-status-panel metrics-status-panel--empty">
-        <p class="muted">Clique em um status para ver as campanhas.</p>
+        <p class="muted">Escolha uma etapa para ver os detalhes.</p>
       </div>
     `;
   }
@@ -331,9 +354,34 @@ const getMetricsStatusDetailHtml = (statusBucket) => {
     <div class="metrics-status-panel">
       <div class="metrics-status-panel-head">
         <div>
-          <p class="metrics-status-panel-overline">${statusBucket.count} campanha${statusBucket.count === 1 ? '' : 's'} nessa fase</p>
+          <p class="metrics-status-panel-overline">${statusBucket.count} campanha${statusBucket.count === 1 ? '' : 's'} nessa etapa</p>
           <h4 class="metrics-status-panel-title">${escapeHtml(statusBucket.label)}</h4>
         </div>
+        <span class="metrics-status-pill ${statusBucket.isBottleneck ? 'metrics-status-pill--alert' : ''}">
+          ${statusBucket.isBottleneck ? 'Ponto de atenção' : 'Resumo'}
+        </span>
+      </div>
+      <div class="metrics-status-panel-summary">
+        <article class="metrics-status-summary-card">
+          <span>Volume</span>
+          <strong>${statusBucket.count} campanha${statusBucket.count === 1 ? '' : 's'}</strong>
+        </article>
+        <article class="metrics-status-summary-card">
+          <span>Tempo médio nessa etapa</span>
+          <strong>${statusBucket.avgStageDays === null ? '—' : `${statusBucket.avgStageDays} dias`}</strong>
+        </article>
+        <article class="metrics-status-summary-card">
+          <span>Parte do total</span>
+          <strong>${statusBucket.share}%</strong>
+        </article>
+        <article class="metrics-status-summary-card">
+          <span>Prazos próximos</span>
+          <strong>${plur(statusBucket.dueSoonCount, 'campanha', 'campanhas')}</strong>
+        </article>
+      </div>
+      <div class="metrics-status-panel-insight">
+        <strong>O que isso mostra</strong>
+        <p>${escapeHtml(statusBucket.insight)}</p>
       </div>
       <button class="btn btn-ghost dashboard-campaigns-btn metrics-status-panel-link" data-action="open-metrics-campaigns" data-metrics-status="${statusBucket.key}" type="button">
         Ver na aba campanhas
@@ -342,16 +390,16 @@ const getMetricsStatusDetailHtml = (statusBucket) => {
         ${
           statusBucket.items.length
             ? statusBucket.items
-                .map((item) => `
+              .map((item) => `
                   <article class="metrics-status-item">
                     <div class="metrics-status-item-main">
                       <strong>${escapeHtml(item.title)}</strong>
                       <span>${escapeHtml(item.brand)}</span>
                     </div>
                     <div class="metrics-status-item-meta">
-                      <span>${escapeHtml(item.stageLabel)}</span>
-                      <strong>${item.dueDate ? escapeHtml(formatDateFullBR(item.dueDate)) : 'Sem prazo'}</strong>
-                      <span>${formatCurrency(item.value)}</span>
+                      <span>${item.stageAgeDays === null ? 'Sem atualização recente' : `${plur(item.stageAgeDays, 'dia', 'dias')} nessa etapa`}</span>
+                      <strong>${item.dueDate ? escapeHtml(formatDateFullBR(item.dueDate)) : 'Sem prazo definido'}</strong>
+                      <span>${escapeHtml(item.nextActionLabel)}</span>
                     </div>
                   </article>
                 `)
@@ -364,7 +412,8 @@ const getMetricsStatusDetailHtml = (statusBucket) => {
 };
 
 const computeDashboardFinance = () => {
-  const campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
+  const campaigns = (Array.isArray(state.campaigns) ? state.campaigns : [])
+    .filter((campaign) => campaign && campaign.isModel !== true);
   const brands = Array.isArray(state.brands) ? state.brands : [];
   const now = new Date();
   const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
@@ -385,7 +434,7 @@ const computeDashboardFinance = () => {
     return Math.floor((date.getTime() - today.getTime()) / 86400000);
   };
 
-  const sumValues = (items) => items.reduce((total, item) => total + (Number(item?.value) || 0), 0);
+  const sumValues = (items) => items.reduce((total, item) => total + (Number(item.value) || 0), 0);
 
   const isCurrentMonthDay = (value) => {
     const date = parseDay(value);
@@ -499,17 +548,18 @@ const computeDashboardFinance = () => {
       .filter((campaign) => matchesDashboardCampaignFilter(campaign, stage.key))
       .slice()
       .sort((a, b) => {
-        const dueA = String(a?.dueDate || '9999-12-31');
-        const dueB = String(b?.dueDate || '9999-12-31');
+        const dueA = String(a.dueDate || '9999-12-31');
+        const dueB = String(b.dueDate || '9999-12-31');
         if (dueA !== dueB) return dueA.localeCompare(dueB);
-        return (Number(b?.value) || 0) - (Number(a?.value) || 0);
+        return (Number(b.value) || 0) - (Number(a.value) || 0);
       })
       .map((campaign) => ({
         id: campaign.id,
         title: campaign.title || campaign.brand || 'Campanha',
         brand: campaign.brand || 'Sem marca',
         stageLabel: getCampaignStageLabel(campaign.status, campaign.stage) || statusLabels[campaign.status] || 'Etapa não definida',
-        dueDate: campaign.dueDate || ''
+        dueDate: campaign.dueDate || '',
+        value: Number(campaign.value) || 0
       }));
 
     return {
@@ -527,7 +577,7 @@ const computeDashboardFinance = () => {
     financeiro,
     pipeline,
     meta: {
-      metaMensal: Number(state.settings?.monthlyGoal) || 0,
+      metaMensal: Number(state.settings.monthlyGoal) || 0,
       receitaConfirmada: financeiro.recebidoNoMes,
       receitaPrevista: sumValues(scheduledThisMonth)
     }
@@ -541,11 +591,15 @@ const renderDashboardFinancials = () => {
   const pipelineModalBody = document.querySelector('[data-dashboard-pipeline-modal-body]');
   const pipelineModalTitle = document.querySelector('[data-dashboard-pipeline-modal-title]');
   const pipelineModalSubtitle = document.querySelector('[data-dashboard-pipeline-modal-subtitle]');
+  const priorityContainer = document.querySelector('[data-dashboard-priority]');
+  const momentumContainer = document.querySelector('[data-dashboard-momentum]');
   const goalContainer = document.querySelector('[data-dashboard-goal]');
-  const followupsContainer = document.querySelector('[data-dashboard-followups]');
-  const deadlinesContainer = document.querySelector('[data-dashboard-deadlines]');
-  const paymentsContainer = document.querySelector('[data-dashboard-payments]');
-  if (!pipelineContainer || !pipelineDetailContainer || !goalContainer || !followupsContainer || !deadlinesContainer || !paymentsContainer) return;
+  if (!pipelineContainer || !pipelineDetailContainer || !priorityContainer || !momentumContainer || !goalContainer) return;
+
+  document.querySelectorAll('[data-dashboard-deadlines], [data-dashboard-followups]').forEach((node) => {
+    const group = node.closest('.dashboard-action-group');
+    (group || node).remove();
+  });
 
   const d = computeDashboardFinance();
 
@@ -559,76 +613,184 @@ const renderDashboardFinancials = () => {
 
   const renderEmpty = (label) => `<p class="muted">${label}</p>`;
 
-  followupsContainer.innerHTML = d.followups.length
-    ? d.followups.map((item) => `
-        <article class="dashboard-item dashboard-item--followup">
-          <div class="dashboard-item-main">
-            <div class="dashboard-item-topline">
-              <div>
-                <strong>${escapeHtml(item.title)}</strong>
-                <div class="dashboard-item-sub">${escapeHtml(item.subtitle)}</div>
-              </div>
-              ${item.sortDays < 0 ? `<span class="dashboard-badge dashboard-badge--danger">Atrasado ${Math.abs(item.sortDays)} dia(s)</span>` : ''}
-            </div>
-            <div class="dashboard-item-meta">
-              <span>${escapeHtml(item.actionLabel)}</span>
-              <span>${escapeHtml(formatDateShort(item.date))}</span>
-            </div>
-            ${item.note ? `<p class="dashboard-item-note">${escapeHtml(item.note)}</p>` : ''}
-          </div>
-          <div class="dashboard-item-actions">
-            <button class="btn btn-ghost btn-small" data-action="${item.source === 'brand' ? 'edit-brand-action' : 'open-campaign'}" ${item.source === 'brand' ? `data-brand-id="${item.id}"` : `data-campaign-id="${item.id}"`} type="button">Editar</button>
-            <button class="btn btn-primary btn-small" data-action="complete-next-action" data-source="${item.source}" data-id="${item.id}" type="button">Marcar como feito</button>
-          </div>
-        </article>
-      `).join('')
-    : renderEmpty('Nenhum follow-up pendente.');
+  // A hero principal sempre aponta para o item real mais sensível do dia.
+  const createPriorityCandidates = () => {
+    const overdueDeadline = d.deadlines.find((item) => item.sortDays < 0);
+    if (overdueDeadline) {
+      return {
+        eyebrow: 'Sua prioridade agora',
+        title: overdueDeadline.title,
+        subtitle: overdueDeadline.brand,
+        badge: `Atrasada há ${plur(Math.abs(overdueDeadline.sortDays), 'dia', 'dias')}`,
+        meta: [overdueDeadline.statusLabel, `Prazo ${formatDateFullBR(overdueDeadline.dueDate)}`],
+        note: 'Essa entrega já passou do prazo e é a campanha que mais merece atenção agora.',
+        ctaLabel: 'Abrir campanha',
+        ctaAction: 'open-campaign',
+        campaignId: overdueDeadline.id,
+        tone: 'deadline'
+      };
+    }
 
-  deadlinesContainer.innerHTML = d.deadlines.length
-    ? d.deadlines.map((item) => `
-        <article class="dashboard-item">
-          <div class="dashboard-item-main">
-            <div class="dashboard-item-topline">
-              <div>
-                <strong>${escapeHtml(item.title)}</strong>
-                <div class="dashboard-item-sub">${escapeHtml(item.brand)}</div>
-              </div>
-              ${item.sortDays < 0 ? '<span class="dashboard-badge dashboard-badge--danger">Atrasada</span>' : ''}
-            </div>
-            <div class="dashboard-item-meta">
-              <span>${escapeHtml(formatDateShort(item.dueDate))}</span>
-              <span>${escapeHtml(item.statusLabel)}</span>
-            </div>
-          </div>
-          <div class="dashboard-item-actions">
-            <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${item.id}" type="button">Abrir campanha</button>
-          </div>
-        </article>
-      `).join('')
-    : renderEmpty('Nenhum prazo próximo.');
+    const overduePayment = d.payments.find((item) => item.overdue);
+    if (overduePayment) {
+      return {
+        eyebrow: 'Recebimento travado',
+        title: overduePayment.brand,
+        subtitle: overduePayment.title,
+        badge: 'Pagamento atrasado',
+        meta: [formatCurrency(overduePayment.value), overduePayment.paymentDate ? `Previsto para ${formatDateFullBR(overduePayment.paymentDate)}` : 'Sem data prevista'],
+        note: 'Esse valor já deveria ter entrado. Vale cobrar hoje para destravar o caixa do mês.',
+        ctaLabel: 'Abrir campanha',
+        ctaAction: 'open-campaign',
+        campaignId: overduePayment.id,
+        tone: 'payment'
+      };
+    }
 
-  paymentsContainer.innerHTML = d.payments.length
-    ? d.payments.map((item) => `
-        <article class="dashboard-item">
-          <div class="dashboard-item-main">
-            <div class="dashboard-item-topline">
+    const overdueFollowup = d.followups.find((item) => item.sortDays < 0);
+    if (overdueFollowup) {
+      return {
+        eyebrow: 'Conversa pedindo retorno',
+        title: overdueFollowup.title,
+        subtitle: overdueFollowup.subtitle || overdueFollowup.actionLabel,
+        badge: `Atrasado ${plur(Math.abs(overdueFollowup.sortDays), 'dia', 'dias')}`,
+        meta: [overdueFollowup.actionLabel, `Hoje seria ${formatDateFullBR(overdueFollowup.date)}`],
+        note: overdueFollowup.note || 'Esse contato está esfriando. Um toque agora já recoloca a campanha em movimento.',
+        ctaLabel: overdueFollowup.source === 'brand' ? 'Editar ação' : 'Abrir campanha',
+        ctaAction: overdueFollowup.source === 'brand' ? 'edit-brand-action' : 'open-campaign',
+        campaignId: overdueFollowup.source === 'campaign' ? overdueFollowup.id : '',
+        brandId: overdueFollowup.source === 'brand' ? overdueFollowup.id : '',
+        tone: 'followup'
+      };
+    }
+
+    const nextDeadline = d.deadlines[0];
+    if (nextDeadline) {
+      return {
+        eyebrow: 'Entrega no radar',
+        title: nextDeadline.title,
+        subtitle: nextDeadline.brand,
+        badge: nextDeadline.sortDays === 0 ? 'Entrega hoje' : `Entrega em ${plur(nextDeadline.sortDays, 'dia', 'dias')}`,
+        meta: [nextDeadline.statusLabel],
+        note: '',
+        ctaLabel: 'Abrir campanha',
+        ctaAction: 'open-campaign',
+        campaignId: nextDeadline.id,
+        tone: 'deadline'
+      };
+    }
+
+    const nextPayment = d.payments[0];
+    if (nextPayment) {
+      return {
+        eyebrow: 'Dinheiro no radar',
+        title: nextPayment.brand,
+        subtitle: nextPayment.title,
+        badge: nextPayment.statusLabel,
+        meta: [formatCurrency(nextPayment.value), nextPayment.paymentDate ? formatDateFullBR(nextPayment.paymentDate) : 'Sem data prevista'],
+        note: 'Esse recebimento ajuda a dar previsibilidade ao mês. Vale manter ele por perto.',
+        ctaLabel: 'Abrir campanha',
+        ctaAction: 'open-campaign',
+        campaignId: nextPayment.id,
+        tone: 'payment'
+      };
+    }
+
+    const nextFollowup = d.followups[0];
+    if (nextFollowup) {
+      return {
+        eyebrow: 'Próximo toque',
+        title: nextFollowup.title,
+        subtitle: nextFollowup.subtitle || nextFollowup.actionLabel,
+        badge: nextFollowup.sortDays === 0 ? 'Para hoje' : `Planejado para ${formatDateFullBR(nextFollowup.date)}`,
+        meta: [nextFollowup.actionLabel],
+        note: nextFollowup.note || 'Esse é o contato mais quente para você não perder timing hoje.',
+        ctaLabel: nextFollowup.source === 'brand' ? 'Editar ação' : 'Abrir campanha',
+        ctaAction: nextFollowup.source === 'brand' ? 'edit-brand-action' : 'open-campaign',
+        campaignId: nextFollowup.source === 'campaign' ? nextFollowup.id : '',
+        brandId: nextFollowup.source === 'brand' ? nextFollowup.id : '',
+        tone: 'followup'
+      };
+    }
+
+    return null;
+  };
+
+  const priority = createPriorityCandidates();
+  priorityContainer.innerHTML = priority
+    ? `
+        <article class="dashboard-priority-card dashboard-priority-card--${priority.tone}">
+          <div class="dashboard-priority-copy">
+            <span class="dashboard-priority-eyebrow">${escapeHtml(priority.eyebrow)}</span>
+            <div class="dashboard-priority-headline">
               <div>
-                <strong>${escapeHtml(item.brand)}</strong>
-                <div class="dashboard-item-sub">${escapeHtml(item.title)}</div>
+                <h3 class="dashboard-priority-title">${escapeHtml(priority.title)}</h3>
+                ${priority.subtitle ? `<p class="dashboard-priority-subtitle">${escapeHtml(priority.subtitle)}</p>` : ''}
               </div>
-              <span class="dashboard-badge ${item.overdue ? 'dashboard-badge--danger' : 'dashboard-badge--neutral'}">${item.statusLabel}</span>
             </div>
-            <div class="dashboard-item-meta">
-              <span>${formatCurrency(item.value)}</span>
-              <span>${escapeHtml(item.paymentDate ? formatDateShort(item.paymentDate) : 'Sem data prevista')}</span>
-            </div>
+            ${(priority.meta.length || priority.badge) ? `
+              <div class="dashboard-priority-tags">
+                ${priority.meta.length ? `
+                  <div class="dashboard-priority-meta">
+                    ${priority.meta.map((item) => `<span>${escapeHtml(item)}</span>`).join('')}
+                  </div>
+                ` : ''}
+                ${priority.badge ? `<span class="dashboard-badge dashboard-badge--priority">${escapeHtml(priority.badge)}</span>` : ''}
+              </div>
+            ` : ''}
           </div>
-          <div class="dashboard-item-actions">
-            <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${item.id}" type="button">Abrir campanha</button>
+          <div class="dashboard-priority-actions">
+            <button
+              class="btn btn-primary dashboard-priority-btn"
+              data-action="${priority.ctaAction}"
+              ${priority.campaignId ? `data-campaign-id="${priority.campaignId}"` : ''}
+              ${priority.brandId ? `data-brand-id="${priority.brandId}"` : ''}
+              type="button"
+            >
+              ${escapeHtml(priority.ctaLabel)}
+            </button>
           </div>
         </article>
-      `).join('')
-    : renderEmpty('Nenhum pagamento pendente.');
+      `
+    : '';
+
+  const firstFollowup = d.followups[0] || null;
+  const firstDeadline = d.deadlines[0] || null;
+  const firstPayment = d.payments[0] || null;
+
+  // Os cards rápidos contam a história do dia com itens reais, não só categorias.
+  momentumContainer.innerHTML = [
+    {
+      label: 'Próximo follow-up',
+      value: firstFollowup ? (firstFollowup.title || 'Follow-up') : 'Livre',
+      desc: firstFollowup
+        ? `${firstFollowup.actionLabel} · ${formatDateFullBR(firstFollowup.date)}`
+        : 'Nenhum follow-up pendente hoje.',
+      tone: 'followup'
+    },
+    {
+      label: 'Entrega mais próxima',
+      value: firstDeadline ? (firstDeadline.title || 'Campanha') : '',
+      desc: firstDeadline
+        ? `${formatDateFullBR(firstDeadline.dueDate)} · ${firstDeadline.brand}`
+        : 'Sem prazo apertado agora.',
+      tone: 'deadline'
+    },
+    {
+      label: 'Dinheiro no radar',
+      value: firstPayment ? formatCurrency(firstPayment.value) : 'Tudo ok',
+      desc: '',
+      tone: 'payment'
+    }
+  ]
+    .map((item) => `
+      <article class="dashboard-momentum-card dashboard-momentum-card--${item.tone}">
+        <span class="dashboard-momentum-label">${escapeHtml(item.label)}</span>
+        ${item.value ? `<strong class="dashboard-momentum-value">${escapeHtml(item.value)}</strong>` : ''}
+        ${item.desc ? `<p class="dashboard-momentum-desc">${escapeHtml(item.desc)}</p>` : ''}
+      </article>
+    `)
+    .join('');
 
   const activePipelineKey = d.pipeline.some((item) => item.key === state.ui.dashboardPipelineOpen)
     ? state.ui.dashboardPipelineOpen
@@ -643,13 +805,16 @@ const renderDashboardFinancials = () => {
       ${d.pipeline
         .map((item) => `
           <button
-            class="dashboard-pipeline-step ${item.key === activePipelineKey ? 'is-active' : ''}"
+            class="dashboard-pipeline-step dashboard-pipeline-step--${item.key} ${item.key === activePipelineKey ? 'is-active' : ''}"
             data-action="toggle-dashboard-pipeline-panel"
             data-pipeline-filter="${item.key}"
             type="button"
           >
             <span class="dashboard-pipeline-step-count">${item.count} campanha${item.count === 1 ? '' : 's'}</span>
             <span class="dashboard-pipeline-step-label">${item.label}</span>
+            <span class="dashboard-pipeline-step-preview">
+              ${item.items.length ? escapeHtml(item.items.slice(0, 2).map((entry) => entry.title).join(' · ')) : 'Sem campanha nessa fase agora'}
+            </span>
           </button>
         `)
         .join('')}
@@ -720,11 +885,13 @@ const computeFinancePageData = () => {
   const parseDay = (value) => {
     const safe = String(value || '').trim();
     if (!safe) return null;
-    const raw = safe.length > 10 ? safe : `${safe}T00:00:00Z`;
-    const date = new Date(raw);
+    const date = new Date(safe.length > 10 ? safe : `${safe}T00:00:00Z`);
     if (Number.isNaN(date.getTime())) return null;
-      return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-    };
+    if (safe.length > 10) {
+      return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    }
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  };
 
     const toDateKey = (value) => {
       const date = parseDay(value);
@@ -739,22 +906,17 @@ const computeFinancePageData = () => {
     return Math.floor((dateA.getTime() - dateB.getTime()) / 86400000);
   };
 
-  const isCurrentMonth = (value) => {
-    const date = parseDay(value);
-    return Boolean(date && date.getUTCMonth() === today.getUTCMonth() && date.getUTCFullYear() === today.getUTCFullYear());
-  };
-
   const getPaymentPercent = (campaign) => {
-    const raw = Number.isFinite(campaign?.paymentPercent)
+    const raw = Number.isFinite(campaign.paymentPercent)
       ? campaign.paymentPercent
-      : parseInt(String(campaign?.paymentPercent || ''), 10);
+      : parseInt(String(campaign.paymentPercent || ''), 10);
     return Number.isFinite(raw) ? Math.max(0, Math.min(100, Math.round(raw))) : 0;
   };
 
   const isReceivedCampaign = (campaign) =>
     getPaymentPercent(campaign) >= 100 ||
-    Boolean(String(campaign?.paymentReceivedAt || '').trim()) ||
-    campaign?.status === 'concluida';
+    Boolean(String(campaign.paymentReceivedAt || '').trim()) ||
+    campaign.status === 'concluida';
 
   const getFinanceStatus = (campaign) => {
     if (isReceivedCampaign(campaign)) return 'recebido';
@@ -783,19 +945,36 @@ const computeFinancePageData = () => {
     return 'R$ 0';
   };
 
+  const getScheduledLabel = (value) => {
+    const diff = diffDays(value);
+    if (diff === null) return 'Sem data definida';
+    if (diff === 0) return 'Vence hoje';
+    if (diff > 0) return `Vence em ${plur(diff, 'dia', 'dias')}`;
+    return `${plur(Math.abs(diff), 'dia', 'dias')} em atraso`;
+  };
+
+  const getLastUpdateLabel = (value) => {
+    const diff = diffDays(today, value);
+    if (!Number.isFinite(diff)) return 'Sem atualização recente';
+    if (diff === 0) return 'Atualizada hoje';
+    if (diff === 1) return 'Atualizada há 1 dia';
+    return `Atualizada há ${diff} dias`;
+  };
+
   const relevantCampaigns = campaigns
-      .filter(isRelevantFinanceCampaign)
-      .map((campaign) => {
-        const statusKey = getFinanceStatus(campaign);
-        const paymentDate = String(campaign.paymentDate || '').trim();
-        const paymentReceivedAt = String(campaign.paymentReceivedAt || '').trim();
-        const dueDate = String(campaign.dueDate || '').trim();
-        const movementDate = toDateKey(campaign.updatedAt || campaign.createdAt);
-        const createdAtDay = parseDay(campaign.createdAt);
-        const receivedAtDay = parseDay(paymentReceivedAt);
-        const delayFromDue = paymentDate
-          ? statusKey === 'recebido'
-            ? Math.max(0, diffDays(paymentReceivedAt, paymentDate) || 0)
+    .filter(isRelevantFinanceCampaign)
+    .map((campaign) => {
+      const statusKey = getFinanceStatus(campaign);
+      const paymentDate = String(campaign.paymentDate || '').trim();
+      const paymentReceivedAt = String(campaign.paymentReceivedAt || '').trim();
+      const dueDate = String(campaign.dueDate || '').trim();
+      const movementDate = toDateKey(campaign.updatedAt || campaign.createdAt);
+      const createdAtDay = parseDay(campaign.createdAt);
+      const receivedAtDay = parseDay(paymentReceivedAt);
+      const scheduledDate = paymentDate || dueDate || movementDate;
+      const delayFromDue = paymentDate
+        ? statusKey === 'recebido'
+          ? Math.max(0, diffDays(paymentReceivedAt, paymentDate) || 0)
           : Math.max(0, Math.abs(Math.min(diffDays(paymentDate) || 0, 0)))
         : 0;
 
@@ -805,28 +984,33 @@ const computeFinancePageData = () => {
         title: campaign.title || campaign.brand || 'Campanha',
         stageLabel: getCampaignStageLabel(campaign.status, campaign.stage) || statusLabels[campaign.status] || 'Sem etapa',
         statusKey,
-        statusLabel: financeStatusMeta[statusKey]?.label || 'A receber',
-        statusClassName: financeStatusMeta[statusKey]?.className || 'finance-payment-status--open',
-          value: Number(campaign.value) || 0,
-          valueLabel: getValueLabel(campaign),
-          paymentDate,
-          paymentReceivedAt,
-          dueDate,
-          paymentType: campaign.barter ? ((Number(campaign.value) || 0) > 0 ? 'Dinheiro + permuta' : 'Permuta') : 'Dinheiro',
-          paymentMethod: String(campaign.paymentMethod || '').trim() || 'Não informado',
-          filterDate:
-            statusKey === 'recebido'
-              ? paymentReceivedAt || paymentDate || movementDate || dueDate
-              : paymentDate || dueDate || movementDate,
+        statusLabel: financeStatusMeta[statusKey].label || 'A receber',
+        statusClassName: financeStatusMeta[statusKey].className || 'finance-payment-status--open',
+        value: Number(campaign.value) || 0,
+        valueLabel: getValueLabel(campaign),
+        paymentDate,
+        paymentReceivedAt,
+        dueDate,
+        scheduledDate,
+        scheduledLabel: getScheduledLabel(scheduledDate),
+        paymentType: campaign.barter ? ((Number(campaign.value) || 0) > 0 ? 'Dinheiro + permuta' : 'Permuta') : 'Dinheiro',
+        paymentMethod: String(campaign.paymentMethod || '').trim() || 'Não informado',
+        filterDate:
+          statusKey === 'recebido'
+            ? paymentReceivedAt || paymentDate || movementDate || dueDate
+            : scheduledDate,
         referenceDate:
           statusKey === 'recebido'
             ? paymentReceivedAt || paymentDate || movementDate || dueDate
-            : paymentDate || dueDate || movementDate,
-          daysOverdue: delayFromDue,
-          daysToReceive:
-            createdAtDay && receivedAtDay
-              ? Math.max(0, diffDays(receivedAtDay, createdAtDay) || 0)
-              : null
+            : scheduledDate,
+        lastUpdatedDate: movementDate,
+        lastUpdatedLabel: getLastUpdateLabel(movementDate),
+        nextActionLabel: getNextActionLabel(campaign.nextActionType, campaign.nextActionCustomType) || 'Sem próxima ação definida',
+        daysOverdue: delayFromDue,
+        daysToReceive:
+          createdAtDay && receivedAtDay
+            ? Math.max(0, diffDays(receivedAtDay, createdAtDay) || 0)
+            : null
       };
     });
 
@@ -854,81 +1038,96 @@ const computeFinancePageData = () => {
 
   const sumValues = (items) => items.reduce((sum, item) => sum + (Number(item.value) || 0), 0);
   const receivedAll = relevantCampaigns.filter((item) => item.statusKey === 'recebido');
-  const openAll = relevantCampaigns.filter((item) => item.statusKey === 'a_receber');
-  const overdueAll = relevantCampaigns.filter((item) => item.statusKey === 'atrasado');
   const receivedFiltered = filteredCampaigns.filter((item) => item.statusKey === 'recebido');
   const openFiltered = filteredCampaigns.filter((item) => item.statusKey === 'a_receber');
   const overdueFiltered = filteredCampaigns.filter((item) => item.statusKey === 'atrasado');
-  const receivedThisMonth = receivedAll.filter((item) => isCurrentMonth(item.paymentReceivedAt || item.filterDate));
 
   const flowUpcoming = (days) =>
     relevantCampaigns
-      .filter((item) => item.statusKey !== 'recebido' && item.paymentDate)
+      .filter((item) => item.statusKey !== 'recebido' && item.scheduledDate)
       .filter((item) => {
-        const diff = diffDays(item.paymentDate);
+        const diff = diffDays(item.scheduledDate);
         return diff !== null && diff >= 0 && diff <= days;
       });
 
   const indicatorsSource = filteredCampaigns;
   const receivedInWindow = indicatorsSource.filter((item) => item.statusKey === 'recebido');
-  const ticketMedio = receivedInWindow.length ? Math.round(sumValues(receivedInWindow) / receivedInWindow.length) : 0;
-
-  const recentMonths = [0, 1, 2].map((offset) => {
-    const monthDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - offset, 1));
-    return {
-      month: monthDate.getUTCMonth(),
-      year: monthDate.getUTCFullYear()
-    };
-  });
-
-  const monthlyAverage3 = recentMonths.length
-    ? Math.round(
-        recentMonths.reduce((sum, bucket) => {
-          const monthTotal = receivedAll
-            .filter((item) => {
-              const date = parseDay(item.paymentReceivedAt || item.filterDate);
-              return Boolean(date && date.getUTCMonth() === bucket.month && date.getUTCFullYear() === bucket.year);
-            })
-            .reduce((acc, item) => acc + (Number(item.value) || 0), 0);
-          return sum + monthTotal;
-        }, 0) / recentMonths.length
-      )
-    : 0;
-
-  const brandTotals = receivedInWindow.reduce((acc, item) => {
-    const key = item.brand || 'Sem marca';
-    acc[key] = (acc[key] || 0) + (Number(item.value) || 0);
-    return acc;
-  }, {});
-
-  const mostProfitableEntry = Object.entries(brandTotals).sort((a, b) => b[1] - a[1])[0] || null;
   const paidOnTimeCount = receivedInWindow.filter((item) => !item.paymentDate || item.daysOverdue === 0).length;
   const avgDaysToReceiveSource = receivedInWindow.filter((item) => Number.isFinite(item.daysToReceive));
   const avgDaysToReceive = avgDaysToReceiveSource.length
     ? Math.round(avgDaysToReceiveSource.reduce((sum, item) => sum + item.daysToReceive, 0) / avgDaysToReceiveSource.length)
     : null;
 
+  const next7Items = flowUpcoming(7);
+  const next15Items = flowUpcoming(15);
+  const next30Items = flowUpcoming(30);
+  const next60Items = flowUpcoming(60);
+  const openPortfolioValue = sumValues(openFiltered) + sumValues(overdueFiltered);
+  const totalWindowValue = sumValues(receivedFiltered) + openPortfolioValue;
+  const receivedShare = totalWindowValue ? Math.round((sumValues(receivedFiltered) / totalWindowValue) * 100) : 0;
+  const overdueShare = openPortfolioValue ? Math.round((sumValues(overdueFiltered) / openPortfolioValue) * 100) : 0;
+  const avgTicketReceived = receivedInWindow.length ? Math.round(sumValues(receivedInWindow) / receivedInWindow.length) : 0;
+
+  const agenda = relevantCampaigns
+    .filter((item) => item.statusKey !== 'recebido' && item.scheduledDate)
+    .filter((item) => {
+      const diff = diffDays(item.scheduledDate);
+      return diff !== null && diff >= -14 && diff <= 21;
+    })
+    .sort((a, b) => {
+      const diffA = diffDays(a.scheduledDate) ?? 9999;
+      const diffB = diffDays(b.scheduledDate) ?? 9999;
+      if ((diffA < 0) !== (diffB < 0)) return diffA < 0 ? -1 : 1;
+      if (diffA !== diffB) return diffA - diffB;
+      return b.value - a.value;
+    })
+    .slice(0, 6)
+    .map((item) => {
+      const diff = diffDays(item.scheduledDate);
+      return {
+        ...item,
+        urgencyLabel:
+          diff === null
+            ? 'Sem data'
+            : diff < 0
+              ? `${plur(Math.abs(diff), 'dia', 'dias')} em atraso`
+              : diff === 0
+                ? 'Vence hoje'
+                : `Vence em ${plur(diff, 'dia', 'dias')}`
+      };
+    });
+
+  const biggestExpected = next30Items.slice().sort((a, b) => b.value - a.value)[0] || null;
+
   return {
     rangeDays,
     rangeLabel: financeRangeLabelMap[rangeDays] || '30 dias',
     overview: {
-      totalRecebido: sumValues(receivedAll),
+      recebido: sumValues(receivedFiltered),
       aReceber: sumValues(openFiltered),
       atrasado: sumValues(overdueFiltered),
-      recebidoNoPeriodo: sumValues(receivedFiltered),
-      receitaMesAtual: sumValues(receivedThisMonth)
+      previsao30: sumValues(next30Items),
+      prazoMedioRecebimento: avgDaysToReceive,
+      receivedCount: receivedFiltered.length,
+      openCount: openFiltered.length,
+      overdueCount: overdueFiltered.length
     },
     futureFlow: {
-      next7: sumValues(flowUpcoming(7)),
-      next30: sumValues(flowUpcoming(30))
+      next7: sumValues(next7Items),
+      next15: sumValues(next15Items),
+      next30: sumValues(next30Items),
+      next60: sumValues(next60Items),
+      next30Count: next30Items.length,
+      biggestExpected
     },
+    agenda,
     indicators: {
-      receitaTotal: sumValues(receivedInWindow),
-      ticketMedio,
-      mediaMensal3: monthlyAverage3,
-      marcaMaisLucrativa: mostProfitableEntry ? mostProfitableEntry[0] : '—',
+      carteiraRecebidaPct: receivedShare,
+      carteiraAtrasadaPct: overdueShare,
       pctPagoNoPrazo: receivedInWindow.length ? Math.round((paidOnTimeCount / receivedInWindow.length) * 100) : null,
-      tempoMedioReceber: avgDaysToReceive
+      titulosEmAberto: openFiltered.length + overdueFiltered.length,
+      proximosVencimentos: next7Items.length,
+      ticketMedioRecebido: avgTicketReceived
     },
     campaigns: filteredCampaigns
   };
@@ -937,90 +1136,140 @@ const computeFinancePageData = () => {
 const renderFinancePage = () => {
   const overviewContainer = document.querySelector('[data-finance-overview]');
   const futureContainer = document.querySelector('[data-finance-future]');
+  const calendarContainer = document.querySelector('[data-finance-calendar]');
   const indicatorsContainer = document.querySelector('[data-finance-indicators]');
   const campaignsContainer = document.querySelector('[data-finance-campaigns]');
   const rangeSelect = document.querySelector('[data-finance-range]');
-  if (!overviewContainer || !futureContainer || !indicatorsContainer || !campaignsContainer) return;
+  if (!overviewContainer || !futureContainer || !calendarContainer || !indicatorsContainer || !campaignsContainer) return;
 
   const data = computeFinancePageData();
   if (rangeSelect) rangeSelect.value = String(data.rangeDays);
-  const overviewPeriodLabel = data.rangeDays === 0 ? 'Recebido no período' : 'Recebido no período';
-  const overviewPeriodNote = data.rangeDays === 0
-    ? 'Histórico completo recebido'
-    : `Campanhas recebidas em ${data.rangeLabel.toLowerCase()}`;
+  const overviewWindowNote = data.rangeDays === 0 ? 'Histórico completo' : `Na janela de ${data.rangeLabel.toLowerCase()}`;
 
   overviewContainer.innerHTML = `
       <article class="finance-stat-card">
-        <span class="finance-stat-label">Total recebido</span>
-        <strong class="finance-stat-value">${formatCurrency(data.overview.totalRecebido)}</strong>
-      <span class="finance-stat-note">Histórico geral já pago</span>
-    </article>
+        <span class="finance-stat-label">Recebido</span>
+        <strong class="finance-stat-value finance-stat-value--success">${formatCurrency(data.overview.recebido)}</strong>
+        <span class="finance-stat-note">${overviewWindowNote}</span>
+      </article>
       <article class="finance-stat-card">
         <span class="finance-stat-label">A receber</span>
         <strong class="finance-stat-value finance-stat-value--accent">${formatCurrency(data.overview.aReceber)}</strong>
-        <span class="finance-stat-note">Pagamentos em aberto na janela selecionada</span>
+        <span class="finance-stat-note">${plur(data.overview.openCount, 'título', 'títulos')} em aberto</span>
       </article>
       <article class="finance-stat-card">
         <span class="finance-stat-label">Atrasado</span>
         <strong class="finance-stat-value finance-stat-value--danger">${formatCurrency(data.overview.atrasado)}</strong>
-        <span class="finance-stat-note">Valores vencidos na janela selecionada</span>
+        <span class="finance-stat-note">${plur(data.overview.overdueCount, 'título vencido', 'títulos vencidos')}</span>
       </article>
       <article class="finance-stat-card">
-        <span class="finance-stat-label">${overviewPeriodLabel}</span>
-        <strong class="finance-stat-value finance-stat-value--success">${formatCurrency(data.overview.recebidoNoPeriodo)}</strong>
-        <span class="finance-stat-note">${overviewPeriodNote}</span>
+        <span class="finance-stat-label">Previsão 30 dias</span>
+        <strong class="finance-stat-value">${formatCurrency(data.overview.previsao30)}</strong>
+        <span class="finance-stat-note">Entradas previstas até o próximo ciclo</span>
+      </article>
+      <article class="finance-stat-card">
+        <span class="finance-stat-label">Prazo médio de recebimento</span>
+        <strong class="finance-stat-value">${data.overview.prazoMedioRecebimento === null ? '—' : `${data.overview.prazoMedioRecebimento} dias`}</strong>
+        <span class="finance-stat-note">${plur(data.overview.receivedCount, 'campanha recebida', 'campanhas recebidas')}</span>
       </article>
     `;
 
   futureContainer.innerHTML = `
-    <article class="finance-flow-item">
-      <div>
-        <span class="finance-flow-label">Próximos 7 dias</span>
-        <strong class="finance-flow-value">${formatCurrency(data.futureFlow.next7)}</strong>
-      </div>
-      <span class="finance-flow-note">Entrada prevista na próxima semana</span>
-    </article>
-    <article class="finance-flow-item">
-      <div>
-        <span class="finance-flow-label">Próximos 30 dias</span>
-        <strong class="finance-flow-value">${formatCurrency(data.futureFlow.next30)}</strong>
-      </div>
-      <span class="finance-flow-note">Entrada prevista no próximo mês</span>
-    </article>
+    <div class="finance-flow-spotlight">
+      <span class="finance-flow-kicker">Entrada prevista</span>
+      <strong class="finance-flow-spotlight-value">${formatCurrency(data.futureFlow.next30)}</strong>
+      <p class="finance-flow-spotlight-note">${data.futureFlow.next30Count} recebimento(s) previstos para os próximos 30 dias</p>
+    </div>
+    <div class="finance-flow-breakdown">
+      <article class="finance-flow-item">
+        <div>
+          <span class="finance-flow-label">Próximos 7 dias</span>
+          <strong class="finance-flow-value">${formatCurrency(data.futureFlow.next7)}</strong>
+        </div>
+        <span class="finance-flow-note">Janela imediata</span>
+      </article>
+      <article class="finance-flow-item">
+        <div>
+          <span class="finance-flow-label">Próximos 15 dias</span>
+          <strong class="finance-flow-value">${formatCurrency(data.futureFlow.next15)}</strong>
+        </div>
+        <span class="finance-flow-note">Metade do ciclo</span>
+      </article>
+      <article class="finance-flow-item">
+        <div>
+          <span class="finance-flow-label">Próximos 60 dias</span>
+          <strong class="finance-flow-value">${formatCurrency(data.futureFlow.next60)}</strong>
+        </div>
+        <span class="finance-flow-note">Visão estendida</span>
+      </article>
+    </div>
+    ${
+      data.futureFlow.biggestExpected
+        ? `
+          <div class="finance-flow-anchor">
+            <span class="finance-flow-anchor-label">Maior entrada esperada</span>
+            <strong>${escapeHtml(data.futureFlow.biggestExpected.title)}</strong>
+            <span>${escapeHtml(data.futureFlow.biggestExpected.brand)} · ${formatCurrency(data.futureFlow.biggestExpected.value)} · ${escapeHtml(data.futureFlow.biggestExpected.scheduledDate ? formatDateFullBR(data.futureFlow.biggestExpected.scheduledDate) : 'Sem data')}</span>
+          </div>
+        `
+        : ''
+    }
   `;
 
   indicatorsContainer.innerHTML = `
     <article class="finance-indicator-card">
-      <span class="finance-indicator-label">Receita total</span>
-      <strong class="finance-indicator-value">${formatCurrency(data.indicators.receitaTotal)}</strong>
-      <span class="finance-indicator-note">${data.rangeLabel}</span>
+      <span class="finance-indicator-label">Carteira recebida</span>
+      <strong class="finance-indicator-value">${data.indicators.carteiraRecebidaPct}%</strong>
+      <span class="finance-indicator-note">Do volume lido na janela</span>
     </article>
     <article class="finance-indicator-card">
-      <span class="finance-indicator-label">Ticket médio</span>
-      <strong class="finance-indicator-value">${data.indicators.ticketMedio ? formatCurrency(data.indicators.ticketMedio) : '—'}</strong>
-      <span class="finance-indicator-note">Campanhas recebidas</span>
+      <span class="finance-indicator-label">Carteira em atraso</span>
+      <strong class="finance-indicator-value">${data.indicators.carteiraAtrasadaPct}%</strong>
+      <span class="finance-indicator-note">Do aberto já vencido</span>
     </article>
     <article class="finance-indicator-card">
-      <span class="finance-indicator-label">Média mensal (3 meses)</span>
-      <strong class="finance-indicator-value">${formatCurrency(data.indicators.mediaMensal3)}</strong>
-      <span class="finance-indicator-note">Últimos 3 meses</span>
-    </article>
-    <article class="finance-indicator-card">
-      <span class="finance-indicator-label">Marca mais lucrativa</span>
-      <strong class="finance-indicator-value finance-indicator-value--text">${escapeHtml(data.indicators.marcaMaisLucrativa)}</strong>
-      <span class="finance-indicator-note">Na janela selecionada</span>
-    </article>
-    <article class="finance-indicator-card">
-      <span class="finance-indicator-label">% paga no prazo</span>
+      <span class="finance-indicator-label">Recebido no prazo</span>
       <strong class="finance-indicator-value">${data.indicators.pctPagoNoPrazo === null ? '—' : `${data.indicators.pctPagoNoPrazo}%`}</strong>
-      <span class="finance-indicator-note">Campanhas já recebidas</span>
+      <span class="finance-indicator-note">Entre os recebimentos da janela</span>
     </article>
     <article class="finance-indicator-card">
-      <span class="finance-indicator-label">Tempo médio para receber</span>
-      <strong class="finance-indicator-value">${data.indicators.tempoMedioReceber === null ? '—' : `${data.indicators.tempoMedioReceber} dias`}</strong>
-      <span class="finance-indicator-note">Da criação ao recebimento</span>
+      <span class="finance-indicator-label">Títulos em aberto</span>
+      <strong class="finance-indicator-value">${data.indicators.titulosEmAberto}</strong>
+      <span class="finance-indicator-note">Entre a receber e atrasados</span>
+    </article>
+    <article class="finance-indicator-card">
+      <span class="finance-indicator-label">Próximos vencimentos</span>
+      <strong class="finance-indicator-value">${data.indicators.proximosVencimentos}</strong>
+      <span class="finance-indicator-note">Títulos vencendo em 7 dias</span>
+    </article>
+    <article class="finance-indicator-card">
+      <span class="finance-indicator-label">Ticket médio recebido</span>
+      <strong class="finance-indicator-value">${data.indicators.ticketMedioRecebido ? formatCurrency(data.indicators.ticketMedioRecebido) : '—'}</strong>
+      <span class="finance-indicator-note">Somente campanhas liquidadas</span>
     </article>
   `;
+
+  calendarContainer.innerHTML = data.agenda.length
+    ? data.agenda
+      .map((item) => `
+          <article class="finance-calendar-item">
+            <div class="finance-calendar-date ${item.statusKey === 'atrasado' ? 'finance-calendar-date--alert' : ''}">
+              <strong>${item.scheduledDate ? escapeHtml(formatDateFullBR(item.scheduledDate)) : 'Sem data'}</strong>
+              <span>${escapeHtml(item.urgencyLabel)}</span>
+            </div>
+            <div class="finance-calendar-main">
+              <strong>${escapeHtml(item.title)}</strong>
+              <span>${escapeHtml(item.brand)} · ${escapeHtml(item.paymentType)}</span>
+            </div>
+            <div class="finance-calendar-meta">
+              <strong>${escapeHtml(item.valueLabel)}</strong>
+              <span class="finance-payment-status ${item.statusClassName}">${escapeHtml(item.statusLabel)}</span>
+            </div>
+            <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${item.id}" type="button">Abrir campanha</button>
+          </article>
+        `)
+        .join('')
+    : `<div class="finance-empty">Nenhum recebimento próximo ou vencido para acompanhar agora.</div>`;
 
   const activeExpandedId = data.campaigns.some((item) => item.id === state.ui.financeExpandedCampaignId)
     ? state.ui.financeExpandedCampaignId
@@ -1028,30 +1277,46 @@ const renderFinancePage = () => {
 
   campaignsContainer.innerHTML = data.campaigns.length
     ? data.campaigns
-        .map((item) => {
+      .map((item) => {
           const isOpen = activeExpandedId === item.id;
           return `
             <article class="finance-campaign-item ${isOpen ? 'is-open' : ''}">
-              <button
-                class="finance-campaign-summary"
-                data-action="toggle-finance-campaign"
-                data-campaign-id="${item.id}"
-                type="button"
-                aria-expanded="${isOpen ? 'true' : 'false'}"
-              >
-                <div class="finance-campaign-summary-main">
-                  <span class="finance-campaign-brand">${escapeHtml(item.brand)}</span>
+              <div class="finance-ledger-row">
+                <div class="finance-ledger-cell finance-ledger-cell--campaign" data-label="Campanha">
                   <strong class="finance-campaign-title">${escapeHtml(item.title)}</strong>
+                  <span>${escapeHtml(item.stageLabel)}</span>
                 </div>
-                <strong class="finance-campaign-value">${escapeHtml(item.valueLabel)}</strong>
-                <span class="finance-payment-status ${item.statusClassName}">${escapeHtml(item.statusLabel)}</span>
-                <span class="finance-campaign-chevron" aria-hidden="true">${isOpen ? '−' : '+'}</span>
-              </button>
+                <div class="finance-ledger-cell" data-label="Marca">
+                  <strong>${escapeHtml(item.brand)}</strong>
+                  <span>${escapeHtml(item.paymentType)}</span>
+                </div>
+                <div class="finance-ledger-cell" data-label="Valor">
+                  <strong class="finance-campaign-value">${escapeHtml(item.valueLabel)}</strong>
+                  ${item.paymentMethod && item.paymentMethod !== 'Não informado' ? `<span>${escapeHtml(item.paymentMethod)}</span>` : ''}
+                </div>
+                <div class="finance-ledger-cell" data-label="Vencimento">
+                  <strong>${item.scheduledDate ? escapeHtml(formatDateFullBR(item.scheduledDate)) : 'Sem data'}</strong>
+                  <span>${escapeHtml(item.scheduledLabel)}</span>
+                </div>
+                <div class="finance-ledger-cell" data-label="Status financeiro">
+                  <span class="finance-payment-status ${item.statusClassName}">${escapeHtml(item.statusLabel)}</span>
+                </div>
+                <div class="finance-ledger-cell" data-label="Última atualização">
+                  <strong>${item.lastUpdatedDate ? escapeHtml(formatDateFullBR(item.lastUpdatedDate)) : 'Sem atualização'}</strong>
+                  <span>${escapeHtml(item.lastUpdatedLabel)}</span>
+                </div>
+                <div class="finance-ledger-cell finance-ledger-cell--actions" data-label="Ação">
+                  <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${item.id}" type="button">Abrir campanha</button>
+                  <button class="btn btn-ghost btn-small" data-action="toggle-finance-campaign" data-campaign-id="${item.id}" type="button" aria-expanded="${isOpen ? 'true' : 'false'}">
+                    ${isOpen ? 'Fechar detalhes' : 'Ver detalhes'}
+                  </button>
+                </div>
+              </div>
               <div class="finance-campaign-details">
                 <div class="finance-campaign-details-grid">
                   <div class="finance-campaign-detail-cell">
-                    <span>Data prevista</span>
-                    <strong>${escapeHtml(item.paymentDate ? formatDateFullBR(item.paymentDate) : 'Sem data prevista')}</strong>
+                    <span>Vencimento financeiro</span>
+                    <strong>${escapeHtml(item.scheduledDate ? formatDateFullBR(item.scheduledDate) : 'Sem data prevista')}</strong>
                   </div>
                   <div class="finance-campaign-detail-cell">
                     <span>Data de recebimento</span>
@@ -1059,7 +1324,7 @@ const renderFinancePage = () => {
                   </div>
                   <div class="finance-campaign-detail-cell">
                     <span>Dias de atraso</span>
-                    <strong>${item.daysOverdue > 0 ? `${item.daysOverdue} dia(s)` : 'Sem atraso'}</strong>
+                    <strong>${item.daysOverdue > 0 ? plur(item.daysOverdue, 'dia', 'dias') : 'Sem atraso'}</strong>
                   </div>
                   <div class="finance-campaign-detail-cell">
                     <span>Tipo</span>
@@ -1075,7 +1340,10 @@ const renderFinancePage = () => {
                     <span>Etapa atual</span>
                     <strong>${escapeHtml(item.stageLabel)}</strong>
                   </div>
-                  <button class="btn btn-ghost btn-small" data-action="open-campaign" data-campaign-id="${item.id}" type="button">Abrir campanha</button>
+                  <div class="finance-campaign-stage">
+                    <span>Próxima ação</span>
+                    <strong>${escapeHtml(item.nextActionLabel)}</strong>
+                  </div>
                 </div>
               </div>
             </article>
@@ -1093,17 +1361,16 @@ const metricsRangeLabelMap = {
   0: 'Todo histórico'
 };
 
-const metricsStatusMeta = {
-  prospeccao: { label: 'Prospecção' },
-  producao: { label: 'Produção' },
-  finalizacao: { label: 'Finalização' },
-  concluida: { label: 'Concluído' }
-};
+const metricsStatusMeta = CAMPAIGN_PIPELINE.reduce((acc, macro) => {
+  acc[macro.id] = { label: macro.label };
+  return acc;
+}, {});
 
 const computeMetricsPageData = () => {
-  const campaigns = (Array.isArray(state.campaigns) ? state.campaigns : []).filter((campaign) => campaign && !campaign.archived);
+  const campaigns = (Array.isArray(state.campaigns) ? state.campaigns : [])
+    .filter((campaign) => campaign && !campaign.archived && campaign.isModel !== true);
   const rangeDays = [0, 15, 30, 45, 90].includes(Number(state.ui.metricsRangeDays)) ? Number(state.ui.metricsRangeDays) : 30;
-  const statusOrder = ['prospeccao', 'producao', 'finalizacao', 'concluida'];
+  const statusOrder = campaignStatusOrder;
   const now = new Date();
   const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
   const todayKey = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`;
@@ -1111,9 +1378,11 @@ const computeMetricsPageData = () => {
   const parseDay = (value) => {
     const safe = String(value || '').trim();
     if (!safe) return null;
-    const raw = safe.length > 10 ? safe : `${safe}T00:00:00Z`;
-    const parsed = new Date(raw);
+    const parsed = new Date(safe.length > 10 ? safe : `${safe}T00:00:00Z`);
     if (Number.isNaN(parsed.getTime())) return null;
+    if (safe.length > 10) {
+      return new Date(Date.UTC(parsed.getFullYear(), parsed.getMonth(), parsed.getDate()));
+    }
     return new Date(Date.UTC(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate()));
   };
 
@@ -1131,89 +1400,129 @@ const computeMetricsPageData = () => {
   };
 
   const getPercentPaid = (campaign) => {
-    const raw = Number.isFinite(campaign?.paymentPercent)
+    const raw = Number.isFinite(campaign.paymentPercent)
       ? campaign.paymentPercent
-      : parseInt(String(campaign?.paymentPercent || ''), 10);
+      : parseInt(String(campaign.paymentPercent || ''), 10);
     return Number.isFinite(raw) ? Math.max(0, Math.min(100, Math.round(raw))) : 0;
   };
 
-  const getReceivedDate = (campaign) => {
-    if (campaign.paymentReceivedAt) return toIsoDay(campaign.paymentReceivedAt);
-    if (getPercentPaid(campaign) >= 100 || campaign.status === 'concluida') {
-      return toIsoDay(campaign.updatedAt || campaign.createdAt);
-    }
-    return '';
+  const getCompletedDate = (campaign) => {
+    if (campaign.status !== 'concluida' && getPercentPaid(campaign) < 100 && !campaign.paymentReceivedAt) return '';
+    return toIsoDay(campaign.paymentReceivedAt || campaign.updatedAt || campaign.createdAt);
   };
 
-  const getFinancialStatus = (campaign) => {
-    if (getReceivedDate(campaign)) return 'recebido';
-    if (campaign.paymentDate && campaign.paymentDate < todayKey) return 'atrasado';
-    return 'a_receber';
-  };
-
-  const getFilterDate = (campaign) => {
-    const financialStatus = getFinancialStatus(campaign);
-    if (financialStatus === 'recebido') return getReceivedDate(campaign);
-    return toIsoDay(campaign.paymentDate || campaign.dueDate || campaign.updatedAt || campaign.createdAt);
-  };
-
-  const isInRange = (campaign) => {
+  const isDateInRange = (value) => {
     if (rangeDays === 0) return true;
-    const dateKey = getFilterDate(campaign);
-    const date = parseDay(dateKey);
+    const date = parseDay(value);
     if (!date) return false;
     const diff = dayDiff(date, today);
     if (diff === null) return false;
-    return diff <= 0 ? Math.abs(diff) <= rangeDays : diff <= rangeDays;
+    return diff <= 0 && Math.abs(diff) <= rangeDays;
   };
 
-  const sumValues = (list) => list.reduce((sum, item) => sum + (Number(item?.value) || 0), 0);
-  const hasValue = (campaign) => (Number(campaign?.value) || 0) > 0;
+  const getStageAgeDays = (campaign) => {
+    const anchor = parseDay(campaign.updatedAt || campaign.createdAt);
+    const diff = dayDiff(today, anchor);
+    return Number.isFinite(diff) ? Math.max(0, diff) : null;
+  };
+
+  const isDueSoon = (campaign) => {
+    const due = parseDay(campaign.dueDate);
+    const diff = dayDiff(due, today);
+    return Number.isFinite(diff) && diff >= 0 && diff <= 7;
+  };
+
+  const sumValues = (list) => list.reduce((sum, item) => sum + (Number(item.value) || 0), 0);
+  const hasValue = (campaign) => (Number(campaign.value) || 0) > 0;
   const timelineReference = campaigns.map((campaign) => ({
     ...campaign,
-    financialStatus: getFinancialStatus(campaign),
-    receivedAt: getReceivedDate(campaign),
-    filterDate: getFilterDate(campaign),
-    inRange: isInRange(campaign)
+    completedAt: getCompletedDate(campaign),
+    stageAgeDays: getStageAgeDays(campaign),
+    createdInRange: isDateInRange(campaign.createdAt),
+    completedInRange: isDateInRange(getCompletedDate(campaign)),
+    dueSoon: isDueSoon(campaign),
+    stalled: Number.isFinite(getStageAgeDays(campaign)) && getStageAgeDays(campaign) >= 7
   }));
 
   const completedCampaigns = timelineReference.filter((campaign) => campaign.status === 'concluida');
-  const receivedCampaigns = timelineReference.filter((campaign) => campaign.financialStatus === 'recebido');
-  const receivedInRange = receivedCampaigns.filter((campaign) => campaign.inRange);
-  const openInRange = timelineReference.filter((campaign) => campaign.financialStatus === 'a_receber' && campaign.inRange);
-  const overdueInRange = timelineReference.filter((campaign) => campaign.financialStatus === 'atrasado' && campaign.inRange);
+  const activeCampaigns = timelineReference.filter((campaign) => campaign.status !== 'concluida');
+  const completedInRange = completedCampaigns.filter((campaign) => campaign.completedInRange);
+  const createdInRange = timelineReference.filter((campaign) => campaign.createdInRange);
   const totalCampaigns = campaigns.length;
   const completionRate = totalCampaigns ? Math.round((completedCampaigns.length / totalCampaigns) * 100) : 0;
 
-  const statusBuckets = statusOrder.map((status) => {
+  const statusBucketsBase = statusOrder.map((status) => {
     const items = timelineReference
       .filter((campaign) => campaign.status === status)
       .slice()
       .sort((a, b) => {
-        const dueA = String(a?.dueDate || '9999-12-31');
-        const dueB = String(b?.dueDate || '9999-12-31');
-        if (dueA !== dueB) return dueA.localeCompare(dueB);
-        return (Number(b?.value) || 0) - (Number(a?.value) || 0);
+        const ageA = Number.isFinite(a.stageAgeDays) ? a.stageAgeDays : -1;
+        const ageB = Number.isFinite(b.stageAgeDays) ? b.stageAgeDays : -1;
+        if (ageA !== ageB) return ageB - ageA;
+        const dueA = String(a.dueDate || '9999-12-31');
+        const dueB = String(b.dueDate || '9999-12-31');
+        return dueA.localeCompare(dueB);
       });
+
+    const avgStageDaysSource = items.filter((campaign) => Number.isFinite(campaign.stageAgeDays));
+    const avgStageDays = avgStageDaysSource.length
+      ? Math.round(avgStageDaysSource.reduce((sum, campaign) => sum + campaign.stageAgeDays, 0) / avgStageDaysSource.length)
+      : null;
 
     return {
       key: status,
-      label: metricsStatusMeta[status]?.label || statusLabels[status] || status,
+      label: metricsStatusMeta[status].label || statusLabels[status] || status,
       count: items.length,
+      share: totalCampaigns ? Math.round((items.length / totalCampaigns) * 100) : 0,
+      avgStageDays,
+      staleCount: items.filter((campaign) => campaign.stalled).length,
+      dueSoonCount: items.filter((campaign) => campaign.dueSoon).length,
+      totalValue: sumValues(items.filter(hasValue)),
       items: items.map((campaign) => ({
         id: campaign.id,
         title: campaign.title || campaign.brand || 'Campanha',
         brand: campaign.brand || 'Sem marca',
         stageLabel: getCampaignStageLabel(campaign.status, campaign.stage) || statusLabels[campaign.status] || 'Sem etapa',
         dueDate: campaign.dueDate || '',
-        value: Number(campaign.value) || 0
+        value: Number(campaign.value) || 0,
+        stageAgeDays: Number.isFinite(campaign.stageAgeDays) ? campaign.stageAgeDays : null,
+        nextActionLabel: getNextActionLabel(campaign.nextActionType, campaign.nextActionCustomType) || 'Sem próxima ação definida'
       }))
+    };
+  });
+
+  const bottleneckBucket = statusBucketsBase
+    .filter((bucket) => bucket.key !== 'concluida' && bucket.count > 0)
+    .slice()
+    .sort((a, b) => {
+      const ageA = Number.isFinite(a.avgStageDays) ? a.avgStageDays : -1;
+      const ageB = Number.isFinite(b.avgStageDays) ? b.avgStageDays : -1;
+      if (ageA !== ageB) return ageB - ageA;
+      return b.count - a.count;
+    })[0] || null;
+
+  const statusBuckets = statusBucketsBase.map((bucket) => {
+    let insight = 'Essa etapa está rodando bem agora.';
+    if (!bucket.count) {
+      insight = 'Não há campanhas nessa etapa agora.';
+    } else if (bottleneckBucket && bottleneckBucket.key === bucket.key) {
+      insight = 'É aqui que as campanhas estão demorando mais.';
+    } else if (bucket.staleCount > 0) {
+      insight = `${plur(bucket.staleCount, 'campanha está', 'campanhas estão')} parada${bucket.staleCount === 1 ? '' : 's'} há pelo menos 7 dias.`;
+    } else if (bucket.dueSoonCount > 0) {
+      insight = `${plur(bucket.dueSoonCount, 'campanha tem', 'campanhas têm')} prazo chegando nos próximos 7 dias.`;
+    }
+
+    return {
+      ...bucket,
+      isBottleneck: Boolean(bottleneckBucket && bottleneckBucket.key === bucket.key),
+      insight
     };
   });
 
   const validStatusOpen = String(state.ui.metricsStatusOpen || '').trim();
   const selectedStatus = statusBuckets.find((bucket) => bucket.key === validStatusOpen) ? validStatusOpen : '';
-  const activeStatus = selectedStatus || statusBuckets.find((bucket) => bucket.count > 0)?.key || 'prospeccao';
+  const activeStatus = selectedStatus;
 
   const getMonthStart = (offset) => new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - offset, 1));
   const monthBuckets = [5, 4, 3, 2, 1, 0].map((offset) => getMonthStart(offset));
@@ -1221,79 +1530,67 @@ const computeMetricsPageData = () => {
     monthStart.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit', timeZone: 'UTC' }).replace('.', '')
   );
 
-  const sumByMonth = (list, datePicker) =>
+  const countByMonth = (list, datePicker) =>
     monthBuckets.map((monthStart) => {
       const month = monthStart.getUTCMonth();
       const year = monthStart.getUTCFullYear();
-      return list
-        .filter((campaign) => {
-          const date = parseDay(datePicker(campaign));
-          return Boolean(date && date.getUTCMonth() === month && date.getUTCFullYear() === year);
-        })
-        .reduce((sum, campaign) => sum + (Number(campaign.value) || 0), 0);
+      return list.filter((campaign) => {
+        const date = parseDay(datePicker(campaign));
+        return Boolean(date && date.getUTCMonth() === month && date.getUTCFullYear() === year);
+      }).length;
     });
 
-  const monthlyReceived = sumByMonth(receivedCampaigns, (campaign) => campaign.receivedAt);
-  const monthlyForecast = sumByMonth(
-    timelineReference.filter((campaign) => campaign.financialStatus !== 'recebido'),
-    (campaign) => campaign.paymentDate || campaign.dueDate
-  );
+  const monthlyCreated = countByMonth(timelineReference, (campaign) => campaign.createdAt);
+  const monthlyCompleted = countByMonth(completedCampaigns, (campaign) => campaign.completedAt);
 
-  const avgTicket = receivedInRange.length ? Math.round(sumValues(receivedInRange) / receivedInRange.length) : 0;
-  const mostProfitableBrandEntry = Object.entries(
-    receivedInRange.reduce((acc, campaign) => {
-      const key = String(campaign.brand || 'Sem marca');
-      acc[key] = (acc[key] || 0) + (Number(campaign.value) || 0);
-      return acc;
-    }, {})
-  ).sort((a, b) => b[1] - a[1])[0] || null;
+  const avgTicket = completedInRange.filter(hasValue).length
+    ? Math.round(sumValues(completedInRange.filter(hasValue)) / completedInRange.filter(hasValue).length)
+    : 0;
 
-  const avgDaysToReceiveSource = receivedCampaigns
+  const closeTimeSource = completedInRange
     .map((campaign) => {
       const createdAt = parseDay(campaign.createdAt);
-      const receivedAt = parseDay(campaign.receivedAt);
-      if (!createdAt || !receivedAt) return null;
-      const diff = dayDiff(receivedAt, createdAt);
+      const completedAt = parseDay(campaign.completedAt);
+      if (!createdAt || !completedAt) return null;
+      const diff = dayDiff(completedAt, createdAt);
       return Number.isFinite(diff) ? Math.max(0, diff) : null;
     })
     .filter((value) => Number.isFinite(value));
 
-  const avgDaysToReceive = avgDaysToReceiveSource.length
-    ? Math.round(avgDaysToReceiveSource.reduce((sum, value) => sum + value, 0) / avgDaysToReceiveSource.length)
+  const avgCloseTime = closeTimeSource.length
+    ? Math.round(closeTimeSource.reduce((sum, value) => sum + value, 0) / closeTimeSource.length)
     : null;
 
-  const onTimePaid = receivedInRange.filter((campaign) => {
-    if (!campaign.paymentDate) return true;
-    if (!campaign.receivedAt) return false;
-    return campaign.receivedAt <= campaign.paymentDate;
-  }).length;
-  const onTimeRate = receivedInRange.length ? Math.round((onTimePaid / receivedInRange.length) * 100) : null;
+  const activeStageDaysSource = activeCampaigns.filter((campaign) => Number.isFinite(campaign.stageAgeDays));
+  const avgActiveStageDays = activeStageDaysSource.length
+    ? Math.round(activeStageDaysSource.reduce((sum, campaign) => sum + campaign.stageAgeDays, 0) / activeStageDaysSource.length)
+    : null;
 
   return {
     rangeDays,
     rangeLabel: metricsRangeLabelMap[rangeDays] || '30 dias',
     overview: {
-      totalRecebido: sumValues(receivedCampaigns.filter(hasValue)),
-      recebidoNoPeriodo: sumValues(receivedInRange.filter(hasValue)),
-      aReceber: sumValues(openInRange.filter(hasValue)),
-      atrasado: sumValues(overdueInRange.filter(hasValue)),
-      taxaConclusao: completionRate
+      activeCount: activeCampaigns.length,
+      completedCount: completedCampaigns.length,
+      taxaConclusao: completionRate,
+      ticketMedio: avgTicket,
+      tempoMedioFechamento: avgCloseTime
     },
     funnel: statusBuckets,
     selectedStatus,
     activeStatus,
     monthly: {
       labels: monthLabels,
-      received: monthlyReceived,
-      forecast: monthlyForecast
+      created: monthlyCreated,
+      completed: monthlyCompleted
     },
     indicators: {
-      ticketMedio: avgTicket,
-      tempoMedioReceber: avgDaysToReceive,
-      marcaMaisLucrativa: mostProfitableBrandEntry ? mostProfitableBrandEntry[0] : '—',
-      campanhasAtrasadas: overdueInRange.length,
-      campanhasRecebidas: receivedInRange.length,
-      pctPagoNoPrazo: onTimeRate
+      gargaloAtual: bottleneckBucket ? bottleneckBucket.label : '—',
+      tempoMedioFaseAtiva: avgActiveStageDays,
+      campanhasParadas: activeCampaigns.filter((campaign) => campaign.stalled).length,
+      criadasNoPeriodo: createdInRange.length,
+      concluidasNoPeriodo: completedInRange.length,
+      emRiscoPrazo: activeCampaigns.filter((campaign) => campaign.dueSoon).length
     }
   };
 };
@@ -1328,34 +1625,34 @@ const renderMetricsPage = () => {
 
   const data = computeMetricsPageData();
   const isMobileMetrics = Boolean(window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
-  const funnelActiveStatus = isMobileMetrics ? data.selectedStatus : data.activeStatus;
+  const funnelActiveStatus = data.selectedStatus;
   if (rangeSelect) rangeSelect.value = String(data.rangeDays);
 
   overviewContainer.innerHTML = `
     <article class="metrics-stat-card">
-      <span class="metrics-stat-label">Total recebido</span>
-      <strong class="metrics-stat-value">${formatCurrency(data.overview.totalRecebido)}</strong>
-      <span class="metrics-stat-note">Histórico geral pago</span>
+      <span class="metrics-stat-label">Campanhas ativas</span>
+      <strong class="metrics-stat-value">${data.overview.activeCount}</strong>
+      <span class="metrics-stat-note">Campanhas acontecendo agora</span>
     </article>
     <article class="metrics-stat-card">
-      <span class="metrics-stat-label">Recebido no período</span>
-      <strong class="metrics-stat-value metrics-stat-value--success">${formatCurrency(data.overview.recebidoNoPeriodo)}</strong>
-      <span class="metrics-stat-note">${escapeHtml(data.rangeLabel)}</span>
+      <span class="metrics-stat-label">Concluídas</span>
+      <strong class="metrics-stat-value metrics-stat-value--success">${data.overview.completedCount}</strong>
+      <span class="metrics-stat-note">Campanhas que já terminaram</span>
     </article>
     <article class="metrics-stat-card">
-      <span class="metrics-stat-label">A receber</span>
-      <strong class="metrics-stat-value metrics-stat-value--accent">${formatCurrency(data.overview.aReceber)}</strong>
-      <span class="metrics-stat-note">Dentro da janela selecionada</span>
+      <span class="metrics-stat-label">% que já terminou</span>
+      <strong class="metrics-stat-value metrics-stat-value--accent">${data.overview.taxaConclusao}%</strong>
+      <span class="metrics-stat-note">Do total de campanhas criadas</span>
     </article>
     <article class="metrics-stat-card">
-      <span class="metrics-stat-label">Atrasado</span>
-      <strong class="metrics-stat-value metrics-stat-value--danger">${formatCurrency(data.overview.atrasado)}</strong>
-      <span class="metrics-stat-note">Com prazo vencido</span>
+      <span class="metrics-stat-label">Valor médio por campanha</span>
+      <strong class="metrics-stat-value">${data.overview.ticketMedio ? formatCurrency(data.overview.ticketMedio) : '—'}</strong>
+      <span class="metrics-stat-note">Média das concluídas em ${escapeHtml(data.rangeLabel.toLowerCase())}</span>
     </article>
     <article class="metrics-stat-card">
-      <span class="metrics-stat-label">Taxa de conclusão</span>
-      <strong class="metrics-stat-value">${data.overview.taxaConclusao}%</strong>
-      <span class="metrics-stat-note">Campanhas concluídas no total</span>
+      <span class="metrics-stat-label">Tempo médio para concluir</span>
+      <strong class="metrics-stat-value">${data.overview.tempoMedioFechamento === null ? '—' : `${data.overview.tempoMedioFechamento} dias`}</strong>
+      <span class="metrics-stat-note">Do início até o fim</span>
     </article>
   `;
 
@@ -1367,19 +1664,24 @@ const renderMetricsPage = () => {
         data-metrics-status="${bucket.key}"
         type="button"
       >
-        <span class="metrics-funnel-count">${bucket.count} campanha${bucket.count === 1 ? '' : 's'}</span>
+        <span class="metrics-funnel-count">${bucket.count}</span>
         <span class="metrics-funnel-label">${escapeHtml(bucket.label)}</span>
+        <span class="metrics-funnel-meta">${bucket.share}% do total</span>
+        <span class="metrics-funnel-meta">${bucket.avgStageDays === null ? 'Sem média ainda' : `Média de ${plur(bucket.avgStageDays, 'dia', 'dias')}`}</span>
+        ${bucket.isBottleneck ? '<span class="metrics-funnel-badge">Travando mais</span>' : ''}
       </button>
     `)
     .join('');
 
-  const inlineBucket = data.funnel.find((bucket) => bucket.key === data.activeStatus) || null;
+  const inlineBucket = data.funnel.find((bucket) => bucket.key === data.selectedStatus) || null;
   const modalBucket = data.funnel.find((bucket) => bucket.key === data.selectedStatus) || null;
   const inlineHtml = getMetricsStatusDetailHtml(inlineBucket);
   const modalHtml = getMetricsStatusDetailHtml(modalBucket);
   const shouldShowModal = Boolean(isMobileMetrics && modalBucket && state.ui.activePage === 'metrics');
 
   statusListContainer.innerHTML = isMobileMetrics ? '' : inlineHtml;
+  const statusCard = statusListContainer.closest('.metrics-diagnostics-card');
+  if (statusCard) statusCard.hidden = !data.selectedStatus;
 
   if (statusModal && statusModalBody && statusModalTitle && statusModalSubtitle) {
     statusModalTitle.textContent = modalBucket ? modalBucket.label : 'Status';
@@ -1393,29 +1695,34 @@ const renderMetricsPage = () => {
 
   indicatorsContainer.innerHTML = `
     <article class="metrics-indicator-card">
-      <span class="metrics-indicator-label">Ticket médio</span>
-      <strong class="metrics-indicator-value">${data.indicators.ticketMedio ? formatCurrency(data.indicators.ticketMedio) : '—'}</strong>
-      <span class="metrics-indicator-note">Campanhas recebidas no período</span>
+      <span class="metrics-indicator-label">Etapa mais travada</span>
+      <strong class="metrics-indicator-value metrics-indicator-value--text">${escapeHtml(data.indicators.gargaloAtual)}</strong>
+      <span class="metrics-indicator-note">Onde as campanhas mais demoram</span>
     </article>
     <article class="metrics-indicator-card">
-      <span class="metrics-indicator-label">Tempo médio para receber</span>
-      <strong class="metrics-indicator-value">${data.indicators.tempoMedioReceber === null ? '—' : `${data.indicators.tempoMedioReceber} dias`}</strong>
-      <span class="metrics-indicator-note">Da criação ao recebimento</span>
+      <span class="metrics-indicator-label">Tempo médio nas etapas abertas</span>
+      <strong class="metrics-indicator-value">${data.indicators.tempoMedioFaseAtiva === null ? '—' : `${data.indicators.tempoMedioFaseAtiva} dias`}</strong>
+      <span class="metrics-indicator-note">Quanto tempo elas levam para andar</span>
     </article>
     <article class="metrics-indicator-card">
-      <span class="metrics-indicator-label">Marca mais lucrativa</span>
-      <strong class="metrics-indicator-value metrics-indicator-value--text">${escapeHtml(data.indicators.marcaMaisLucrativa)}</strong>
-      <span class="metrics-indicator-note">Na janela selecionada</span>
+      <span class="metrics-indicator-label">Campanhas paradas</span>
+      <strong class="metrics-indicator-value">${data.indicators.campanhasParadas}</strong>
+      <span class="metrics-indicator-note">Sem avanço há 7+ dias</span>
     </article>
     <article class="metrics-indicator-card">
-      <span class="metrics-indicator-label">% paga no prazo</span>
-      <strong class="metrics-indicator-value">${data.indicators.pctPagoNoPrazo === null ? '—' : `${data.indicators.pctPagoNoPrazo}%`}</strong>
-      <span class="metrics-indicator-note">${data.indicators.campanhasRecebidas} campanha(s) recebida(s)</span>
+      <span class="metrics-indicator-label">Criadas no período</span>
+      <strong class="metrics-indicator-value">${data.indicators.criadasNoPeriodo}</strong>
+      <span class="metrics-indicator-note">${escapeHtml(data.rangeLabel)}</span>
     </article>
     <article class="metrics-indicator-card">
-      <span class="metrics-indicator-label">Campanhas atrasadas</span>
-      <strong class="metrics-indicator-value">${data.indicators.campanhasAtrasadas}</strong>
-      <span class="metrics-indicator-note">Na janela selecionada</span>
+      <span class="metrics-indicator-label">Concluídas no período</span>
+      <strong class="metrics-indicator-value">${data.indicators.concluidasNoPeriodo}</strong>
+      <span class="metrics-indicator-note">Encerradas dentro da janela</span>
+    </article>
+    <article class="metrics-indicator-card">
+      <span class="metrics-indicator-label">Com prazo chegando</span>
+      <strong class="metrics-indicator-value">${data.indicators.emRiscoPrazo}</strong>
+      <span class="metrics-indicator-note">Ativas com prazo nos próximos 7 dias</span>
     </article>
   `;
 
@@ -1434,16 +1741,16 @@ const renderMetricsPage = () => {
       labels: data.monthly.labels,
       datasets: [
         {
-          label: 'Recebido',
-          data: data.monthly.received,
+          label: 'Criadas',
+          data: data.monthly.created,
           borderRadius: 8,
           backgroundColor: 'rgba(56, 189, 248, 0.55)',
           borderColor: 'rgba(56, 189, 248, 0.95)',
           borderWidth: 1
         },
         {
-          label: 'Previsto',
-          data: data.monthly.forecast,
+          label: 'Concluídas',
+          data: data.monthly.completed,
           borderRadius: 8,
           backgroundColor: 'rgba(110, 231, 183, 0.45)',
           borderColor: 'rgba(110, 231, 183, 0.9)',
@@ -1465,7 +1772,7 @@ const renderMetricsPage = () => {
         },
         tooltip: {
           callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(Number(ctx.parsed.y) || 0)}`
+            label: (ctx) => { const n = Number(ctx.parsed.y) || 0; return `${ctx.dataset.label}: ${plur(n, 'campanha', 'campanhas')}`; }
           }
         }
       },
@@ -1479,7 +1786,8 @@ const renderMetricsPage = () => {
           grid: { color: 'rgba(148, 163, 184, 0.14)' },
           ticks: {
             color: '#9fb1c6',
-            callback: (value) => formatCurrency(Number(value) || 0)
+            precision: 0,
+            callback: (value) => Number(value) || 0
           }
         }
       }
@@ -1487,7 +1795,104 @@ const renderMetricsPage = () => {
   });
 };
 
-/* ── Model campaign rendering helpers ──────────────────────── */
+const formatProspectionUpdated = (value) => {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return 'Sem atualização';
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / 86400000);
+  if (diffDays <= 0) return 'Atualizado hoje';
+  if (diffDays === 1) return 'Atualizado ontem';
+  if (diffDays < 30) return `Atualizado há ${diffDays} dias`;
+  return `Atualizado em ${date.toLocaleDateString('pt-BR')}`;
+};
+
+const renderProspectionPage = () => {
+  const section = document.querySelector('[data-section="prospeccao"]');
+  const listContainer = document.querySelector('[data-prospection-list]');
+  const summaryContainer = document.querySelector('[data-prospection-summary]');
+  const searchInput = document.querySelector('[data-prospection-search]');
+
+  if (!section || !listContainer || !summaryContainer) return;
+
+  const rawSearch = String(state.ui.prospectionSearch || '').trim();
+  const search = rawSearch.toLowerCase();
+  const allProspections = Array.isArray(state.prospections) ? state.prospections : [];
+  const sortedProspections = allProspections
+    .slice()
+    .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+
+  if (searchInput && searchInput.value !== rawSearch) searchInput.value = rawSearch;
+
+  const pendingCount = sortedProspections.filter((item) => item.status === 'pendente').length;
+  const answeredCount = sortedProspections.filter((item) => ['respondeu', 'fechou', 'negociacao', 'em_conversa'].includes(item.status)).length;
+  summaryContainer.innerHTML = `
+    <span class="chip prospection-chip">Total: ${sortedProspections.length}</span>
+    <span class="chip prospection-chip">Pendentes: ${pendingCount}</span>
+    <span class="chip prospection-chip">Com retorno: ${answeredCount}</span>
+  `;
+
+  const filtered = sortedProspections.filter((item) => {
+    if (!search) return true;
+    const contactLabel = prospectionContactTypes[item.contactType] || item.contactType || '';
+    const statusLabel = prospectionStatuses[item.status] || item.status || '';
+    const text = `${item.brand || ''} ${contactLabel} ${statusLabel}`.toLowerCase();
+    return text.includes(search);
+  });
+
+  if (!filtered.length) {
+    listContainer.innerHTML = `
+      <div class="prospection-empty">
+        <strong>Nenhuma prospecção encontrada.</strong>
+        <p class="muted">${rawSearch ? 'Tente ajustar a busca para encontrar o que precisa.' : 'Crie sua primeira prospecção para começar a organizar os contatos.'}</p>
+      </div>
+    `;
+    return;
+  }
+
+  listContainer.innerHTML = filtered
+    .map((item) => {
+      const contactLabel = prospectionContactTypes[item.contactType] || 'Contato';
+      const statusKey = prospectionStatusOptions.includes(String(item.status || '').trim()) ? String(item.status || '').trim() : 'pendente';
+      const statusLabel = prospectionStatuses[statusKey] || statusKey;
+      const statusClass = `prospection-status-${statusKey}`;
+      const scriptPreview = String(item.script || '').trim().slice(0, 160);
+      const notesPreview = String(item.notes || '').trim().slice(0, 120);
+      return `
+        <article class="prospection-item ${statusClass}">
+          <div class="prospection-item-main">
+            <button class="prospection-item-brand" data-action="edit-prospection" data-prospection-id="${item.id}" type="button">
+              <span class="prospection-status-badge ${statusClass}">${escapeHtml(statusLabel)}</span>
+              <strong>${escapeHtml(item.brand)}</strong>
+              <span>${escapeHtml(contactLabel)}</span>
+            </button>
+            ${scriptPreview ? `<p class="prospection-item-script">${escapeHtml(scriptPreview)}</p>` : ''}
+            ${notesPreview ? `<p class="prospection-item-notes">${escapeHtml(notesPreview)}</p>` : ''}
+          </div>
+          <div class="prospection-item-side">
+            <select class="select select--compact prospection-status-select ${statusClass}" data-prospection-status data-prospection-id="${item.id}" aria-label="Status da prospecção">
+              ${prospectionStatusOptions
+                .map((statusKey) => `<option value="${statusKey}" ${statusKey === item.status ? 'selected' : ''}>${escapeHtml(prospectionStatuses[statusKey] || statusKey)}</option>`)
+                .join('')}
+            </select>
+            <span class="prospection-item-updated">${escapeHtml(formatProspectionUpdated(item.updatedAt || item.createdAt))}</span>
+            <button class="prospection-delete-btn" data-action="delete-prospection" data-prospection-id="${item.id}" type="button" aria-label="Apagar prospecção" title="Apagar prospecção">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 6h18"/>
+                <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6"/>
+                <path d="M14 11v6"/>
+              </svg>
+            </button>
+          </div>
+        </article>
+      `;
+    })
+    .join('');
+};
+
+/* -- Model campaign rendering helpers ------------------------ */
 
 const renderModelOutreachBar = (campaign) => {
   if (!campaign.isModel || !campaign.modelMeta) return '';
@@ -1524,29 +1929,24 @@ const getCampaignOnboardingGuideHtml = () => {
   const totalCampaigns = Array.isArray(state.campaigns) ? state.campaigns.length : 0;
   if (totalCampaigns > 0) return '';
 
-  const hasBrands = Array.isArray(state.brands) && state.brands.length > 0;
-  const primaryAction = hasBrands
-    ? `
-      <button class="btn btn-primary btn-small" data-action="new-campaign" type="button">
-        Iniciar minha campanha
-      </button>
-    `
-    : `
-      <button class="btn btn-primary btn-small" data-action="open-brand-modal" data-brand-modal-context="campaign" type="button">
-        Criar marca primeiro
-      </button>
-    `;
+  const primaryAction = `
+    <button class="btn btn-primary btn-small" data-action="new-campaign" type="button">
+      Criar campanha primeiro
+    </button>
+  `;
 
   return `
     <div class="card campaign-onboarding-card">
       <div>
         <p class="dashboard-eyebrow">Passo a passo</p>
-        <h3 class="campaign-onboarding-title">Como criar sua primeira campanha</h3>
+        <h3 class="campaign-onboarding-title">Sequência para organizar a operação</h3>
       </div>
       <ol class="campaign-onboarding-list">
-        <li>${hasBrands ? 'Clique em "Nova campanha".' : 'Crie sua primeira marca para poder vincular a campanha.'}</li>
-        <li>${hasBrands ? 'Preencha marca, origem, valor e prazo no modal.' : 'Depois clique em "Nova campanha" para abrir o cadastro.'}</li>
-        <li>Defina a próxima ação e salve. O sistema vai te guiar campo a campo.</li>
+        <li><strong>Campanhas:</strong> cadastre entregas, prazos, valores e status.</li>
+        <li><strong>Marcas:</strong> conecte cada campanha com a marca certa.</li>
+        <li><strong>Prospecção:</strong> acompanhe oportunidades antes de fecharem.</li>
+        <li><strong>Dashboard:</strong> veja prioridades, atrasos e próximos passos.</li>
+        <li><strong>Financeiro e métricas:</strong> acompanhe receita, pagamentos e evolução.</li>
       </ol>
       <div class="campaign-onboarding-actions">
         ${primaryAction}
@@ -1583,10 +1983,10 @@ const renderCampaigns = () => {
   };
 
   const getValueLabel = (campaign) => {
-    const value = Number.isFinite(campaign?.value) ? campaign.value : parseInt(String(campaign?.value || ''), 10) || 0;
+    const value = Number.isFinite(campaign.value) ? campaign.value : parseInt(String(campaign.value || ''), 10) || 0;
     const hasMoney = value > 0;
-    if (!hasMoney && !campaign?.barter) return 'indefinido';
-    if (!hasMoney && campaign?.barter) return 'permuta';
+    if (!hasMoney && !campaign.barter) return 'indefinido';
+    if (!hasMoney && campaign.barter) return 'permuta';
     return formatCurrency(value);
   };
 
@@ -1599,7 +1999,7 @@ const renderCampaigns = () => {
   const allCampaignsAll = Array.isArray(state.campaigns) ? state.campaigns : [];
   const allRates = allCampaignsAll.map(getHourlyRate).filter(r => r !== null);
   const avgHourlyRate = allRates.length ? Math.round(allRates.reduce((a, b) => a + b, 0) / allRates.length) : 0;
-  const hourlyGoal = state.settings?.hourlyGoal || 0;
+  const hourlyGoal = state.settings.hourlyGoal || 0;
   const getHourlyClass = (rate) => {
     if (rate === null) return '';
     const ref = hourlyGoal || avgHourlyRate || 100;
@@ -1618,11 +2018,7 @@ const renderCampaigns = () => {
       if (diff < 0) tags.push({ label: 'Atrasada', cls: 'ind-danger' });
       else if (diff <= 3) tags.push({ label: `Vence em ${diff}d`, cls: 'ind-warning' });
     }
-    if (c.paymentDate && c.paymentDate < todayStr) {
-      const pp = Number.isFinite(c.paymentPercent) ? c.paymentPercent : 0;
-      if (pp < 100) tags.push({ label: 'Pgto atrasado', cls: 'ind-danger' });
-    }
-    const minTicket = state.settings?.minTicket || 0;
+      const minTicket = state.settings.minTicket || 0;
     if (minTicket > 0 && Number.isFinite(c.value) && c.value > 0 && c.value < minTicket) {
       tags.push({ label: 'Ticket baixo', cls: 'ind-warning' });
     }
@@ -1696,55 +2092,29 @@ const renderCampaigns = () => {
             <th>Valor</th>
             <th>Status</th>
             <th>Etapa</th>
-            <th>Avan\u00e7ar</th>
             <th>A\u00e7\u00f5es</th>
           </tr>
         </thead>
         <tbody>
           ${list
             .map((campaign) => {
-              const statusSafe = Object.prototype.hasOwnProperty.call(statusLabels, campaign.status) ? campaign.status : 'prospeccao';
+              const statusSafe = Object.prototype.hasOwnProperty.call(statusLabels, campaign.status) ? campaign.status : campaignStatusOrder[0];
               const stageOptions = getCampaignStageOptions(statusSafe);
-              const stageSafe = stageOptions.some((opt) => opt.id === campaign.stage) ? campaign.stage : stageOptions[0]?.id || '';
+              const stageSafe = stageOptions.some((opt) => opt.id === campaign.stage) ? campaign.stage : stageOptions[0].id || '';
               const stageDisabled = stageOptions.length ? '' : 'disabled';
 
               const stageOptionsHtml = stageOptions.length
                 ? stageOptions
-                    .map((opt) => {
-                      return `<option value="${opt.id}" ${opt.id === stageSafe ? 'selected' : ''}>${opt.label}</option>`;
+                  .map((opt) => {
+                      // Etapas que disparam uma ação vêm com marcador no rótulo,
+                      // para a escolha não surpreender.
+                      return `<option value="${opt.id}" ${opt.id === stageSafe ? 'selected' : ''}>${getLabelComMarcador(opt.id)}</option>`;
                     })
                     .join('')
                 : '<option value="">-</option>';
 
-              // Calcular próxima etapa para botão de avanço
-              const currentStageIndex = stageOptions.findIndex((opt) => opt.id === stageSafe);
-              const isLastStage = currentStageIndex >= stageOptions.length - 1;
-              const currentStatusIndex = campaignStatusOrder.indexOf(statusSafe);
-              const isLastStatus = currentStatusIndex >= campaignStatusOrder.length - 1;
-
-              let advanceBtnHtml = '';
-              if (!isLastStatus || !isLastStage) {
-                if (!isLastStage) {
-                  const nextStage = stageOptions[currentStageIndex + 1];
-                  advanceBtnHtml = `
-                    <button class="btn-advance" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
-                      <span class="btn-advance-label">Avançar: ${escapeHtml(nextStage.label)}</span>
-                    </button>`;
-                } else if (!isLastStatus) {
-                  const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
-                  const nextStatusLabel = statusLabels[nextStatus] || nextStatus;
-                  advanceBtnHtml = `
-                    <button class="btn-advance btn-advance-status" data-action="advance-stage" data-campaign-id="${campaign.id}" type="button">
-                      <span class="btn-advance-label">Avançar: ${escapeHtml(nextStatusLabel)}</span>
-                    </button>`;
-                }
-              } else {
-                advanceBtnHtml = `
-                  <span class="btn-advance btn-advance-disabled" aria-disabled="true">
-                    <span class="btn-advance-label">Etapa final</span>
-                  </span>`;
-              }
-
+              // A coluna "Avançar" saiu da lista: quem muda a etapa é o próprio
+              // seletor ao lado, sem um segundo caminho para a mesma coisa.
 
               const isPriority = campaign.priority === true;
               const isModel = campaign.isModel === true;
@@ -1752,7 +2122,6 @@ const renderCampaigns = () => {
                 ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'
                 : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
 
-              const modelConvertBtn = isModel ? renderModelAdvanceBtn(campaign) : null;
               const modelOutreach = isModel ? renderModelOutreachBar(campaign) : '';
 
               const rate = getHourlyRate(campaign);
@@ -1772,7 +2141,7 @@ const renderCampaigns = () => {
                       <button class="btn-priority ${isPriority ? 'active' : ''}" data-action="toggle-priority" data-campaign-id="${campaign.id}" type="button" title="${isPriority ? 'Remover prioridade' : 'Marcar como prioridade'}">
                         ${priorityIcon}
                       </button>
-                      <span class="chip chip-pill brand-status-${statusSafe}">${escapeHtml(campaign.brand || 'Marca')}</span>
+                      <span class="chip chip-pill brand-status-${statusSafe}" title="${escapeHtml(campaign.brand || 'Marca')}"><span class="chip-pill-text">${escapeHtml(campaign.brand || 'Marca')}</span></span>
                       ${isModel ? '<span class="badge-model">MODELO</span>' : ''}
                       ${indicatorHtml}
                     </div>
@@ -1799,14 +2168,12 @@ const renderCampaigns = () => {
                   </td>
                   <td data-label="Etapa">
                     ${isModel
-                      ? `<span class="select select-compact stage-${statusSafe} model-select-locked">${stageOptions.find(o => o.id === stageSafe)?.label || '—'}</span>`
+                      ? `<span class="select select-compact stage-${statusSafe} model-select-locked">${stageOptions.find(o => o.id === stageSafe).label || '—'}</span>`
                       : `<select class="select select-compact stage-${statusSafe}" ${stageDisabled} data-campaign-stage data-campaign-id="${campaign.id}">${stageOptionsHtml}</select>`
                     }
-                  </td>
-                  <td data-label="Avançar" ${isModel ? 'colspan="1"' : ''}>
-                    <div class="stage-btns">
-                      ${isModel ? (modelConvertBtn || '') : advanceBtnHtml}
-                    </div>
+                    ${!isModel && getAtalhoDaEtapa(stageSafe)
+                      ? `<button class="stage-action-chip" data-action="open-campaign-actions" data-campaign-id="${campaign.id}" type="button">${getAtalhoDaEtapa(stageSafe)}</button>`
+                      : ''}
                   </td>
                   <td data-label="Ações">
                     ${isModel
@@ -1880,13 +2247,13 @@ const renderBrands = () => {
       .slice()
       .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')));
 
-    const totalFaturado = linkedCampaigns.reduce((sum, campaign) => sum + (Number(campaign?.value) || 0), 0);
+    const totalFaturado = linkedCampaigns.reduce((sum, campaign) => sum + (Number(campaign.value) || 0), 0);
     const interactions = (Array.isArray(brand.interactions) ? brand.interactions : [])
       .slice()
       .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
     const lastInteraction = interactions[0] || null;
     const lastCampaignUpdate = linkedCampaigns[0] ? isoToDateKey(linkedCampaigns[0].updatedAt || linkedCampaigns[0].createdAt) : '';
-    const lastContact = lastInteraction?.date || lastCampaignUpdate || '';
+    const lastContact = (lastInteraction && lastInteraction.date) || lastCampaignUpdate || '';
     const lastCompletedCampaign = linkedCampaigns.find((campaign) => campaign.status === 'concluida' || campaign.paymentPercent >= 100) || linkedCampaigns[0] || null;
     const pendingAction = Boolean(brand.nextActionType && brand.nextActionDate);
 
@@ -1970,6 +2337,9 @@ const renderBrands = () => {
 
   const selectedSummary = brandSummaries.find((item) => item.brand.id === state.ui.selectedBrandId) || brandSummaries[0];
   const selectedBrand = selectedSummary.brand;
+  const lastWorkLabel = selectedSummary.lastWork
+    ? (selectedSummary.lastWork.title || selectedSummary.lastWork.brand || '—')
+    : '—';
 
   listContainer.innerHTML = `
     <div class="brand-list-table">
@@ -2053,6 +2423,22 @@ const renderBrands = () => {
         <p class="muted">Defina um follow-up para essa marca e deixe o dashboard comercial sempre em dia.</p>
       </div>
     `;
+  const interactionTypeLabels = { dm: 'DM', email: 'E-mail', call: 'Ligação' };
+  const todayInputValue = new Date().toISOString().slice(0, 10);
+  const interactionHistory = selectedSummary.interactions.length
+    ? selectedSummary.interactions
+      .slice(0, 6)
+      .map((interaction) => `
+        <div class="brand-interaction-item">
+          <div>
+            <strong>${escapeHtml(interactionTypeLabels[interaction.type] || interaction.type || 'Contato')}</strong>
+            <span>${escapeHtml(interaction.note || 'Sem observação')}</span>
+          </div>
+          <time>${escapeHtml(formatDateShort(interaction.date))}</time>
+        </div>
+      `)
+      .join('')
+    : '<p class="muted">Nenhuma interação registrada para essa marca.</p>';
 
   detailContainer.innerHTML = `
     <div class="brand-detail-header">
@@ -2090,7 +2476,7 @@ const renderBrands = () => {
       </div>
       <div class="brand-detail-summary-card">
         <span class="brand-detail-label">Último trabalho realizado</span>
-        <strong>${escapeHtml(selectedSummary.lastWork?.title || selectedSummary.lastWork?.brand || '—')}</strong>
+        <strong>${escapeHtml(lastWorkLabel)}</strong>
       </div>
     </div>
 
@@ -2109,6 +2495,29 @@ const renderBrands = () => {
       <div class="brand-detail-block">
         <div class="brand-detail-block-head">
           <div>
+            <h3>Interações</h3>
+            <p class="muted">Registre DMs, e-mails e ligações importantes.</p>
+          </div>
+        </div>
+        <form class="brand-interaction-form" id="brand-interaction-form">
+          <input type="hidden" name="brandId" value="${escapeHtml(selectedBrand.id)}" />
+          <select class="select select--compact" name="type" aria-label="Tipo de interação">
+            <option value="dm">DM</option>
+            <option value="email">E-mail</option>
+            <option value="call">Ligação</option>
+          </select>
+          <input class="input" name="date" type="date" value="${todayInputValue}" aria-label="Data da interação" />
+          <input class="input" name="note" type="text" maxlength="140" placeholder="Resumo rápido do contato" aria-label="Observação da interação" />
+          <button class="btn btn-primary btn-small" type="submit">Registrar</button>
+        </form>
+        <div class="brand-interaction-list">
+          ${interactionHistory}
+        </div>
+      </div>
+
+      <div class="brand-detail-block">
+        <div class="brand-detail-block-head">
+          <div>
             <h3>Histórico de campanhas</h3>
             <p class="muted">Campanhas vinculadas a essa marca.</p>
           </div>
@@ -2116,7 +2525,7 @@ const renderBrands = () => {
         <div class="brand-history-list">
           ${selectedSummary.linkedCampaigns.length
             ? selectedSummary.linkedCampaigns
-                .map((campaign) => `
+              .map((campaign) => `
                   <div class="brand-history-item">
                     <div>
                       <strong>${escapeHtml(campaign.title || campaign.brand || 'Campanha')}</strong>
@@ -2142,15 +2551,12 @@ const renderBrands = () => {
   `;
 };
 
-/* ──────────────────── PERFORMANCE ──────────────────── */
+/* -------------------- PERFORMANCE -------------------- */
 
 const PERF_RANGE_OPTIONS = [7, 15, 30, 45, 90];
 const METRIC_COLORS = ['#34d399','#38bdf8','#f59e0b','#a78bfa','#fb7185','#22d3ee','#818cf8','#f97316'];
 
-const escapeHtml = (v) =>
-  String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-
-const getCampaignName = (c) => String(c?.title || c?.brand || 'Campanha sem nome').trim() || 'Campanha sem nome';
+const getCampaignName = (c) => String(c.title || c.brand || 'Campanha sem nome').trim() || 'Campanha sem nome';
 
 const toSafe = (v) => { if (Number.isFinite(v)) return v; const p = Number.parseFloat(String(v||'').replace(',','.')); return Number.isFinite(p) ? p : 0; };
 
@@ -2168,13 +2574,13 @@ const inWindow = (d, s, e) => Boolean(d && d >= s && d < e);
 
 const daysBetweenD = (a, b) => { const s = toDayStart(a), e = toDayStart(b); if (!s||!e) return 0; return Math.max(0, Math.floor((e-s)/86400000)); };
 
-const getPaidAt = (c) => parseDate(c?.paymentDate || c?.paidAt || c?.paidDate);
+const getPaidAt = (c) => parseDate(c.paymentDate || c.paidAt || c.paidDate);
 
-const getDaysStalled = (c, now) => { const r = parseDate(c?.updatedAt) || parseDate(c?.createdAt); if (!r) return 0; const d = daysBetweenD(r, now); return Number.isFinite(d) ? d : 0; };
+const getDaysStalled = (c, now) => { const r = parseDate(c.updatedAt) || parseDate(c.createdAt); if (!r) return 0; const d = daysBetweenD(r, now); return Number.isFinite(d) ? d : 0; };
 
 const buildDateRange = (start, days) => Array.from({ length: days }, (_, i) => addDays(start, i));
 
-/* ── SVG Charts ── */
+/* -- SVG Charts -- */
 
 const renderLineChartSvg = (series, labels, unit) => {
   if (!series.length) return '<div class="perf-empty">Sem dados.</div>';
@@ -2205,11 +2611,11 @@ const renderBarChartHtml = (items) => {
   }).join('')}</div>`;
 };
 
-/* ── Performance data computation ── */
+/* -- Performance data computation -- */
 
 const computePerformance = () => {
   const now = new Date();
-  const rangeDays = PERF_RANGE_OPTIONS.includes(Number(state.metrics?.rangeDays)) ? Number(state.metrics.rangeDays) : 30;
+  const rangeDays = PERF_RANGE_OPTIONS.includes(Number(state.metrics.rangeDays)) ? Number(state.metrics.rangeDays) : 30;
   const today = toDayStart(now) || new Date();
   const curStart = addDays(today, -(rangeDays - 1));
   const curEnd = addDays(today, 1);
@@ -2343,7 +2749,7 @@ const computePerformance = () => {
   }).filter(d => d !== null);
   const avgPayTime = payTime.length ? Math.round(payTime.reduce((s, v) => s + v, 0) / payTime.length) : 0;
 
-  const stale = openC.filter(c => getDaysStalled(c, now) >= (state.settings?.alertStaleDays || 5));
+  const stale = openC.filter(c => getDaysStalled(c, now) >= (state.settings.alertStaleDays || 5));
 
   return {
     rangeDays, total, doneCount,
@@ -2353,7 +2759,7 @@ const computePerformance = () => {
   };
 };
 
-/* ── Render Performance ── */
+/* -- Render Performance -- */
 
 const renderPerformance = () => {
   const container = document.querySelector('[data-perf-content]');
@@ -2387,7 +2793,7 @@ const renderPerformance = () => {
           <div class="perf-card-icon">${iconSvg('cash')}</div>
           <div class="perf-card-label">Receita total</div>
           <div class="perf-card-value">${formatCurrency(f.totalReceived)}</div>
-          <div class="muted">${perf.doneCount} campanha(s) paga(s)</div>
+          <div class="muted">${plur(perf.doneCount, 'campanha paga', 'campanhas pagas')}</div>
         </div>
         <div class="card perf-card">
           <div class="perf-card-icon">${iconSvg('trend')}</div>
@@ -2517,7 +2923,7 @@ const renderPerformance = () => {
           <div class="perf-card-icon">${iconSvg('bars')}</div>
           <div class="perf-card-label">Pipeline parado</div>
           <div class="perf-card-value ${o.stale > 0 ? 'perf-value--warn' : 'perf-value--green'}">${o.stale}</div>
-          <div class="muted">Sem atualiza\u00e7\u00e3o por ${state.settings?.alertStaleDays || 5}+ dias</div>
+          <div class="muted">Sem atualiza\u00e7\u00e3o por ${state.settings.alertStaleDays || 5}+ dias</div>
         </div>
       </div>
     `;
@@ -2592,15 +2998,202 @@ const renderSettings = () => {
       }
     })() ||
     '';
-  document.querySelectorAll('[data-account-email]').forEach((el) => {
-    el.textContent = email || '—';
-  });
-
-  const weeklyBtn = document.querySelector('[data-action="send-weekly-summary"]');
-  if (weeklyBtn) {
-    weeklyBtn.disabled = !state.settings.weekly;
+  const billing = getBillingSnapshot();
+  const billingCard = document.querySelector('[data-settings-billing-card]');
+  if (billingCard) {
+    billingCard.hidden = false;
+    const pill = billingCard.querySelector('[data-settings-billing-pill]');
+    const text = billingCard.querySelector('[data-settings-billing-text]');
+    const action = billingCard.querySelector('[data-settings-billing-action]');
+    const planName = getBillingPlanDisplayName(billing);
+    if (pill) pill.textContent = planName;
+    if (text) {
+      text.textContent = billing.plan === 'internal'
+        ? 'Sua conta tem passe livre. Você ainda pode abrir os planos para comparar as opções.'
+        : billing.plan === 'monthly'
+          ? 'Seu plano mensal está ativo. Gerencie a assinatura ou migre para o anual quando quiser.'
+        : billing.plan === 'annual'
+          ? 'Seu plano anual está ativo. Gerencie cobrança, cartão e renovação pelo portal.'
+          : 'Seu acesso está liberado para testes. Abra os planos para assinar mensal ou anual.';
+    }
+    if (action) {
+      action.dataset.action = 'goto-plans';
+      action.textContent = billing.hasPremiumAccess ? 'Ver planos e assinatura' : 'Ver planos';
+    }
   }
 
+};
+
+const renderPlansPage = () => {
+  const container = document.querySelector('[data-billing-page]');
+  if (!container) return;
+
+  const billing = getBillingSnapshot();
+  const notice = getBillingNotice();
+  const dashboardBanner = document.querySelector('[data-dashboard-upgrade-banner]');
+  if (dashboardBanner) {
+    dashboardBanner.style.display = billing.hasFullAccess ? 'none' : '';
+    const bannerKicker = dashboardBanner.querySelector('.dashboard-upgrade-kicker');
+    const bannerTitle = dashboardBanner.querySelector('.dashboard-upgrade-copy strong');
+    const bannerText = dashboardBanner.querySelector('.dashboard-upgrade-copy span');
+    if (bannerKicker) bannerKicker.textContent = billing.hasPremiumAccess ? 'Premium ativo' : 'Planos disponíveis';
+    if (bannerTitle) bannerTitle.textContent = billing.hasPremiumAccess
+      ? 'Seu plano premium está ativo.'
+      : 'Escolha um plano quando quiser ativar sua assinatura.';
+    if (bannerText) bannerText.textContent = billing.hasPremiumAccess
+      ? 'Gerencie sua assinatura ou acompanhe o status sempre que precisar.'
+      : 'Veja os planos disponíveis e escolha o ciclo que faz mais sentido para você.';
+  }
+
+  const dateLabel = billing.currentPeriodEnd
+    ? new Date(billing.currentPeriodEnd).toLocaleDateString('pt-BR')
+    : '—';
+  const statusMeta = (() => {
+    const status = String(billing.status || 'free');
+    if (status === 'internal') return { label: 'Acesso interno', className: 'billing-pill billing-pill--active' };
+    if (status === 'active') return { label: 'Ativa', className: 'billing-pill billing-pill--active' };
+    if (status === 'trialing') return { label: 'Em teste', className: 'billing-pill billing-pill--active' };
+    if (status === 'past_due') return { label: 'Pagamento pendente', className: 'billing-pill billing-pill--warn' };
+    if (status === 'unpaid') return { label: 'Inadimplente', className: 'billing-pill billing-pill--warn' };
+    if (status === 'canceled') return { label: 'Cancelada', className: 'billing-pill billing-pill--neutral' };
+    return { label: 'Teste grátis', className: 'billing-pill billing-pill--neutral' };
+  })();
+
+  const planLabel = getBillingPlanDisplayName(billing);
+  const periodLabel = billing.cancelAtPeriodEnd
+    ? `Cancelamento agendado para ${dateLabel}.`
+    : `Próxima renovação em ${dateLabel}.`;
+
+  const statusText = billing.status === 'internal'
+      ? 'Acesso liberado para conta interna.'
+    : billing.status === 'free'
+      ? 'Teste grátis ativo do plano pago, sem cobrança ativa por enquanto.'
+    : periodLabel;
+
+  const currentPlanNote = billing.status === 'internal'
+      ? 'Esta conta tem acesso completo liberado pela equipe Makerline.'
+    : billing.status === 'free'
+      ? 'Você está testando o plano pago. Para continuar depois do teste, escolha mensal ou anual.'
+      : `${statusMeta.label} · ${statusText}`;
+  const planActionButton = (targetPlan, featured = false) => {
+    const currentPlan = billing.plan === targetPlan;
+    const planName = targetPlan === 'annual' ? 'anual' : 'mensal';
+    const classes = featured
+      ? 'btn btn-primary plans-offer-btn plans-offer-btn--featured'
+      : 'btn btn-primary plans-offer-btn';
+    if (billing.plan === 'internal') {
+      return '<button class="btn btn-ghost plans-offer-btn plans-offer-btn--ghost" type="button" disabled>Acesso interno</button>';
+    }
+    if (billing.hasPremiumAccess) {
+      if (!currentPlan) {
+        return `<button class="${classes}" data-action="open-billing-checkout" data-plan="${targetPlan}" type="button">Trocar para plano ${planName}</button>`;
+      }
+      return '<button class="btn btn-ghost plans-offer-btn plans-offer-btn--ghost" type="button" disabled>Plano atual</button>';
+    }
+    return `<button class="${classes}" data-action="open-billing-checkout" data-plan="${targetPlan}" type="button">Assinar plano ${planName}</button>`;
+  };
+
+  container.innerHTML = `
+    <section class="plans-editorial">
+      <div class="plans-editorial-hero">
+        <span class="plans-editorial-kicker">Makerline Premium</span>
+        <h2>Escolha o seu nível de operação comercial.</h2>
+        <p>Traga mais contexto, organização e previsibilidade para marcas, campanhas e receita dentro do mesmo painel.</p>
+        <div class="plans-cycle-pills">
+          <span class="plans-cycle-pill">Plano mensal</span>
+          <span class="plans-cycle-pill is-active">Plano anual</span>
+        </div>
+        <div class="plans-current-note">${escapeHtml(currentPlanNote)}</div>
+        ${notice ? `<div class="plans-current-note">${escapeHtml(notice)}</div>` : ''}
+        <div class="plans-inline-message muted" id="billing-msg"></div>
+      </div>
+
+      <div class="plans-editorial-grid">
+        <article class="plans-offer-card">
+          <div class="plans-offer-head">
+            <h3>Plano mensal</h3>
+            <p>Flexível para testar e manter sua operação organizada mês a mês.</p>
+          </div>
+          <div class="plans-offer-price">
+            <strong>R$ 39,90</strong>
+            <span>/ mês</span>
+          </div>
+          <ul class="plans-offer-list">
+            <li>Status e organização das campanhas</li>
+            <li>Acompanhamento financeiro</li>
+            <li>Métricas de todo o trabalho</li>
+            <li>Prospecção e follow-ups com marcas</li>
+            <li>Prazos, entregas e próximos passos</li>
+          </ul>
+          <div class="plans-offer-actions">
+            ${planActionButton('monthly')}
+          </div>
+        </article>
+
+        <article class="plans-offer-card plans-offer-card--featured">
+          <div class="plans-offer-badge">Economize R$ 128,90</div>
+          <div class="plans-offer-head">
+            <h3>Plano anual</h3>
+            <p>Melhor custo para operar com menos atrito ao longo do ano.</p>
+          </div>
+          <div class="plans-offer-price">
+            <strong>R$ 349,90</strong>
+            <span>/ ano</span>
+          </div>
+          <ul class="plans-offer-list">
+            <li>Todos os benefícios do mensal</li>
+            <li>Economia no ciclo anual</li>
+            <li>Operação ativa o ano inteiro</li>
+            <li>Menos risco de perder organização</li>
+            <li>Melhor custo para creator ativo</li>
+          </ul>
+          <div class="plans-offer-actions">
+            ${planActionButton('annual', true)}
+          </div>
+        </article>
+      </div>
+
+      <section class="plans-compare-card">
+        <div class="plans-section-head">
+          <h3>Comparação detalhada</h3>
+        </div>
+        <div class="plans-compare-table-wrap">
+          <table class="plans-compare-table">
+            <thead>
+              <tr>
+                <th>Recurso</th>
+                <th>Plano mensal</th>
+                <th>Plano anual</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Campanhas e status</td>
+                <td>Incluído</td>
+                <td>Incluído</td>
+              </tr>
+              <tr>
+                <td>Financeiro e pagamentos</td>
+                <td>Incluído</td>
+                <td>Incluído</td>
+              </tr>
+              <tr>
+                <td>Métricas da operação</td>
+                <td>Incluído</td>
+                <td>Incluído</td>
+              </tr>
+              <tr>
+                <td>Assinatura</td>
+                <td>Mensal flexível</td>
+                <td>Melhor custo anual</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </section>
+  `;
 };
 
 const renderScriptHistory = () => {
@@ -2640,14 +3233,25 @@ const renderScriptHistory = () => {
 };
 
 const renderAll = () => {
-  renderProfile();
-  renderDashboardFinancials();
-  renderCampaigns();
-  renderBrands();
-  renderFinancePage();
-  renderMetricsPage();
-  renderSettings();
-  setScriptOutput('');
+  const run = (label, fn) => {
+    try {
+      fn();
+    } catch (error) {
+      console.warn(`[renderAll] ${label} falhou`, error);
+    }
+  };
+
+  run('profile', renderProfile);
+  run('dashboardFinancials', renderDashboardFinancials);
+  run('campaigns', renderCampaigns);
+  run('prospection', renderProspectionPage);
+  run('pricing', renderPricingPage);
+  run('brands', renderBrands);
+  run('finance', renderFinancePage);
+  run('metrics', renderMetricsPage);
+  run('settings', renderSettings);
+  run('plans', renderPlansPage);
+  run('scriptOutput', () => setScriptOutput(''));
 };
 
 export { renderAll, renderScriptHistory };

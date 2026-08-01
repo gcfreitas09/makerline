@@ -1,5 +1,6 @@
 const ADMIN_USERS_CACHE_KEY = 'ugcQuestAdminUsersCacheV2';
 const ADMIN_USERS_CACHE_TTL_MS = 5 * 60 * 1000;
+const INTELLIGENCE_ROUTE = 'intelligence.html';
 
 let trackerRequest = null;
 let trackerLoaded = false;
@@ -19,7 +20,7 @@ const setMsg = (text) => {
 const setBtnEnabled = (enabled) => {
   const { card } = getEls();
   if (!card) return;
-  const btn = card.querySelector('a[href="admin.html"]');
+  const btn = card.querySelector(`a[href="${INTELLIGENCE_ROUTE}"]`);
   if (!btn) return;
   btn.classList.toggle('is-disabled', !enabled);
   btn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
@@ -35,7 +36,7 @@ const getCountFromPayload = (payload) => {
 };
 
 const setSummaryMessage = (count) => {
-  setMsg(count ? `Tem ${count} cadastro${count === 1 ? '' : 's'} rolando.` : 'Ainda não tem cadastros por aqui.');
+  setMsg(count ? `${count} usuário${count === 1 ? '' : 's'} monitorado${count === 1 ? '' : 's'} no Intelligence.` : 'Ainda não há usuários monitorados no Intelligence.');
 };
 
 const readUsersCache = () => {
@@ -58,8 +59,8 @@ const readUsersCache = () => {
 
 const writeUsersCache = (payload) => {
   try {
-    const users = Array.isArray(payload?.users) ? payload.users : [];
-    const count = Number.isFinite(payload?.count) ? payload.count : users.length;
+    const users = Array.isArray(payload.users) ? payload.users : [];
+    const count = Number.isFinite(payload.count) ? payload.count : users.length;
     const viewerId = String(getSessionUserId() || '');
     if (!viewerId) return;
     sessionStorage.setItem(
@@ -123,7 +124,7 @@ const initAdminTrackerCard = () => {
     setSummaryMessage(getCountFromPayload(cached));
   } else {
     setBtnEnabled(false);
-    setMsg('Carregando painel do time...');
+    setMsg('Carregando Makerline Intelligence...');
   }
 
   if (trackerLoaded || trackerRequest) return;
@@ -147,7 +148,7 @@ const initAdminTrackerCard = () => {
           return;
         }
 
-        const msg = data?.error ? String(data.error) : 'Não consegui carregar o tracker agora.';
+        const msg = data.error ? String(data.error) : 'Não consegui carregar o Makerline Intelligence agora.';
         if (!cached) setMsg(msg);
         setBtnEnabled(true);
         return;
@@ -160,7 +161,7 @@ const initAdminTrackerCard = () => {
     })
     .catch(() => {
       if (!cached) {
-        setMsg('Não consegui carregar o tracker agora. Se der, tenta de novo mais tarde.');
+        setMsg('Não consegui carregar o Makerline Intelligence agora. Tente de novo mais tarde.');
       }
       setBtnEnabled(true);
     })

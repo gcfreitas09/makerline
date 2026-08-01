@@ -888,10 +888,6 @@ const renderSettings = () => {
     el.textContent = email || '—';
   });
 
-  const weeklyBtn = document.querySelector('[data-action="send-weekly-summary"]');
-  if (weeklyBtn) {
-    weeklyBtn.disabled = !state.settings.weekly;
-  }
 };
 
 const renderScriptHistory = () => {
@@ -959,4 +955,3 @@ const renderAll = () => {
 };
 
 export { renderAll, renderScriptHistory };
-

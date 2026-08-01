@@ -32,7 +32,7 @@ $email = trim(strtolower((string)($body['email'] ?? '')));
 $code = preg_replace('/\\D/', '', (string)($body['code'] ?? ''));
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    respond(400, ['error' => 'Email inválido']);
+    respond(400, ['error' => 'E-mail inválido']);
 }
 
 if (!preg_match('/^\\d{6}$/', $code)) {
@@ -74,10 +74,9 @@ if (!$ok) {
     respond(500, ['error' => users_store_last_error() ?: 'Não consegui confirmar o código agora.']);
 }
 
-$resetLink = ugc_base_url() . '/reset.html?token=' . $token;
+$resetLink = ugc_base_url() . '/reset.html?token=' . urlencode($token);
 
 respond(200, [
     'ok' => true,
     'resetLink' => $resetLink
 ]);
-

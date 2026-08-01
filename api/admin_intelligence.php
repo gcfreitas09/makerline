@@ -1,0 +1,448 @@
+<?php
+require_once __DIR__ . '/users_store.php';
+require_once __DIR__ . '/states_store.php';
+require_once __DIR__ . '/landing_insights_access.php';
+require_once __DIR__ . '/referrals.php';
+
+header('Content-Type: application/json; charset=UTF-8');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+
+$adminsFile = __DIR__ . '/../storage/admins.json';
+$adminsExampleFile = __DIR__ . '/../storage/admins.example.json';
+$statesDir = __DIR__ . '/../storage/states';
+$intelligenceAllowedEmails = ['fgui3662@gmail.com', 'lorenzo.ritter27@gmail.com'];
+
+function respond_json($status, $data = [])
+{
+    http_response_code($status);
+    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+function load_json_file($file)
+{
+    if (!is_file($file)) return null;
+    $json = file_get_contents($file);
+    $data = json_decode($json, true);
+    return is_array($data) ? $data : null;
+}
+
+function load_admin_emails($adminsFile, $exampleFile)
+{
+    $data = load_json_file($adminsFile);
+    if (!$data) $data = load_json_file($exampleFile);
+    $emails = is_array($data['emails'] ?? null) ? $data['emails'] : [];
+    $clean = [];
+    foreach ($emails as $email) {
+        $safe = trim(strtolower((string)$email));
+        if ($safe === '') continue;
+        $clean[] = $safe;
+    }
+    return array_values(array_unique($clean));
+}
+
+// Fundadores testando a própria conta nunca representam uso real de cliente,
+// então ficam sempre fora da lista, sem opção de mostrar.
+function intelligence_founder_emails()
+{
+    return array_values(array_unique(array_map(function ($email) {
+        return trim(strtolower((string)$email));
+    }, ['fgui3662@gmail.com', 'lorenzo.ritter13@gmail.com', 'lorenzo.ritter27@gmail.com'])));
+}
+
+// Parceiros (Rick, Keila) ficam fora da base de clientes por padrão, pra não
+// distorcer taxa de ativação e afins, mas podem ser trazidos de volta com
+// includePartners=true quando o objetivo é analisar o uso deles mesmos.
+function intelligence_partner_emails()
+{
+    $emails = [];
+    foreach (referrals_partners() as $partner) {
+        $partnerEmail = trim(strtolower((string)($partner['email'] ?? '')));
+        if ($partnerEmail !== '') $emails[] = $partnerEmail;
+    }
+    return array_values(array_unique($emails));
+}
+
+function intelligence_internal_excluded_emails($includePartners = false)
+{
+    $emails = intelligence_founder_emails();
+    if (!$includePartners) {
+        $emails = array_merge($emails, intelligence_partner_emails());
+    }
+
+    return array_values(array_unique(array_map(function ($email) {
+        return trim(strtolower((string)$email));
+    }, $emails)));
+}
+
+function sanitize_state_file_user_id($userId)
+{
+    return preg_replace('/[^a-zA-Z0-9_\-]/', '_', (string)$userId);
+}
+
+function is_safe_supabase_user_id($userId)
+{
+    return preg_match('/^[a-zA-Z0-9._\-]+$/', (string)$userId) === 1;
+}
+
+function summarize_campaigns_from_state($state)
+{
+    $summary = [
+        'campaignCount' => 0,
+        'activeCampaignCount' => 0,
+        'firstCampaignCreatedAt' => null,
+        'firstActiveCampaignAt' => null,
+        'lastCampaignUpdatedAt' => null,
+    ];
+
+    if (!is_array($state)) return $summary;
+    $campaigns = $state['campaigns'] ?? null;
+    if (!is_array($campaigns)) return $summary;
+
+    $summary['campaignCount'] = count($campaigns);
+
+    foreach ($campaigns as $campaign) {
+        if (!is_array($campaign)) continue;
+
+        $createdAt = trim((string)($campaign['createdAt'] ?? ''));
+        $updatedAt = trim((string)($campaign['updatedAt'] ?? $createdAt));
+        $archived = !empty($campaign['archived']);
+        $paused = !empty($campaign['paused']);
+        $status = strtolower(trim((string)($campaign['status'] ?? '')));
+
+        if ($createdAt !== '' && ($summary['firstCampaignCreatedAt'] === null || strcmp($createdAt, $summary['firstCampaignCreatedAt']) < 0)) {
+            $summary['firstCampaignCreatedAt'] = $createdAt;
+        }
+
+        if ($updatedAt !== '' && ($summary['lastCampaignUpdatedAt'] === null || strcmp($updatedAt, $summary['lastCampaignUpdatedAt']) > 0)) {
+            $summary['lastCampaignUpdatedAt'] = $updatedAt;
+        }
+
+        if ($archived || $paused || $status === 'concluida') {
+            continue;
+        }
+
+        $summary['activeCampaignCount']++;
+
+        if ($createdAt !== '' && ($summary['firstActiveCampaignAt'] === null || strcmp($createdAt, $summary['firstActiveCampaignAt']) < 0)) {
+            $summary['firstActiveCampaignAt'] = $createdAt;
+        }
+    }
+
+    return $summary;
+}
+
+function summarize_prospections_from_state($state)
+{
+    $summary = ['prospectionCount' => 0, 'firstProspectionAt' => null];
+    if (!is_array($state)) return $summary;
+
+    $prospections = $state['prospections'] ?? null;
+    if (!is_array($prospections)) return $summary;
+
+    $summary['prospectionCount'] = count($prospections);
+
+    foreach ($prospections as $prospection) {
+        if (!is_array($prospection)) continue;
+        $createdAt = trim((string)($prospection['createdAt'] ?? ''));
+        if ($createdAt === '') continue;
+        if ($summary['firstProspectionAt'] === null || strcmp($createdAt, $summary['firstProspectionAt']) < 0) {
+            $summary['firstProspectionAt'] = $createdAt;
+        }
+    }
+
+    return $summary;
+}
+
+function summarize_brands_from_state($state)
+{
+    $summary = ['brandCount' => 0, 'firstBrandAt' => null];
+    if (!is_array($state)) return $summary;
+
+    $brands = $state['brands'] ?? null;
+    if (!is_array($brands)) return $summary;
+
+    $summary['brandCount'] = count($brands);
+
+    foreach ($brands as $brand) {
+        if (!is_array($brand)) continue;
+        $createdAt = trim((string)($brand['createdAt'] ?? ''));
+        if ($createdAt === '') continue;
+        if ($summary['firstBrandAt'] === null || strcmp($createdAt, $summary['firstBrandAt']) < 0) {
+            $summary['firstBrandAt'] = $createdAt;
+        }
+    }
+
+    return $summary;
+}
+
+function build_onboarding_snapshot($state, $campaignSummary, $user = [])
+{
+    $progress = is_array($state['progress'] ?? null) ? $state['progress'] : [];
+    $onboarding = is_array($progress['onboarding'] ?? null) ? $progress['onboarding'] : [];
+    $campaignCount = (int)($campaignSummary['campaignCount'] ?? 0);
+    $activeCampaignCount = (int)($campaignSummary['activeCampaignCount'] ?? 0);
+    $prospectionSummary = summarize_prospections_from_state($state);
+    $prospectionCount = (int)($prospectionSummary['prospectionCount'] ?? 0);
+    $brandSummary = summarize_brands_from_state($state);
+    $brandCount = (int)($brandSummary['brandCount'] ?? 0);
+
+    // O login real vem do registro do usuario (lastLoginAt), nao de uma flag no state:
+    // as flags welcomeGranted/welcomeAwarded so existem em gamification_v2.js, que nao e
+    // importado por ninguem, entao nunca eram gravadas e esse passo ficava eternamente pendente.
+    $lastLoginAt = trim((string)($user['lastLoginAt'] ?? ''));
+    $firstLoginAt = $onboarding['welcomeAt'] ?? ($lastLoginAt !== '' ? $lastLoginAt : null);
+
+    $steps = [
+        [
+            'id' => 'account_created',
+            'label' => 'Criou conta',
+            'completed' => true,
+            'completedAt' => null,
+        ],
+        [
+            'id' => 'first_login',
+            'label' => 'Fez primeiro login',
+            'completed' => $lastLoginAt !== '' || !empty($onboarding['welcomeGranted']) || !empty($onboarding['welcomeAwarded']),
+            'completedAt' => $firstLoginAt,
+        ],
+        [
+            // Cadastrar a primeira marca e, na pratica, o primeiro passo real dentro do
+            // produto: e onde a maioria para hoje. Sem medir isso, quem cadastrou marca e
+            // quem nao fez absolutamente nada apareciam com a mesma porcentagem.
+            'id' => 'first_brand_created',
+            'label' => 'Cadastrou primeira marca',
+            'completed' => $brandCount > 0,
+            'completedAt' => $brandSummary['firstBrandAt'] ?? null,
+        ],
+        [
+            // Só conta campanha que existe de verdade na conta. hasCampaigns NAO entra aqui:
+            // ela é a resposta do quiz para "voce ja tem campanhas?" (fora do app), entao
+            // marcava esse passo como concluido para quem nunca criou nada dentro do produto.
+            'id' => 'first_campaign_created',
+            'label' => 'Criou primeira campanha',
+            // A flag do onboarding e apenas da interface e pode ser salva antes
+            // de o sync terminar. O painel usa somente a campanha persistida.
+            'completed' => $campaignCount > 0,
+            'completedAt' => $campaignSummary['firstCampaignCreatedAt'] ?? null,
+        ],
+        [
+            'id' => 'first_campaign_activated',
+            'label' => 'Ativou primeira campanha',
+            'completed' => $activeCampaignCount > 0,
+            'completedAt' => $campaignSummary['firstActiveCampaignAt'] ?? null,
+        ],
+        [
+            'id' => 'first_prospection_created',
+            'label' => 'Criou prospecção',
+            'completed' => $prospectionCount > 0,
+            'completedAt' => $prospectionSummary['firstProspectionAt'] ?? null,
+        ],
+        [
+            'id' => 'returned_after_7_days',
+            'label' => 'Retornou após 7 dias',
+            'completed' => !empty($progress['streak']['lastSeenDate']),
+            'completedAt' => $progress['streak']['lastSeenDate'] ?? null,
+        ],
+    ];
+
+    $tutorialCompleted = !empty($onboarding['quizDone']) && !empty($onboarding['firstCampaignCreated']) && !empty($onboarding['tooltipsDone']);
+
+    return [
+        'steps' => $steps,
+        'tutorialCompleted' => $tutorialCompleted,
+        'prospectionCount' => $prospectionCount,
+        'brandCount' => $brandCount,
+        'raw' => $onboarding,
+    ];
+}
+
+function extract_state_signals($state, $stateUpdatedAt)
+{
+    $profile = is_array($state['profile'] ?? null) ? $state['profile'] : [];
+    $progress = is_array($state['progress'] ?? null) ? $state['progress'] : [];
+    $weekly = is_array($progress['weekly'] ?? null) ? $progress['weekly'] : [];
+    $brands = is_array($state['brands'] ?? null) ? $state['brands'] : [];
+    $scripts = is_array($state['scripts'] ?? null) ? $state['scripts'] : [];
+
+    return [
+        'profile' => [
+            'level' => (int)($profile['level'] ?? 1),
+            'xp' => (int)($profile['xp'] ?? 0),
+            'streak' => (int)($profile['streak'] ?? 0),
+        ],
+        'activity' => [
+            'dailyCompleteDays' => is_array($weekly['dailyCompleteDays'] ?? null) ? array_values($weekly['dailyCompleteDays']) : [],
+            'campaignUpdateDays' => is_array($weekly['campaignUpdateDays'] ?? null) ? array_values($weekly['campaignUpdateDays']) : [],
+            'lastSeenDate' => $progress['streak']['lastSeenDate'] ?? null,
+            'stateUpdatedAt' => $stateUpdatedAt,
+        ],
+        'counts' => [
+            'brands' => count($brands),
+            'scripts' => count($scripts),
+        ],
+    ];
+}
+
+function load_state_payload_for_user($userId, $statesDir)
+{
+    $payload = [
+        'state' => null,
+        'updatedAt' => null,
+        'backend' => 'none',
+    ];
+
+    $safeUserId = sanitize_state_file_user_id($userId);
+    $stateFile = rtrim($statesDir, '/\\') . DIRECTORY_SEPARATOR . $safeUserId . '.json';
+    $filePayload = load_json_file($stateFile);
+    $fileState = is_array($filePayload['state'] ?? null) ? $filePayload['state'] : null;
+    $fileUpdatedAt = is_array($filePayload) ? ($filePayload['updatedAt'] ?? null) : null;
+
+    if (states_store_backend() === 'supabase' && is_safe_supabase_user_id($userId)) {
+        $remote = states_store_load_by_user_id((string)$userId);
+        $remoteState = is_array($remote['state'] ?? null) ? $remote['state'] : null;
+        $remoteUpdatedAt = is_array($remote) ? ($remote['updatedAt'] ?? null) : null;
+
+        if ($remoteState && $fileState) {
+            $remoteScore = count($remoteState['campaigns'] ?? []) + count($remoteState['brands'] ?? []) + count($remoteState['scripts'] ?? []);
+            $fileScore = count($fileState['campaigns'] ?? []) + count($fileState['brands'] ?? []) + count($fileState['scripts'] ?? []);
+            if ($remoteScore > $fileScore || ($remoteScore === $fileScore && strcmp((string)$remoteUpdatedAt, (string)$fileUpdatedAt) >= 0)) {
+                return ['state' => $remoteState, 'updatedAt' => $remoteUpdatedAt, 'backend' => 'supabase'];
+            }
+
+            // O arquivo pode conter a campanha que ainda nao chegou ao Supabase.
+            // Antes o fluxo caia no retorno remoto logo abaixo mesmo quando o
+            // arquivo tinha mais dados, e o admin exibia "Criadas 0".
+            return ['state' => $fileState, 'updatedAt' => $fileUpdatedAt, 'backend' => 'file'];
+        }
+
+        if ($remoteState) {
+            return ['state' => $remoteState, 'updatedAt' => $remoteUpdatedAt, 'backend' => 'supabase'];
+        }
+    }
+
+    if ($fileState) {
+        return ['state' => $fileState, 'updatedAt' => $fileUpdatedAt, 'backend' => 'file'];
+    }
+
+    return $payload;
+}
+
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if ($method !== 'POST') {
+    respond_json(405, ['error' => 'Método não permitido']);
+}
+
+if (users_store_backend() === 'error') {
+    respond_json(500, ['error' => users_store_last_error() ?: 'Banco configurado, mas não está pronto ainda.']);
+}
+
+$body = json_decode(file_get_contents('php://input'), true);
+if (!is_array($body)) {
+    respond_json(400, ['error' => 'JSON inválido']);
+}
+
+$token = trim((string)($body['token'] ?? ''));
+if (strlen($token) < 10) {
+    respond_json(401, ['error' => 'Sessão inválida. Faz login de novo.']);
+}
+
+$tokenHash = hash('sha256', $token);
+$now = time();
+$foundUser = users_store_find_by_session_token_hash($tokenHash);
+if (!$foundUser) {
+    $privateAuth = landing_private_authenticate_token($token);
+    if (empty($privateAuth['ok']) || !is_array($privateAuth['user'] ?? null)) {
+        respond_json((int)($privateAuth['status'] ?? 401), ['error' => $privateAuth['error'] ?? 'Sessão inválida. Faça login novamente.']);
+    }
+    $foundUser = $privateAuth['user'];
+} else {
+    $expires = (int)($foundUser['sessionTokenExpires'] ?? 0);
+    if ($expires && $expires < $now) {
+        respond_json(401, ['error' => 'Sessão expirada. Faz login de novo.']);
+    }
+}
+
+$adminEmails = load_admin_emails($adminsFile, $adminsExampleFile);
+$currentEmail = strtolower(trim((string)($foundUser['email'] ?? '')));
+if (
+    $currentEmail === '' ||
+    !in_array($currentEmail, $adminEmails, true) ||
+    !in_array($currentEmail, $intelligenceAllowedEmails, true)
+) {
+    respond_json(403, ['error' => 'Sem permissão para ver isso.']);
+}
+
+$includePartners = !empty($body['includePartners']);
+$partnerEmails = intelligence_partner_emails();
+
+$users = users_store_load_all();
+$list = [];
+$excludedEmails = intelligence_internal_excluded_emails($includePartners);
+
+foreach ($users as $user) {
+    $email = strtolower(trim((string)($user['email'] ?? '')));
+    if ($email === '') continue;
+    if (in_array($email, $excludedEmails, true)) continue;
+
+    $id = (string)($user['id'] ?? '');
+    $statePayload = $id !== '' ? load_state_payload_for_user($id, $statesDir) : ['state' => null, 'updatedAt' => null, 'backend' => 'none'];
+    $state = is_array($statePayload['state'] ?? null) ? $statePayload['state'] : null;
+    $campaignSummary = summarize_campaigns_from_state($state);
+    $onboarding = build_onboarding_snapshot($state, $campaignSummary, $user);
+    $signals = extract_state_signals($state, $statePayload['updatedAt'] ?? null);
+    $referredBy = trim((string)($user['referredBy'] ?? ''));
+    $referralPartner = $referredBy !== '' ? referrals_partner_by_code($referredBy) : null;
+    $internalLinkLabel = $referredBy !== '' ? referrals_internal_tracking_label($referredBy) : null;
+    $referralOrigin = $referralPartner
+        ? trim((string)($referralPartner['name'] ?? $referralPartner['partnerCode'] ?? $referredBy))
+        : ($internalLinkLabel ?: ($referredBy !== '' ? $referredBy : 'Direto / orgânico'));
+
+    $list[] = [
+        'id' => $id,
+        'name' => (string)($user['name'] ?? ''),
+        'email' => $email,
+        'isPartner' => in_array($email, $partnerEmails, true),
+        'referredBy' => $referredBy,
+        'referralOrigin' => $referralOrigin,
+        'createdAt' => (string)($user['createdAt'] ?? ''),
+        'accessCount' => (int)($user['accessCount'] ?? 0),
+        'timeSpentSeconds' => (int)($user['timeSpentSeconds'] ?? 0),
+        'lastAccessAt' => (string)($user['lastAccessAt'] ?? ''),
+        'lastLoginAt' => (string)($user['lastLoginAt'] ?? ''),
+        'lastSeenAt' => (string)($user['lastSeenAt'] ?? ''),
+        'campaignCount' => (int)($campaignSummary['campaignCount'] ?? 0),
+        'activeCampaignCount' => (int)($campaignSummary['activeCampaignCount'] ?? 0),
+        'prospectionCount' => (int)($onboarding['prospectionCount'] ?? 0),
+        'brandCount' => (int)($onboarding['brandCount'] ?? 0),
+        'stateUpdatedAt' => (string)($statePayload['updatedAt'] ?? ''),
+        'stateBackend' => (string)($statePayload['backend'] ?? 'none'),
+        'firstCampaignCreatedAt' => $campaignSummary['firstCampaignCreatedAt'],
+        'firstActiveCampaignAt' => $campaignSummary['firstActiveCampaignAt'],
+        'lastCampaignUpdatedAt' => $campaignSummary['lastCampaignUpdatedAt'],
+        'onboarding' => $onboarding,
+        'profile' => $signals['profile'],
+        'activitySignals' => $signals['activity'],
+        'counts' => $signals['counts'],
+    ];
+}
+
+usort($list, function ($a, $b) {
+    return strcmp((string)($b['createdAt'] ?? ''), (string)($a['createdAt'] ?? ''));
+});
+
+respond_json(200, [
+    'ok' => true,
+    'count' => count($list),
+    'users' => $list,
+    'meta' => [
+        'generatedAt' => date('c'),
+        'needsGranularActivityLogs' => true,
+        'notes' => [
+            'Acessos 7d/30d e séries temporais são derivados com fallback no frontend até existir histórico granular por dia/sessão.',
+            'Campanhas, onboarding, login e atividade usam dados reais disponíveis hoje.',
+        ],
+    ],
+]);

@@ -1,5 +1,5 @@
 import { state } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js?v=20260302f';
+import { renderAll } from '../../core/renderers.js?v=20260429d';
 import { showToast } from '../../core/ui.js?v=20260302f';
 import { ensureWeeklyFocus, progressWeeklyFocus } from '../../core/gamification.js?v=20260302f';
 
@@ -14,8 +14,8 @@ const getFocusModal = () => ({
 });
 
 const calcProgress = () => {
-  const current = Number.isFinite(state.focus?.current) ? state.focus.current : 0;
-  const target = Number.isFinite(state.focus?.target) ? state.focus.target : 0;
+  const current = Number.isFinite(state.focus.current) ? state.focus.current : 0;
+  const target = Number.isFinite(state.focus.target) ? state.focus.target : 0;
   if (!target) return 0;
   return Math.min(Math.max(current / target, 0), 1);
 };
@@ -25,10 +25,10 @@ const openFocusModal = () => {
   const { modal, label, current, target, xp, bar, msg } = getFocusModal();
   if (!modal) return;
 
-  if (label) label.textContent = state.focus?.label || 'Foco';
-  if (current) current.textContent = String(state.focus?.current ?? 0);
-  if (target) target.textContent = String(state.focus?.target ?? 0);
-  if (xp) xp.textContent = String(state.focus?.xp ?? 0);
+  if (label) label.textContent = state.focus.label || 'Foco';
+  if (current) current.textContent = String(state.focus.current ?? 0);
+  if (target) target.textContent = String(state.focus.target ?? 0);
+  if (xp) xp.textContent = String(state.focus.xp ?? 0);
   if (bar) bar.style.width = `${calcProgress() * 100}%`;
   if (msg) msg.textContent = '';
 

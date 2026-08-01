@@ -122,7 +122,7 @@ const render = () => {
   const { count, tableBody, search } = getEls();
   if (!tableBody) return;
 
-  const query = String(search?.value || '').trim().toLowerCase();
+  const query = String(search.value || '').trim().toLowerCase();
   const users = query
     ? state.users.filter((u) => String(u.email || '').toLowerCase().includes(query) || String(u.name || '').toLowerCase().includes(query))
     : state.users;
@@ -133,7 +133,6 @@ const render = () => {
 
 	  tableBody.innerHTML = users
 	    .map((user) => {
-      const weekly = user.weeklySummary ? 'Ativo' : 'Off';
       const isSelf = String(user.id) === String(sessionUserId);
       const canDelete = !isSelf;
 	      return `
@@ -147,7 +146,6 @@ const render = () => {
 	          <td>${formatDateTime(user.createdAt)}</td>
 	          <td>${formatDateTime(user.lastLoginAt)}</td>
 	          <td>${formatDateTime(user.lastSeenAt)}</td>
-	          <td style="white-space: nowrap;">${weekly}</td>
             <td style="white-space: nowrap;">
               ${
                 canDelete
@@ -246,7 +244,7 @@ const confirmDeleteUser = async () => {
     }
 
     if (!res.ok || !data || data.ok !== true) {
-      const err = data?.error || 'Não consegui excluir agora.';
+      const err = data.error || 'Não consegui excluir agora.';
       setDeleteMessage(err);
       showMessage(err);
       return;
@@ -324,8 +322,8 @@ const migrateStatesIfNeeded = async (force = false) => {
     }
 
     if (!res.ok || !data || data.ok !== true) {
-      const err = data?.error || 'Não consegui importar o progresso.';
-      const hint = data?.hint ? ` ${data.hint}` : '';
+      const err = data.error || 'Não consegui importar o progresso.';
+      const hint = data.hint ? ` ${data.hint}` : '';
       showMessage(`${err}${hint}`.trim());
       return null;
     }
@@ -372,7 +370,7 @@ const loadUsers = async (options = {}) => {
 
     const data = await res.json().catch(() => null);
     if (!res.ok || !data || typeof data !== 'object' || data.ok !== true) {
-      const err = data?.error || 'Não consegui carregar.';
+      const err = data.error || 'Não consegui carregar.';
       showMessage(err);
       if (res.status === 401) window.location.replace('index.html');
       return;

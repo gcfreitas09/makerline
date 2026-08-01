@@ -1,4 +1,4 @@
-﻿const STORAGE_KEY_BASE = 'ugcQuestState';
+const STORAGE_KEY_BASE = 'ugcQuestState';
 const PREFS_KEY_BASE = 'ugcQuestPrefs';
 
 const getSessionUserId = () => {
@@ -492,7 +492,7 @@ const flushRemoteSave = async () => {
       console.error('[Sync] Erro ao salvar estado:', res.status, res.statusText);
     } else {
       const data = await res.json().catch(() => null);
-      if (data?.success) {
+      if (data?.ok === true) {
         console.log('[Sync] Estado salvo com sucesso no servidor');
       } else {
         console.warn('[Sync] Resposta inesperada do servidor:', data);
@@ -1041,7 +1041,6 @@ export {
   outfitItems,
   shoeItems
 };
-
 
 
 

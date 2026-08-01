@@ -92,6 +92,8 @@ function countCampaignsFromLocalStateFile($userId)
     return summarizeCampaignsFromState($state);
 }
 
+
+
 function loadCampaignCountsFromLocalStateFiles($userIds)
 {
     $counts = [];
@@ -226,11 +228,11 @@ function loadCampaignCountsByUserIds($userIds)
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($method !== 'POST') {
-    respond(405, ['error' => 'Metodo nao permitido']);
+    respond(405, ['error' => 'Método não permitido']);
 }
 
 if (users_store_backend() === 'error') {
-    respond(500, ['error' => users_store_last_error() ?: 'Banco configurado, mas nao esta pronto ainda.']);
+    respond(500, ['error' => users_store_last_error() ?: 'Banco configurado, mas não está pronto ainda.']);
 }
 
 $body = json_decode(file_get_contents('php://input'), true);
@@ -258,7 +260,7 @@ if ($expires && $expires < $now) {
 $adminEmails = loadAdmins($adminsFile, $adminsExampleFile);
 $currentEmail = strtolower(trim((string)($foundUser['email'] ?? '')));
 if (!$currentEmail || !in_array($currentEmail, $adminEmails, true)) {
-    respond(403, ['error' => 'Sem permissao pra ver isso.']);
+    respond(403, ['error' => 'Sem permissão para ver isso.']);
 }
 
 $users = users_store_load_all();
@@ -270,11 +272,6 @@ foreach ($users as $user) {
     if ($email === '') {
         continue;
     }
-    // Tracker deve mostrar apenas clientes; admins (vocês) ficam ocultos da lista.
-    if (in_array($email, $adminEmails, true)) {
-        continue;
-    }
-
     $id = (string)($user['id'] ?? '');
     if ($id !== '') $userIds[] = $id;
     $list[] = [
@@ -282,7 +279,6 @@ foreach ($users as $user) {
         'name' => (string)($user['name'] ?? ''),
         'email' => $email,
         'createdAt' => (string)($user['createdAt'] ?? ''),
-        'weeklySummary' => (bool)($user['weeklySummary'] ?? false),
         'accessCount' => (int)($user['accessCount'] ?? 0),
         'timeSpentSeconds' => (int)($user['timeSpentSeconds'] ?? 0),
         'lastAccessAt' => (string)($user['lastAccessAt'] ?? ''),

@@ -3,6 +3,7 @@ const getEls = () => ({
   msg: document.getElementById('admin-tracker-msg')
 });
 const TRACKER_ALLOWED_EMAILS = new Set(['fgui3662@gmail.com', 'lorenzo.ritter27@gmail.com']);
+const INTELLIGENCE_ROUTE = 'intelligence.html';
 
 const getSessionEmail = () => {
   try {
@@ -21,7 +22,7 @@ const setMsg = (text) => {
 const setBtnEnabled = (enabled) => {
   const { card } = getEls();
   if (!card) return;
-  const btn = card.querySelector('a[href="admin.html"]');
+  const btn = card.querySelector(`a[href="${INTELLIGENCE_ROUTE}"]`);
   if (!btn) return;
   btn.classList.toggle('is-disabled', !enabled);
   btn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
@@ -52,7 +53,7 @@ const initAdminTrackerCard = () => {
 
   card.style.display = 'block';
   setBtnEnabled(false);
-  setMsg('Carregando painel do time...');
+  setMsg('Carregando Makerline Intelligence...');
 
   fetch('api/admin_users.php', {
     method: 'POST',
@@ -72,7 +73,7 @@ const initAdminTrackerCard = () => {
           return;
         }
 
-        const msg = data?.error ? String(data.error) : 'Não consegui carregar o tracker agora.';
+        const msg = data?.error ? String(data.error) : 'Não consegui carregar o Makerline Intelligence agora.';
         setMsg(msg);
         setBtnEnabled(true);
         return;
@@ -80,10 +81,10 @@ const initAdminTrackerCard = () => {
 
       setBtnEnabled(true);
       const count = Number.isFinite(data.count) ? data.count : Array.isArray(data.users) ? data.users.length : 0;
-      setMsg(count ? `Tem ${count} cadastro${count === 1 ? '' : 's'} rolando.` : 'Ainda não tem cadastros por aqui.');
+      setMsg(count ? `${count} usuário${count === 1 ? '' : 's'} monitorado${count === 1 ? '' : 's'} no Intelligence.` : 'Ainda não há usuários monitorados no Intelligence.');
     })
     .catch(() => {
-      setMsg('Não consegui carregar o tracker agora. Se der, tenta de novo mais tarde.');
+      setMsg('Não consegui carregar o Makerline Intelligence agora. Tente de novo mais tarde.');
       setBtnEnabled(true);
     });
 };

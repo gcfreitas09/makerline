@@ -1,10 +1,10 @@
 import { state, saveState, typeLabels } from '../../core/state.js';
 import { setScriptOutput, showToast } from '../../core/ui.js?v=20260302f';
 import { trackEvent } from '../../core/gamification.js?v=20260302f';
-import { renderAll } from '../../core/renderers.js?v=20260302f';
+import { renderAll } from '../../core/renderers.js?v=20260429d';
 import { generateScript } from '../../core/scripts.js';
 
-const getCampaignLabel = (campaign) => campaign?.title || campaign?.brand || 'Campanha';
+const getCampaignLabel = (campaign) => campaign.title || campaign.brand || 'Campanha';
 
 const populateCampaignSelect = (selectEl) => {
   if (!selectEl) return;
@@ -26,14 +26,14 @@ const populateCampaignSelect = (selectEl) => {
 
 const handleScriptSubmit = (event) => {
   event.preventDefault();
-  const brand = document.getElementById('script-brand')?.value || 'essa marca';
+  const brand = document.getElementById('script-brand').value || 'essa marca';
   const campaignSelect = document.getElementById('script-campaign');
   const campaignId = campaignSelect ? String(campaignSelect.value || '') : '';
-  const type = document.getElementById('script-type')?.value || 'review';
-  const length = document.getElementById('script-length')?.value || '30s';
-  const tone = document.getElementById('script-tone')?.value || 'leve';
-  const audience = document.getElementById('script-audience')?.value || 'público geral';
-  const goal = document.getElementById('script-goal')?.value || 'gerar mais interesse.';
+  const type = document.getElementById('script-type').value || 'review';
+  const length = document.getElementById('script-length').value || '30s';
+  const tone = document.getElementById('script-tone').value || 'leve';
+  const audience = document.getElementById('script-audience').value || 'público geral';
+  const goal = document.getElementById('script-goal').value || 'gerar mais interesse.';
 
   const text = generateScript({ brand, type, length, tone, audience, goal });
   const scriptId = `s-${Date.now()}`;
@@ -93,32 +93,32 @@ const initScriptQuiz = () => {
 
   const stepMetaByField = {
     'script-brand': {
-      title: 'Qual é a marca/produto?',
+      title: 'Qual é a marca/produto',
       subtitle: 'Se quiser, escolha uma sugestão ou digite.'
     },
     'script-campaign': {
-      title: 'Vincular em uma campanha?',
+      title: 'Vincular em uma campanha',
       subtitle: 'Opcional — se já existe, escolha aqui.'
     },
     'script-type': {
-      title: 'Qual formato?',
+      title: 'Qual formato',
       subtitle: 'Escolha o estilo do vídeo.'
     },
     'script-length': {
       title: 'Duração',
-      subtitle: 'Qual o tempo do vídeo?'
+      subtitle: 'Qual o tempo do vídeo'
     },
     'script-tone': {
       title: 'Tom do vídeo',
-      subtitle: 'Qual vibe você quer?'
+      subtitle: 'Qual vibe você quer'
     },
     'script-audience': {
       title: 'Público',
-      subtitle: 'Para quem é esse vídeo?'
+      subtitle: 'Para quem é esse vídeo'
     },
     'script-goal': {
       title: 'Objetivo',
-      subtitle: 'O que você quer que aconteça depois?'
+      subtitle: 'O que você quer que aconteça depois'
     }
   };
 
@@ -130,9 +130,9 @@ const initScriptQuiz = () => {
   };
 
   const ensureDefaults = () => {
-    if (!selectType.value) selectType.value = selectType.options[0]?.value || 'review';
-    if (!selectLength.value) selectLength.value = selectLength.options[0]?.value || '30s';
-    if (!selectTone.value) selectTone.value = selectTone.options[0]?.value || 'leve';
+    if (!selectType.value) selectType.value = selectType.options[0].value || 'review';
+    if (!selectLength.value) selectLength.value = selectLength.options[0].value || '30s';
+    if (!selectTone.value) selectTone.value = selectTone.options[0].value || 'leve';
     if (!inputAudience.value) inputAudience.value = 'público geral';
     if (!inputGoal.value) inputGoal.value = 'gerar vendas';
     if (selectCampaign && !selectCampaign.value) selectCampaign.value = '';
@@ -334,9 +334,9 @@ const initScriptQuiz = () => {
       populateCampaignSelect(selectCampaign);
       selectCampaign.value = '';
     }
-    if (selectType) selectType.value = selectType.options[0]?.value || 'review';
-    if (selectLength) selectLength.value = selectLength.options[0]?.value || '30s';
-    if (selectTone) selectTone.value = selectTone.options[0]?.value || 'leve';
+    if (selectType) selectType.value = selectType.options[0].value || 'review';
+    if (selectLength) selectLength.value = selectLength.options[0].value || '30s';
+    if (selectTone) selectTone.value = selectTone.options[0].value || 'leve';
     if (inputAudience) inputAudience.value = 'público geral';
     if (inputGoal) inputGoal.value = 'gerar vendas';
     updateUI();

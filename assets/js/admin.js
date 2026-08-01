@@ -160,7 +160,6 @@ const render = () => {
 
     const active7 = state.users.filter(u => { const d = u.lastSeenAt ? new Date(u.lastSeenAt) : null; return d && d >= day7; }).length;
     const active30 = state.users.filter(u => { const d = u.lastSeenAt ? new Date(u.lastSeenAt) : null; return d && d >= day30; }).length;
-    const withWeekly = state.users.filter(u => u.weeklySummary).length;
     const totalTime = state.users.reduce((s, u) => s + (parseInt(u.timeSpentSeconds, 10) || 0), 0);
     const avgTime = state.users.length ? Math.round(totalTime / state.users.length) : 0;
     const totalAccess = state.users.reduce((s, u) => s + (parseInt(u.accessCount, 10) || 0), 0);
@@ -181,13 +180,11 @@ const render = () => {
       card('📊', 'Ativos 30d', active30, `Retenção: ${retentionRate}%`),
       card('⏱️', 'Tempo médio', formatDuration(avgTime), `Total: ${formatDuration(totalTime)}`),
       card('🔄', 'Acessos totais', totalAccess, `Média: ${state.users.length ? Math.round(totalAccess / state.users.length) : 0}/usuário`),
-      card('📧', 'Resumo semanal', withWeekly, `${state.users.length ? Math.round((withWeekly / state.users.length) * 100) : 0}% adotaram`)
     ].join('');
   }
 
   tableBody.innerHTML = users
     .map((user) => {
-      const weekly = user.weeklySummary ? 'Ativo' : 'Off';
       const isSelf = String(user.id) === String(sessionUserId);
       const canDelete = !isSelf;
       const accessCount = parseInt(user.accessCount, 10) || 0;
@@ -205,7 +202,6 @@ const render = () => {
           <td>${formatDateTime(user.lastSeenAt)}</td>
           <td>${accessCount}</td>
           <td>${formatDuration(timeSpent)}</td>
-          <td style="white-space: nowrap;">${weekly}</td>
           <td style="white-space: nowrap;">
             ${canDelete ? `<button type="button" class="btn btn-danger btn-small" data-admin-action="delete-user" data-user-id="${user.id}" title="Excluir conta">Excluir</button>` : ''}
           </td>

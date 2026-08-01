@@ -1,6 +1,6 @@
 import { state, saveState } from '../../core/state.js';
 import { setScriptOutput, showToast } from '../../core/ui.js?v=20260302f';
-import { renderAll } from '../../core/renderers.js?v=20260302f';
+import { renderAll } from '../../core/renderers.js?v=20260429d';
 
 const copyText = (text, doneMessage) => {
   const value = String(text || '').trim();

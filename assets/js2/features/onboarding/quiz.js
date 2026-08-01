@@ -1,9 +1,12 @@
-﻿import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js?v=20260304c';
+import { state, saveState, getDefaultCampaignStage } from '../../core/state.js';
+import { renderAll } from '../../core/renderers.js?v=20260429d';
 import { setActivePage, showToast } from '../../core/ui.js?v=20260304b';
 import { trackEvent } from '../../core/gamification.js?v=20260302g';
+import { abrirFluxoDePrecificacao } from './pricing-flow.js?v=20260728p';
+import { abrirFluxoPrimeiraCampanha } from './first-campaign-flow.js?v=20260728p';
+import { abrirRegistroGuiado } from '../campaigns/register-flow.js?v=20260728p';
 
-/* â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── helpers ────────────────────────────────────────────────── */
 
 const TOOLTIP_SNOOZE_MS = 2 * 60 * 60 * 1000;
 
@@ -89,7 +92,30 @@ const closeQuiz = () => {
   overlay.classList.remove('open');
 };
 
-/* â”€â”€ quiz actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const openGuidedCampaignModal = () => {
+  renderAll();
+  setActivePage('campaigns');
+  setTimeout(() => {
+    // Cadastro de campanha e em cards, igual ao resto do onboarding.
+    if (abrirRegistroGuiado()) return;
+
+    const openModal = window.__ugcModals?.openCampaignModal;
+    if (typeof openModal === 'function') {
+      openModal();
+      setTimeout(() => injectOnboardingHeader(), 140);
+      return;
+    }
+    const newCampaignButton = document.querySelector('.page-section[data-section="campaigns"] [data-action="new-campaign"]');
+    if (newCampaignButton) {
+      newCampaignButton.click();
+      setTimeout(() => injectOnboardingHeader(), 180);
+      return;
+    }
+    startCampaignHighlight();
+  }, 180);
+};
+
+/* ── quiz actions ───────────────────────────────────────────── */
 
 const handleQuizAction = (action, el) => {
   if (action === 'quiz-start') {
@@ -99,44 +125,52 @@ const handleQuizAction = (action, el) => {
 
   if (action === 'quiz-has-campaigns') {
     const ob = ensureOnboardingQuiz();
-    const answer = el?.dataset?.value;
+    const answer = el.dataset.value;
     ob.hasCampaigns = answer === 'yes';
     saveState();
     if (answer === 'yes') {
-      showScreen(3); // how many?
+      // Quem ja tem campanha ativa vai direto descobrir quanto cobrar por ela.
+      // O fluxo de precificacao termina levando ao registro guiado, entao a
+      // tela 8 so continua valendo como fallback se o overlay nao existir.
+      closeQuiz();
+      if (!abrirFluxoDePrecificacao()) showScreen(8);
     } else {
-      showScreen(4); // mini-wizard step 1: brand type
+      // Sem campanha fechada nao ha dado real para precificar, entao esse ramo
+      // mostra como sera o cadastro da primeira. A tela 4 fica como fallback se
+      // o overlay do fluxo nao existir.
+      closeQuiz();
+      if (!abrirFluxoPrimeiraCampanha()) showScreen(4);
     }
     return true;
   }
 
   if (action === 'quiz-campaign-count') {
     const ob = ensureOnboardingQuiz();
-    ob.campaignCount = el?.dataset?.value || '0';
+    ob.campaignCount = el.dataset.value || '0';
     saveState();
     showScreen(8); // final CTA for users WITH campaigns
     return true;
   }
 
-  // â”€â”€ Mini-wizard step 1: brand type â”€â”€
+  // ── Mini-wizard step 1: brand type ──
   if (action === 'quiz-brand-type') {
     const ob = ensureOnboardingQuiz();
-    ob.targetBrandType = el?.dataset?.value || 'outra';
+    ob.targetBrandType = el.dataset.value || 'outra';
     saveState();
     showScreen(5); // step 2: outreach goal
     return true;
   }
 
-  // â”€â”€ Mini-wizard step 2: weekly outreach goal â”€â”€
+  // ── Mini-wizard step 2: weekly outreach goal ──
   if (action === 'quiz-outreach-goal') {
     const ob = ensureOnboardingQuiz();
-    ob.weeklyOutreachGoal = Number(el?.dataset?.value) || 5;
+    ob.weeklyOutreachGoal = Number(el.dataset.value) || 5;
     saveState();
     showScreen(6); // step 3: create prospection campaign
     return true;
   }
 
-  // â”€â”€ Mini-wizard step 3: create model campaign â”€â”€
+  // ── Mini-wizard step 3: create model campaign ──
   if (action === 'quiz-create-prospection') {
     const ob = ensureOnboardingQuiz();
     createModelCampaign(ob.targetBrandType, ob.weeklyOutreachGoal);
@@ -150,40 +184,51 @@ const handleQuizAction = (action, el) => {
     return true;
   }
 
-  // â”€â”€ Skip: go to campaigns â”€â”€
+  // ── Skip: go to campaigns ──
   if (action === 'quiz-go-campaigns') {
     const ob = ensureOnboardingQuiz();
     ob.quizDone = true;
     saveState();
     closeQuiz();
-    renderAll();
-    setActivePage('campaigns');
-    startCampaignHighlight();
+    openGuidedCampaignModal();
     return true;
   }
 
-  // â”€â”€ "no campaigns" skip â”€â”€
+  if (action === 'quiz-go-prospection') {
+    const ob = ensureOnboardingQuiz();
+    ob.quizDone = true;
+    saveState();
+    closeQuiz();
+    renderAll();
+    setActivePage('prospeccao');
+    setTimeout(() => {
+      document.querySelector('[data-action="open-prospection-modal"]')?.click();
+    }, 150);
+    return true;
+  }
+
+  // ── "no campaigns" skip ──
   if (action === 'quiz-no-campaigns-skip') {
     showScreen(8);
     return true;
   }
 
-  // â”€â”€ Outreach +1 â”€â”€
+  // ── Outreach +1 ──
   if (action === 'outreach-add') {
-    incrementOutreach(el?.dataset?.campaignId);
+    incrementOutreach(el.dataset.campaignId);
     return true;
   }
 
-  // â”€â”€ Convert model to real â”€â”€
+  // ── Convert model to real ──
   if (action === 'convert-to-real') {
-    convertModelToReal(el?.dataset?.campaignId);
+    convertModelToReal(el.dataset.campaignId);
     return true;
   }
 
   return false;
 };
 
-/* â”€â”€ model campaign â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── model campaign ─────────────────────────────────────────── */
 
 const createModelCampaign = (brandType, outreachGoal) => {
   const brandLabels = {
@@ -196,8 +241,8 @@ const createModelCampaign = (brandType, outreachGoal) => {
     id: `c-model-${Date.now()}`,
     title: `Prospecção - ${brandLabel}`,
     brand: `Prospecção - ${brandLabel}`,
-    status: 'prospeccao',
-    stage: getDefaultCampaignStage('prospeccao'),
+    status: 'negociacao',
+    stage: getDefaultCampaignStage('negociacao'),
     value: 0,
     barter: false,
     dueDate: '',
@@ -224,7 +269,7 @@ const createModelCampaign = (brandType, outreachGoal) => {
   saveState();
 };
 
-/* â”€â”€ outreach tracking â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── outreach tracking ──────────────────────────────────────── */
 
 const ensureOutreachTracking = (weeklyGoal) => {
   if (!state.progress.outreach) {
@@ -266,7 +311,7 @@ const incrementOutreach = (campaignId) => {
   }
 };
 
-/* â”€â”€ convert to real â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── convert to real ────────────────────────────────────────── */
 
 const convertModelToReal = (campaignId) => {
   const campaign = state.campaigns.find((c) => c.id === campaignId);
@@ -286,7 +331,7 @@ const convertModelToReal = (campaignId) => {
 
   // Open edit modal
   setTimeout(() => {
-    if (window.__ugcModals?.openCampaignModal) {
+    if (window.__ugcModals.openCampaignModal) {
       window.__ugcModals.openCampaignModal(campaignId);
     }
   }, 200);
@@ -294,7 +339,7 @@ const convertModelToReal = (campaignId) => {
   showToast('Preencha os dados da sua campanha real!');
 };
 
-/* â”€â”€ campaign highlight (glow on "Nova campanha") â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── campaign highlight (glow on "Nova campanha") ──────────── */
 
 const startCampaignHighlight = () => {
   const ob = ensureOnboardingQuiz();
@@ -316,7 +361,7 @@ const startCampaignHighlight = () => {
       <span class="onboarding-tooltip-text">Passo 1: clique em Nova campanha para iniciar seu cadastro.</span>
       <button class="onboarding-tooltip-close" type="button" aria-label="Fechar mensagem">&times;</button>
     `;
-    tip.querySelector('.onboarding-tooltip-close')?.addEventListener('click', (event) => {
+    tip.querySelector('.onboarding-tooltip-close').addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
       dismissOnboardingTooltips();
@@ -335,7 +380,7 @@ const startCampaignHighlight = () => {
     host.appendChild(tip);
 
     const hostRect = host.getBoundingClientRect();
-    const viewportWidth = Math.max(document.documentElement?.clientWidth || 0, window.innerWidth || 0);
+    const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
     const horizontalPad = 16;
     const maxTooltipWidth = Math.max(120, viewportWidth - horizontalPad * 2);
     tip.style.maxWidth = `${maxTooltipWidth}px`;
@@ -357,11 +402,11 @@ const removeCampaignHighlight = () => {
   if (!btn) return;
   btn.classList.remove('onboarding-glow');
   const host = btn.parentElement;
-  const tip = host?.querySelector('.onboarding-tooltip[data-tooltip-for="new-campaign"]');
+  const tip = host.querySelector('.onboarding-tooltip[data-tooltip-for="new-campaign"]');
   if (tip) tip.remove();
 };
 
-/* â”€â”€ post-creation tooltips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── post-creation tooltips ─────────────────────────────────── */
 
 let tooltipStep = 0;
 let tooltipCampaignId = null;
@@ -425,7 +470,7 @@ const attachTooltip = (anchor, text, btnText, onDismiss) => {
     <p>${text}</p>
     <button class="btn btn-primary btn-small" type="button">${btnText}</button>
   `;
-  tip.querySelector('.onboarding-tip-close')?.addEventListener('click', (e) => {
+  tip.querySelector('.onboarding-tip-close').addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
     dismissOnboardingTooltips();
@@ -464,15 +509,15 @@ const completeOnboarding = () => {
   saveState();
 };
 
-/* â”€â”€ listen for campaign creation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── listen for campaign creation ───────────────────────────── */
 
 const initOnboardingListeners = () => {
   document.addEventListener('ugc:campaigns-changed', (e) => {
     const ob = ensureOnboardingQuiz();
     if (ob.tooltipsDone) return;
 
-    const reason = e?.detail?.reason;
-    const campaignId = e?.detail?.campaignId;
+    const reason = e.detail.reason;
+    const campaignId = e.detail.campaignId;
 
     if (reason === 'create' && !ob.firstCampaignCreated) {
       ob.firstCampaignCreated = true;
@@ -496,46 +541,48 @@ const initOnboardingListeners = () => {
   document.addEventListener('ugc:campaign-modal-opened', (e) => {
     const ob = ensureOnboardingQuiz();
     if (ob.firstCampaignCreated || ob.tooltipsDone || isOnboardingComplete() || areOnboardingTooltipsSnoozed()) return;
-    const mode = String(e?.detail?.mode || '').trim();
+    const mode = String(e.detail.mode || '').trim();
     if (mode && mode !== 'create') return;
     setTimeout(() => injectOnboardingHeader(), 120);
   });
 };
 
-/* â”€â”€ campaign modal onboarding header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── campaign modal onboarding header ───────────────────────── */
 
 const injectOnboardingHeader = () => {
-  const ob = ensureOnboardingQuiz();
-  if (ob.firstCampaignCreated || ob.tooltipsDone || isOnboardingComplete() || areOnboardingTooltipsSnoozed()) return;
-
-  const modal = document.getElementById('campaign-modal');
-  if (!modal) return;
-  if (document.getElementById('campaign-onboarding-header')) return;
-
-  const panel = modal.querySelector('.modal-panel');
-  if (!panel) return;
-
-  const header = document.createElement('div');
-  header.id = 'campaign-onboarding-header';
-  header.className = 'onboarding-modal-header';
-  header.innerHTML = '<span>Passo a passo: configure sua primeira campanha</span>';
-  panel.insertBefore(header, panel.firstChild);
-
-  setTimeout(() => startFieldTooltips(), 500);
+  // Onboarding guide box + field-by-field "Passo X/6" tooltips removed by request:
+  // the campaign modal already has its own 1/2/3 step wizard, so this extra guide
+  // was redundant clutter. Kept as a no-op so existing call sites stay harmless.
+  return;
 };
 
-/* â”€â”€ field-by-field tooltips inside Campaign modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── field-by-field tooltips inside Campaign modal ──────────── */
 
 let fieldTooltipStep = 0;
 
 const fieldTooltipDefs = [
-  { step: 1, selector: 'select[name="brandId"]', text: 'Escolha a marca dessa campanha.', event: 'change' },
-  { step: 1, selector: 'select[name="startMethod"]', text: 'Selecione como esse projeto começou.', event: 'change' },
+  { step: 1, selector: '.campaign-brand-step [data-action="open-brand-modal"], select[name="brandId"]', text: 'Digite ou selecione o nome da marca. Se ela ainda não existe, toque em Nova marca e cadastre primeiro.', event: null },
+  { step: 1, selector: 'select[name="startMethod"]', text: 'Depois escolha como essa campanha começou: Instagram, plataforma, agência, inbound ou outbound.', event: 'change' },
   { step: 2, selector: 'input[name="value"]', text: 'Informe o valor em dinheiro (se for permuta, pode deixar R$ 0).', event: 'input' },
   { step: 3, selector: 'input[name="dueDate"]', text: 'Defina o prazo principal da entrega.', event: 'change' },
   { step: 3, selector: 'select[name="nextActionType"]', text: 'Defina a próxima ação para não perder o follow-up.', event: 'change' },
-  { step: 3, selector: '#campaign-form button[type="submit"]', text: 'Tudo certo? Clique para salvar a campanha.', event: null }
+  { step: 3, selector: '#campaign-form button[type="submit"]', text: 'Revise os campos e salve a campanha.', event: null }
 ];
+
+const updateOnboardingHeaderState = (def) => {
+  const header = document.getElementById('campaign-onboarding-header');
+  if (!header) return;
+
+  const label = header.querySelector('[data-onboarding-progress-label]');
+  if (label) label.textContent = `Passo ${Math.min(fieldTooltipStep + 1, fieldTooltipDefs.length)}/${fieldTooltipDefs.length}`;
+
+  const currentStep = Number(def?.step || 1);
+  header.querySelectorAll('[data-onboarding-header-step]').forEach((item) => {
+    const step = Number(item.dataset.onboardingHeaderStep || 0);
+    item.classList.toggle('is-active', step === currentStep);
+    item.classList.toggle('is-done', step < currentStep);
+  });
+};
 
 const startFieldTooltips = () => {
   const ob = ensureOnboardingQuiz();
@@ -551,9 +598,10 @@ const showFieldTooltip = () => {
   const def = fieldTooltipDefs[fieldTooltipStep];
   const form = document.getElementById('campaign-form');
   if (!form) return;
+  updateOnboardingHeaderState(def);
 
   try {
-    if (def.step && window.__ugcCampaignWizard?.isEnabled?.()) {
+    if (def.step && window.__ugcCampaignWizard.isEnabled()) {
       window.__ugcCampaignWizard.setStep(def.step);
     }
   } catch (error) {}
@@ -562,19 +610,26 @@ const showFieldTooltip = () => {
   if (!el) { fieldTooltipStep++; showFieldTooltip(); return; }
 
   el.classList.add('onboarding-highlight');
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   const bubble = document.createElement('div');
   bubble.className = 'onboarding-field-tip';
   const stepLabel = `Passo ${fieldTooltipStep + 1}/${fieldTooltipDefs.length}: `;
   bubble.innerHTML = `
     <span class="onboarding-field-tip-text"><strong>${stepLabel}</strong>${def.text}</span>
-    <button class="onboarding-field-tip-close" type="button" aria-label="Fechar mensagem">&times;</button>
+    <span class="onboarding-field-tip-actions">
+      <button class="onboarding-field-tip-next" type="button">Próximo</button>
+      <button class="onboarding-field-tip-close" type="button">Pular</button>
+    </span>
   `;
 
   const wrapper = el.closest('.form-row') || el.parentElement;
-  wrapper.style.position = 'relative';
-  wrapper.appendChild(bubble);
+  const tipSlot = document.querySelector('[data-onboarding-tip-slot]');
+  if (tipSlot) {
+    tipSlot.replaceChildren(bubble);
+  } else if (wrapper) {
+    wrapper.appendChild(bubble);
+  }
 
   let finished = false;
   let handler = null;
@@ -588,7 +643,13 @@ const showFieldTooltip = () => {
     setTimeout(() => showFieldTooltip(), 350);
   };
 
-  bubble.querySelector('.onboarding-field-tip-close')?.addEventListener('click', (event) => {
+  bubble.querySelector('.onboarding-field-tip-next')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    finishStep();
+  });
+
+  bubble.querySelector('.onboarding-field-tip-close').addEventListener('click', (event) => {
     event.preventDefault();
     event.stopPropagation();
     if (def.event && handler) el.removeEventListener(def.event, handler);
@@ -613,7 +674,7 @@ const clearFieldTooltips = () => {
   }
 };
 
-/* â”€â”€ model campaign row rendering helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── model campaign row rendering helpers ───────────────────── */
 
 const renderModelOutreachBar = (campaign) => {
   if (!campaign.isModel || !campaign.modelMeta) return '';
@@ -643,20 +704,28 @@ const renderModelAdvanceBtn = (campaign) => {
   `;
 };
 
-/* â”€â”€ public API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── public API ──────────────────────────────────────────────── */
 
 const initOnboardingQuiz = () => {
   const ob = ensureOnboardingQuiz();
   initOnboardingListeners();
 
-  // Expose openCampaignModal for convert-to-real flow
-  try {
-    import('../../features/campaigns/modal.js').then((mod) => {
-      window.__ugcModals = { openCampaignModal: mod.openCampaignModal };
-    });
-  } catch (e) {}
+  // window.__ugcModals.openCampaignModal is registered by initActions using the
+  // same modal.js module instance that binds the wizard buttons. Do NOT import
+  // modal.js again here: a second import (different URL/version query) loads a
+  // duplicate module instance with its own wizard state, which desyncs the
+  // "Proximo" button from the open handler and silently breaks step navigation.
 
   if (isQuizNeeded()) {
+    // Se o usuario ja respondeu "tenho campanha ativa" e parou no meio da
+    // precificacao, retoma de onde parou em vez de reiniciar o quiz.
+    if (ob.hasCampaigns === true && ob.pricing && ob.pricing.concluido !== true) {
+      if (abrirFluxoDePrecificacao()) return;
+    }
+    // Mesma retomada para quem respondeu "ainda nao tenho campanha".
+    if (ob.hasCampaigns === false && ob.primeiraCampanha && ob.primeiraCampanha.concluido !== true) {
+      if (abrirFluxoPrimeiraCampanha()) return;
+    }
     openQuiz();
     return;
   }
@@ -687,4 +756,3 @@ export {
   getOutreachProgress,
   incrementOutreach
 };
-

@@ -11,7 +11,7 @@ function smtp_encode_header($value)
     $text = (string)$value;
     if ($text === '') return '';
     if (smtp_is_ascii($text)) return $text;
-    return '=?UTF-8?B?' . base64_encode($text) . '?=';
+    return '=UTF-8B' . base64_encode($text) . '=';
 }
 
 function smtp_read_reply($fp)
@@ -241,7 +241,7 @@ function smtp_send_email($config, $to, $subject, $message, $fromEmail, $fromName
     $headers[] = 'Content-Transfer-Encoding: 8bit';
 
     $body = implode("\r\n", $headers) . "\r\n\r\n" . (string)$message;
-    $body = preg_replace("/(?m)^\./", '..', $body);
+    $body = preg_replace("/(m)^\./", '..', $body);
 
     fwrite($fp, $body . "\r\n.\r\n");
     [$ok, $reply] = smtp_expect($fp, 250, $debug);

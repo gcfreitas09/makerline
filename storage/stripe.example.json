@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "secret_key": "sk_live_xxxxxxxxxxxxxxxxxxxxx",
+  "publishable_key": "pk_live_xxxxxxxxxxxxxxxxxxxxx",
+  "restricted_key": "rk_live_xxxxxxxxxxxxxxxxxxxxx opcional",
+  "webhook_secret": "whsec_xxxxxxxxxxxxxxxxxxxxx",
+  "price_monthly": "price_xxxxxxxxxxxxxxxxxxxxx",
+  "price_annual": "price_xxxxxxxxxxxxxxxxxxxxx",
+  "product_monthly": "prod_xxxxxxxxxxxxxxxxxxxxx",
+  "product_annual": "prod_xxxxxxxxxxxxxxxxxxxxx",
+  "partner_connect_accounts": {
+    "keilabragante": "acct_xxxxxxxxxxxxxxxxx",
+    "rickolavo": "acct_xxxxxxxxxxxxxxxxx"
+  },
+  "test_payment_amount_cents": 50,
+  "success_path": "/app.html?section=dashboard&billing=success&session_id={CHECKOUT_SESSION_ID}",
+  "cancel_path": "/app.html?section=plans&billing=cancel",
+  "portal_return_path": "/app.html?section=plans&billing=portal"
+}

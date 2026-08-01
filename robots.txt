@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /storage/
+Disallow: /vendor/
+Disallow: /node_modules/
+Disallow: /app.html
+Disallow: /admin.html
+Disallow: /intelligence.html
+Disallow: /landing-insights.html
+Disallow: /reset.html
+Disallow: /verify.html
+
+Sitemap: https://makerline.com.br/sitemap.xml

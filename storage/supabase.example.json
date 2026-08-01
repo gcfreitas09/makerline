@@ -4,5 +4,11 @@
   "service_key": "COLE_AQUI_A_SERVICE_ROLE_KEY",
   "table_users": "ugc_users",
   "table_states": "ugc_user_states",
+  "table_pre_signups": "landing_pre_signups",
+  "table_partner_commissions": "partner_commissions",
+  "table_landing_insights": "landing_insights_events",
+  "table_client_feedback": "client_feedback",
+  "table_push_subscriptions": "push_subscriptions",
+  "table_push_sent_log": "push_sent_log",
   "timeout": 12
 }

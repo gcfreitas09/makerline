@@ -65,6 +65,62 @@ function restoreLatestStateBackup($statesDir, $safeUserId, $stateFile)
     return @copy($latest, $stateFile);
 }
 
+function state_data_score($state)
+{
+    if (!is_array($state)) return 0;
+    $score = 0;
+    $score += is_array($state['brands'] ?? null) ? count($state['brands']) * 10 : 0;
+    $score += is_array($state['campaigns'] ?? null) ? count($state['campaigns']) * 10 : 0;
+    $score += is_array($state['scripts'] ?? null) ? count($state['scripts']) : 0;
+    $score += is_array($state['prospections'] ?? null) ? count($state['prospections']) : 0;
+    return $score;
+}
+
+function read_state_payload_file($stateFile)
+{
+    if (!is_file($stateFile)) return null;
+    $payload = json_decode((string)file_get_contents($stateFile), true);
+    return is_array($payload) ? $payload : null;
+}
+
+function state_payload_from_file($stateFile)
+{
+    $payload = read_state_payload_file($stateFile);
+    $state = is_array($payload) && is_array($payload['state'] ?? null) ? $payload['state'] : null;
+    if (!is_array($state)) return null;
+    return [
+        'state' => $state,
+        'updatedAt' => $payload['updatedAt'] ?? null,
+        'backend' => 'file',
+        'score' => state_data_score($state)
+    ];
+}
+
+function choose_best_state_payload($remotePayload, $filePayload)
+{
+    $candidates = [];
+    if (is_array($remotePayload) && is_array($remotePayload['state'] ?? null)) {
+        $remotePayload['backend'] = $remotePayload['backend'] ?? 'supabase';
+        $remotePayload['score'] = state_data_score($remotePayload['state']);
+        $candidates[] = $remotePayload;
+    }
+    if (is_array($filePayload) && is_array($filePayload['state'] ?? null)) {
+        $filePayload['score'] = $filePayload['score'] ?? state_data_score($filePayload['state']);
+        $candidates[] = $filePayload;
+    }
+    if (!$candidates) return null;
+
+    usort($candidates, function ($a, $b) {
+        $scoreDiff = (int)($b['score'] ?? 0) <=> (int)($a['score'] ?? 0);
+        if ($scoreDiff !== 0) return $scoreDiff;
+        $timeA = strtotime((string)($a['updatedAt'] ?? '')) ?: 0;
+        $timeB = strtotime((string)($b['updatedAt'] ?? '')) ?: 0;
+        return $timeB <=> $timeA;
+    });
+
+    return $candidates[0];
+}
+
 function backupStateFile($statesDir, $safeUserId, $stateFile)
 {
     if (!file_exists($stateFile)) return true;
@@ -154,22 +210,47 @@ if ($action === 'load') {
     }
 
     $warning = null;
+    $remotePayload = null;
     $stateBackend = states_store_backend();
     if ($stateBackend === 'supabase') {
         $remote = states_store_load_by_user_id($userId);
         if (is_array($remote) && is_array($remote['state'] ?? null)) {
-            respond(200, [
-                'ok' => true,
+            $remotePayload = [
                 'state' => $remote['state'],
                 'updatedAt' => $remote['updatedAt'] ?? null,
                 'backend' => 'supabase'
-            ]);
+            ];
         }
         if ($remote === null) {
             $warning = states_store_last_error() ?: 'Falha ao carregar state no Supabase.';
         }
     } else {
         $warning = states_store_last_error() ?: null;
+    }
+
+    if ($remotePayload) {
+        $filePayload = state_payload_from_file($stateFile);
+        $best = choose_best_state_payload($remotePayload, $filePayload);
+
+        // Se o fallback local venceu, repara o Supabase automaticamente. Assim
+        // o proximo acesso (inclusive pelo admin) nao volta a enxergar a copia
+        // remota incompleta.
+        if (($best['backend'] ?? '') === 'file') {
+            $repairUpdatedAt = (string)($best['updatedAt'] ?? date('c'));
+            if (states_store_upsert_by_user_id($userId, $best['state'], $repairUpdatedAt)) {
+                $best['backend'] = 'supabase';
+            } else {
+                $warning = states_store_last_error() ?: 'Falha ao reparar o state no Supabase.';
+            }
+        }
+
+        respond(200, [
+            'ok' => true,
+            'state' => $best['state'],
+            'updatedAt' => $best['updatedAt'] ?? null,
+            'backend' => $best['backend'] ?? 'supabase',
+            'warning' => $warning
+        ]);
     }
 
     if (!file_exists($stateFile)) {
@@ -212,6 +293,24 @@ if ($action === 'save') {
     $state = $body['state'] ?? null;
     if (!is_array($state)) {
         respond(400, ['error' => 'State inválido']);
+    }
+
+    $incomingScore = state_data_score($state);
+    $existingRemote = null;
+    if (states_store_backend() === 'supabase') {
+        $existingRemote = states_store_load_by_user_id($userId);
+    }
+    $existingBest = choose_best_state_payload($existingRemote, state_payload_from_file($stateFile));
+    $existingScore = is_array($existingBest) ? (int)($existingBest['score'] ?? 0) : 0;
+    if ($incomingScore === 0 && $existingScore > 0) {
+        respond(200, [
+            'ok' => true,
+            'skipped' => true,
+            'reason' => 'empty_state_protected',
+            'updatedAt' => $existingBest['updatedAt'] ?? null,
+            'backend' => $existingBest['backend'] ?? 'file',
+            'warning' => 'Estado vazio ignorado para preservar marcas e campanhas existentes.'
+        ]);
     }
 
     $bytes = strlen(json_encode($state, JSON_UNESCAPED_UNICODE));

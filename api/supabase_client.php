@@ -99,7 +99,7 @@ function supabase_client_http_request($method, $url, $headers, $body, $timeoutSe
     }
 
     if ($rawBody === false) {
-        return [$status ?: 0, null, $headersOut, 'Falha ao chamar Supabase (allow_url_fopen desligado?).'];
+        return [$status ?: 0, null, $headersOut, 'Falha ao chamar Supabase (allow_url_fopen desligado).'];
     }
 
     return [$status ?: 200, $rawBody, $headersOut, null];
@@ -179,4 +179,3 @@ function supabase_client_request($method, $table, $query = [], $payload = null, 
     supabase_client_set_last_info($info);
     return ['ok' => true, 'status' => $status, 'data' => $parsed, 'error' => null];
 }
-

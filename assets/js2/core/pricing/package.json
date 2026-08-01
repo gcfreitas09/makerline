@@ -1,0 +1,6 @@
+{
+  "name": "makerline-pricing",
+  "private": true,
+  "type": "module",
+  "//": "So existe para o Node tratar esta pasta como ESM ao rodar os testes. O package.json da raiz e commonjs por causa do web-push e nao pode mudar."
+}

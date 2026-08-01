@@ -55,7 +55,7 @@ const STEPS = [
     page: 'settings',
     selector: '.settings-grid',
     title: 'Configurações',
-    text: 'Liga/desliga coisas úteis (resumo semanal, alertas...) e ajusta sua conta.'
+    text: 'Liga/desliga coisas úteis, como alertas e backup, e ajusta sua conta.'
   },
   {
     page: 'dashboard',

@@ -1,6 +1,7 @@
 import { state, saveState } from '../../core/state.js';
 import { renderAll } from '../../core/renderers.js';
 import { showToast } from '../../core/ui.js';
+import { closeCampaignModal } from './modal.js';
 
 const getCampaignDeleteModal = () => ({
   modal: document.getElementById('campaign-delete-modal'),
@@ -71,12 +72,13 @@ const handleCampaignDeleteSubmit = (event) => {
     if (script && script.campaignId === id) script.campaignId = null;
   });
 
+  closeCampaignDeleteModal();
+  closeCampaignModal();
   saveState();
   renderAll();
   try {
     document.dispatchEvent(new CustomEvent('ugc:campaigns-changed', { detail: { campaignId: id, reason: 'delete' } }));
   } catch (error) {}
-  closeCampaignDeleteModal();
   showToast('Campanha excluída.');
 };
 

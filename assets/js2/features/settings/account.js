@@ -1,5 +1,5 @@
 import { state, saveState, STORAGE_KEY, PREFS_KEY } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js?v=20260318e';
+import { renderAll } from '../../core/renderers.js?v=20260429d';
 
 const getSessionToken = () => {
   try {
@@ -51,19 +51,22 @@ const initAccountForm = () => {
 
     (async () => {
       const formData = new FormData(accountForm);
+      const newPassword = String(formData.get('newPassword') || '').trim();
       const payload = {
         token: getSessionToken(),
         newEmail: String(formData.get('newEmail') || '').trim(),
-        newPassword: String(formData.get('newPassword') || '')
+        currentPassword: String(formData.get('currentPassword') || ''),
+        confirmPassword: String(formData.get('confirmPassword') || '')
       };
+      if (newPassword) payload.newPassword = newPassword;
 
       if (!payload.token) {
-        msg.textContent = 'Sua sessão caiu. Faz login de novo.';
+        msg.textContent = 'Sua sessão caiu. Faça login de novo.';
         return;
       }
 
       if (!payload.newEmail && !payload.newPassword) {
-        msg.textContent = 'Nada pra salvar: preenche um novo email ou uma nova senha.';
+        msg.textContent = 'Nada pra salvar: preencha um novo email ou use Alterar senha.';
         return;
       }
 
@@ -89,7 +92,7 @@ const initAccountForm = () => {
           } catch (error) {}
         }
 
-        if (data.user?.email) {
+        if (data.user.email) {
           state.profile.email = data.user.email;
           try {
             sessionStorage.setItem('ugcQuestUserEmail', data.user.email);
@@ -97,7 +100,7 @@ const initAccountForm = () => {
           } catch (error) {}
         }
 
-        if (data.user?.name) {
+        if (data.user.name) {
           state.profile.name = data.user.name;
           try {
             sessionStorage.setItem('ugcQuestUserName', data.user.name);
@@ -122,7 +125,7 @@ const initAccountForm = () => {
 
       const token = getSessionToken();
       if (!token) {
-        msg.textContent = 'Sua sessão caiu. Faz login de novo.';
+        msg.textContent = 'Sua sessão caiu. Faça login de novo.';
         return;
       }
 
@@ -138,13 +141,13 @@ const initAccountForm = () => {
         const data = await res.json().catch(() => null);
 
         if (!res.ok || !data || data.ok !== true) {
-          msg.textContent = data?.error || 'Não consegui excluir sua conta agora.';
+          msg.textContent = data.error || 'Não consegui excluir sua conta agora.';
           deleteBtn.disabled = false;
           return;
         }
 
         clearAccountSession();
-        window.location.replace('index.html');
+        window.location.replace('app.html');
       } catch (error) {
         msg.textContent = 'Não consegui excluir sua conta agora.';
         deleteBtn.disabled = false;

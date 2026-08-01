@@ -1,0 +1,16 @@
+{
+  "name": "saas-ugc",
+  "version": "1.0.0",
+  "description": "Um MVP simples pra creators UGC organizarem campanhas, gerar roteiros com IA e acompanhar progresso (XP, nível, streak, missões e conquistas).",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test assets/js2/core/pricing/calculator.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}

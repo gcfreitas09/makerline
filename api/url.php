@@ -35,8 +35,11 @@ function ugc_current_host()
 function ugc_base_path()
 {
     $script = (string)($_SERVER['SCRIPT_NAME'] ?? '');
-    $basePath = rtrim(dirname(dirname($script)), '/');
-    if ($basePath === '/' || $basePath === '.') {
+    $script = str_replace('\\', '/', $script);
+    $basePath = dirname(dirname($script));
+    $basePath = str_replace('\\', '/', (string)$basePath);
+    $basePath = rtrim($basePath, '/');
+    if ($basePath === '/' || $basePath === '.' || $basePath === '') {
         return '';
     }
     return $basePath;
@@ -46,4 +49,3 @@ function ugc_base_url()
 {
     return ugc_current_scheme() . '://' . ugc_current_host() . ugc_base_path();
 }
-

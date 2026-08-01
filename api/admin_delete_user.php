@@ -7,6 +7,7 @@ error_reporting(0);
 
 require_once __DIR__ . '/users_store.php';
 require_once __DIR__ . '/states_store.php';
+require_once __DIR__ . '/landing_insights_access.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -108,6 +109,12 @@ $tokenHash = hash('sha256', $token);
 $now = time();
 $foundUser = users_store_find_by_session_token_hash($tokenHash);
 if (!$foundUser) {
+    $privateAuth = landing_private_authenticate_token($token);
+    if (!empty($privateAuth['ok']) && is_array($privateAuth['user'] ?? null)) {
+        $foundUser = $privateAuth['user'];
+    }
+}
+if (!$foundUser) {
     respond(401, ['error' => 'Sessão inválida. Faz login de novo.']);
 }
 
@@ -119,7 +126,7 @@ if ($expires && $expires < $now) {
 $adminEmails = loadAdmins($adminsFile, $adminsExampleFile);
 $currentEmail = strtolower(trim((string)($foundUser['email'] ?? '')));
 if (!$currentEmail || !in_array($currentEmail, $adminEmails, true)) {
-    respond(403, ['error' => 'Sem permissão pra fazer isso.']);
+    respond(403, ['error' => 'Sem permissão para fazer isso.']);
 }
 
 $targetId = trim((string)($body['userId'] ?? ''));
@@ -128,7 +135,7 @@ if ($targetId === '') {
 }
 
 if ((string)($foundUser['id'] ?? '') === $targetId) {
-    respond(400, ['error' => 'Não dá pra excluir você mesmo aqui.']);
+    respond(400, ['error' => 'Não é possível excluir você mesmo aqui.']);
 }
 
 $target = users_store_find_by_id($targetId);

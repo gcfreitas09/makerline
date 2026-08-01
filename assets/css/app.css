@@ -49,6 +49,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -2966,4 +2970,3 @@ button[data-action="bonus-xp"] {
   background: linear-gradient(90deg, var(--accent), rgba(45, 212, 191, 0.6));
   transition: width 0.4s ease;
 }
-
