@@ -1,6 +1,6 @@
 import { state, saveState, nextActionOptions } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js?v=20260318b';
-import { showToast } from '../../core/ui.js?v=20260302f';
+import { renderAll } from '../../core/renderers.js?v=20260502c';
+import { showToast } from '../../core/ui.js?v=20260502c';
 import { trackEvent } from '../../core/gamification.js?v=20260302f';
 
 const getBrandModal = () => ({
@@ -13,10 +13,99 @@ const getBrandModal = () => ({
 });
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
+const BRAND_WIZARD_TOTAL = 4;
+let brandWizardEnabled = false;
+let brandWizardStep = 1;
+
+const getBrandWizardRefs = () => {
+  const { form } = getBrandModal();
+  return {
+    form,
+    steps: form ? Array.from(form.querySelectorAll('[data-brand-step]')) : [],
+    progress: form ? form.querySelector('[data-brand-wizard-progress]') : null,
+    progressSteps: form ? Array.from(form.querySelectorAll('[data-brand-wizard-progress] .modal-wizard-step')) : [],
+    nav: form ? form.querySelector('[data-brand-wizard-actions]') : null,
+    submitActions: form ? form.querySelector('[data-brand-submit-actions]') : null,
+    nextBtn: document.getElementById('brand-step-next-btn'),
+    deleteBtn: document.getElementById('brand-delete-inline-btn')
+  };
+};
+
+const applyBrandWizardStep = () => {
+  const { form, steps, progress, progressSteps, nav, submitActions, nextBtn, deleteBtn } = getBrandWizardRefs();
+  if (!form) return;
+  const selectedActionType = String(form.querySelector('select[name="nextActionType"]')?.value || '').trim();
+  const actionDetailRows = ['nextActionCustomType', 'nextActionDate', 'nextActionNote']
+    .map((name) => form.querySelector(`[name="${name}"]`)?.closest('[data-brand-step]'))
+    .filter(Boolean);
+
+  steps.forEach((row) => {
+    const step = Number(row.dataset.brandStep || 1);
+    const hideEmptyActionDetail = brandWizardEnabled && brandWizardStep === 4 && !selectedActionType && actionDetailRows.includes(row);
+    row.classList.toggle('modal-step-hidden', (brandWizardEnabled && step !== brandWizardStep) || hideEmptyActionDetail);
+  });
+
+  if (progress) progress.style.display = brandWizardEnabled ? '' : 'none';
+  if (nav) nav.style.display = brandWizardEnabled ? '' : 'none';
+  if (submitActions) submitActions.style.display = !brandWizardEnabled || brandWizardStep >= BRAND_WIZARD_TOTAL ? '' : 'none';
+
+  progressSteps.forEach((item) => {
+    const step = Number(item.dataset.step || 0);
+    item.classList.toggle('is-active', brandWizardEnabled && step === brandWizardStep);
+    item.classList.toggle('is-done', brandWizardEnabled && step < brandWizardStep);
+  });
+
+  if (nextBtn) {
+    if (!brandWizardEnabled || brandWizardStep >= BRAND_WIZARD_TOTAL) {
+      nextBtn.style.display = 'none';
+    } else {
+      nextBtn.style.display = '';
+      nextBtn.textContent = 'Próximo';
+      nextBtn.disabled = false;
+    }
+  }
+
+  if (deleteBtn && brandWizardEnabled) {
+    if (brandWizardStep < BRAND_WIZARD_TOTAL) {
+      deleteBtn.style.display = 'none';
+    } else {
+      deleteBtn.style.display = deleteBtn.dataset.brandId ? '' : 'none';
+    }
+  }
+};
+
+const setBrandWizardMode = (mode) => {
+  brandWizardEnabled = mode === 'create';
+  brandWizardStep = 1;
+  applyBrandWizardStep();
+};
+
+const setBrandWizardStep = (step) => {
+  if (!brandWizardEnabled) return false;
+  const next = Math.max(1, Math.min(BRAND_WIZARD_TOTAL, Number(step) || 1));
+  brandWizardStep = next;
+  applyBrandWizardStep();
+  return true;
+};
+
+const advanceBrandWizardStep = () => {
+  const { form, msg } = getBrandModal();
+  if (!form || !brandWizardEnabled) return;
+
+  const nameInput = form.querySelector('input[name="name"]');
+  if (brandWizardStep === 1 && !String(nameInput.value || '').trim()) {
+    if (msg) msg.textContent = 'Informe o nome da marca para continuar.';
+    if (nameInput) nameInput.focus();
+    return;
+  }
+
+  if (msg) msg.textContent = '';
+  setBrandWizardStep(brandWizardStep + 1);
+};
 
 const setNextActionCustomVisibility = (form, value) => {
   const row = document.getElementById('brand-next-action-custom-row');
-  const input = form?.querySelector('input[name="nextActionCustomType"]');
+  const input = form.querySelector('input[name="nextActionCustomType"]');
   const show = value === 'outro';
   if (row) row.style.display = show ? '' : 'none';
   if (input) {
@@ -31,9 +120,9 @@ const populateCampaignBrandSelect = (selectedId = '') => {
 
   const brands = (Array.isArray(state.brands) ? state.brands : [])
     .slice()
-    .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || ''), 'pt-BR'));
+    .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'pt-BR'));
 
-  select.innerHTML = ['<option value="">Escolher marca...</option>']
+  select.innerHTML = ['<option value="">Vincular depois...</option>']
     .concat(brands.map((brand) => `<option value="${brand.id}">${String(brand.name || 'Marca')}</option>`))
     .join('');
 
@@ -58,7 +147,7 @@ const openBrandModal = (brandId = '', options = {}) => {
 
   form.reset();
   form.dataset.brandId = brand?.id || '';
-  form.dataset.returnTo = options?.returnTo || '';
+  form.dataset.returnTo = options.returnTo || '';
   if (msg) msg.textContent = '';
 
   const idInput = form.querySelector('input[name="id"]');
@@ -91,6 +180,7 @@ const openBrandModal = (brandId = '', options = {}) => {
   form.querySelectorAll('[data-brand-create-only]').forEach((element) => {
     element.style.display = brand ? 'none' : '';
   });
+  setBrandWizardMode(brand ? 'edit' : 'create');
 
   if (deleteBtn) {
     if (brand) {
@@ -105,6 +195,12 @@ const openBrandModal = (brandId = '', options = {}) => {
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   if (nameInput) nameInput.focus();
+
+  if (typeof window.enableCustomSelects === 'function') {
+    requestAnimationFrame(() => {
+      try { window.enableCustomSelects(modal); } catch (e) {}
+    });
+  }
 };
 
 const closeBrandModal = () => {
@@ -125,6 +221,9 @@ const closeBrandModal = () => {
     delete deleteBtn.dataset.brandId;
   }
   setNextActionCustomVisibility(form, '');
+  brandWizardEnabled = false;
+  brandWizardStep = 1;
+  applyBrandWizardStep();
 };
 
 const syncCampaignsWithBrand = (brand, previousName = '') => {
@@ -166,7 +265,7 @@ const handleBrandSubmit = (event) => {
     return;
   }
   if (email && !email.includes('@')) {
-    if (msg) msg.textContent = 'Informe um email válido ou deixe em branco.';
+    if (msg) msg.textContent = 'Informe um e-mail válido ou deixe em branco.';
     return;
   }
   if (nextActionType && !nextActionDate) {
@@ -232,6 +331,7 @@ const handleBrandSubmit = (event) => {
   }
 
   saveState();
+  closeBrandModal();
   renderAll();
   populateCampaignBrandSelect(brand.id);
 
@@ -245,7 +345,6 @@ const handleBrandSubmit = (event) => {
     trackEvent('brand_updated', { brandId: brand.id, brand });
   }
 
-  closeBrandModal();
   showToast(reason === 'create' ? 'Marca salva.' : 'Marca atualizada.');
 
   const campaignBrandSelect = document.querySelector('#campaign-form select[name="brandId"]');
@@ -257,7 +356,7 @@ const handleBrandSubmit = (event) => {
   }
   if (returnTo === 'campaign' && !isCampaignOpen) {
     window.setTimeout(() => {
-      if (window.__ugcModals?.openCampaignModal) {
+      if (window.__ugcModals.openCampaignModal) {
         window.__ugcModals.openCampaignModal();
       }
     }, 80);
@@ -276,6 +375,15 @@ const initBrandForm = () => {
   if (typeSelect) {
     typeSelect.addEventListener('change', () => {
       setNextActionCustomVisibility(form, typeSelect.value);
+      applyBrandWizardStep();
+    });
+  }
+
+  const nextStepBtn = document.getElementById('brand-step-next-btn');
+  if (nextStepBtn && nextStepBtn.dataset.bound !== '1') {
+    nextStepBtn.dataset.bound = '1';
+    nextStepBtn.addEventListener('click', () => {
+      advanceBrandWizardStep();
     });
   }
 

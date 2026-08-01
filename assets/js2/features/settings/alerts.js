@@ -17,8 +17,8 @@ const plural = (value, singular, pluralWord = null) => {
 };
 
 const buildAlertsMessage = () => {
-  const pendentes = state.campaigns.filter((c) => c.status === 'prospeccao' && c.stage === 'abordagem').length;
-  const negociando = state.campaigns.filter((c) => c.status === 'prospeccao' && c.stage === 'negociacao').length;
+  const pendentes = state.campaigns.filter((c) => c.status === 'negociacao' && c.stage === 'contato_recebido').length;
+  const negociando = state.campaigns.filter((c) => c.status === 'negociacao' && c.stage === 'proposta_enviada').length;
   const realizadosSemValor = state.campaigns.filter(
     (c) => c.status === 'concluida' && c.stage === 'pago' && (!c.value || Number(c.value) <= 0) && !c.barter
   ).length;
@@ -34,7 +34,7 @@ const buildAlertsMessage = () => {
 
   const head = parts.slice(0, 2).join(' · ');
   const tail = parts.length > 2 ? ` +${parts.length - 2}` : '';
-  return `Alertas: ${head}${tail}. Bora dar um passo nisso?`;
+  return `Alertas: ${head}${tail}. Bora dar um passo nisso`;
 };
 
 const runCampaignAlerts = ({ force = false } = {}) => {

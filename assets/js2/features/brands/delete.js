@@ -1,6 +1,6 @@
 import { state, saveState } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js?v=20260302f';
-import { showToast } from '../../core/ui.js?v=20260302f';
+import { renderAll } from '../../core/renderers.js?v=20260502c';
+import { showToast } from '../../core/ui.js?v=20260502c';
 
 const getBrandDeleteModal = () => ({
   modal: document.getElementById('brand-delete-modal'),
@@ -57,22 +57,22 @@ const handleBrandDeleteSubmit = (event) => {
   });
 
   if (linkedCampaigns.length) {
-    if (msg) msg.textContent = `Essa marca ainda tem ${linkedCampaigns.length} campanha(s) vinculada(s). Reatribua ou exclua essas campanhas antes.`;
+    if (msg) msg.textContent = `Essa marca ainda tem ${linkedCampaigns.length} ${linkedCampaigns.length === 1 ? 'campanha vinculada' : 'campanhas vinculadas'}. Reatribua ou exclua essas campanhas antes.`;
     return;
   }
 
   state.brands = (Array.isArray(state.brands) ? state.brands : []).filter((item) => item.id !== id);
 
-  if (state.ui?.brandComposer?.brandId === id) {
+  if (state.ui.brandComposer.brandId === id) {
     state.ui.brandComposer.brandId = null;
     state.ui.brandComposer.text = '';
     state.ui.brandComposer.lastBrandId = null;
     state.ui.brandComposer.lastType = null;
   }
-  if (state.ui?.selectedBrandId === id) {
+  if (state.ui.selectedBrandId === id) {
     state.ui.selectedBrandId = null;
   }
-  if (state.ui?.pendingCampaignBrandId === id) {
+  if (state.ui.pendingCampaignBrandId === id) {
     state.ui.pendingCampaignBrandId = null;
   }
 

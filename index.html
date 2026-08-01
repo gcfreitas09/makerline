@@ -1,393 +1,430 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Makerline - UGC Quest</title>
-  <meta
-    name="description"
-    content="Gerencie campanhas, roteiros e mÃ©tricas de um jeito gamificado. Feito pra creators UGC evoluÃ­rem no dia a dia."
-  />
-  <meta property="og:title" content="Makerline - UGC Quest" />
-  <meta
-    property="og:description"
-    content="Gerencie campanhas, roteiros e mÃ©tricas de um jeito gamificado. Feito pra creators UGC evoluÃ­rem no dia a dia."
-  />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="assets/img/share.png" />
-  <meta property="og:image:width" content="512" />
-  <meta property="og:image:height" content="512" />
-  <meta property="og:locale" content="pt_BR" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Makerline - UGC Quest" />
-  <meta
-    name="twitter:description"
-    content="Gerencie campanhas, roteiros e mÃ©tricas de um jeito gamificado. Feito pra creators UGC evoluÃ­rem no dia a dia."
-  />
-  <meta name="twitter:image" content="assets/img/share.png" />
+  <meta name="description" content="O Makerline está no ar. O sistema operacional do creator UGC: campanhas, prazos, prospecção e pagamentos num só lugar. Comece grátis por 15 dias, sem cartão." />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#06090f" />
+  <title>Makerline · Está no ar, o sistema operacional do creator UGC</title>
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
-  <link rel="stylesheet" href="assets/css/app.css" />
+
+  <meta property="og:site_name" content="Makerline" />
+  <meta property="og:title" content="Makerline está no ar, o sistema operacional do creator UGC" />
+  <meta property="og:description" content="Campanhas, prazos, prospecção e pagamentos num só lugar. Comece grátis por 15 dias, sem cartão." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/img/share.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/css/lancamento.css?v=20260712a" />
 </head>
-<body class="auth-body">
-  <div class="auth-card">
-    <div class="brand">
-      <div class="brand-icon">
-        <img src="assets/img/logo.png" alt="Makerline" />
-      </div>
-      <div>
-        <div class="brand-name">Makerline</div>
-        <div class="brand-tag">Painel comercial para creators</div>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      <a class="brand" href="#topo" aria-label="Makerline">
+        <img src="assets/img/logo.png" alt="" width="34" height="34" />
+        <span>Makerline</span>
+      </a>
+      <nav class="top-nav" aria-label="Seções">
+        <a href="#produto">Produto</a>
+        <a href="#depoimentos">Depoimentos</a>
+        <a href="#planos">Planos</a>
+      </nav>
+      <div class="header-actions">
+        <a class="login-link" href="app.html" data-cta-id="header_login" data-track-cta="Entrar (header)">Entrar</a>
+        <a class="btn btn-go" href="app.html" data-cta-id="header_cta" data-track-cta="Começar grátis (header)">Começar grátis</a>
       </div>
     </div>
+  </header>
 
-    <div>
-      <h2>UGC Quest</h2>
-      <p>Gerencie campanhas, marcas e entregas com uma operacao mais clara e profissional.</p>
+  <main id="conteudo">
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="topo">
+      <div class="container hero-inner">
+        <h1>O sistema operacional do <span class="grad">UGC creator</span>.</h1>
+
+        <p class="hero-copy">
+          O Makerline centraliza campanhas, prazos, propostas, prospecção, entregas e pagamentos para
+          creators UGC que querem trabalhar como profissionais, sem depender de WhatsApp, planilhas
+          soltas ou Notion bagunçado.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn btn-go btn-lg" href="app.html" data-cta-id="hero_primary_cta" data-track-cta="Começar grátis (hero)">Começar grátis <span class="arrow">→</span></a>
+          <a class="btn btn-ghost btn-lg" href="#produto">Ver o produto</a>
+        </div>
+
+        <div class="trust-row">
+          <span><span class="check">✓</span> 15 dias grátis</span>
+          <span><span class="check">✓</span> Sem cartão pra começar</span>
+          <span><span class="check">✓</span> Cancele quando quiser</span>
+        </div>
+      </div>
+
+      <!-- Signature: product on ascending plinth of light -->
+      <div class="hero-stage">
+        <div class="plinth" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="product-frame">
+          <div class="frame-bar">
+            <span class="dots"><i></i><i></i><i></i></span>
+            <span class="label">Makerline · Campanhas</span>
+          </div>
+          <img src="assets/img/landing-feature-campaigns-real.png?v=20260710c"
+               alt="Painel de campanhas do Makerline: marca, prazo, valor, status, etapa e ações em uma tabela clara." />
+        </div>
+        <div class="float-stat" aria-hidden="true">
+          <div class="k">A receber</div>
+          <div class="v">R$ 10.000</div>
+          <div class="s">3 campanhas · sob controle</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROBLEM ============ -->
+    <section class="section">
+      <div class="container problem-grid">
+        <div class="problem-copy reveal">
+          <span class="eyebrow">O nó de todo creator</span>
+          <h2>Você não tem problema de talento. Tem problema de sistema.</h2>
+          <p>
+            Você fecha campanhas, entrega conteúdo e conquista marcas. Mas no fim do dia ainda gasta
+            energia tentando lembrar o que falta entregar, quem ainda vai pagar e qual campanha está atrasada.
+          </p>
+        </div>
+        <div class="problem-stack">
+          <article class="pain reveal" data-delay="1">
+            <span class="x">!</span>
+            <div>
+              <h3>Campanha escapa quando tudo fica espalhado.</h3>
+              <p>Briefing, proposta, envio, aprovação e pagamento em lugares diferentes. Alguma coisa sempre se perde.</p>
+            </div>
+          </article>
+          <article class="pain reveal" data-delay="2">
+            <span class="x">!</span>
+            <div>
+              <h3>Você não sabe quanto tem pra receber.</h3>
+              <p>Pagamento atrasado, campanha sem status e marca que some viram ansiedade e dinheiro parado.</p>
+            </div>
+          </article>
+          <article class="pain reveal" data-delay="3">
+            <span class="x">!</span>
+            <div>
+              <h3>Você administra em vez de fechar mais.</h3>
+              <p>Quanto mais campanha entra, mais o improviso quebra sua operação.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FEATURES ============ -->
+    <section class="section section-alt" id="produto">
+      <div class="container section-head reveal">
+        <span class="eyebrow">O produto</span>
+        <h2>Tudo que sua operação precisa. Num lugar só.</h2>
+        <p>Telas reais do Makerline, o mesmo painel que os creators já usam pra rodar as campanhas todo dia.</p>
+      </div>
+
+      <div class="container">
+        <!-- Feature 1 -->
+        <article class="feature">
+          <div class="feature-copy reveal">
+            <span class="feature-num">01 · Campanhas</span>
+            <h3>Veja tudo que precisa ser entregue, aprovado e recebido.</h3>
+            <p class="feature-lead">Cada campanha com status, prazo, valor e próximo passo numa visão clara.</p>
+            <ul class="feature-bullets">
+              <li><span class="check">✓</span> Marca, prazo, valor e etapa lado a lado</li>
+              <li><span class="check">✓</span> Status de pagamento: pendente, parcial ou pago</li>
+              <li><span class="check">✓</span> Botão de avançar etapa sem sair da tela</li>
+            </ul>
+          </div>
+          <div class="feature-visual reveal" data-delay="1">
+            <span class="feature-glow" aria-hidden="true"></span>
+            <div class="shot">
+              <img src="assets/img/landing-feature-campaigns-real.png?v=20260710c"
+                   alt="Tela de campanhas do Makerline com filtros, prazos, valores e status." loading="lazy" />
+            </div>
+          </div>
+        </article>
+
+        <!-- Feature 2 -->
+        <article class="feature reverse">
+          <div class="feature-copy reveal">
+            <span class="feature-num">02 · Prospecção</span>
+            <h3>Pare de perder contato de marca no meio das conversas.</h3>
+            <p class="feature-lead">Marcas, propostas e retornos organizados por estágio comercial.</p>
+            <ul class="feature-bullets">
+              <li><span class="check">✓</span> Cada marca com canal, proposta e próximo passo</li>
+              <li><span class="check">✓</span> Estágios: em conversa, negociação, respondeu, fechou</li>
+              <li><span class="check">✓</span> Nunca mais esqueça de dar follow-up</li>
+            </ul>
+          </div>
+          <div class="feature-visual reveal" data-delay="1">
+            <span class="feature-glow" aria-hidden="true"></span>
+            <div class="shot">
+              <img src="assets/img/landing-feature-prospeccao-real.png"
+                   alt="Central de prospecção do Makerline com cards de marcas, canal e estágio da conversa." loading="lazy" />
+            </div>
+          </div>
+        </article>
+
+        <!-- Feature 3 -->
+        <article class="feature">
+          <div class="feature-copy reveal">
+            <span class="feature-num">03 · Métricas</span>
+            <h3>Saiba se sua operação está crescendo, ou só ficando mais bagunçada.</h3>
+            <p class="feature-lead">Campanhas ativas, valor a receber, tempo médio e evolução do mês.</p>
+            <ul class="feature-bullets">
+              <li><span class="check">✓</span> Quanto você já fez e quanto ainda vai entrar</li>
+              <li><span class="check">✓</span> Qual etapa está travando suas campanhas</li>
+              <li><span class="check">✓</span> Evolução mês a mês, sem montar planilha</li>
+            </ul>
+          </div>
+          <div class="feature-visual reveal" data-delay="1">
+            <span class="feature-glow" aria-hidden="true"></span>
+            <div class="shot">
+              <img src="assets/img/landing-feature-metrics-real.png"
+                   alt="Painel de métricas do Makerline com indicadores da operação e gráficos de desempenho." loading="lazy" />
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ TESTIMONIALS ============ -->
+    <section class="section section-alt" id="depoimentos">
+      <div class="container section-head reveal">
+        <span class="eyebrow">Quem já usa</span>
+        <h2>Creators que trocaram a planilha pelo Makerline.</h2>
+      </div>
+      <div class="container tst-grid">
+        <article class="tst reveal">
+          <div class="mark">"</div>
+          <blockquote>
+            Muito intuitivo. Tive contato com outra plataforma e fiquei perdida. No Makerline fiquei zero
+            perdida. As funções estão muito bem colocadas, e o que testei até agora é nota 10.
+          </blockquote>
+          <div class="tst-person">
+            <img src="assets/img/keila.jpg" alt="Keila Bragante" width="54" height="54" loading="lazy" />
+            <div>
+              <h4>Keila Bragante</h4>
+              <span>UGC Creator</span>
+              <a href="https://instagram.com/keilabraganteugc" target="_blank" rel="noopener">@keilabraganteugc</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="tst reveal" data-delay="1">
+          <div class="mark">"</div>
+          <blockquote>
+            Muito melhor do que fazer planilha. Está tudo organizado, tem o dashboard e te mostra
+            exatamente onde você está. Tem aplicativo melhor que esse?
+          </blockquote>
+          <div class="tst-person">
+            <img src="assets/img/rick.jpg" alt="Rick Olavo" width="54" height="54" loading="lazy" />
+            <div>
+              <h4>Rick Olavo</h4>
+              <span>UGC Creator e Mentor</span>
+              <a href="https://instagram.com/rickolavo" target="_blank" rel="noopener">@rickolavo</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="tst reveal" data-delay="2">
+          <div class="mark">"</div>
+          <blockquote>
+            Gostei bastante da funcionalidade e praticidade. Achei muito intuitivo e fácil de usar.
+            Parabéns por criar um app que ajuda nós creators a organizar melhor nossos trabalhos,
+            realmente é uma necessidade que temos.
+          </blockquote>
+          <div class="tst-person">
+            <img src="assets/img/beigiane.jpg" alt="Beigiane Nobre" width="54" height="54" loading="lazy" />
+            <div>
+              <h4>Beigiane</h4>
+              <span>UGC Creator</span>
+              <a href="https://instagram.com/beigianenobre" target="_blank" rel="noopener">@beigianenobre</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ PRICING ============ -->
+    <section class="section" id="planos">
+      <div class="container section-head reveal">
+        <span class="eyebrow">Planos</span>
+        <h2>Comece grátis. Assine quando fizer sentido.</h2>
+        <p>Teste tudo por 15 dias sem cartão. Se gostar, escolha o ciclo que cabe na sua operação.</p>
+      </div>
+      <div class="container price-grid">
+        <!-- Free -->
+        <article class="plan reveal">
+          <h3>Teste grátis</h3>
+          <p class="plan-sub">Pra sentir na prática antes de pagar qualquer coisa.</p>
+          <div class="plan-price">
+            <span class="amount">15</span>
+            <span class="per">dias liberados</span>
+          </div>
+          <p class="plan-note">Sem cartão</p>
+          <div class="plan-sep"></div>
+          <ul class="plan-feats">
+            <li><span class="check">✓</span> Todos os recursos liberados</li>
+            <li><span class="check">✓</span> Campanhas, prospecção e métricas</li>
+            <li><span class="check">✓</span> Seus dados salvos na conta</li>
+          </ul>
+          <a class="btn btn-ghost" href="app.html" data-cta-id="plan_free_cta" data-track-cta="Começar grátis (plano teste)">Começar grátis</a>
+        </article>
+
+        <!-- Annual (featured) -->
+        <article class="plan plan-featured reveal" data-delay="1">
+          <span class="plan-tag">Mais escolhido · economize 27%</span>
+          <h3>Anual</h3>
+          <p class="plan-sub">O melhor custo pra quem já vive de campanha.</p>
+          <div class="plan-price">
+            <span class="amount">R$ 349,90</span>
+            <span class="per">/ ano</span>
+          </div>
+          <p class="plan-note">Equivale a R$ 29/mês</p>
+          <div class="plan-sep"></div>
+          <ul class="plan-feats">
+            <li><span class="check">✓</span> Tudo do plano mensal</li>
+            <li><span class="check">✓</span> 12 meses de operação organizada</li>
+            <li><span class="check">✓</span> Economia de R$ 128,90</li>
+            <li><span class="check">✓</span> Menos atrito, mais campanha fechada</li>
+          </ul>
+          <a class="btn btn-go" href="app.html" data-cta-id="plan_annual_cta" data-track-cta="Assinar anual">Assinar anual</a>
+        </article>
+
+        <!-- Monthly -->
+        <article class="plan reveal" data-delay="2">
+          <h3>Mensal</h3>
+          <p class="plan-sub">Flexível pra manter a operação organizada mês a mês.</p>
+          <div class="plan-price">
+            <span class="amount">R$ 39,90</span>
+            <span class="per">/ mês</span>
+          </div>
+          <p class="plan-note">Cancele quando quiser</p>
+          <div class="plan-sep"></div>
+          <ul class="plan-feats">
+            <li><span class="check">✓</span> Campanhas e status ilimitados</li>
+            <li><span class="check">✓</span> Prospecção e financeiro completos</li>
+            <li><span class="check">✓</span> Métricas de toda a operação</li>
+          </ul>
+          <a class="btn btn-ghost" href="app.html" data-cta-id="plan_monthly_cta" data-track-cta="Assinar mensal">Assinar mensal</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section section-alt">
+      <div class="container section-head reveal">
+        <span class="eyebrow">Dúvidas frequentes</span>
+        <h2>Perguntas rápidas antes de começar.</h2>
+      </div>
+      <div class="container faq-list">
+        <details class="faq-item reveal">
+          <summary>Preciso colocar cartão pra testar? <span class="plus">+</span></summary>
+          <p>Não. São 15 dias com tudo liberado, sem cartão. Você só decide o plano se quiser continuar depois do teste.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary>Posso cancelar quando quiser? <span class="plus">+</span></summary>
+          <p>Sim, direto pelo painel. Sem ligação, sem burocracia. Você fica no controle da assinatura.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary>Serve pra quem está começando agora? <span class="plus">+</span></summary>
+          <p>Serve. Se você já fecha, ou quer começar a fechar, campanha com marca, o Makerline organiza sua operação desde a primeira.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary>Substitui planilha e Notion? <span class="plus">+</span></summary>
+          <p>Sim. A ideia é centralizar toda a rotina comercial do creator num painel próprio: campanhas, marcas, prazos, valores e próximos passos.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary>Meus dados ficam salvos? <span class="plus">+</span></summary>
+          <p>Ficam. Tudo é salvo na sua conta e sincroniza automaticamente. Você acessa de onde estiver, sempre atualizado.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ============ FINAL CTA ============ -->
+    <section class="final">
+      <div class="container final-inner reveal">
+        <h2>Sua operação de creator começa hoje.</h2>
+        <p>Cria a conta, importa sua primeira campanha e sente a diferença de enxergar tudo num lugar só.</p>
+        <div class="hero-actions">
+          <a class="btn btn-go btn-lg" href="app.html" data-cta-id="final_cta" data-track-cta="Começar grátis (final)">Começar grátis <span class="arrow">→</span></a>
+          <a class="btn btn-ghost btn-lg" href="#planos">Ver planos</a>
+        </div>
+        <div class="trust-row">
+          <span><span class="check">✓</span> 15 dias grátis</span>
+          <span><span class="check">✓</span> Sem cartão pra começar</span>
+          <span><span class="check">✓</span> Cancele quando quiser</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a class="brand" href="#topo" aria-label="Makerline">
+          <img src="assets/img/logo.png" alt="" width="34" height="34" />
+          <span>Makerline</span>
+        </a>
+        <p>O sistema operacional do creator UGC. Campanhas, prazos, prospecção e pagamentos numa operação clara e profissional.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Produto</h5>
+        <a href="#produto">Funcionalidades</a>
+        <a href="#planos">Planos</a>
+        <a href="#depoimentos">Depoimentos</a>
+      </div>
+      <div class="footer-col">
+        <h5>Começar</h5>
+        <a href="app.html" data-cta-id="footer_signup_cta" data-track-cta="Criar conta grátis (footer)">Criar conta grátis</a>
+        <a href="app.html" data-cta-id="footer_login_cta" data-track-cta="Entrar (footer)">Entrar</a>
+      </div>
     </div>
-
-    <div class="auth-tabs">
-      <button class="auth-tab active" data-tab="login" type="button">Entrar</button>
-      <button class="auth-tab" data-tab="signup" type="button">Criar conta</button>
+    <div class="container footer-bottom">
+      <span>© 2026 Makerline. Feito pra creators UGC.</span>
+      <span>Lançamento oficial · no ar</span>
     </div>
-
-    <form class="auth-form active" id="login-form">
-      <div class="form-row">
-        <label>Email</label>
-        <input class="input" name="email" type="email" placeholder="seu@email.com" list="email-domains" autocomplete="email" required />
-      </div>
-      <div class="form-row">
-        <label>Senha</label>
-        <input class="input" name="password" type="password" placeholder="Sua senha" required />
-      </div>
-      <button class="btn btn-primary" type="submit" id="login-btn">Entrar</button>
-      <div class="auth-links">
-        <button type="button" class="auth-link" id="forgot-btn">Esqueci minha senha?</button>
-      </div>
-      <div class="muted" id="login-msg"></div>
-    </form>
-
-    <form class="auth-form" id="signup-form">
-      <div class="form-row">
-        <label>Nome</label>
-        <input class="input" name="name" type="text" placeholder="Seu nome" required />
-      </div>
-      <div class="form-row">
-        <label>Email</label>
-        <input class="input" name="email" type="email" placeholder="seu@email.com" list="email-domains" autocomplete="email" required />
-      </div>
-      <div class="form-row">
-        <label>Senha</label>
-        <input class="input" name="password" type="password" placeholder="Crie uma senha" required />
-      </div>
-      <button class="btn btn-primary" type="submit" id="signup-btn">Criar conta</button>
-      <div class="muted" id="signup-msg"></div>
-    </form>
-
-    <div class="auth-footer">
-      <span>Ao continuar, voce entra no seu painel da Makerline.</span>
-    </div>
-  </div>
-
-  <datalist id="email-domains"></datalist>
+  </footer>
 
   <script>
-    const tabs = document.querySelectorAll('[data-tab]');
-    const loginForm = document.getElementById('login-form');
-    const signupForm = document.getElementById('signup-form');
-    const loginMsg = document.getElementById('login-msg');
-    const signupMsg = document.getElementById('signup-msg');
+    (() => {
+      // Header border on scroll
+      const header = document.getElementById('siteHeader');
+      const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
 
-    const EMAIL_DOMAINS = [
-      'gmail.com',
-      'hotmail.com',
-      'outlook.com',
-      'live.com',
-      'icloud.com',
-      'yahoo.com',
-      'yahoo.com.br',
-      'proton.me',
-      'protonmail.com',
-      'uol.com.br',
-      'bol.com.br',
-      'terra.com.br',
-      'globo.com'
-    ];
-
-    const emailDatalist = document.getElementById('email-domains');
-
-    const updateEmailSuggestions = (input) => {
-      if (!emailDatalist || !input) return;
-      const raw = String(input.value || '').trim();
-      const at = raw.indexOf('@');
-      if (at < 1) {
-        emailDatalist.replaceChildren();
+      // Scroll reveal
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const items = document.querySelectorAll('.reveal');
+      if (reduce || !('IntersectionObserver' in window)) {
+        items.forEach((el) => el.classList.add('in'));
         return;
       }
-
-      const local = raw.slice(0, at);
-      const typedDomain = raw.slice(at + 1).toLowerCase();
-      if (!local) {
-        emailDatalist.replaceChildren();
-        return;
-      }
-
-      const matches = EMAIL_DOMAINS.filter((domain) => domain.startsWith(typedDomain)).slice(0, 10);
-      const list = matches.length ? matches : EMAIL_DOMAINS.slice(0, 10);
-
-      const fragment = document.createDocumentFragment();
-      list.forEach((domain) => {
-        const opt = document.createElement('option');
-        opt.value = `${local}@${domain}`;
-        fragment.appendChild(opt);
-      });
-      emailDatalist.replaceChildren(fragment);
-    };
-
-    const bindEmailAutocomplete = (input) => {
-      if (!input) return;
-      input.addEventListener('input', () => updateEmailSuggestions(input));
-      input.addEventListener('focus', () => updateEmailSuggestions(input));
-      input.addEventListener('blur', () => emailDatalist && emailDatalist.replaceChildren());
-    };
-
-    bindEmailAutocomplete(loginForm.querySelector('input[name="email"]'));
-    bindEmailAutocomplete(signupForm.querySelector('input[name="email"]'));
-    if (window.location.protocol === 'file:') {
-      loginMsg.textContent =
-        'Dica: pra login funcionar, abre pelo XAMPP: http://localhost/saas-ugc/index.html';
-    }
-
-    tabs.forEach((tab) => {
-      tab.addEventListener('click', () => {
-        tabs.forEach((btn) => btn.classList.remove('active'));
-        tab.classList.add('active');
-        const target = tab.dataset.tab;
-        loginForm.classList.toggle('active', target === 'login');
-        signupForm.classList.toggle('active', target === 'signup');
-      });
-    });
-
-    const normalizeName = (value) => {
-      if (!value) return '';
-      return String(value).replace(/[<>]/g, '').replace(/\s+/g, ' ').trim();
-    };
-
-    const setSession = (user, token) => {
-      const safeName = normalizeName(user?.name || '');
-      try {
-        sessionStorage.setItem('ugcQuestLoggedIn', '1');
-        sessionStorage.setItem('ugcQuestToken', token || '');
-        sessionStorage.setItem('ugcQuestUserId', user?.id || '');
-        sessionStorage.setItem('ugcQuestUserEmail', user?.email || '');
-        sessionStorage.setItem('ugcQuestUserName', safeName);
-      } catch (e) {}
-      try {
-        localStorage.setItem('ugcQuestSessionLoggedIn', '1');
-        localStorage.setItem('ugcQuestSessionToken', token || '');
-        localStorage.setItem('ugcQuestSessionUserId', user?.id || '');
-        localStorage.setItem('ugcQuestSessionUserEmail', user?.email || '');
-        localStorage.setItem('ugcQuestSessionUserName', safeName);
-      } catch (e) {}
-      try {
-        return (
-          sessionStorage.getItem('ugcQuestLoggedIn') === '1' &&
-          Boolean(sessionStorage.getItem('ugcQuestToken')) &&
-          Boolean(sessionStorage.getItem('ugcQuestUserId'))
-        );
-      } catch (e) {
-        return false;
-      }
-    };
-
-    const goToApp = () => {
-      window.location.replace('app.html');
-    };
-
-    const setPrefs = (userId, settings) => {
-      try {
-        const key = userId ? `ugcQuestPrefs:${userId}` : 'ugcQuestPrefs';
-        const raw = localStorage.getItem(key);
-        const prefs = raw ? JSON.parse(raw) : {};
-        prefs.settings = { ...(prefs.settings || {}), ...(settings || {}) };
-        localStorage.setItem(key, JSON.stringify(prefs));
-      } catch (e) {}
-    };
-
-    try {
-      const lastEmail = localStorage.getItem('ugcQuestLastEmail') || '';
-      const loginEmailInput = loginForm.querySelector('input[name="email"]');
-      if (loginEmailInput && lastEmail && !loginEmailInput.value) {
-        loginEmailInput.value = lastEmail;
-      }
-    } catch (e) {}
-
-    const parseJsonSafe = (raw) => {
-      try {
-        return JSON.parse(raw);
-      } catch (e) {
-        return null;
-      }
-    };
-
-    const callAuth = async (payload, msgEl) => {
-      msgEl.textContent = 'Enviando...';
-
-      if (window.location.protocol === 'file:') {
-        msgEl.textContent =
-          'Pra login funcionar, abre pelo XAMPP: http://localhost/saas-ugc/index.html';
-        return null;
-      }
-
-      try {
-        const res = await fetch('api/auth.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const raw = await res.text();
-        const data = parseJsonSafe(raw);
-
-        if (!data || typeof data !== 'object') {
-          msgEl.textContent =
-            'O servidor respondeu algo estranho. Confere se o Apache do XAMPP tÃ¡ ligado.';
-          return null;
-        }
-
-        if (!res.ok) {
-          const hint =
-            payload?.action === 'login' && res.status === 401
-              ? ' Se esqueceu, clica em "Esqueci minha senha?".'
-              : '';
-          msgEl.textContent = (data.error || 'Erro') + hint;
-          return { ...data, __status: res.status };
-        }
-
-        msgEl.textContent = '';
-        return data;
-      } catch (err) {
-        msgEl.textContent =
-          'NÃ£o consegui falar com o servidor. Confere o XAMPP (Apache) e tenta de novo.';
-        return null;
-      }
-    };
-
-    const requestResetCode = async (email, msgEl, opts = {}) => {
-      const safeEmail = String(email || '').trim().toLowerCase();
-      const auto = Boolean(opts.auto);
-
-      if (!msgEl) return false;
-
-      if (window.location.protocol === 'file:') {
-        msgEl.textContent =
-          'Pra isso funcionar, abre pelo XAMPP: http://localhost/saas-ugc/index.html';
-        return false;
-      }
-
-      if (!safeEmail) {
-        msgEl.textContent = 'Coloca seu email e tenta de novo.';
-        return false;
-      }
-
-      msgEl.textContent = auto ? 'Achei sua conta, mas ela tÃ¡ sem senha. Vou te mandar um cÃ³digoâ€¦' : 'Mandando o cÃ³digo...';
-
-      try {
-        const res = await fetch('api/forgot.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: safeEmail })
-        });
-        const raw = await res.text();
-        const data = parseJsonSafe(raw);
-
-        if (!data || typeof data !== 'object') {
-          msgEl.textContent = 'O servidor respondeu estranho. Confere se o Apache do XAMPP tÃ¡ ligado.';
-          return false;
-        }
-
-        if (!res.ok) {
-          msgEl.textContent = data.error || 'Erro ao enviar.';
-          return false;
-        }
-
-        msgEl.textContent = data.message || 'CÃ³digo enviado. Olha seu email.';
-        if (data.code) {
-          msgEl.textContent += ` CÃ³digo: ${data.code}`;
-        }
-
-        try {
-          sessionStorage.setItem('ugcQuestResetEmail', safeEmail);
-          if (data.code) {
-            sessionStorage.setItem('ugcQuestResetCode', String(data.code));
-          } else {
-            sessionStorage.removeItem('ugcQuestResetCode');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            io.unobserve(entry.target);
           }
-        } catch (e) {}
-
-        const next = data.next || `verify.html?email=${encodeURIComponent(safeEmail)}`;
-        setTimeout(() => {
-          window.location.assign(next);
-        }, 600);
-        return true;
-      } catch (err) {
-        msgEl.textContent = 'NÃ£o deu pra enviar agora. Tenta de novo.';
-        return false;
-      }
-    };
-
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(loginForm);
-      const email = formData.get('email');
-      const password = formData.get('password');
-      const data = await callAuth({ action: 'login', email, password }, loginMsg);
-      if (data?.ok && data.user && data.token) {
-        if (!setSession(data.user, data.token)) {
-          loginMsg.textContent =
-            'Seu navegador bloqueou o login (storage/cookies). Libera isso e tenta de novo.';
-          return;
-        }
-        setPrefs(data.user.id, { weekly: Boolean(data.user.weeklySummary) });
-        try {
-          localStorage.setItem('ugcQuestLastEmail', data.user.email || String(email || ''));
-        } catch (e) {}
-        goToApp();
-        return;
-      }
-
-      if (data?.code === 'NO_PASSWORD') {
-        await requestResetCode(email, loginMsg, { auto: true });
-      }
-    });
-
-    signupForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(signupForm);
-      const name = formData.get('name');
-      const email = formData.get('email');
-      const password = formData.get('password');
-      const data = await callAuth({ action: 'signup', name, email, password }, signupMsg);
-      if (data?.ok && data.user && data.token) {
-        if (!setSession(data.user, data.token)) {
-          signupMsg.textContent =
-            'Seu navegador bloqueou o login (storage/cookies). Libera isso e tenta de novo.';
-          return;
-        }
-        setPrefs(data.user.id, { weekly: Boolean(data.user.weeklySummary) });
-        try {
-          localStorage.setItem('ugcQuestLastEmail', data.user.email || String(email || ''));
-        } catch (e) {}
-        goToApp();
-      }
-    });
-
-    document.getElementById('forgot-btn').addEventListener('click', async () => {
-      const emailInput = loginForm.querySelector('input[name="email"]');
-      const email = emailInput ? emailInput.value : '';
-      loginMsg.textContent = '';
-      await requestResetCode(email, loginMsg, { auto: false });
-    });
+        });
+      }, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
+      items.forEach((el) => io.observe(el));
+    })();
   </script>
+  <script>window.MAKERLINE_TRACKER_PAGE = 'lancamento';</script>
+  <script src="assets/js/landing_tracker.js?v=20260712a"></script>
 </body>
 </html>

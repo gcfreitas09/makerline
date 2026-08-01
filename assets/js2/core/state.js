@@ -1,19 +1,39 @@
-﻿const STORAGE_KEY_BASE = 'ugcQuestState';
+import {
+  campaignStagesByStatus,
+  campaignStatusOrder,
+  getCampaignStageLabel,
+  getCampaignStageOptions,
+  getDefaultCampaignStage,
+  migrarFiltroDeStatus,
+  migrarStatusEEtapa,
+  statusDot,
+  statusLabels
+} from './campaigns/pipeline.js?v=20260728k';
+
+const STORAGE_KEY_BASE = 'ugcQuestState';
 const PREFS_KEY_BASE = 'ugcQuestPrefs';
 
 const getSessionUserId = () => {
   try {
-    return sessionStorage.getItem('ugcQuestUserId') || '';
+    return sessionStorage.getItem('ugcQuestUserId') || localStorage.getItem('ugcQuestSessionUserId') || '';
   } catch (error) {
-    return '';
+    try {
+      return localStorage.getItem('ugcQuestSessionUserId') || '';
+    } catch (fallbackError) {
+      return '';
+    }
   }
 };
 
 const getSessionUserEmail = () => {
   try {
-    return (sessionStorage.getItem('ugcQuestUserEmail') || '').trim().toLowerCase();
+    return (sessionStorage.getItem('ugcQuestUserEmail') || localStorage.getItem('ugcQuestSessionUserEmail') || '').trim().toLowerCase();
   } catch (error) {
-    return '';
+    try {
+      return (localStorage.getItem('ugcQuestSessionUserEmail') || '').trim().toLowerCase();
+    } catch (fallbackError) {
+      return '';
+    }
   }
 };
 
@@ -123,6 +143,7 @@ const defaultState = {
   challenges: [],
   campaigns: [],
   brands: [],
+  prospections: [],
   scripts: [],
   metrics: {
     rangeDays: 7,
@@ -204,6 +225,7 @@ const defaultState = {
     campaignPaymentFilter: 'all',
     campaignSort: 'updatedAt',
     campaignSortDir: 'desc',
+    prospectionSearch: '',
     performanceTab: 'financial',
     openMetric: 'pocket',
     openScript: null,
@@ -214,70 +236,21 @@ const defaultState = {
     },
     selectedBrandId: null,
     pendingCampaignBrandId: null,
+    // Preenchido pelo fluxo de precificacao do onboarding e consumido (e
+    // limpo) pelo modal de campanha na primeira abertura.
+    pendingCampaignPrefill: null,
     missionDate: todayKey(),
     weeklyDate: weekKey()
   }
 };
 
-const statusLabels = {
-  prospeccao: 'Prospecção',
-  producao: 'Produção',
-  finalizacao: 'Finalização',
-  concluida: 'Concluída'
-};
-
-const campaignStatusOrder = ['prospeccao', 'producao', 'finalizacao', 'concluida'];
-
-const campaignStagesByStatus = {
-  prospeccao: [
-    { id: 'abordagem', label: 'Abordagem/Inscrição' },
-    { id: 'negociacao', label: 'Negociação' },
-    { id: 'aprovado', label: 'Aprovado' }
-  ],
-  producao: [
-    { id: 'aguardando_produto', label: 'Aguardando produto' },
-    { id: 'produto_recebido', label: 'Produto recebido' },
-    { id: 'roteiro_enviado', label: 'Roteiro enviado' },
-    { id: 'aguardando_aprovacao_roteiro', label: 'Aguardando aprovação do roteiro' },
-    { id: 'roteiro_aprovado', label: 'Roteiro aprovado' },
-    { id: 'gravacao', label: 'Gravação' },
-    { id: 'conteudo_enviado', label: 'Conteúdo enviado' },
-    { id: 'aguardando_aprovacao_conteudo', label: 'Aguardando aprovação do conteúdo' },
-    { id: 'ajustes', label: 'Regravação / ajustes' }
-  ],
-  finalizacao: [
-    { id: 'conteudo_aprovado', label: 'Conteúdo aprovado' },
-    { id: 'aguardando_pagamento', label: 'Aguardando pagamento' }
-  ],
-  concluida: [{ id: 'pago', label: 'Pago' }]
-};
-
-const activePages = new Set(['dashboard', 'brands', 'campaigns', 'finance', 'metrics', 'settings']);
-
-const getCampaignStageOptions = (status) => campaignStagesByStatus[String(status || '').trim()] || [];
-
-const getDefaultCampaignStage = (status) => getCampaignStageOptions(status)[0]?.id || '';
-
-const getCampaignStageLabel = (status, stageId) => {
-  const wanted = String(stageId || '').trim();
-  if (!wanted) return '';
-  const options = getCampaignStageOptions(status);
-  const found = options.find((opt) => opt.id === wanted);
-  return found ? found.label : '';
-};
+const activePages = new Set(['dashboard', 'brands', 'campaigns', 'prospeccao', 'pricing', 'finance', 'metrics', 'plans', 'settings']);
 
 const typeLabels = {
   review: 'Review',
   unboxing: 'Unboxing',
   tutorial: 'Tutorial',
   storytelling: 'Storytelling'
-};
-
-const statusDot = {
-  prospeccao: 'dot-prospeccao',
-  producao: 'dot-producao',
-  finalizacao: 'dot-finalizacao',
-  concluida: 'dot-concluida'
 };
 
 const brandStatuses = {
@@ -298,6 +271,30 @@ const brandInteractionTypes = {
 };
 
 const brandInteractionOptions = Object.keys(brandInteractionTypes);
+
+const prospectionContactTypes = {
+  dm_instagram: 'DM Instagram',
+  email: 'Email',
+  whatsapp: 'WhatsApp',
+  plataforma_ugc: 'Plataforma UGC'
+};
+
+const prospectionContactOptions = Object.keys(prospectionContactTypes);
+
+const prospectionStatuses = {
+  pendente: 'Pendente',
+  enviado: 'Enviado',
+  respondeu: 'Respondeu',
+  fechou: 'Fechou',
+  pediu_email: 'Pediu E-mail',
+  pediu_portfolio: 'Pediu Portfólio',
+  em_conversa: 'Em Conversa',
+  negociacao: 'Negociação',
+  nao_respondeu: 'Não Respondeu',
+  recusou: 'Recusou'
+};
+
+const prospectionStatusOptions = Object.keys(prospectionStatuses);
 
 const nextActionLabels = {
   followup: 'Follow-up',
@@ -334,64 +331,46 @@ const normalizeCampaignPipeline = (currentState) => {
   campaigns.forEach((campaign) => {
     if (!campaign || typeof campaign !== 'object') return;
 
-    const rawStatus = String(campaign.status || '').trim().toLowerCase();
-    const rawStage = String(campaign.stage || '').trim();
-    const rawPipeline = String(campaign.pipeline || '').trim().toLowerCase();
-
     const paymentPercentRaw = Number.isFinite(campaign.paymentPercent)
       ? campaign.paymentPercent
       : parseInt(String(campaign.paymentPercent || ''), 10);
     const paymentPercent = Number.isFinite(paymentPercentRaw) ? Math.max(0, Math.min(100, Math.round(paymentPercentRaw))) : 0;
 
-    // Migração de status antigo (pendente/negociando/realizado).
-    if (rawStatus === 'pendente') {
-      campaign.status = 'prospeccao';
-      if (!rawStage) campaign.stage = 'abordagem';
-    } else if (rawStatus === 'negociando') {
-      campaign.status = 'prospeccao';
-      if (!rawStage) campaign.stage = 'negociacao';
-    } else if (rawStatus === 'realizado') {
-      if (paymentPercent >= 100) {
-        campaign.status = 'concluida';
-        campaign.stage = 'pago';
-      } else {
-        campaign.status = 'finalizacao';
-        if (!rawStage) campaign.stage = 'aguardando_pagamento';
-      }
+    // Campo "pipeline" de uma versão bem antiga, quando não havia micro-etapa.
+    const rawPipeline = String(campaign.pipeline || '').trim().toLowerCase();
+    if (rawPipeline === 'entrega' && !String(campaign.stage || '').trim()) {
+      campaign.status = 'producao';
+      campaign.stage = 'conteudo_enviado';
     }
 
-    // Migração simples do campo antigo "pipeline" (quando existir).
-    if (rawPipeline && !String(campaign.stage || '').trim()) {
-      if (rawPipeline === 'entrega') {
-        campaign.status = 'producao';
-        campaign.stage = 'conteudo_enviado';
-      }
+    const migrado = migrarStatusEEtapa({
+      status: campaign.status,
+      stage: campaign.stage,
+      paymentPercent
+    });
+    campaign.status = migrado.status;
+    campaign.stage = migrado.stage;
+
+    // Prospecção saiu do ciclo: as campanhas-modelo que o onboarding antigo
+    // criava viram campanhas comuns, sem perder nada do que foi preenchido.
+    if (campaign.isModel) {
+      delete campaign.isModel;
+      delete campaign.modelMeta;
     }
 
-    // Garante status válido.
-    const statusSafe = String(campaign.status || '').trim();
-    if (!campaignStatusOrder.includes(statusSafe)) {
-      campaign.status = 'prospeccao';
-    }
-
-    // Garante etapa válida pro status.
-    const stageSafe = String(campaign.stage || '').trim();
-    const options = getCampaignStageOptions(campaign.status);
-    const hasStage = stageSafe && options.some((opt) => opt.id === stageSafe);
-    if (!hasStage) {
-      campaign.stage = getDefaultCampaignStage(campaign.status);
-    }
-
-    // Limpa campo legado.
     if (campaign.pipeline !== undefined) delete campaign.pipeline;
   });
 
-  // Migra o filtro antigo salvo no UI.
+  // Migra os filtros salvos na interface.
   if (currentState.ui && typeof currentState.ui === 'object') {
-    const filter = String(currentState.ui.campaignFilter || 'all').trim().toLowerCase();
-    if (filter === 'pendente' || filter === 'negociando') currentState.ui.campaignFilter = 'prospeccao';
-    if (filter === 'realizado') currentState.ui.campaignFilter = 'finalizacao';
-    if (typeof currentState.ui.campaignDashboardFilter !== 'string') currentState.ui.campaignDashboardFilter = '';
+    currentState.ui.campaignFilter = migrarFiltroDeStatus(currentState.ui.campaignFilter);
+    if (typeof currentState.ui.campaignDashboardFilter !== 'string') {
+      currentState.ui.campaignDashboardFilter = '';
+    } else {
+      const painel = String(currentState.ui.campaignDashboardFilter || '').trim().toLowerCase();
+      if (painel === 'prospeccao') currentState.ui.campaignDashboardFilter = 'negociacao';
+      if (painel === 'finalizacao') currentState.ui.campaignDashboardFilter = 'entrega';
+    }
   }
 };
 
@@ -415,17 +394,21 @@ const normalizeUiState = (currentState) => {
   const metricsRangeDays = Number(currentState.ui.metricsRangeDays);
   currentState.ui.metricsRangeDays = [0, 15, 30, 45, 90].includes(metricsRangeDays) ? metricsRangeDays : 30;
   const metricsStatusOpen = String(currentState.ui.metricsStatusOpen || '').trim();
-  currentState.ui.metricsStatusOpen = ['prospeccao', 'producao', 'finalizacao', 'concluida'].includes(metricsStatusOpen)
-    ? metricsStatusOpen
+  currentState.ui.metricsStatusOpen = ['negociacao', 'producao', 'entrega', 'concluida'].includes(metricsStatusOpen)
+     metricsStatusOpen
     : '';
   if (typeof currentState.ui.campaignPaymentFilter !== 'string') currentState.ui.campaignPaymentFilter = 'all';
   if (typeof currentState.ui.campaignSort !== 'string') currentState.ui.campaignSort = 'updatedAt';
   if (typeof currentState.ui.campaignSortDir !== 'string') currentState.ui.campaignSortDir = 'desc';
+  if (typeof currentState.ui.prospectionSearch !== 'string') currentState.ui.prospectionSearch = '';
 
   currentState.ui.performanceTab = 'financial';
 
   if (typeof currentState.ui.selectedBrandId !== 'string') currentState.ui.selectedBrandId = null;
   if (typeof currentState.ui.pendingCampaignBrandId !== 'string') currentState.ui.pendingCampaignBrandId = null;
+  if (!currentState.ui.pendingCampaignPrefill || typeof currentState.ui.pendingCampaignPrefill !== 'object') {
+    currentState.ui.pendingCampaignPrefill = null;
+  }
 };
 
 const normalizeBrandIds = (currentState) => {
@@ -632,6 +615,89 @@ const normalizeCampaignContractFields = (currentState) => {
   });
 };
 
+const normalizeCampaignDeliverables = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+  const campaigns = Array.isArray(currentState.campaigns) ? currentState.campaigns : [];
+  campaigns.forEach((campaign) => {
+    if (!campaign || typeof campaign !== 'object') return;
+
+    const photoCountRaw = Number.isFinite(campaign.photoCount)
+      ? campaign.photoCount
+      : parseInt(String(campaign.photoCount || ''), 10);
+    const videoCountRaw = Number.isFinite(campaign.videoCount)
+      ? campaign.videoCount
+      : parseInt(String(campaign.videoCount || ''), 10);
+
+    campaign.photoCount = Number.isFinite(photoCountRaw) && photoCountRaw > 0 ? Math.floor(photoCountRaw) : 0;
+    campaign.videoCount = Number.isFinite(videoCountRaw) && videoCountRaw > 0 ? Math.floor(videoCountRaw) : 0;
+  });
+};
+
+const normalizeCampaignResources = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+  const campaigns = Array.isArray(currentState.campaigns) ? currentState.campaigns : [];
+  const allowedTypes = new Set(['link', 'file', 'document']);
+  const allowedCategories = new Set(['video', 'roteiro', 'briefing', 'outro']);
+
+  campaigns.forEach((campaign, campaignIndex) => {
+    if (!campaign || typeof campaign !== 'object') return;
+
+    const rawResources = Array.isArray(campaign.resources)
+      ? campaign.resources
+      : Array.isArray(campaign.attachments)
+        ? campaign.attachments
+        : [];
+
+    campaign.resources = rawResources
+      .map((item, resourceIndex) => {
+        if (!item || typeof item !== 'object') return null;
+
+        const rawType = String(item.type || item.kind || '').trim().toLowerCase();
+        const inferredType = rawType
+          || (String(item.url || '').trim()
+            ? 'link'
+            : String(item.content || item.text || '').trim()
+              ? 'document'
+              : 'file');
+        const type = allowedTypes.has(inferredType) ? inferredType : 'link';
+
+        const title = String(item.title || item.name || item.fileName || '').trim().slice(0, 120);
+        const url = String(item.url || item.href || item.dataUrl || '').trim();
+        const note = String(item.note || item.description || '').trim().slice(0, 240);
+        const fileName = String(item.fileName || item.name || '').trim().slice(0, 180);
+        const mimeType = String(item.mimeType || item.mime || '').trim().slice(0, 120);
+        const content = String(item.content || item.text || '').trim().slice(0, 12000);
+        const sizeRaw = Number.isFinite(item.size) ? item.size : parseInt(String(item.size || ''), 10);
+        const size = Number.isFinite(sizeRaw) && sizeRaw > 0 ? sizeRaw : 0;
+        const rawCategory = String(item.category || item.fileCategory || '').trim().toLowerCase();
+        const inferredCategory = rawCategory || (type === 'file' && mimeType.toLowerCase().startsWith('video/') ? 'video' : 'outro');
+        const category = allowedCategories.has(inferredCategory) ? inferredCategory : 'outro';
+
+        if (type === 'link' && !url) return null;
+        if (type === 'file' && !url) return null;
+        if (type === 'document' && !content && !note) return null;
+
+        return {
+          id: String(item.id || `cr-${campaignIndex}-${resourceIndex}`),
+          type,
+          category,
+          title: title || (type === 'link' ? 'Link salvo' : type === 'file' ? (fileName || 'Arquivo') : 'Documento'),
+          url,
+          note,
+          fileName,
+          mimeType,
+          size,
+          content,
+          createdAt: String(item.createdAt || item.updatedAt || campaign.updatedAt || campaign.createdAt || '').trim() || new Date().toISOString()
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+
+    delete campaign.attachments;
+  });
+};
+
 const normalizeCampaignHistory = (currentState) => {
   if (!currentState || typeof currentState !== 'object') return;
   const campaigns = Array.isArray(currentState.campaigns) ? currentState.campaigns : [];
@@ -664,6 +730,42 @@ const normalizeBrandActionFields = (currentState) => {
   if (!currentState || typeof currentState !== 'object') return;
   const brands = Array.isArray(currentState.brands) ? currentState.brands : [];
   brands.forEach((brand) => normalizeNextActionFields(brand));
+};
+
+const normalizeProspections = (currentState) => {
+  if (!currentState || typeof currentState !== 'object') return;
+  const list = Array.isArray(currentState.prospections) ? currentState.prospections : [];
+  currentState.prospections = list
+    .map((item, index) => {
+      if (!item || typeof item !== 'object') return null;
+      const id = String(item.id || `p-${Date.now()}-${index}`).trim();
+      const brand = String(item.brand || '').trim().slice(0, 120);
+      if (!brand) return null;
+
+      const contactTypeRaw = String(item.contactType || '').trim();
+      const contactType = prospectionContactOptions.includes(contactTypeRaw) ? contactTypeRaw : 'dm_instagram';
+
+      const statusRaw = String(item.status || '').trim();
+      const status = prospectionStatusOptions.includes(statusRaw) ? statusRaw : 'pendente';
+
+      const script = String(item.script || '').trim().slice(0, 4000);
+      const notes = String(item.notes || '').trim().slice(0, 2000);
+      const createdAt = String(item.createdAt || '').trim() || new Date().toISOString();
+      const updatedAt = String(item.updatedAt || item.createdAt || '').trim() || createdAt;
+
+      return {
+        id,
+        brand,
+        contactType,
+        script,
+        status,
+        notes,
+        createdAt,
+        updatedAt
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
 };
 
 const mergeState = (base, incoming) => {
@@ -699,7 +801,7 @@ const loadState = () => {
     if (legacy) {
       try {
         const parsed = JSON.parse(legacy);
-        const legacyEmail = String(parsed?.profile?.email || '').trim().toLowerCase();
+        const legacyEmail = String(parsed.profile.email || '').trim().toLowerCase();
         if (legacyEmail && legacyEmail === sessionEmail) {
           stored = legacy;
         }
@@ -741,8 +843,11 @@ const loadState = () => {
   normalizeCampaignBrandLinks(nextState);
   normalizeCampaignActionFields(nextState);
   normalizeCampaignContractFields(nextState);
+  normalizeCampaignDeliverables(nextState);
+  normalizeCampaignResources(nextState);
   normalizeCampaignHistory(nextState);
   normalizeBrandActionFields(nextState);
+  normalizeProspections(nextState);
   normalizeUiState(nextState);
   return nextState;
 };
@@ -757,25 +862,76 @@ const REMOTE_SAVE_DEBOUNCE_MS = 900;
 
 const enableRemoteSave = () => { remoteSaveEnabled = true; };
 
+// Reenvio de alteracoes que falharam ao salvar no servidor.
+const REMOTE_SAVE_RETRY_BASE_MS = 3000;
+const REMOTE_SAVE_RETRY_MAX_MS = 60000;
+const REMOTE_SAVE_WARN_AFTER = 3;
+let remoteSaveFailureCount = 0;
+let saveWarningShown = false;
+
+/**
+ * Depois de algumas tentativas seguidas sem sucesso, avisa a pessoa na tela.
+ * Perder uma campanha em silencio e pior do que assustar com um aviso.
+ */
+const notifySaveFailing = (status = 0) => {
+  if (saveWarningShown) return;
+  saveWarningShown = true;
+
+  let bar = document.getElementById('sync-warning-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'sync-warning-bar';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = [
+      'position:fixed', 'left:0', 'right:0', 'bottom:0', 'z-index:99999',
+      'padding:12px 16px', 'background:#b3261e', 'color:#fff',
+      'font:600 14px/1.4 Inter,system-ui,sans-serif', 'text-align:center',
+    ].join(';');
+    document.body?.appendChild(bar);
+  }
+
+  // Sessao expirada nao adianta reenviar: o token esta morto e so um novo login resolve.
+  bar.textContent = status === 401
+    ? 'Sua sessão expirou e o que você fez agora não foi salvo. Faça login de novo antes de fechar esta aba.'
+    : 'Não estamos conseguindo salvar suas alterações no servidor. Deixe esta aba aberta: vamos continuar tentando.';
+
+  bar.style.display = 'block';
+};
+
+const notifySaveRecovered = () => {
+  if (!saveWarningShown) return;
+  saveWarningShown = false;
+  const bar = document.getElementById('sync-warning-bar');
+  if (bar) bar.style.display = 'none';
+};
+
 const getSessionToken = () => {
   try {
-    return sessionStorage.getItem('ugcQuestToken') || '';
+    return sessionStorage.getItem('ugcQuestToken') || localStorage.getItem('ugcQuestSessionToken') || '';
   } catch (error) {
-    return '';
+    try {
+      return localStorage.getItem('ugcQuestSessionToken') || '';
+    } catch (fallbackError) {
+      return '';
+    }
   }
 };
 
 const isLoggedIn = () => {
   try {
-    return sessionStorage.getItem('ugcQuestLoggedIn') === '1';
+    return sessionStorage.getItem('ugcQuestLoggedIn') === '1' || localStorage.getItem('ugcQuestSessionLoggedIn') === '1';
   } catch (error) {
-    return false;
+    try {
+      return localStorage.getItem('ugcQuestSessionLoggedIn') === '1';
+    } catch (fallbackError) {
+      return false;
+    }
   }
 };
 
 const canRemoteSync = () => {
   if (typeof window === 'undefined') return false;
-  if (window.location?.protocol === 'file:') return false;
+  if (window.location.protocol === 'file:') return false;
   return isLoggedIn() && Boolean(getSessionToken());
 };
 
@@ -790,29 +946,56 @@ const flushRemoteSave = async () => {
   remoteSavePending = false;
   remoteSaveInFlight = true;
 
+  let saveFailed = false;
+  let lastSaveStatus = 0;
+
   try {
     const token = getSessionToken();
-    console.log('[Sync] Salvando estado no servidor...');
     const res = await fetch('api/state.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'save', token, state })
     });
-    
+
     if (!res.ok) {
+      saveFailed = true;
+      lastSaveStatus = res.status;
       console.error('[Sync] Erro ao salvar estado:', res.status, res.statusText);
     } else {
       const data = await res.json().catch(() => null);
-      if (data?.success) {
-        console.log('[Sync] Estado salvo com sucesso no servidor');
+      if (data?.ok === true) {
+        remoteSaveFailureCount = 0;
+        notifySaveRecovered();
       } else {
+        saveFailed = true;
         console.warn('[Sync] Resposta inesperada do servidor:', data);
       }
     }
   } catch (error) {
+    saveFailed = true;
     console.error('[Sync] Falha ao salvar estado no servidor:', error);
   } finally {
     remoteSaveInFlight = false;
+
+    if (saveFailed) {
+      // Antes daqui a falha era so um log no console: o trabalho da pessoa (campanha
+      // recem-criada, por exemplo) ficava so na memoria do navegador e sumia ao fechar
+      // a aba. Agora a alteracao continua pendente e e reenviada com espera crescente.
+      remoteSaveFailureCount += 1;
+      remoteSavePending = true;
+
+      if (remoteSaveFailureCount >= REMOTE_SAVE_WARN_AFTER) {
+        notifySaveFailing(lastSaveStatus);
+      }
+
+      const delay = Math.min(
+        REMOTE_SAVE_RETRY_BASE_MS * Math.pow(2, remoteSaveFailureCount - 1),
+        REMOTE_SAVE_RETRY_MAX_MS
+      );
+      setTimeout(() => { flushRemoteSave(); }, delay);
+      return;
+    }
+
     if (remoteSavePending) {
       scheduleRemoteSave();
     }
@@ -839,7 +1022,7 @@ const saveState = () => {
     localStorage.setItem(PREFS_KEY, JSON.stringify({ settings: state.settings }));
   } catch (error) {}
 
-  if (state.settings?.backup) {
+  if (state.settings.backup) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } else {
     try {
@@ -863,8 +1046,11 @@ const replaceState = (nextState) => {
   normalizeCampaignBrandLinks(merged);
   normalizeCampaignActionFields(merged);
   normalizeCampaignContractFields(merged);
+  normalizeCampaignDeliverables(merged);
+  normalizeCampaignResources(merged);
   normalizeCampaignHistory(merged);
   normalizeBrandActionFields(merged);
+  normalizeProspections(merged);
   normalizeUiState(merged);
   state = merged;
 };
@@ -956,7 +1142,7 @@ const achievementPoolLegacy = [
     xp: 250,
     isUnlocked: (current) => {
       const campaigns = Array.isArray(current.campaigns) ? current.campaigns : [];
-      return campaigns.filter((c) => ['producao', 'finalizacao', 'concluida'].includes(c.status)).length >= 5;
+      return campaigns.filter((c) => ['producao', 'entrega', 'concluida'].includes(c.status)).length >= 5;
     }
   },
   {
@@ -965,7 +1151,7 @@ const achievementPoolLegacy = [
     desc: 'Finalizar 5 campanhas.',
     xp: 300,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['finalizacao', 'concluida'].includes(c.status)).length >= 5
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['entrega', 'concluida'].includes(c.status)).length >= 5
   },
   {
     id: 'ach-contact',
@@ -979,7 +1165,7 @@ const achievementPoolLegacy = [
     title: 'Criador consistente',
     desc: 'Completar missões em 7 dias seguidos.',
     xp: 300,
-    isUnlocked: (current) => (current.profile?.streak || 0) >= 7
+    isUnlocked: (current) => (current.profile.streak || 0) >= 7
   },
   {
     id: 'ach-clean-pipeline',
@@ -998,14 +1184,14 @@ const achievementPoolLegacy = [
     title: 'Usuário avançado',
     desc: 'Atingir o nível 5.',
     xp: 400,
-    isUnlocked: (current) => (current.profile?.level || 0) >= 5
+    isUnlocked: (current) => (current.profile.level || 0) >= 5
   },
   {
     id: 'ach-level10',
     title: 'UGC disciplinado',
     desc: 'Atingir o nível 10.',
     xp: 500,
-    isUnlocked: (current) => (current.profile?.level || 0) >= 10
+    isUnlocked: (current) => (current.profile.level || 0) >= 10
   },
   {
     id: 'ach-first-script',
@@ -1056,7 +1242,7 @@ const achievementPoolLegacy = [
     desc: 'Finalizar 1 campanha.',
     xp: 150,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['finalizacao', 'concluida'].includes(c.status)).length >= 1
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['entrega', 'concluida'].includes(c.status)).length >= 1
   },
   {
     id: 'ach-2-closes',
@@ -1064,14 +1250,14 @@ const achievementPoolLegacy = [
     desc: 'Finalizar 2 campanhas.',
     xp: 200,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['finalizacao', 'concluida'].includes(c.status)).length >= 2
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['entrega', 'concluida'].includes(c.status)).length >= 2
   },
   {
     id: 'ach-level3',
     title: 'Subindo rápido',
     desc: 'Atingir o nível 3.',
     xp: 200,
-    isUnlocked: (current) => (current.profile?.level || 0) >= 3
+    isUnlocked: (current) => (current.profile.level || 0) >= 3
   }
 ];
 
@@ -1090,7 +1276,7 @@ const achievementPool = [
     title: 'Criador consistente',
     desc: 'Completar missões em 7 dias seguidos.',
     xp: 300,
-    isUnlocked: (current) => (current.profile?.streak || 0) >= 7
+    isUnlocked: (current) => (current.profile.streak || 0) >= 7
   },
   {
     id: 'ach-writer',
@@ -1108,7 +1294,7 @@ const achievementPool = [
     xp: 250,
     isUnlocked: (current) => {
       const campaigns = Array.isArray(current.campaigns) ? current.campaigns : [];
-      return campaigns.filter((c) => ['producao', 'finalizacao', 'concluida'].includes(c.status)).length >= 5;
+      return campaigns.filter((c) => ['producao', 'entrega', 'concluida'].includes(c.status)).length >= 5;
     }
   },
   {
@@ -1117,7 +1303,7 @@ const achievementPool = [
     title: 'Usuário avançado',
     desc: 'Atingir o nível 5.',
     xp: 400,
-    isUnlocked: (current) => (current.profile?.level || 0) >= 5
+    isUnlocked: (current) => (current.profile.level || 0) >= 5
   },
   {
     id: 'ach-contact',
@@ -1134,7 +1320,7 @@ const achievementPool = [
     desc: 'Finalizar 5 campanhas.',
     xp: 300,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['finalizacao', 'concluida'].includes(c.status)).length >= 5
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['entrega', 'concluida'].includes(c.status)).length >= 5
   },
   {
     id: 'ach-organizer',
@@ -1176,7 +1362,7 @@ const achievementPool = [
     title: 'UGC disciplinado',
     desc: 'Atingir o nível 10.',
     xp: 500,
-    isUnlocked: (current) => (current.profile?.level || 0) >= 10
+    isUnlocked: (current) => (current.profile.level || 0) >= 10
   }
 ];
 
@@ -1190,7 +1376,7 @@ const achievementCatalog = [
     xp: 400,
     isUnlocked: (current) => {
       const campaigns = Array.isArray(current.campaigns) ? current.campaigns : [];
-      return campaigns.filter((campaign) => Boolean(String(campaign?.dueDate || '').trim())).length >= 8;
+      return campaigns.filter((campaign) => Boolean(String(campaign.dueDate || '').trim())).length >= 8;
     }
   },
   {
@@ -1201,7 +1387,7 @@ const achievementCatalog = [
     xp: 250,
     isUnlocked: (current) => {
       const campaigns = Array.isArray(current.campaigns) ? current.campaigns : [];
-      return campaigns.filter((campaign) => campaign?.status === 'prospeccao' && campaign?.stage === 'negociacao' && isCampaignActive(campaign)).length >= 3;
+      return campaigns.filter((campaign) => campaign.status === 'negociacao' && campaign.stage === 'proposta_enviada' && isCampaignActive(campaign)).length >= 3;
     }
   },
   {
@@ -1210,7 +1396,7 @@ const achievementCatalog = [
     title: 'Foco total',
     desc: 'Completar o foco da semana 2 vezes.',
     xp: 300,
-    isUnlocked: (current) => (current.focus?.roll || 0) >= 2
+    isUnlocked: (current) => (current.focus.roll || 0) >= 2
   },
   {
     id: 'ach-scripts-15',
@@ -1232,7 +1418,7 @@ const achievementCatalog = [
       if (active.length < 3) return false;
       const today = todayKey();
       return active.every((campaign) => {
-        const due = String(campaign?.dueDate || '').trim();
+        const due = String(campaign.dueDate || '').trim();
         if (!due) return false;
         return due >= today;
       });
@@ -1244,7 +1430,7 @@ const achievementCatalog = [
     title: 'Modo lenda',
     desc: 'Completar o foco da semana 5 vezes.',
     xp: 500,
-    isUnlocked: (current) => (current.focus?.roll || 0) >= 5
+    isUnlocked: (current) => (current.focus.roll || 0) >= 5
   },
   {
     id: 'ach-first-script',
@@ -1277,7 +1463,7 @@ const achievementCatalog = [
     desc: 'Finalizar 1 campanha.',
     xp: 150,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['finalizacao', 'concluida'].includes(c.status)).length >= 1
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((c) => ['entrega', 'concluida'].includes(c.status)).length >= 1
   },
   {
     id: 'ach-contacts-10',
@@ -1303,7 +1489,7 @@ const achievementCatalog = [
     desc: 'Finalizar 2 campanhas.',
     xp: 200,
     isUnlocked: (current) =>
-      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((campaign) => ['finalizacao', 'concluida'].includes(campaign.status)).length >= 2
+      (Array.isArray(current.campaigns) ? current.campaigns : []).filter((campaign) => ['entrega', 'concluida'].includes(campaign.status)).length >= 2
   },
   {
     id: 'ach-level3',
@@ -1311,7 +1497,7 @@ const achievementCatalog = [
     title: 'Subindo rápido',
     desc: 'Atingir o nível 3.',
     xp: 200,
-    isUnlocked: (current) => (current.profile?.level || 0) >= 3
+    isUnlocked: (current) => (current.profile.level || 0) >= 3
   },
   {
     id: 'ach-10-campaigns',
@@ -1341,7 +1527,7 @@ const achievementOptionsByLevel = {
 
 const formatCurrency = (value) => {
   const safeValue = Number.isFinite(value) ? Math.round(value) : 0;
-  const stringValue = safeValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const stringValue = safeValue.toString().replace(/\B(=(\d{3})+(!\d))/g, '.');
   return `R$ ${stringValue}`;
 };
 
@@ -1351,7 +1537,7 @@ const formatPercent = (value) => `${Math.round(value * 100)}%`;
 const badgeCatalog = [
   // Financeiro
   { id: 'badge-hourly-elite', category: 'financial', title: 'R$/hora Elite', desc: 'R$/hora acima de R$ 150', icon: 'cash', xp: 300, check: (s) => { const c = (s.campaigns||[]).filter(x=>x.status==='concluida'&&x.estimatedHours>0); if(!c.length) return {done:false,current:0,target:150}; const avg = c.reduce((a,x)=>a+(x.value||0)/(x.estimatedHours||1),0)/c.length; return {done:avg>=150,current:Math.round(avg),target:150}; } },
-  { id: 'badge-above-goal', category: 'financial', title: 'Receita acima da meta', desc: 'Receita confirmada acima da meta mensal', icon: 'trend', xp: 250, check: (s) => { const goal = s.settings?.monthlyGoal||0; if(!goal) return {done:false,current:0,target:goal}; const now=new Date(); const cm=now.getMonth(); const cy=now.getFullYear(); const mc=(s.campaigns||[]).filter(c=>{const d=new Date(c.updatedAt||c.createdAt);return d.getMonth()===cm&&d.getFullYear()===cy&&(c.status==='concluida'||c.paymentPercent>=100);}); const rev=mc.reduce((a,c)=>a+(c.value||0),0); return {done:rev>=goal,current:rev,target:goal}; } },
+  { id: 'badge-above-goal', category: 'financial', title: 'Receita acima da meta', desc: 'Receita confirmada acima da meta mensal', icon: 'trend', xp: 250, check: (s) => { const goal = s.settings.monthlyGoal||0; if(!goal) return {done:false,current:0,target:goal}; const now=new Date(); const cm=now.getMonth(); const cy=now.getFullYear(); const mc=(s.campaigns||[]).filter(c=>{const d=new Date(c.updatedAt||c.createdAt);return d.getMonth()===cm&&d.getFullYear()===cy&&(c.status==='concluida'||c.paymentPercent>=100);}); const rev=mc.reduce((a,c)=>a+(c.value||0),0); return {done:rev>=goal,current:rev,target:goal}; } },
   { id: 'badge-3months-growth', category: 'financial', title: '3 meses crescendo', desc: 'Receita cresceu por 3 meses consecutivos', icon: 'trend', xp: 400, check: () => ({done:false,current:0,target:3,insight:'Registre receita por 3 meses para desbloquear.'}) },
   // Comercial
   { id: 'badge-10-responses', category: 'commercial', title: '10 contatos com resposta', desc: 'Receber resposta de 10 marcas', icon: 'chat', xp: 200, check: (s) => { const b=(s.brands||[]).filter(x=>['negociando','cliente_ativo','cliente_recorrente','perdida'].includes(x.status)); return {done:b.length>=10,current:b.length,target:10}; } },
@@ -1386,6 +1572,10 @@ export {
   brandOptions,
   brandInteractionTypes,
   brandInteractionOptions,
+  prospectionContactTypes,
+  prospectionContactOptions,
+  prospectionStatuses,
+  prospectionStatusOptions,
   nextActionLabels,
   nextActionOptions,
   getNextActionLabel,

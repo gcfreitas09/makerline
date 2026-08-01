@@ -1,22 +1,23 @@
 import { state, saveState, getDefaultCampaignStage, nextActionOptions } from '../../core/state.js';
-import { renderAll } from '../../core/renderers.js?v=20260318b';
-import { showToast } from '../../core/ui.js?v=20260304b';
+import { renderAll } from '../../core/renderers.js?v=20260502c';
+import { showToast } from '../../core/ui.js?v=20260502c';
 import { trackEvent } from '../../core/gamification.js?v=20260302g';
-import { populateCampaignBrandSelect } from '../brands/modal.js?v=20260318b';
+import { populateCampaignBrandSelect } from '../brands/modal.js?v=20260502c';
 
 const getCampaignModal = () => ({
   modal: document.getElementById('campaign-modal'),
   form: document.getElementById('campaign-form'),
   msg: document.getElementById('campaign-msg'),
   title: document.querySelector('[data-campaign-modal-title]'),
-  subtitle: document.querySelector('[data-campaign-modal-subtitle]')
+  subtitle: document.querySelector('[data-campaign-modal-subtitle]'),
+  assetsButton: document.getElementById('campaign-assets-header-btn')
 });
 
 const formatMoneyBRL = (raw) => {
   const digits = String(raw || '').replace(/\D/g, '');
   if (!digits) return '';
   const value = parseInt(digits, 10) || 0;
-  const formatted = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const formatted = value.toString().replace(/\B(=(\d{3})+(!\d))/g, '.');
   return `R$ ${formatted}`;
 };
 
@@ -26,6 +27,135 @@ const parseMoneyBRL = (raw) => {
 };
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
+const campaignResourceCategoryLabels = {
+  video: 'Vídeo',
+  roteiro: 'Roteiro',
+  briefing: 'Briefing'
+};
+let campaignDraftResources = [];
+
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('Não foi possível ler o arquivo.'));
+    reader.readAsDataURL(file);
+  });
+
+const formatDraftFileSize = (size) => {
+  const safe = Number(size) || 0;
+  if (!safe) return 'Arquivo local';
+  if (safe < 1024) return `${safe} B`;
+  if (safe < 1024 * 1024) return `${Math.round(safe / 1024)} KB`;
+  return `${(safe / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const normalizeCampaignResourceCategory = (value) => {
+  const safe = String(value || '').trim().toLowerCase();
+  return Object.prototype.hasOwnProperty.call(campaignResourceCategoryLabels, safe) ? safe : 'video';
+};
+
+const getCampaignResourceCategoryLabel = (value) =>
+  campaignResourceCategoryLabels[normalizeCampaignResourceCategory(value)] || 'Arquivo';
+
+const getCampaignDraftFilesRefs = () => {
+  const form = document.getElementById('campaign-form');
+  return {
+    form,
+    categorySelect: form.querySelector('select[name="draftResourceCategory"]') || null,
+    fileInput: form.querySelector('input[name="draftFiles"]') || null,
+    list: document.querySelector('[data-campaign-draft-list]'),
+    msg: document.getElementById('campaign-draft-files-msg'),
+    addButton: document.getElementById('campaign-draft-files-btn')
+  };
+};
+
+const renderCampaignDraftResources = () => {
+  const { list, msg } = getCampaignDraftFilesRefs();
+  if (!list) return;
+
+  if (!campaignDraftResources.length) {
+    list.innerHTML = `
+      <div class="campaign-assets-empty">
+        <strong>Nenhum arquivo separado ainda.</strong>
+        <p class="muted">Adicione vídeos, roteiro e briefing agora ou volte depois pela própria campanha.</p>
+      </div>
+    `;
+    if (msg && !String(msg.textContent || '').trim()) msg.textContent = '';
+    return;
+  }
+
+  list.innerHTML = campaignDraftResources
+    .map((resource) => `
+      <article class="campaign-assets-item">
+        <div class="campaign-assets-item-copy">
+          <span class="campaign-assets-item-type">${getCampaignResourceCategoryLabel(resource.category)}</span>
+          <strong class="campaign-assets-item-title">${resource.fileName}</strong>
+          <p class="campaign-assets-item-sub">${formatDraftFileSize(resource.size)}</p>
+          ${resource.note ? `<p class="campaign-assets-item-note">${resource.note}</p>` : ''}
+        </div>
+        <div class="campaign-assets-item-actions">
+          <button class="btn btn-danger btn-small" data-draft-resource-remove="${resource.id}" type="button">Remover</button>
+        </div>
+      </article>
+    `)
+    .join('');
+};
+
+const resetCampaignDraftResources = () => {
+  campaignDraftResources = [];
+  const { form, msg, fileInput } = getCampaignDraftFilesRefs();
+  if (msg) msg.textContent = '';
+  if (fileInput) fileInput.value = '';
+  if (form.elements.draftResourceCategory) form.elements.draftResourceCategory.value = 'video';
+  renderCampaignDraftResources();
+};
+
+const addCampaignDraftFiles = async () => {
+  const { form, categorySelect, fileInput, msg } = getCampaignDraftFilesRefs();
+  if (!form || !categorySelect || !fileInput) return;
+
+  const files = Array.from(fileInput.files || []);
+  if (!files.length) {
+    if (msg) msg.textContent = 'Escolha pelo menos um arquivo para separar nessa campanha.';
+    return;
+  }
+
+  const category = normalizeCampaignResourceCategory(categorySelect.value);
+  const note = '';
+  if (msg) msg.textContent = '';
+
+  try {
+    const nowIso = new Date().toISOString();
+    const draftedResources = await Promise.all(
+      files.map(async (file, index) => ({
+        id: `cdr-${Date.now()}-${index}`,
+        type: 'file',
+        category,
+        title: file.name || getCampaignResourceCategoryLabel(category),
+        url: await readFileAsDataUrl(file),
+        note,
+        fileName: file.name || `${getCampaignResourceCategoryLabel(category)} ${index + 1}`,
+        mimeType: file.type || '',
+        size: Number(file.size) || 0,
+        content: '',
+        createdAt: nowIso
+      }))
+    );
+
+    campaignDraftResources = [...draftedResources, ...campaignDraftResources];
+    fileInput.value = '';
+    renderCampaignDraftResources();
+    if (msg) {
+      msg.textContent =
+        draftedResources.length === 1
+          ? '1 arquivo pronto para ser salvo com a campanha.'
+          : `${draftedResources.length} arquivos prontos para serem salvos com a campanha.`;
+    }
+  } catch (error) {
+    if (msg) msg.textContent = 'Não consegui preparar esses arquivos agora.';
+  }
+};
 
 const getBrandById = (brandId) => (Array.isArray(state.brands) ? state.brands : []).find((brand) => brand.id === brandId) || null;
 
@@ -35,7 +165,7 @@ const getCampaignBrandValue = (select) => {
   let value = String(select.value || '').trim();
   if (!value) {
     const selectedOption = select.options[select.selectedIndex] || null;
-    value = String(selectedOption?.value || '').trim();
+    value = String(selectedOption.value || '').trim();
   }
 
   if (!value) {
@@ -59,7 +189,7 @@ const getCampaignBrandValue = (select) => {
 
 const toggleNextActionCustomRow = (form, value) => {
   const customRow = document.getElementById('campaign-next-action-custom-row');
-  const customInput = form?.querySelector('input[name="nextActionCustomType"]');
+  const customInput = form.querySelector('input[name="nextActionCustomType"]');
   const show = value === 'outro';
   if (customRow) customRow.style.display = show ? '' : 'none';
   if (customInput) {
@@ -69,11 +199,16 @@ const toggleNextActionCustomRow = (form, value) => {
 };
 
 const setModalMode = ({ mode, campaign }) => {
-  const { title, subtitle } = getCampaignModal();
+  const { title, subtitle, assetsButton } = getCampaignModal();
   const isEdit = mode === 'edit';
   if (title) title.textContent = isEdit ? 'Editar campanha' : 'Nova campanha';
-  if (subtitle) subtitle.textContent = isEdit ? 'Atualiza o que precisar e salva.' : 'Só o básico pra já entrar no jogo.';
+  if (subtitle) subtitle.textContent = isEdit ? 'Atualize o que precisar e salve.' : 'Só o básico para começar.';
 
+  if (assetsButton) {
+    assetsButton.style.display = isEdit ? '' : 'none';
+    if (isEdit && campaign.id) assetsButton.dataset.campaignId = campaign.id;
+    else delete assetsButton.dataset.campaignId;
+  }
   const { form } = getCampaignModal();
   if (!form) return;
   form.dataset.mode = mode || 'create';
@@ -86,6 +221,15 @@ const setModalMode = ({ mode, campaign }) => {
 const CAMPAIGN_WIZARD_TOTAL = 3;
 let campaignWizardEnabled = false;
 let campaignWizardStep = 1;
+
+/**
+ * Preview do onboarding: o mesmo formulario, so que preenchido com um exemplo,
+ * sem edicao e sem salvar nada. Fica null quando o modal esta em uso normal.
+ * @type {{ onVoltar: (() => void)|null, onConcluir: (() => void)|null }|null}
+ */
+let campaignPreview = null;
+
+const isCampaignPreview = () => campaignPreview !== null;
 
 const getCampaignWizardRefs = () => {
   const form = document.getElementById('campaign-form');
@@ -114,24 +258,39 @@ const applyCampaignWizardStep = () => {
 
   progressSteps.forEach((item) => {
     const step = Number(item.dataset.step || 0);
-    item.classList.toggle('is-active', campaignWizardEnabled && step === campaignWizardStep);
+    const active = campaignWizardEnabled && step === campaignWizardStep;
+    item.classList.toggle('is-active', active);
     item.classList.toggle('is-done', campaignWizardEnabled && step < campaignWizardStep);
+    item.setAttribute('aria-current', active ? 'step' : 'false');
   });
 
-  if (prevBtn) prevBtn.style.visibility = campaignWizardEnabled && campaignWizardStep > 1 ? 'visible' : 'hidden';
+  // No preview o "Voltar" do primeiro passo sai do preview em vez de sumir, e o
+  // ultimo passo termina em "Concluir" porque nao existe salvar.
+  if (prevBtn) prevBtn.style.visibility = campaignWizardEnabled && (campaignWizardStep > 1 || isCampaignPreview()) ? 'visible' : 'hidden';
   if (nextBtn) {
-    if (!campaignWizardEnabled) {
+    if (!campaignWizardEnabled || (campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL && !isCampaignPreview())) {
       nextBtn.style.display = 'none';
     } else {
       nextBtn.style.display = '';
-      nextBtn.textContent = campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL ? 'Revisar dados' : 'Próximo';
-      nextBtn.disabled = campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL;
+      nextBtn.textContent = isCampaignPreview() && campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL ? 'Concluir' : 'Próximo';
+      nextBtn.disabled = false;
     }
   }
 };
 
 const setCampaignWizardMode = (mode) => {
   campaignWizardEnabled = mode === 'create';
+  campaignWizardStep = 1;
+  applyCampaignWizardStep();
+};
+
+/**
+ * Desliga o wizard de 3 passos e devolve todas as linhas do formulario para o
+ * fluxo normal do documento. O registro guiado em cards precisa disso: quem
+ * controla a visibilidade campo a campo passa a ser ele.
+ */
+const disableCampaignWizard = () => {
+  campaignWizardEnabled = false;
   campaignWizardStep = 1;
   applyCampaignWizardStep();
 };
@@ -144,11 +303,25 @@ const setCampaignWizardStep = (step) => {
   return true;
 };
 
-const openCampaignModal = (campaignId) => {
+/**
+ * Verdadeiro quando outro fluxo esta apresentando o formulario fora do modal
+ * (hoje, o registro guiado em cards do onboarding).
+ */
+const formularioEmOutroFluxo = () => {
+  const { modal, form } = getCampaignModal();
+  return Boolean(modal && form && !modal.contains(form));
+};
+
+const openCampaignModal = (campaignId, opcoes = {}) => {
   const { modal, form, msg } = getCampaignModal();
   if (!modal || !form) return;
 
+  // Reabrir o modal enquanto outro fluxo conduz o mesmo formulario mostraria um
+  // modal vazio por cima dele e, pior, o reset apagaria o cadastro em andamento.
+  if (formularioEmOutroFluxo()) return;
+
   form.reset();
+  resetCampaignDraftResources();
   const valueInput = form.querySelector('input[name="value"]');
   const barterSelect = form.querySelector('select[name="barter"]');
   if (valueInput) valueInput.value = 'R$ 0';
@@ -175,12 +348,16 @@ const openCampaignModal = (campaignId) => {
   const nextActionDateInput = form.querySelector('input[name="nextActionDate"]');
   const nextActionNoteInput = form.querySelector('input[name="nextActionNote"]');
   const nextActionCustomInput = form.querySelector('input[name="nextActionCustomType"]');
+  const photoCountInput = form.querySelector('input[name="photoCount"]');
+  const videoCountInput = form.querySelector('input[name="videoCount"]');
   if (contactNameInput) contactNameInput.value = '';
   if (contactEmailInput) contactEmailInput.value = '';
   if (nextActionTypeSelect) nextActionTypeSelect.value = '';
   if (nextActionDateInput) nextActionDateInput.value = '';
   if (nextActionNoteInput) nextActionNoteInput.value = '';
   if (nextActionCustomInput) nextActionCustomInput.value = '';
+  if (photoCountInput) photoCountInput.value = '';
+  if (videoCountInput) videoCountInput.value = '';
   toggleNextActionCustomRow(form, '');
   populateCampaignBrandSelect(state.ui.pendingCampaignBrandId || '');
 
@@ -204,6 +381,9 @@ const openCampaignModal = (campaignId) => {
 
       const dueInput = form.querySelector('input[name="dueDate"]');
       if (dueInput) dueInput.value = campaign.dueDate || '';
+
+      if (photoCountInput) photoCountInput.value = Number.isFinite(campaign.photoCount) ? campaign.photoCount : '';
+      if (videoCountInput) videoCountInput.value = Number.isFinite(campaign.videoCount) ? campaign.videoCount : '';
 
       const hoursInput = form.querySelector('input[name="estimatedHours"]');
       if (hoursInput) hoursInput.value = campaign.estimatedHours || '';
@@ -254,6 +434,28 @@ const openCampaignModal = (campaignId) => {
         if (contactEmailInput && !contactEmailInput.value) contactEmailInput.value = selectedBrand.email || '';
       }
     }
+
+    // Pre-preenchimento vindo do fluxo de precificacao do onboarding: valor
+    // sugerido e quantidade de entregas, para o usuario nao redigitar o que ja
+    // respondeu. Continua editavel, e so um ponto de partida.
+    const prefill = state.ui.pendingCampaignPrefill;
+    if (prefill && typeof prefill === 'object') {
+      // Number(null) e 0, entao null precisa ser descartado antes da conversao,
+      // senao um campo que o fluxo deixou em branco vira um zero explicito.
+      const numeroDoPrefill = (valor) => {
+        if (valor === null || valor === undefined || valor === '') return null;
+        const convertido = Number(valor);
+        return Number.isFinite(convertido) ? convertido : null;
+      };
+
+      const valorSugerido = numeroDoPrefill(prefill.value);
+      const fotos = numeroDoPrefill(prefill.photoCount);
+      const videos = numeroDoPrefill(prefill.videoCount);
+
+      if (valueInput && valorSugerido !== null) valueInput.value = formatMoneyBRL(valorSugerido) || 'R$ 0';
+      if (photoCountInput && fotos !== null) photoCountInput.value = fotos;
+      if (videoCountInput && videos !== null) videoCountInput.value = videos;
+    }
   }
 
   setCampaignWizardMode(campaignId ? 'edit' : 'create');
@@ -274,25 +476,126 @@ const openCampaignModal = (campaignId) => {
   }
 
   state.ui.pendingCampaignBrandId = null;
+  state.ui.pendingCampaignPrefill = null;
 
-  try {
-    document.dispatchEvent(new CustomEvent('ugc:campaign-modal-opened', {
-      detail: {
-        campaignId: campaignId || '',
-        mode: campaignId ? 'edit' : 'create'
-      }
-    }));
-  } catch (error) {}
+  // O preview do onboarding abre o modal so para exibicao, entao nao avisa o
+  // resto do app que um cadastro comecou.
+  if (!opcoes.silencioso) {
+    try {
+      document.dispatchEvent(new CustomEvent('ugc:campaign-modal-opened', {
+        detail: {
+          campaignId: campaignId || '',
+          mode: campaignId ? 'edit' : 'create'
+        }
+      }));
+    } catch (error) {}
 
-  if (brandSelect) brandSelect.focus();
+    if (brandSelect) brandSelect.focus();
+  }
+};
+
+/* ── preview do onboarding ──────────────────────────────────── */
+
+const CAMPAIGN_PREVIEW_BRAND_VALUE = '__preview-brand';
+
+/** Botoes que continuam clicaveis no preview, porque sao a navegacao. */
+const CAMPAIGN_PREVIEW_NAV_IDS = ['campaign-step-prev-btn', 'campaign-step-next-btn'];
+
+/**
+ * Preenche o formulario real com os dados de exemplo. As chaves de `campos` sao
+ * os proprios `name` dos inputs, entao um campo novo no formulario passa a ser
+ * preenchivel sem mudar nada aqui.
+ */
+const preencherCamposDePreview = (form, campos) => {
+  const brandSelect = form.querySelector('select[name="brandId"]');
+  const marca = String(campos.brandName || '').trim();
+  if (brandSelect && marca) {
+    const opcao = document.createElement('option');
+    opcao.value = CAMPAIGN_PREVIEW_BRAND_VALUE;
+    opcao.textContent = marca;
+    brandSelect.appendChild(opcao);
+    brandSelect.value = CAMPAIGN_PREVIEW_BRAND_VALUE;
+  }
+
+  Object.entries(campos).forEach(([nome, valor]) => {
+    if (nome === 'brandName') return;
+    const campo = form.querySelector(`[name="${nome}"]`);
+    if (!campo) return;
+    if (campo.dataset.money !== undefined) {
+      campo.value = formatMoneyBRL(valor) || 'R$ 0';
+      return;
+    }
+    campo.value = valor === null || valor === undefined ? '' : String(valor);
+  });
+
+  // Campos condicionais do formulario real reagem a mudanca de select; no
+  // preview nao ha evento de usuario, entao o estado e aplicado na mao.
+  toggleNextActionCustomRow(form, String(campos.nextActionType || ''));
+  const startOtherRow = document.getElementById('campaign-start-other-row');
+  if (startOtherRow) startOtherRow.style.display = campos.startMethod === 'other' ? '' : 'none';
+};
+
+const travarCamposDePreview = (form, travar) => {
+  form.querySelectorAll('input, select, textarea, button').forEach((campo) => {
+    if (CAMPAIGN_PREVIEW_NAV_IDS.includes(campo.id)) return;
+    campo.disabled = travar;
+  });
+  form.classList.toggle('campaign-form--preview', travar);
+
+  const badge = document.querySelector('[data-campaign-preview-badge]');
+  if (badge) badge.hidden = !travar;
+};
+
+/** Desfaz o preview no DOM. Nao dispara callbacks nem toca em state. */
+const desmontarPreview = () => {
+  const { form } = getCampaignModal();
+  campaignPreview = null;
+  if (!form) return;
+  travarCamposDePreview(form, false);
+  const opcaoDeExemplo = form.querySelector(`select[name="brandId"] option[value="${CAMPAIGN_PREVIEW_BRAND_VALUE}"]`);
+  if (opcaoDeExemplo) opcaoDeExemplo.remove();
+};
+
+/**
+ * Abre o formulario real de campanha em modo demonstracao: campos preenchidos
+ * com o exemplo recebido, navegacao pelos mesmos passos, nada editavel e nada
+ * salvo.
+ *
+ * @param {Object} opcoes
+ * @param {Record<string, string|number>} opcoes.campos Dados de exemplo.
+ * @param {() => void} [opcoes.onVoltar] Chamado ao sair pelo "Voltar"/"Fechar".
+ * @param {() => void} [opcoes.onConcluir] Chamado ao terminar o ultimo passo.
+ * @returns {boolean} false se o formulario nao existe na pagina.
+ */
+const openCampaignPreview = ({ campos = {}, onVoltar = null, onConcluir = null } = {}) => {
+  const { modal, form } = getCampaignModal();
+  if (!modal || !form) return false;
+
+  campaignPreview = { onVoltar, onConcluir };
+  openCampaignModal(null, { silencioso: true });
+  preencherCamposDePreview(form, campos);
+  travarCamposDePreview(form, true);
+  applyCampaignWizardStep();
+  return true;
+};
+
+/** Fecha o preview sem disparar o retorno para o card anterior. */
+const closeCampaignPreview = () => {
+  if (campaignPreview) campaignPreview = { onVoltar: null, onConcluir: null };
+  closeCampaignModal();
 };
 
 const closeCampaignModal = () => {
   const { modal, form, msg } = getCampaignModal();
   if (!modal) return;
+
+  const previewAtivo = campaignPreview;
+  if (previewAtivo) desmontarPreview();
+
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
   if (form) form.reset();
+  resetCampaignDraftResources();
   if (msg) msg.textContent = '';
   if (form) {
     delete form.dataset.mode;
@@ -301,6 +604,10 @@ const closeCampaignModal = () => {
   campaignWizardEnabled = false;
   campaignWizardStep = 1;
   applyCampaignWizardStep();
+
+  // Fechar o preview pelo "Fechar" do modal devolve o usuario para o card que
+  // abriu a demonstracao, em vez de largar ele no app no meio do onboarding.
+  if (previewAtivo && typeof previewAtivo.onVoltar === 'function') previewAtivo.onVoltar();
 };
 
 const applyLifecycle = (campaign, lifecycle) => {
@@ -321,6 +628,8 @@ const applyLifecycle = (campaign, lifecycle) => {
 
 const handleCampaignSubmit = (event) => {
   event.preventDefault();
+  // O preview e so demonstracao: nenhum dado dele pode virar campanha.
+  if (isCampaignPreview()) return;
   const { form, msg } = getCampaignModal();
   if (!form) return;
 
@@ -346,23 +655,29 @@ const handleCampaignSubmit = (event) => {
   const nextActionCustomType = String(data.get('nextActionCustomType') || '').trim().slice(0, 80);
   const nextActionDate = String(data.get('nextActionDate') || '').trim();
   const nextActionNote = String(data.get('nextActionNote') || '').trim().slice(0, 140);
+  const photoCount = Math.max(0, parseInt(String(data.get('photoCount') || '0').trim(), 10) || 0);
+  const videoCount = Math.max(0, parseInt(String(data.get('videoCount') || '0').trim(), 10) || 0);
   const paymentReceivedAt =
     paymentPercent >= 100
       ? (paymentReceivedAtRaw || todayIso())
       : '';
   const brandRecord = getBrandById(brandId);
-  const brand = brandRecord?.name || '';
-
-  if (!brandRecord) {
-    if (msg) msg.textContent = 'Escolha uma marca para salvar a campanha.';
-    return;
-  }
+  const brand = brandRecord ? String(brandRecord.name || '').trim() : '';
+  // `campoInvalido` diz a quem apresenta o formulario qual campo recusou, para
+  // o registro guiado em cards conseguir levar o usuario ate ele.
+  if (msg) delete msg.dataset.campoInvalido;
   if (nextActionType && !nextActionDate) {
-    if (msg) msg.textContent = 'Defina a data da próxima ação.';
+    if (msg) {
+      msg.textContent = 'Defina a data da próxima ação.';
+      msg.dataset.campoInvalido = 'nextActionDate';
+    }
     return;
   }
   if (nextActionType === 'outro' && !nextActionCustomType) {
-    if (msg) msg.textContent = 'Descreva o tipo personalizado da próxima ação.';
+    if (msg) {
+      msg.textContent = 'Descreva o tipo personalizado da próxima ação.';
+      msg.dataset.campoInvalido = 'nextActionCustomType';
+    }
     return;
   }
 
@@ -374,25 +689,29 @@ const handleCampaignSubmit = (event) => {
   const allowedStartMethods = ['ugc_platform', 'inbound', 'outbound', 'instagram', 'agencia', 'comunidade', 'other'];
   const startMethodSafe = allowedStartMethods.includes(startMethodNormalized) ? startMethodNormalized : '';
 
-  if (contactName && !brandRecord.contact) brandRecord.contact = contactName;
-  if (contactEmail && !brandRecord.email) brandRecord.email = contactEmail;
-  brandRecord.updatedAt = nowIso;
+  if (brandRecord) {
+    if (contactName && !brandRecord.contact) brandRecord.contact = contactName;
+    if (contactEmail && !brandRecord.email) brandRecord.email = contactEmail;
+    brandRecord.updatedAt = nowIso;
+  }
 
   if (id) {
     const campaign = state.campaigns.find((item) => item.id === id);
     if (!campaign) {
-      if (msg) msg.textContent = 'Não achei essa campanha. Tenta de novo.';
+      if (msg) msg.textContent = 'Não encontrei essa campanha. Tente de novo.';
       return;
     }
 
     const previousDue = campaign.dueDate || '';
     const previousLife = campaign.archived ? 'archived' : campaign.paused ? 'paused' : 'active';
 
-    campaign.brandId = brandRecord.id;
+    campaign.brandId = brandRecord ? brandRecord.id : '';
     campaign.brand = brand;
     campaign.value = value;
     campaign.barter = barter;
     campaign.dueDate = dueDate;
+    campaign.photoCount = photoCount;
+    campaign.videoCount = videoCount;
     campaign.estimatedHours = estimatedHours;
     campaign.startMethod = startMethodSafe;
     campaign.startMethodOther = startMethodSafe === 'other' ? startMethodOther : '';
@@ -405,6 +724,7 @@ const handleCampaignSubmit = (event) => {
     campaign.nextActionCustomType = nextActionType === 'outro' ? nextActionCustomType : '';
     campaign.nextActionDate = nextActionType ? nextActionDate : '';
     campaign.nextActionNote = nextActionType ? nextActionNote : '';
+    campaign.resources = Array.isArray(campaign.resources) ? campaign.resources : [];
     applyLifecycle(campaign, lifecycle);
     campaign.updatedAt = nowIso;
 
@@ -432,19 +752,24 @@ const handleCampaignSubmit = (event) => {
   }
 
   const brandKey = brand.toLowerCase();
-  const existingCount = state.campaigns.filter((c) => String(c.brandId || '').trim() === brandRecord.id || String(c.brand || '').toLowerCase() === brandKey).length;
-  const title = existingCount ? `${brand} #${existingCount + 1}` : `${brand}`;
+  const existingCount = brandRecord
+    ? state.campaigns.filter((c) => String(c.brandId || '').trim() === brandRecord.id || String(c.brand || '').toLowerCase() === brandKey).length
+    : state.campaigns.filter((c) => !String(c.brandId || '').trim() && !String(c.brand || '').trim()).length;
+  const baseTitle = brand || 'Campanha sem marca';
+  const title = existingCount ? `${baseTitle} #${existingCount + 1}` : baseTitle;
 
   const campaign = {
     id: `c-${Date.now()}`,
     title,
-    brandId: brandRecord.id,
+    brandId: brandRecord ? brandRecord.id : '',
     brand,
-    status: 'prospeccao',
-    stage: getDefaultCampaignStage('prospeccao'),
+    status: 'negociacao',
+    stage: getDefaultCampaignStage('negociacao'),
     value,
     barter,
     dueDate,
+    photoCount,
+    videoCount,
     estimatedHours,
     startMethod: startMethodSafe,
     startMethodOther: startMethodSafe === 'other' ? startMethodOther : '',
@@ -457,12 +782,32 @@ const handleCampaignSubmit = (event) => {
     nextActionCustomType: nextActionType === 'outro' ? nextActionCustomType : '',
     nextActionDate: nextActionType ? nextActionDate : '',
     nextActionNote: nextActionType ? nextActionNote : '',
+    resources: campaignDraftResources.map((resource) => ({ ...resource })),
     paused: false,
     archived: false,
     createdAt: nowIso,
     updatedAt: nowIso
   };
   applyLifecycle(campaign, lifecycle);
+
+  // Quem chegou aqui vindo do precificador traz as respostas junto: é delas que
+  // sai o checklist de gravação mais adiante no ciclo.
+  const precificacaoPendente = state.ui.pendingCampaignPricing;
+  if (precificacaoPendente && typeof precificacaoPendente === 'object') {
+    campaign.pricing = {
+      respostas: precificacaoPendente.respostas || null,
+      resultado: precificacaoPendente.resultado
+        ? {
+            minimo: precificacaoPendente.resultado.minimo,
+            justo: precificacaoPendente.resultado.justo,
+            ideal: precificacaoPendente.resultado.ideal
+          }
+        : null,
+      detalhamento: precificacaoPendente.resultado?.detalhamento || null,
+      atualizadoEm: nowIso
+    };
+    state.ui.pendingCampaignPricing = null;
+  }
 
   state.campaigns.unshift(campaign);
   trackEvent('campaign_created', { campaignId: campaign.id, campaign });
@@ -521,12 +866,37 @@ const initCampaignForm = () => {
     });
   }
 
+  const draftFilesBtn = document.getElementById('campaign-draft-files-btn');
+  const draftFilesList = document.querySelector('[data-campaign-draft-list]');
+  if (draftFilesBtn && draftFilesBtn.dataset.bound !== '1') {
+    draftFilesBtn.dataset.bound = '1';
+    draftFilesBtn.addEventListener('click', () => {
+      addCampaignDraftFiles();
+    });
+  }
+  if (draftFilesList && draftFilesList.dataset.bound !== '1') {
+    draftFilesList.dataset.bound = '1';
+    draftFilesList.addEventListener('click', (event) => {
+      const removeBtn = event.target.closest('[data-draft-resource-remove]');
+      if (!removeBtn) return;
+      const resourceId = String(removeBtn.dataset.draftResourceRemove || '').trim();
+      if (!resourceId) return;
+      campaignDraftResources = campaignDraftResources.filter((resource) => resource.id !== resourceId);
+      renderCampaignDraftResources();
+    });
+  }
+  renderCampaignDraftResources();
+
   const prevStepBtn = document.getElementById('campaign-step-prev-btn');
   const nextStepBtn = document.getElementById('campaign-step-next-btn');
   if (prevStepBtn && prevStepBtn.dataset.bound !== '1') {
     prevStepBtn.dataset.bound = '1';
     prevStepBtn.addEventListener('click', () => {
       if (!campaignWizardEnabled) return;
+      if (isCampaignPreview() && campaignWizardStep <= 1) {
+        closeCampaignModal();
+        return;
+      }
       setCampaignWizardStep(campaignWizardStep - 1);
     });
   }
@@ -535,11 +905,10 @@ const initCampaignForm = () => {
     nextStepBtn.addEventListener('click', () => {
       if (!campaignWizardEnabled) return;
 
-      const selectedBrandId = getCampaignBrandValue(brandSelect);
-      if (campaignWizardStep === 1 && brandSelect && !selectedBrandId) {
-        const { msg } = getCampaignModal();
-        if (msg) msg.textContent = 'Escolha uma marca para continuar.';
-        brandSelect.focus();
+      if (isCampaignPreview() && campaignWizardStep >= CAMPAIGN_WIZARD_TOTAL) {
+        const concluir = campaignPreview.onConcluir;
+        closeCampaignPreview();
+        if (typeof concluir === 'function') concluir();
         return;
       }
 
@@ -548,6 +917,21 @@ const initCampaignForm = () => {
       setCampaignWizardStep(campaignWizardStep + 1);
     });
   }
+
+  campaignForm.querySelectorAll('.campaign-wizard-step[data-step]').forEach((stepButton) => {
+    if (stepButton.dataset.bound === '1') return;
+    stepButton.dataset.bound = '1';
+    const goToStep = () => {
+      if (!campaignWizardEnabled) return;
+      setCampaignWizardStep(Number(stepButton.dataset.step || 1));
+    };
+    stepButton.addEventListener('click', goToStep);
+    stepButton.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      goToStep();
+    });
+  });
 
   const moneyInput = campaignForm.querySelector('input[data-money]');
   if (!moneyInput) return;
@@ -573,7 +957,7 @@ const initCampaignForm = () => {
 
   try {
     document.addEventListener('ugc:brands-changed', () => {
-      const selectedId = state.ui.pendingCampaignBrandId || brandSelect?.value || '';
+      const selectedId = state.ui.pendingCampaignBrandId || brandSelect.value || '';
       populateCampaignBrandSelect(selectedId);
       if (brandSelect && selectedId) brandSelect.value = selectedId;
     });
@@ -586,4 +970,11 @@ const initCampaignForm = () => {
   window.__ugcCampaignWizard.isEnabled = () => campaignWizardEnabled;
 };
 
-export { openCampaignModal, closeCampaignModal, initCampaignForm };
+export {
+  openCampaignModal,
+  closeCampaignModal,
+  openCampaignPreview,
+  closeCampaignPreview,
+  disableCampaignWizard,
+  initCampaignForm
+};

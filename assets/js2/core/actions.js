@@ -1,29 +1,32 @@
-﻿import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
-import { setActivePage, showToast } from './ui.js?v=20260304b';
+import { state, saveState, campaignStatusOrder, getCampaignStageOptions, getDefaultCampaignStage, statusLabels, nextActionOptions, appendCampaignHistory as appendCampaignHistoryEntry } from './state.js';
+import { setActivePage, showToast } from './ui.js?v=20260711a';
 import { formatCurrency } from './state.js';
+import { prospectionContactOptions, prospectionStatusOptions } from './state.js';
 import { trackEvent } from './gamification.js?v=20260302g';
-import { renderAll } from './renderers.js?v=20260318b';
+import { renderAll } from './renderers.js?v=20260628a';
 
 import {
   closeCampaignModal,
+  disableCampaignWizard,
   initCampaignForm,
-  openCampaignModal
-} from '../features/campaigns/modal.js?v=20260318b';
+  openCampaignModal,
+  openCampaignPreview
+} from '../features/campaigns/modal.js?v=20260728k';
 import {
   closeBrandModal,
   initBrandForm,
   openBrandModal
-} from '../features/brands/modal.js?v=20260318b';
+} from '../features/brands/modal.js?v=20260623c';
 import {
   closeBrandDeleteModal,
   initBrandDeleteFeature,
   openBrandDeleteModal
-} from '../features/brands/delete.js?v=20260304c';
+} from '../features/brands/delete.js?v=20260502c';
 import {
   closeCampaignDeleteModal,
   initCampaignDeleteFeature,
   openCampaignDeleteModal
-} from '../features/campaigns/delete.js?v=20260304c';
+} from '../features/campaigns/delete.js?v=20260625b';
 import { initScriptFlow } from '../features/scripts/flow.js?v=20260302f';
 import {
   closeScriptDeleteModal,
@@ -31,19 +34,32 @@ import {
   openScriptDeleteModal
 } from '../features/scripts/delete.js?v=20260304c';
 import { copyCurrentScript, copyScriptFromHistory, openScriptFromHistory } from '../features/scripts/history.js?v=20260302f';
-import { initAccountForm } from '../features/settings/account.js?v=20260318e';
-import { initAdminTrackerCard } from '../features/settings/admin_tracker.js?v=20260304c';
-import { syncWeeklySetting } from '../features/settings/weekly.js?v=20260302f';
+import { openBillingCheckout, openBillingPortal } from '../features/settings/billing.js?v=20260628a';
 import { clearCampaignAlertsCache, runCampaignAlerts } from '../features/settings/alerts.js?v=20260302f';
-import { sendWeeklySummaryNow } from '../features/settings/weekly_summary.js?v=20260302f';
-import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260314b';
+import { handleQuizAction, injectOnboardingHeader, convertModelToReal, ensureOnboardingQuiz } from '../features/onboarding/quiz.js?v=20260728k';
+import { handleFirstCampaignFlowAction } from '../features/onboarding/first-campaign-flow.js?v=20260728k';
+import { abrirRegistroGuiado, handleRegisterFlowAction, initRegisterFlow } from '../features/campaigns/register-flow.js?v=20260728k';
+import { renderStageAction, alternarItemDoChecklist } from '../features/campaigns/stage-actions.js?v=20260728k';
+import { abrirPrecificadorDaCampanha } from '../features/campaigns/pricing-modal.js?v=20260728k';
+import { abrirRetrospectiva, fecharRetrospectiva } from '../features/campaigns/retrospective.js?v=20260728k';
+import { registrarMudancaDeEtapa } from './campaigns/timeline.js?v=20260728k';
 
-/* â”€â”€ Money mask helper â”€â”€ */
+/**
+ * Cadastrar campanha e sempre em cards, uma pergunta por tela. O modal padrao
+ * continua valendo para edicao, e como fallback se o overlay dos cards nao
+ * estiver na pagina.
+ */
+const abrirCadastroDeCampanha = () => {
+  if (abrirRegistroGuiado()) return;
+  openCampaignModal();
+};
+
+/* -- Money mask helper -- */
 const formatMoneyInput = (raw) => {
   const digits = String(raw || '').replace(/\D/g, '');
   if (!digits) return '';
   const value = parseInt(digits, 10) || 0;
-  const formatted = value.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, '.');
+  const formatted = value.toString().replace(/\B(=(:\d{3})+(!\d))/g, '.');
   return `R$ ${formatted}`;
 };
 
@@ -65,7 +81,7 @@ const getCampaignById = (campaignId) => (Array.isArray(state.campaigns) ? state.
 const getCampaignStageLabel = (campaign) => {
   if (!campaign) return 'Sem etapa';
   const option = getCampaignStageOptions(campaign.status).find((item) => item.id === campaign.stage);
-  return option?.label || campaign.stage || 'Sem etapa';
+  return option.label || campaign.stage || 'Sem etapa';
 };
 const campaignStartLabels = {
   ugc_platform: 'Plataforma de UGC',
@@ -77,13 +93,13 @@ const campaignStartLabels = {
   other: 'Outro'
 };
 const getCampaignStartLabel = (campaign) => {
-  const key = String(campaign?.startMethod || '').trim();
+  const key = String(campaign.startMethod || '').trim();
   if (!key) return 'Não informado';
-  if (key === 'other' && String(campaign?.startMethodOther || '').trim()) return String(campaign.startMethodOther).trim();
+  if (key === 'other' && String(campaign.startMethodOther || '').trim()) return String(campaign.startMethodOther).trim();
   return campaignStartLabels[key] || key;
 };
 const getBrandActionTypeLabel = (brand) => {
-  const type = String(brand?.nextActionType || '').trim();
+  const type = String(brand.nextActionType || '').trim();
   if (!type) return 'Sem pendência';
   const option = nextActionOptions.includes(type) ? type : '';
   if (!option) return 'Sem pendência';
@@ -96,10 +112,41 @@ const getBrandActionTypeLabel = (brand) => {
     entregar_conteudo: 'Entregar conteúdo',
     revisar_ajustes: 'Revisar ajustes',
     cobrar_pagamento: 'Cobrar pagamento',
-    outro: brand?.nextActionCustomType || 'Outro'
+    outro: brand.nextActionCustomType || 'Outro'
   };
   return labels[option] || 'Sem pendência';
 };
+
+const escapeHtmlText = (value) =>
+  String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const formatFileSize = (size) => {
+  const safe = Number(size) || 0;
+  if (!safe) return 'Arquivo local';
+  if (safe < 1024) return `${safe} B`;
+  if (safe < 1024 * 1024) return `${Math.round(safe / 1024)} KB`;
+  return `${(safe / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const campaignResourceCategoryLabels = {
+  video: 'Vídeo',
+  roteiro: 'Roteiro',
+  briefing: 'Briefing',
+  outro: 'Arquivo'
+};
+
+const normalizeCampaignResourceCategory = (value) => {
+  const safe = String(value || '').trim().toLowerCase();
+  return Object.prototype.hasOwnProperty.call(campaignResourceCategoryLabels, safe) ? safe : 'outro';
+};
+
+const getCampaignResourceCategoryLabel = (value) =>
+  campaignResourceCategoryLabels[normalizeCampaignResourceCategory(value)] || 'Arquivo';
 
 const getCampaignDueModal = () => ({
   modal: document.getElementById('campaign-due-modal'),
@@ -118,8 +165,232 @@ const getCampaignPeekModal = () => ({
   body: document.querySelector('[data-campaign-peek-body]'),
   title: document.querySelector('[data-campaign-peek-title]'),
   subtitle: document.querySelector('[data-campaign-peek-subtitle]'),
-  editButton: document.querySelector('[data-action="edit-campaign-from-peek"]')
+  editButton: document.querySelector('[data-action="edit-campaign-from-peek"]'),
+  assetsButton: document.querySelector('[data-action="open-campaign-assets-from-peek"]')
 });
+
+const getCampaignAssetsModal = () => ({
+  modal: document.getElementById('campaign-assets-modal'),
+  form: document.getElementById('campaign-assets-form'),
+  list: document.querySelector('[data-campaign-assets-list]'),
+  msg: document.getElementById('campaign-assets-msg'),
+  title: document.querySelector('[data-campaign-assets-title]'),
+  subtitle: document.querySelector('[data-campaign-assets-subtitle]')
+});
+
+const setCampaignAssetsTypeVisibility = (value) => {
+  const type = String(value || 'link').trim();
+  const linkRow = document.querySelector('[data-resource-link-row]');
+  const fileRow = document.querySelector('[data-resource-file-row]');
+  const documentRow = document.querySelector('[data-resource-document-row]');
+  const linkInput = document.querySelector('#campaign-assets-form input[name="url"]');
+  const fileInput = document.querySelector('#campaign-assets-form input[name="file"]');
+  const documentInput = document.querySelector('#campaign-assets-form textarea[name="content"]');
+
+  if (linkRow) linkRow.style.display = type === 'link' ? '' : 'none';
+  if (fileRow) fileRow.style.display = type === 'file' ? '' : 'none';
+  if (documentRow) documentRow.style.display = type === 'document' ? '' : 'none';
+
+  if (linkInput) linkInput.required = type === 'link';
+  if (fileInput) fileInput.required = type === 'file';
+  if (documentInput) documentInput.required = type === 'document';
+};
+
+const renderCampaignAssetsList = (campaignId) => {
+  const campaign = getCampaignById(campaignId);
+  const { list } = getCampaignAssetsModal();
+  if (!list) return;
+  if (!campaign) {
+    list.innerHTML = '<p class="muted">Campanha não encontrada.</p>';
+    return;
+  }
+
+  const resources = Array.isArray(campaign.resources) ? campaign.resources : [];
+  if (!resources.length) {
+    list.innerHTML = `
+      <div class="campaign-assets-empty">
+        <strong>Nenhum arquivo salvo ainda.</strong>
+        <p class="muted">Guarde aqui vídeos, roteiros, briefings e outros arquivos importantes dessa campanha.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const typeMeta = {
+    link: { label: 'Link', actionLabel: 'Abrir link' },
+    file: { label: 'Arquivo', actionLabel: 'Baixar arquivo' },
+    document: { label: 'Documento', actionLabel: 'Abrir documento' }
+  };
+
+  list.innerHTML = resources
+    .map((resource) => {
+      const meta = typeMeta[resource.type] || typeMeta.link;
+      const categoryLabel = resource.type === 'file'
+        ? getCampaignResourceCategoryLabel(resource.category)
+        : meta.label;
+      const secondaryText = resource.type === 'file'
+        ? [resource.fileName || '', formatFileSize(resource.size)].filter(Boolean).join(' · ')
+        : resource.type === 'link'
+          ? resource.url
+          : resource.note || 'Documento interno dessa campanha';
+      const previewText = resource.type === 'document'
+        ? String(resource.content || resource.note || '').slice(0, 180)
+        : String(resource.note || '').slice(0, 180);
+
+      return `
+        <article class="campaign-assets-item">
+          <div class="campaign-assets-item-copy">
+            <span class="campaign-assets-item-type">${escapeHtmlText(categoryLabel)}</span>
+            <strong class="campaign-assets-item-title">${escapeHtmlText(resource.title || meta.label)}</strong>
+            ${secondaryText ? `<p class="campaign-assets-item-sub">${escapeHtmlText(secondaryText)}</p>` : ''}
+            ${previewText ? `<p class="campaign-assets-item-note">${escapeHtmlText(previewText)}</p>` : ''}
+          </div>
+          <div class="campaign-assets-item-actions">
+            <button class="btn btn-ghost btn-small" data-action="open-campaign-resource" data-campaign-id="${campaign.id}" data-resource-id="${resource.id}" type="button">${meta.actionLabel}</button>
+            <button class="btn btn-danger btn-small" data-action="delete-campaign-resource" data-campaign-id="${campaign.id}" data-resource-id="${resource.id}" type="button">Excluir</button>
+          </div>
+        </article>
+      `;
+    })
+    .join('');
+};
+
+const openCampaignAssetsModal = (campaignId) => {
+  const campaign = getCampaignById(campaignId);
+  const { modal, form, msg, title, subtitle } = getCampaignAssetsModal();
+  if (!campaign || !modal || !form) return;
+
+  form.reset();
+  form.elements.campaignId.value = campaign.id;
+  if (form.elements.resourceType) form.elements.resourceType.value = 'file';
+  if (form.elements.resourceCategory) form.elements.resourceCategory.value = 'video';
+  if (msg) msg.textContent = '';
+  if (title) title.textContent = campaign.title || campaign.brand || 'Armazenador de arquivos';
+  if (subtitle) subtitle.textContent = campaign.brand
+    ? `${campaign.brand} · vídeos, roteiros e briefings dessa campanha.`
+    : 'Guarde os arquivos importantes dessa campanha.';
+
+  renderCampaignAssetsList(campaign.id);
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  const fileInput = form.querySelector('input[name="file"]');
+  if (fileInput) fileInput.focus();
+};
+
+const closeCampaignAssetsModal = () => {
+  const { modal, form, list, msg, title, subtitle } = getCampaignAssetsModal();
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (form) form.reset();
+  if (form.elements.resourceType) form.elements.resourceType.value = 'file';
+  if (form.elements.resourceCategory) form.elements.resourceCategory.value = 'video';
+  if (list) list.innerHTML = '';
+  if (msg) msg.textContent = '';
+  if (title) title.textContent = 'Armazenador de arquivos';
+  if (subtitle) subtitle.textContent = 'Guarde vídeos, roteiros e briefings em um só lugar.';
+};
+
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('Não foi possível ler o arquivo.'));
+    reader.readAsDataURL(file);
+  });
+
+const normalizeResourceUrl = (value) => {
+  const safe = String(value || '').trim();
+  if (!safe) return '';
+  if (/^https:\/\//i.test(safe) || /^data:/i.test(safe)) return safe;
+  return `https://${safe}`;
+};
+
+const openCampaignResourceItem = (campaignId, resourceId) => {
+  const campaign = getCampaignById(campaignId);
+  const resource = (Array.isArray(campaign.resources) ? campaign.resources : []).find((item) => item.id === resourceId);
+  if (!resource) {
+    showToast('Material não encontrado.');
+    return;
+  }
+
+  if (resource.type === 'document') {
+    const popup = window.open('', '_blank', 'noopener');
+    if (!popup) {
+      showToast('Não consegui abrir o documento agora.');
+      return;
+    }
+    popup.document.write(`
+      <!doctype html>
+      <html lang="pt-BR">
+        <head>
+          <meta charset="utf-8" />
+          <title>${escapeHtmlText(resource.title || 'Documento da campanha')}</title>
+          <style>
+            body { font-family: Manrope, sans-serif; background:#0f1724; color:#f8fafc; margin:0; padding:32px; }
+            h1 { margin:0 0 12px; font-size:28px; }
+            p { color:#9fb0c9; line-height:1.6; }
+            pre { white-space:pre-wrap; word-break:break-word; background:#142033; border:1px solid rgba(148,163,184,.18); border-radius:18px; padding:20px; color:#f8fafc; font-family:inherit; font-size:16px; line-height:1.7; }
+          </style>
+        </head>
+        <body>
+          <h1>${escapeHtmlText(resource.title || 'Documento')}</h1>
+          ${resource.note ? `<p>${escapeHtmlText(resource.note)}</p>` : ''}
+          <pre>${escapeHtmlText(resource.content || '')}</pre>
+        </body>
+      </html>
+    `);
+    popup.document.close();
+    return;
+  }
+
+  if (!resource.url) {
+    showToast('Esse material não tem link disponível.');
+    return;
+  }
+
+  if (resource.type === 'file') {
+    const isVideo = String(resource.mimeType || '').toLowerCase().startsWith('video/') || resource.category === 'video';
+    if (isVideo) {
+      const popup = window.open('', '_blank', 'noopener');
+      if (!popup) {
+        showToast('Não consegui abrir esse vídeo agora.');
+        return;
+      }
+      popup.document.write(`
+        <!doctype html>
+        <html lang="pt-BR">
+          <head>
+            <meta charset="utf-8" />
+            <title>${escapeHtmlText(resource.title || resource.fileName || 'Vídeo da campanha')}</title>
+            <style>
+              body { font-family: Manrope, sans-serif; background:#08111d; color:#f8fafc; margin:0; padding:24px; display:grid; gap:18px; }
+              h1 { margin:0; font-size:28px; }
+              p { margin:0; color:#9fb0c9; line-height:1.6; }
+              video { width:min(100%, 980px); max-height:80vh; border-radius:20px; background:#000; }
+            </style>
+          </head>
+          <body>
+            <h1>${escapeHtmlText(resource.title || resource.fileName || 'Vídeo')}</h1>
+            ${resource.note ? `<p>${escapeHtmlText(resource.note)}</p>` : ''}
+            <video controls src="${escapeHtmlText(resource.url)}"></video>
+          </body>
+        </html>
+      `);
+      popup.document.close();
+      return;
+    }
+
+    const anchor = document.createElement('a');
+    anchor.href = resource.url;
+    anchor.download = resource.fileName || resource.title || 'arquivo';
+    anchor.rel = 'noopener';
+    anchor.click();
+    return;
+  }
+
+  window.open(resource.url, '_blank', 'noopener');
+};
 
 const openCampaignDueModal = (campaignId) => {
   const campaign = getCampaignById(campaignId);
@@ -167,12 +438,13 @@ const closeCampaignValueModal = () => {
 
 const openCampaignPeekModal = (campaignId) => {
   const campaign = getCampaignById(campaignId);
-  const { modal, body, title, subtitle, editButton } = getCampaignPeekModal();
-  if (!campaign || !modal || !body || !title || !subtitle || !editButton) return;
+  const { modal, body, title, subtitle, editButton, assetsButton } = getCampaignPeekModal();
+  if (!campaign || !modal || !body || !title || !subtitle || !editButton || !assetsButton) return;
 
   title.textContent = campaign.title || campaign.brand || 'Campanha';
   subtitle.textContent = campaign.brand ? `${campaign.brand} · resumo rápido do cadastro` : 'Resumo rápido do cadastro';
   editButton.dataset.campaignId = campaign.id;
+  assetsButton.dataset.campaignId = campaign.id;
 
   const paidPercent = Number.isFinite(campaign.paymentPercent) ? campaign.paymentPercent : parseInt(String(campaign.paymentPercent || '0'), 10) || 0;
   const paymentLabel = campaign.paymentReceivedAt
@@ -186,10 +458,16 @@ const openCampaignPeekModal = (campaignId) => {
     { label: '% já pago', value: `${paidPercent}%` },
     { label: 'Data de pagamento', value: paymentLabel },
     { label: 'Etapa atual', value: getCampaignStageLabel(campaign) },
-    { label: 'Prazo', value: formatDateBR(campaign.dueDate) }
+    { label: 'Prazo', value: formatDateBR(campaign.dueDate) },
+    {
+      label: 'Entregas previstas',
+      value: `${Number.isFinite(campaign.photoCount) ? campaign.photoCount : 0} foto(s) · ${Number.isFinite(campaign.videoCount) ? campaign.videoCount : 0} vídeo(s)`
+    },
+    { label: 'Arquivos armazenados', value: `${(Array.isArray(campaign.resources) ? campaign.resources : []).length} item(ns)` }
   ];
 
-  body.innerHTML = metaItems
+  // A ação da etapa atual vem antes do cadastro: é o que a pessoa veio fazer.
+  body.innerHTML = renderStageAction(campaign) + metaItems
     .map(
       (item) => `
         <article class="campaign-peek-item">
@@ -205,7 +483,7 @@ const openCampaignPeekModal = (campaignId) => {
 };
 
 const closeCampaignPeekModal = () => {
-  const { modal, body, title, subtitle, editButton } = getCampaignPeekModal();
+  const { modal, body, title, subtitle, editButton, assetsButton } = getCampaignPeekModal();
   if (!modal) return;
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
@@ -213,6 +491,7 @@ const closeCampaignPeekModal = () => {
   if (title) title.textContent = 'Campanha';
   if (subtitle) subtitle.textContent = 'Resumo rápido do cadastro.';
   if (editButton) delete editButton.dataset.campaignId;
+  if (assetsButton) delete assetsButton.dataset.campaignId;
 };
 
 const getBrandActionModal = () => ({
@@ -238,7 +517,7 @@ const populateBrandActionSelect = (selectedId = '') => {
   if (!form) return;
   const select = form.querySelector('select[name="brandIdSelect"]');
   if (!select) return;
-  const brands = (Array.isArray(state.brands) ? state.brands : []).slice().sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || ''), 'pt-BR'));
+  const brands = (Array.isArray(state.brands) ? state.brands : []).slice().sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'pt-BR'));
   select.innerHTML = ['<option value="">Escolher...</option>']
     .concat(brands.map((brand) => `<option value="${brand.id}">${String(brand.name || 'Marca')}</option>`))
     .join('');
@@ -282,8 +561,204 @@ const closeBrandActionModal = () => {
   modal.setAttribute('aria-hidden', 'true');
   if (form) form.reset();
   if (msg) msg.textContent = '';
-  if (title) title.textContent = 'Nova aÃ§Ã£o de marca';
+  if (title) title.textContent = 'Nova ação de marca';
   setBrandActionCustomVisibility('');
+};
+
+const getProspectionById = (prospectionId) =>
+  (Array.isArray(state.prospections) ? state.prospections : []).find((item) => item.id === prospectionId) || null;
+
+const getProspectionModal = () => ({
+  modal: document.getElementById('prospection-modal'),
+  form: document.getElementById('prospection-form'),
+  msg: document.getElementById('prospection-msg'),
+  title: document.querySelector('[data-prospection-modal-title]'),
+  deleteButton: document.getElementById('prospection-delete-inline-btn')
+});
+
+const PROSPECTION_WIZARD_TOTAL = 3;
+let prospectionWizardEnabled = false;
+let prospectionWizardStep = 1;
+
+const getProspectionWizardRefs = () => {
+  const { form, deleteButton } = getProspectionModal();
+  return {
+    form,
+    steps: form ? Array.from(form.querySelectorAll('[data-prospection-step]')) : [],
+    progress: form ? form.querySelector('[data-prospection-wizard-progress]') : null,
+    progressSteps: form ? Array.from(form.querySelectorAll('[data-prospection-wizard-progress] .modal-wizard-step')) : [],
+    nav: form ? form.querySelector('[data-prospection-wizard-actions]') : null,
+    submitActions: form ? form.querySelector('[data-prospection-submit-actions]') : null,
+    nextBtn: document.getElementById('prospection-step-next-btn'),
+    deleteButton
+  };
+};
+
+const applyProspectionWizardStep = () => {
+  const { form, steps, progress, progressSteps, nav, submitActions, nextBtn, deleteButton } = getProspectionWizardRefs();
+  if (!form) return;
+
+  steps.forEach((row) => {
+    const step = Number(row.dataset.prospectionStep || 1);
+    row.classList.toggle('modal-step-hidden', prospectionWizardEnabled && step !== prospectionWizardStep);
+  });
+
+  if (progress) progress.style.display = prospectionWizardEnabled ? '' : 'none';
+  if (nav) nav.style.display = prospectionWizardEnabled ? '' : 'none';
+  if (submitActions) submitActions.style.display = !prospectionWizardEnabled || prospectionWizardStep >= PROSPECTION_WIZARD_TOTAL ? '' : 'none';
+
+  progressSteps.forEach((item) => {
+    const step = Number(item.dataset.step || 0);
+    item.classList.toggle('is-active', prospectionWizardEnabled && step === prospectionWizardStep);
+    item.classList.toggle('is-done', prospectionWizardEnabled && step < prospectionWizardStep);
+  });
+
+  if (nextBtn) {
+    if (!prospectionWizardEnabled || prospectionWizardStep >= PROSPECTION_WIZARD_TOTAL) {
+      nextBtn.style.display = 'none';
+    } else {
+      nextBtn.style.display = '';
+      nextBtn.textContent = 'Próximo';
+      nextBtn.disabled = false;
+    }
+  }
+
+  if (deleteButton && prospectionWizardEnabled) {
+    if (prospectionWizardStep < PROSPECTION_WIZARD_TOTAL) {
+      deleteButton.style.display = 'none';
+    } else {
+      deleteButton.style.display = deleteButton.dataset.prospectionId ? '' : 'none';
+    }
+  }
+};
+
+const setProspectionWizardMode = () => {
+  prospectionWizardEnabled = true;
+  prospectionWizardStep = 1;
+  applyProspectionWizardStep();
+};
+
+const setProspectionWizardStep = (step) => {
+  if (!prospectionWizardEnabled) return false;
+  const next = Math.max(1, Math.min(PROSPECTION_WIZARD_TOTAL, Number(step) || 1));
+  prospectionWizardStep = next;
+  applyProspectionWizardStep();
+  return true;
+};
+
+const advanceProspectionWizardStep = () => {
+  const { form, msg } = getProspectionModal();
+  if (!form || !prospectionWizardEnabled) return;
+
+  const brandInput = form.elements.brand;
+  if (prospectionWizardStep === 1 && !String(brandInput.value || '').trim()) {
+    if (msg) msg.textContent = 'Informe a marca para continuar.';
+    if (brandInput) brandInput.focus();
+    return;
+  }
+
+  if (msg) msg.textContent = '';
+  setProspectionWizardStep(prospectionWizardStep + 1);
+};
+
+const openProspectionModal = (prospectionId = '') => {
+  const { modal, form, msg, title, deleteButton } = getProspectionModal();
+  if (!modal || !form) return;
+
+  const item = prospectionId ? getProspectionById(prospectionId) : null;
+  form.reset();
+  if (msg) msg.textContent = '';
+
+  form.elements.id.value = item?.id || '';
+  form.elements.brand.value = item?.brand || '';
+  form.elements.contactType.value = prospectionContactOptions.includes(String(item?.contactType || '').trim()) ? item.contactType : 'dm_instagram';
+  form.elements.script.value = item?.script || '';
+  form.elements.status.value = prospectionStatusOptions.includes(String(item?.status || '').trim()) ? item.status : 'pendente';
+  form.elements.notes.value = item?.notes || '';
+
+  if (title) title.textContent = item ? 'Editar prospecção' : 'Nova prospecção';
+  if (deleteButton) {
+    if (item) {
+      deleteButton.style.display = '';
+      deleteButton.dataset.prospectionId = item.id;
+    } else {
+      deleteButton.style.display = 'none';
+      delete deleteButton.dataset.prospectionId;
+    }
+  }
+  setProspectionWizardMode();
+
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  form.elements.brand.focus();
+};
+
+const closeProspectionModal = () => {
+  const { modal, form, msg, title, deleteButton } = getProspectionModal();
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (form) form.reset();
+  if (msg) msg.textContent = '';
+  if (title) title.textContent = 'Nova prospecção';
+  if (deleteButton) {
+    deleteButton.style.display = 'none';
+    delete deleteButton.dataset.prospectionId;
+  }
+  prospectionWizardEnabled = false;
+  prospectionWizardStep = 1;
+  applyProspectionWizardStep();
+};
+
+const handleProspectionSubmit = (event) => {
+  event.preventDefault();
+  const { form, msg } = getProspectionModal();
+  if (!form) return;
+
+  const data = new FormData(form);
+  const id = String(data.get('id') || '').trim();
+  const brand = String(data.get('brand') || '').trim().slice(0, 120);
+  const contactTypeRaw = String(data.get('contactType') || '').trim();
+  const statusRaw = String(data.get('status') || '').trim();
+  const script = String(data.get('script') || '').trim().slice(0, 4000);
+  const notes = String(data.get('notes') || '').trim().slice(0, 2000);
+  const contactType = prospectionContactOptions.includes(contactTypeRaw) ? contactTypeRaw : 'dm_instagram';
+  const status = prospectionStatusOptions.includes(statusRaw) ? statusRaw : 'pendente';
+
+  if (msg) msg.textContent = '';
+  if (!brand) {
+    if (msg) msg.textContent = 'Informe a marca para salvar a prospecção.';
+    return;
+  }
+
+  const nowIso = new Date().toISOString();
+  state.prospections = Array.isArray(state.prospections) ? state.prospections : [];
+  const current = id ? getProspectionById(id) : null;
+
+  if (current) {
+    current.brand = brand;
+    current.contactType = contactType;
+    current.script = script;
+    current.status = status;
+    current.notes = notes;
+    current.updatedAt = nowIso;
+  } else {
+    state.prospections.unshift({
+      id: `p-${Date.now()}`,
+      brand,
+      contactType,
+      script,
+      status,
+      notes,
+      createdAt: nowIso,
+      updatedAt: nowIso
+    });
+  }
+
+  saveState();
+  renderAll();
+  closeProspectionModal();
+  showToast(current ? 'Prospecção atualizada.' : 'Prospecção criada.');
 };
 
 const handleBrandActionSubmit = (event) => {
@@ -302,15 +777,15 @@ const handleBrandActionSubmit = (event) => {
 
   if (msg) msg.textContent = '';
   if (!brand) {
-    if (msg) msg.textContent = 'Escolha uma marca vÃ¡lida.';
+    if (msg) msg.textContent = 'Escolha uma marca válida.';
     return;
   }
   if (!nextActionType) {
-    if (msg) msg.textContent = 'Escolha a prÃ³xima aÃ§Ã£o.';
+    if (msg) msg.textContent = 'Escolha a próxima ação.';
     return;
   }
   if (!nextActionDate) {
-    if (msg) msg.textContent = 'Defina a data da aÃ§Ã£o.';
+    if (msg) msg.textContent = 'Defina a data da ação.';
     return;
   }
   if (nextActionType === 'outro' && !nextActionCustomType) {
@@ -322,11 +797,12 @@ const handleBrandActionSubmit = (event) => {
   brand.nextActionCustomType = nextActionType === 'outro' ? nextActionCustomType : '';
   brand.nextActionDate = nextActionDate;
   brand.nextActionNote = nextActionNote;
+  brand.updatedAt = new Date().toISOString();
 
   saveState();
   renderAll();
   closeBrandActionModal();
-  showToast('AÃ§Ã£o da marca salva.');
+  showToast('Ação da marca salva.');
 };
 
 const handleCampaignDueSubmit = (event) => {
@@ -367,8 +843,66 @@ const handleCampaignValueSubmit = (event) => {
   showToast('Valor atualizado.');
 };
 
+const handleCampaignAssetsSubmit = async (event) => {
+  event.preventDefault();
+  const { form, msg } = getCampaignAssetsModal();
+  if (!form) return;
+
+  const campaign = getCampaignById(String(form.elements.campaignId.value || '').trim());
+  if (!campaign) {
+    if (msg) msg.textContent = 'Campanha não encontrada.';
+    return;
+  }
+
+  const category = normalizeCampaignResourceCategory(form.elements.resourceCategory.value || 'video');
+  const note = String(form.elements.note.value || '').trim().slice(0, 240);
+  const fileInput = form.querySelector('input[name="file"]');
+  const selectedFiles = Array.from(fileInput.files || []);
+
+  if (msg) msg.textContent = '';
+  if (!selectedFiles.length) {
+    if (msg) msg.textContent = 'Escolha pelo menos um arquivo para salvar.';
+    return;
+  }
+
+  try {
+    const nowIso = new Date().toISOString();
+    const resources = await Promise.all(
+      selectedFiles.map(async (selectedFile, index) => ({
+        id: `cr-${Date.now()}-${index}`,
+        type: 'file',
+        category,
+        title: selectedFile.name || `${getCampaignResourceCategoryLabel(category)} ${index + 1}`,
+        url: await readFileAsDataUrl(selectedFile),
+        note,
+        fileName: selectedFile.name || '',
+        mimeType: selectedFile.type || '',
+        size: Number(selectedFile.size) || 0,
+        content: '',
+        createdAt: nowIso
+      }))
+    );
+
+    campaign.resources = Array.isArray(campaign.resources) ? campaign.resources : [];
+    campaign.resources.unshift(...resources);
+    campaign.updatedAt = nowIso;
+
+    saveState();
+    renderAll();
+    renderCampaignAssetsList(campaign.id);
+
+    form.reset();
+    form.elements.campaignId.value = campaign.id;
+    if (form.elements.resourceType) form.elements.resourceType.value = 'file';
+    if (form.elements.resourceCategory) form.elements.resourceCategory.value = category;
+    showToast(resources.length === 1 ? 'Arquivo salvo na campanha.' : `${resources.length} arquivos salvos na campanha.`);
+  } catch (error) {
+    if (msg) msg.textContent = 'Não consegui salvar esses arquivos agora.';
+  }
+};
+
 /* Posi\u00e7\u00e3o global de (status, stage) no pipeline.
-   Total: 15 posi\u00e7\u00f5es, 14 transi\u00e7\u00f5es â†’ 100 XP para pipeline completo. */
+   Total: 15 posi\u00e7\u00f5es, 14 transi\u00e7\u00f5es -> 100 XP para pipeline completo. */
 const getGlobalStagePos = (status, stage) => {
   let pos = 0;
   for (const s of campaignStatusOrder) {
@@ -382,6 +916,15 @@ const getGlobalStagePos = (status, stage) => {
   return pos;
 };
 const TOTAL_TRANSITIONS = 14;
+
+/**
+ * Chegar em "Pago" fecha o ciclo: a retrospectiva abre sozinha, porque é o
+ * momento em que o resultado do trabalho inteiro faz sentido junto.
+ */
+const celebrarSePago = (campaign) => {
+  if (!campaign || campaign.stage !== 'pago') return;
+  setTimeout(() => abrirRetrospectiva(campaign.id), 220);
+};
 
 const copyText = (text, doneMessage) => {
   const value = String(text || '').trim();
@@ -415,15 +958,15 @@ const handleBrandInteractionSubmit = (event) => {
   const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
 
   if (!brand) {
-    showToast('Marca nÃ£o encontrada.');
+    showToast('Marca não encontrada.');
     return;
   }
   if (!date) {
-    showToast('Defina a data da interaÃ§Ã£o.');
+    showToast('Defina a data da interação.');
     return;
   }
   if (!['dm', 'email', 'call'].includes(type)) {
-    showToast('Escolha um tipo vÃ¡lido de interaÃ§Ã£o.');
+    showToast('Escolha um tipo válido de interação.');
     return;
   }
 
@@ -439,7 +982,7 @@ const handleBrandInteractionSubmit = (event) => {
 
   saveState();
   renderAll();
-  showToast('InteraÃ§Ã£o registrada.');
+  showToast('Interação registrada.');
 };
 
 const isInteractiveCampaignTarget = (target) => {
@@ -479,6 +1022,8 @@ const handleActionClick = (event) => {
   const action = actionEl.dataset.action;
 
   // Quiz / onboarding actions
+  if (handleRegisterFlowAction(action, actionEl)) return;
+  if (handleFirstCampaignFlowAction(action, actionEl)) return;
   if (handleQuizAction(action, actionEl)) return;
 
   if (action === 'logout') {
@@ -496,16 +1041,20 @@ const handleActionClick = (event) => {
         'ugcQuestSessionUserName'
       ].forEach((k) => localStorage.removeItem(k));
     } catch (e) {}
-    window.location.replace('index.html');
+    window.location.replace('app.html');
     return;
   }
 
   if (action === 'toggle-menu') {
+    // Este clique sÃ³ controla a gaveta mobile. Impede que ouvintes genÃ©ricos
+    // adicionados por widgets da tela processem o mesmo evento e a fechem logo em seguida.
+    event.stopImmediatePropagation();
     document.body.classList.toggle('sidebar-open');
     return;
   }
 
   if (action === 'close-menu') {
+    event.stopImmediatePropagation();
     document.body.classList.remove('sidebar-open');
     return;
   }
@@ -538,6 +1087,24 @@ const handleActionClick = (event) => {
 
   if (action === 'goto-scripts') {
     setActivePage('campaigns');
+    return;
+  }
+
+  if (action === 'goto-plans') {
+    setActivePage('plans');
+    saveState();
+    renderAll();
+    return;
+  }
+
+  if (action === 'open-billing-checkout') {
+    const plan = String(actionEl.dataset.plan || '').trim();
+    void openBillingCheckout(plan);
+    return;
+  }
+
+  if (action === 'open-billing-portal') {
+    void openBillingPortal();
     return;
   }
 
@@ -599,11 +1166,10 @@ const handleActionClick = (event) => {
   if (action === 'open-dashboard-pipeline-filter') {
     const pipelineFilter = String(actionEl.dataset.pipelineFilter || '').trim();
     const statusByPipelineFilter = {
-      prospeccao: 'prospeccao',
+      negociacao: 'negociacao',
       producao: 'producao',
-      finalizacao: 'finalizacao',
+      entrega: 'entrega',
       concluida: 'concluida',
-      negociacao: 'prospeccao',
       aprovacao: 'producao',
       concluidas: 'concluida'
     };
@@ -619,8 +1185,8 @@ const handleActionClick = (event) => {
 
   if (action === 'open-metrics-status') {
     const status = String(actionEl.dataset.metricsStatus || '').trim();
-    if (!['prospeccao', 'producao', 'finalizacao', 'concluida'].includes(status)) return;
-    state.ui.metricsStatusOpen = state.ui.metricsStatusOpen === status ? '' : status;
+    if (!['negociacao', 'producao', 'entrega', 'concluida'].includes(status)) return;
+    state.ui.metricsStatusOpen = status;
     saveState();
     renderAll();
     return;
@@ -630,7 +1196,7 @@ const handleActionClick = (event) => {
     const status = String(actionEl.dataset.metricsStatus || '').trim();
     if (!status) return;
     state.ui.campaignDashboardFilter = '';
-    state.ui.campaignFilter = ['prospeccao', 'producao', 'finalizacao', 'concluida'].includes(status) ? status : 'all';
+    state.ui.campaignFilter = ['negociacao', 'producao', 'entrega', 'concluida'].includes(status) ? status : 'all';
     state.ui.metricsStatusOpen = '';
     saveState();
     setActivePage('campaigns');
@@ -643,6 +1209,39 @@ const handleActionClick = (event) => {
     state.ui.campaignFilter = 'all';
     saveState();
     renderAll();
+    return;
+  }
+
+  if (action === 'open-prospection-modal') {
+    openProspectionModal();
+    return;
+  }
+
+  if (action === 'prospection-step-next') {
+    advanceProspectionWizardStep();
+    return;
+  }
+
+  if (action === 'edit-prospection') {
+    const prospectionId = String(actionEl.dataset.prospectionId || '').trim();
+    if (!prospectionId) return;
+    openProspectionModal(prospectionId);
+    return;
+  }
+
+  if (action === 'close-prospection-modal') {
+    closeProspectionModal();
+    return;
+  }
+
+  if (action === 'delete-prospection') {
+    const prospectionId = String(actionEl.dataset.prospectionId || '').trim();
+    if (!prospectionId) return;
+    state.prospections = (Array.isArray(state.prospections) ? state.prospections : []).filter((item) => item.id !== prospectionId);
+    saveState();
+    renderAll();
+    closeProspectionModal();
+    showToast('Prospecção removida.');
     return;
   }
 
@@ -692,11 +1291,11 @@ const handleActionClick = (event) => {
   if (action === 'copy-brand-email') {
     const brandId = String(actionEl.dataset.brandId || '').trim();
     const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
-    if (!brand?.email) {
-      showToast('Essa marca nÃ£o tem email cadastrado.');
+    if (!brand || !brand.email) {
+      showToast('Essa marca não tem e-mail cadastrado.');
       return;
     }
-    copyText(brand.email, 'Email copiado.');
+    copyText(brand.email, 'E-mail copiado.');
     return;
   }
 
@@ -713,7 +1312,7 @@ const handleActionClick = (event) => {
     const brandId = String(actionEl.dataset.brandId || '').trim();
     if (!brandId) return;
     state.ui.pendingCampaignBrandId = brandId;
-    openCampaignModal();
+    abrirCadastroDeCampanha();
     injectOnboardingHeader();
     return;
   }
@@ -774,6 +1373,33 @@ const handleActionClick = (event) => {
     return;
   }
 
+  if (action === 'open-campaign-assets-from-peek') {
+    const campaignId = String(actionEl.dataset.campaignId || '').trim();
+    if (!campaignId) return;
+    closeCampaignPeekModal();
+    openCampaignAssetsModal(campaignId);
+    return;
+  }
+
+  if (action === 'open-campaign-assets-from-modal') {
+    const campaignId = String(actionEl.dataset.campaignId || '').trim();
+    if (!campaignId) return;
+    closeCampaignModal();
+    window.setTimeout(() => openCampaignAssetsModal(campaignId), 120);
+    return;
+  }
+
+  if (action === 'open-campaign-assets-modal') {
+    const campaignId = String(actionEl.dataset.campaignId || '').trim();
+    if (campaignId) openCampaignAssetsModal(campaignId);
+    return;
+  }
+
+  if (action === 'close-campaign-assets-modal') {
+    closeCampaignAssetsModal();
+    return;
+  }
+
   if (action === 'edit-campaign-from-peek') {
     const campaignId = String(actionEl.dataset.campaignId || '').trim();
     closeCampaignPeekModal();
@@ -781,11 +1407,33 @@ const handleActionClick = (event) => {
     return;
   }
 
+  if (action === 'open-campaign-resource') {
+    const campaignId = String(actionEl.dataset.campaignId || '').trim();
+    const resourceId = String(actionEl.dataset.resourceId || '').trim();
+    if (!campaignId || !resourceId) return;
+    openCampaignResourceItem(campaignId, resourceId);
+    return;
+  }
+
+  if (action === 'delete-campaign-resource') {
+    const campaignId = String(actionEl.dataset.campaignId || '').trim();
+    const resourceId = String(actionEl.dataset.resourceId || '').trim();
+    const campaign = getCampaignById(campaignId);
+    if (!campaign || !resourceId) return;
+    campaign.resources = (Array.isArray(campaign.resources) ? campaign.resources : []).filter((item) => item.id !== resourceId);
+    campaign.updatedAt = new Date().toISOString();
+    saveState();
+    renderAll();
+    renderCampaignAssetsList(campaign.id);
+    showToast('Arquivo removido.');
+    return;
+  }
+
   if (action === 'open-campaign') {
     const id = actionEl.dataset.campaignId;
     if (id) {
       setActivePage('campaigns');
-      setTimeout(() => { if (window.__ugcModals?.openCampaignModal) window.__ugcModals.openCampaignModal(id); }, 120);
+      setTimeout(() => { if (window.__ugcModals.openCampaignModal) window.__ugcModals.openCampaignModal(id); }, 120);
     }
     return;
   }
@@ -803,7 +1451,7 @@ const handleActionClick = (event) => {
     if (source !== 'brand') item.updatedAt = new Date().toISOString();
     saveState();
     renderAll();
-    showToast('AÃ§Ã£o concluÃ­da.');
+    showToast('Ação concluída.');
     return;
   }
 
@@ -824,7 +1472,7 @@ const handleActionClick = (event) => {
     return;
   }
 
-  /* â”€â”€ Performance tabs â”€â”€ */
+  /* -- Performance tabs -- */
   if (action === 'perf-tab') {
     const tab = actionEl.dataset.perfTab;
     if (!tab) return;
@@ -848,7 +1496,7 @@ const handleActionClick = (event) => {
     const modal = document.getElementById('meta-modal');
     const input = document.getElementById('meta-modal-input');
     if (!modal || !input) return;
-    const current = state.settings?.monthlyGoal || 0;
+    const current = state.settings.monthlyGoal || 0;
     input.value = current > 0 ? formatMoneyInput(String(current)) : '';
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
@@ -878,13 +1526,7 @@ const handleActionClick = (event) => {
   }
 
   if (action === 'new-campaign') {
-    const brands = Array.isArray(state.brands) ? state.brands : [];
-    if (!brands.length) {
-      openBrandModal('', { returnTo: 'campaign' });
-      showToast('Crie uma marca antes de cadastrar a campanha.');
-      return;
-    }
-    openCampaignModal();
+    abrirCadastroDeCampanha();
     injectOnboardingHeader();
     return;
   }
@@ -894,6 +1536,37 @@ const handleActionClick = (event) => {
     if (!id) return;
     closeCampaignPeekModal();
     openCampaignModal(id);
+    return;
+  }
+
+  /* ── ações da etapa atual ─────────────────────────────────── */
+
+  if (action === 'copy-stage-message') {
+    const bloco = actionEl.closest('[data-stage-action]');
+    const texto = bloco ? String(bloco.querySelector('[data-stage-message]')?.textContent || '') : '';
+    if (!texto) return;
+    copyText(texto, 'Mensagem copiada.');
+    return;
+  }
+
+  if (action === 'open-campaign-pricing') {
+    const id = String(actionEl.dataset.campaignId || '').trim();
+    if (!id) return;
+    closeCampaignPeekModal();
+    abrirPrecificadorDaCampanha(id);
+    return;
+  }
+
+  if (action === 'open-campaign-retrospective') {
+    const id = String(actionEl.dataset.campaignId || '').trim();
+    if (!id) return;
+    closeCampaignPeekModal();
+    abrirRetrospectiva(id);
+    return;
+  }
+
+  if (action === 'close-campaign-retrospective') {
+    fecharRetrospectiva();
     return;
   }
 
@@ -912,8 +1585,8 @@ const handleActionClick = (event) => {
     const clone = {
       ...JSON.parse(JSON.stringify(original)),
       id: `c-${Date.now()}`,
-      status: 'prospeccao',
-      stage: getDefaultCampaignStage('prospeccao'),
+      status: 'negociacao',
+      stage: getDefaultCampaignStage('negociacao'),
       priority: false,
       paused: false,
       archived: false,
@@ -944,8 +1617,7 @@ const handleActionClick = (event) => {
 
     if (!isLastStage) {
       const nextStage = stageOptions[currentStageIndex + 1];
-      campaign.stage = nextStage.id;
-      campaign.updatedAt = new Date().toISOString();
+      registrarMudancaDeEtapa(campaign, { status: campaign.status, stage: nextStage.id });
       trackEvent('campaign_stage_changed', {
         campaignId: campaign.id,
         status: campaign.status,
@@ -955,13 +1627,12 @@ const handleActionClick = (event) => {
       });
       saveState();
       renderAll();
-      showToast(`Avan?ou: ${nextStage.label}`);
+      showToast(`Avançou: ${nextStage.label}`);
+      celebrarSePago(campaign);
     } else if (!isLastStatus) {
       const previousStatus = campaign.status;
       const nextStatus = campaignStatusOrder[currentStatusIndex + 1];
-      campaign.status = nextStatus;
-      campaign.stage = getDefaultCampaignStage(nextStatus);
-      campaign.updatedAt = new Date().toISOString();
+      registrarMudancaDeEtapa(campaign, { status: nextStatus, stage: getDefaultCampaignStage(nextStatus) });
       trackEvent('campaign_status_changed', {
         campaignId: campaign.id,
         previousStatus,
@@ -981,7 +1652,8 @@ const handleActionClick = (event) => {
       }
       saveState();
       renderAll();
-      showToast(`Avan?ou: ${statusLabels[campaign.status] || campaign.status}`);
+      showToast(`Avançou: ${statusLabels[campaign.status] || campaign.status}`);
+      celebrarSePago(campaign);
     }
     return;
   }
@@ -991,7 +1663,7 @@ const handleActionClick = (event) => {
     const campaign = state.campaigns.find((item) => item.id === campaignId);
     if (!campaign) return;
     
-    // Se jÃ¡ Ã© prioridade, apenas remove
+    // Se já é prioridade, apenas remove
     if (campaign.priority) {
       campaign.priority = false;
       campaign.updatedAt = new Date().toISOString();
@@ -1004,7 +1676,7 @@ const handleActionClick = (event) => {
     // Limite de 2 campanhas prioritarias ao mesmo tempo
     const priorityCount = state.campaigns.reduce((acc, c) => acc + (c.priority ? 1 : 0), 0);
     if (priorityCount >= 2) {
-      showToast('Voce pode priorizar no maximo 2 campanhas.');
+      showToast('Você pode priorizar no máximo 2 campanhas.');
       return;
     }
     
@@ -1053,7 +1725,7 @@ const handleActionClick = (event) => {
     const current = currentId ? state.scripts.find((item) => item.id === currentId) : null;
     if (!current) return;
     if (current.finalized) {
-      showToast('Este roteiro jÃ¡ estÃ¡ finalizado.');
+      showToast('Este roteiro já está finalizado.');
       return;
     }
     current.finalized = true;
@@ -1066,18 +1738,6 @@ const handleActionClick = (event) => {
 
   if (action === 'copy-script-history') {
     copyScriptFromHistory(actionEl.dataset.scriptId);
-    return;
-  }
-
-  if (action === 'send-weekly-summary') {
-    sendWeeklySummaryNow();
-    return;
-  }
-
-  if (action === 'copy-weekly-preview') {
-    const preview = document.getElementById('weekly-summary-preview');
-    if (!preview) return;
-    copyText(preview.textContent, 'Resumo copiado.');
     return;
   }
 
@@ -1129,9 +1789,6 @@ const handleNavClick = (event) => {
   if (!navItem) return;
   const target = navItem.dataset.target;
   setActivePage(target);
-  if (target === 'settings') {
-    initAdminTrackerCard();
-  }
   if (target === 'campaigns') {
     trackEvent('campaigns_viewed');
     saveState();
@@ -1141,11 +1798,19 @@ const handleNavClick = (event) => {
     saveState();
     renderAll();
   }
+  if (target === 'prospeccao') {
+    saveState();
+    renderAll();
+  }
   if (target === 'finance') {
     saveState();
     renderAll();
   }
   if (target === 'metrics') {
+    saveState();
+    renderAll();
+  }
+  if (target === 'plans') {
     saveState();
     renderAll();
   }
@@ -1164,7 +1829,7 @@ const handleFilterClick = (event) => {
 
 const getStageLabelForHistory = (status, stageId) => {
   const found = getCampaignStageOptions(status).find((opt) => opt.id === stageId);
-  return found?.label || stageId || 'Sem etapa';
+  return found.label || stageId || 'Sem etapa';
 };
 
 const handleChange = (event) => {
@@ -1194,6 +1859,18 @@ const handleChange = (event) => {
     return;
   }
 
+  if (target.matches('[data-prospection-status]')) {
+    const prospectionId = String(target.dataset.prospectionId || '').trim();
+    const item = getProspectionById(prospectionId);
+    if (!item) return;
+    const statusRaw = String(target.value || '').trim();
+    item.status = prospectionStatusOptions.includes(statusRaw) ? statusRaw : 'pendente';
+    item.updatedAt = new Date().toISOString();
+    saveState();
+    renderAll();
+    return;
+  }
+
   if (target.matches('[data-campaign-status]')) {
     const campaignId = target.dataset.campaignId;
     const campaign = state.campaigns.find((item) => item.id === campaignId);
@@ -1205,9 +1882,7 @@ const handleChange = (event) => {
     const newPos = getGlobalStagePos(newStatus, getDefaultCampaignStage(newStatus));
     const delta = newPos - oldPos;
     
-    campaign.status = newStatus;
-    campaign.stage = getDefaultCampaignStage(campaign.status);
-    campaign.updatedAt = new Date().toISOString();
+    registrarMudancaDeEtapa(campaign, { status: newStatus, stage: getDefaultCampaignStage(newStatus) });
 
     const previousStatusLabel = statusLabels[previousStatus] || previousStatus;
     const nextStatusLabel = statusLabels[campaign.status] || campaign.status;
@@ -1217,7 +1892,7 @@ const handleChange = (event) => {
 
     appendCampaignHistoryEntry(campaign, {
       type: statusDirection === 'advanced' ? 'status_advanced' : statusDirection === 'regressed' ? 'status_regressed' : 'status_updated',
-      title: statusDirection === 'advanced' ? 'Status avanÃ§ou' : statusDirection === 'regressed' ? 'Status regrediu' : 'Status atualizado',
+      title: statusDirection === 'advanced' ? 'Status avançou' : statusDirection === 'regressed' ? 'Status regrediu' : 'Status atualizado',
       description: `${previousStatusLabel} -> ${nextStatusLabel}`,
       occurredAt: campaign.updatedAt
     });
@@ -1225,7 +1900,7 @@ const handleChange = (event) => {
     if (campaign.stage && campaign.stage !== previousStage) {
       appendCampaignHistoryEntry(campaign, {
         type: delta < 0 ? 'stage_regressed' : 'stage_advanced',
-        title: delta < 0 ? 'Etapa regrediu' : 'Etapa avanÃ§ou',
+        title: delta < 0 ? 'Etapa regrediu' : 'Etapa avançou',
         description: `${previousStageLabel} -> ${nextStageLabel}`,
         occurredAt: campaign.updatedAt
       });
@@ -1274,12 +1949,14 @@ const handleChange = (event) => {
     const stageDelta = stageNewPos - stageOldPos;
     
     const isValid = options.some((opt) => opt.id === nextStage);
-    campaign.stage = isValid ? nextStage : getDefaultCampaignStage(campaign.status);
-    campaign.updatedAt = new Date().toISOString();
+    registrarMudancaDeEtapa(campaign, {
+      status: campaign.status,
+      stage: isValid ? nextStage : getDefaultCampaignStage(campaign.status)
+    });
 
     appendCampaignHistoryEntry(campaign, {
       type: stageDelta > 0 ? 'stage_advanced' : stageDelta < 0 ? 'stage_regressed' : 'stage_updated',
-      title: stageDelta > 0 ? 'Etapa avanÃ§ou' : stageDelta < 0 ? 'Etapa regrediu' : 'Etapa atualizada',
+      title: stageDelta > 0 ? 'Etapa avançou' : stageDelta < 0 ? 'Etapa regrediu' : 'Etapa atualizada',
       description: `${getStageLabelForHistory(campaign.status, previousStage)} -> ${getStageLabelForHistory(campaign.status, campaign.stage)}`,
       occurredAt: campaign.updatedAt
     });
@@ -1298,14 +1975,32 @@ const handleChange = (event) => {
     saveState();
     renderAll();
     showToast('Etapa atualizada.');
+    celebrarSePago(campaign);
+    return;
+  }
+
+  // Checklist de gravação, dentro do detalhe da campanha.
+  if (target.matches('[data-stage-checklist-item]')) {
+    const bloco = target.closest('[data-stage-action]');
+    const campaignId = String(bloco?.dataset.campaignId || '').trim();
+    const campanha = alternarItemDoChecklist(campaignId, target.dataset.stageChecklistItem, target.checked);
+    if (!campanha) return;
+    const item = target.closest('.stage-checklist-item');
+    if (item) item.classList.toggle('is-done', target.checked);
+    const contador = bloco.querySelector('.stage-action-badge');
+    if (contador) {
+      const total = bloco.querySelectorAll('[data-stage-checklist-item]').length;
+      const feitos = bloco.querySelectorAll('[data-stage-checklist-item]:checked').length;
+      contador.textContent = `${feitos}/${total}`;
+    }
     return;
   }
 
   if (target.matches('[data-brand-status]')) {
     const brandId = target.dataset.brandId;
-    const brand = state.brands.find((item) => item.id === brandId);
+    const brand = (Array.isArray(state.brands) ? state.brands : []).find((item) => item.id === brandId);
     if (!brand) return;
-    brand.status = target.value;
+    brand.status = ['lead', 'negociando', 'cliente_ativo', 'cliente_recorrente', 'inativa', 'perdida'].includes(target.value) ? target.value : 'lead';
     brand.updatedAt = new Date().toISOString();
     saveState();
     renderAll();
@@ -1317,12 +2012,6 @@ const handleChange = (event) => {
     const key = target.dataset.setting;
     state.settings[key] = target.checked;
     saveState();
-    if (key === 'weekly') {
-      renderAll();
-      syncWeeklySetting(target.checked);
-      return;
-    }
-
     if (key === 'alerts') {
       if (target.checked) {
         showToast('Alertas ligados. Vou te lembrar por aqui.');
@@ -1342,7 +2031,7 @@ const handleChange = (event) => {
     showToast('Config salva.');
   }
 
-  /* â”€â”€ Metas Financeiras â”€â”€ */
+  /* -- Metas Financeiras -- */
   if (target.matches('[data-goals]')) {
     const key = target.dataset.goals;
     state.settings[key] = target.type === 'number' ? Number(target.value) || 0 : target.value;
@@ -1351,7 +2040,7 @@ const handleChange = (event) => {
     return;
   }
 
-  /* â”€â”€ Perfil do Criador â”€â”€ */
+  /* -- Perfil do Criador -- */
   if (target.matches('[data-creator]')) {
     const key = target.dataset.creator;
     state.settings[key] = target.value;
@@ -1367,16 +2056,16 @@ const handleChange = (event) => {
     return;
   }
 
-  /* â”€â”€ ConfiguraÃ§Ã£o da IA â”€â”€ */
+  /* -- Configuração da IA -- */
   if (target.matches('[data-ai]')) {
     const key = target.dataset.ai;
     state.settings[key] = target.value;
     saveState();
-    showToast('ConfiguraÃ§Ã£o de IA salva.');
+    showToast('Configuração de IA salva.');
     return;
   }
 
-  /* â”€â”€ Alertas Inteligentes â”€â”€ */
+  /* -- Alertas Inteligentes -- */
   if (target.matches('[data-smart-alert]')) {
     const key = target.dataset.smartAlert;
     state.settings[key] = target.checked;
@@ -1391,7 +2080,7 @@ const handleChange = (event) => {
     return;
   }
 
-  /* â”€â”€ Campaign sort â”€â”€ */
+  /* -- Campaign sort -- */
   if (target.matches('[data-campaign-sort]')) {
     state.ui.campaignSort = target.value || 'updatedAt';
     saveState();
@@ -1415,8 +2104,6 @@ const initActions = () => {
   safeInit('initBrandDeleteFeature', initBrandDeleteFeature);
   safeInit('initCampaignForm', initCampaignForm);
   safeInit('initCampaignDeleteFeature', initCampaignDeleteFeature);
-  safeInit('initAccountForm', initAccountForm);
-  safeInit('initAdminTrackerCard', initAdminTrackerCard);
 
   const brandActionForm = document.getElementById('brand-action-form');
   if (brandActionForm && brandActionForm.dataset.bound !== '1') {
@@ -1465,15 +2152,58 @@ const initActions = () => {
     }
   }
 
-  // Expose modal functions for quiz convert-to-real flow
-  window.__ugcModals = { openCampaignModal };
+  const campaignAssetsForm = document.getElementById('campaign-assets-form');
+  if (campaignAssetsForm && campaignAssetsForm.dataset.bound !== '1') {
+    campaignAssetsForm.dataset.bound = '1';
+    campaignAssetsForm.addEventListener('submit', handleCampaignAssetsSubmit);
 
-  if (document.body.dataset.actionsBound !== '1') {
-    document.body.dataset.actionsBound = '1';
-    document.body.addEventListener('click', handleActionClick);
-    document.body.addEventListener('click', handleNavClick);
-    document.body.addEventListener('click', handleFilterClick);
-    document.body.addEventListener('click', handleCampaignRowClick);
+    const typeSelect = campaignAssetsForm.querySelector('select[name="resourceType"]');
+    if (typeSelect) {
+      typeSelect.addEventListener('change', () => {
+        setCampaignAssetsTypeVisibility(typeSelect.value);
+      });
+      setCampaignAssetsTypeVisibility(typeSelect.value);
+    }
+  }
+
+  const prospectionForm = document.getElementById('prospection-form');
+  if (prospectionForm && prospectionForm.dataset.bound !== '1') {
+    prospectionForm.dataset.bound = '1';
+    prospectionForm.addEventListener('submit', handleProspectionSubmit);
+  }
+
+  const prospectionSearchInput = document.querySelector('[data-prospection-search]');
+  if (prospectionSearchInput && prospectionSearchInput.dataset.bound !== '1') {
+    prospectionSearchInput.dataset.bound = '1';
+    prospectionSearchInput.addEventListener('input', () => {
+      state.ui.prospectionSearch = String(prospectionSearchInput.value || '').slice(0, 120);
+      saveState();
+      renderAll();
+    });
+  }
+
+  // Expose modal functions for quiz convert-to-real flow e para os fluxos de
+  // onboarding (preview e registro guiado), que precisam da mesma instancia do
+  // modulo do modal.
+  window.__ugcModals = {
+    openCampaignModal,
+    closeCampaignModal,
+    openCampaignPreview,
+    disableCampaignWizard,
+    abrirCadastroDeCampanha
+  };
+  initRegisterFlow();
+
+  if (document.body.dataset.actionsBound !== '2') {
+    // O seletor mobile intercepta alguns cliques no documento. Registrar os
+    // delegadores na fase de captura garante que botoes, navegacao, filtros e
+    // linhas do app continuem respondendo mesmo depois de interacoes com
+    // selects customizados.
+    document.body.dataset.actionsBound = '2';
+    document.addEventListener('click', handleActionClick, true);
+    document.addEventListener('click', handleNavClick, true);
+    document.addEventListener('click', handleFilterClick, true);
+    document.addEventListener('click', handleCampaignRowClick, true);
     document.body.addEventListener('change', handleChange);
     document.body.addEventListener('submit', handleBrandInteractionSubmit);
     document.body.addEventListener('keydown', handleCampaignRowKeydown);
@@ -1507,5 +2237,3 @@ const initActions = () => {
 };
 
 export { initActions };
-
-

@@ -1,5 +1,38 @@
 /* Generic mobile custom-select styles (used by assets/js2/core/customSelect.js). */
 @media (max-width: 768px) {
+  body[data-theme="light"] .custom-select-display {
+    border-color: rgba(84, 105, 124, 0.22);
+    background: rgba(255, 255, 255, 0.96);
+    color: #17212d;
+    box-shadow: 0 2px 8px rgba(68, 86, 108, 0.1);
+  }
+
+  body[data-theme="light"] .custom-select-display:focus {
+    border-color: rgba(115, 195, 183, 0.72);
+    box-shadow: 0 0 0 2px rgba(115, 195, 183, 0.18);
+  }
+
+  body[data-theme="light"] .custom-select-dropdown {
+    border-color: rgba(84, 105, 124, 0.22);
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 14px 28px rgba(68, 86, 108, 0.16);
+  }
+
+  body[data-theme="light"] .custom-select-option {
+    color: #243444;
+  }
+
+  body[data-theme="light"] .custom-select-option:hover:not(.disabled),
+  body[data-theme="light"] .custom-select-option:focus-visible:not(.disabled) {
+    background: rgba(115, 195, 183, 0.14);
+    color: #13212d;
+  }
+
+  body[data-theme="light"] .custom-select-option.selected {
+    background: rgba(125, 151, 189, 0.18);
+    color: #13212d;
+  }
+
   .custom-select {
     position: relative;
     width: 100%;
@@ -34,6 +67,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     box-shadow: 0 2px 8px rgba(124, 58, 237, 0.14);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .custom-select-display::after {
@@ -50,6 +85,10 @@
     rotate: 45deg;
     opacity: 0.9;
     pointer-events: none;
+  }
+
+  .custom-select-display.is-open::after {
+    transform: translateY(-20%) rotate(225deg);
   }
 
   .custom-select-display:focus {
@@ -74,6 +113,17 @@
     padding: 4px 0;
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .custom-select-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10040;
+    background: rgba(3, 7, 18, 0.02);
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .custom-select-option {
@@ -88,6 +138,8 @@
     font-size: 13px;
     line-height: 1.25;
     cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .custom-select-option-text {
@@ -117,6 +169,10 @@
   }
 }
 
+body.custom-select-open {
+  overflow: hidden;
+}
+
 @media (max-width: 768px) {
   .filter-row {
     padding-bottom: 8px;
@@ -139,6 +195,169 @@
     margin-right: 0;
   }
 
+  .dashboard-upgrade-banner,
+  .plans-hero,
+  .billing-plan-top,
+  .billing-plan-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dashboard-upgrade-banner .btn,
+  .billing-plan-footer .btn {
+    width: 100%;
+  }
+
+  .plans-editorial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plans-editorial {
+    gap: 20px;
+  }
+
+  .plans-offer-card,
+  .plans-compare-card {
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+
+  .plans-offer-head h3,
+  .plans-section-head h3 {
+    font-size: 1.55rem;
+    letter-spacing: 0;
+  }
+
+  .plans-offer-price strong {
+    font-size: 2rem;
+    letter-spacing: 0;
+  }
+
+  .plans-editorial-hero h2 {
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: 0;
+  }
+
+  .plans-editorial-hero p {
+    font-size: 0.9rem;
+  }
+
+  .plans-cycle-pills {
+    width: 100%;
+  }
+
+  .plans-cycle-pill {
+    flex: 1 1 130px;
+  }
+
+  .plans-compare-table-wrap {
+    overflow: visible;
+  }
+
+  .plans-compare-table {
+    min-width: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .plans-compare-table thead {
+    display: none;
+  }
+
+  .plans-compare-table,
+  .plans-compare-table tbody,
+  .plans-compare-table tr,
+  .plans-compare-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .plans-compare-table tbody tr {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .plans-compare-table tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .plans-compare-table tbody tr:nth-child(even) {
+    background: transparent;
+  }
+
+  .plans-compare-table th,
+  .plans-compare-table td {
+    padding: 0;
+  }
+
+  .plans-compare-table tbody td {
+    border-bottom: 0;
+    font-size: 0.86rem;
+  }
+
+  .plans-compare-table tbody td:first-child {
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+
+  .plans-compare-table tbody td:nth-child(2),
+  .plans-compare-table tbody td:nth-child(3) {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 5px 0;
+  }
+
+  .plans-compare-table tbody td:nth-child(2)::before {
+    content: 'Mensal';
+    color: rgba(201, 198, 194, 0.68);
+    font-weight: 800;
+  }
+
+  .plans-compare-table tbody td:nth-child(3)::before {
+    content: 'Anual';
+    color: #e9c176;
+    font-weight: 800;
+  }
+
+  .plans-editorial-cta {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 22px 18px;
+  }
+
+  .plans-editorial-cta-actions {
+    flex-direction: column;
+  }
+
+  .plans-editorial-cta-actions .btn {
+    width: 100%;
+  }
+
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plans-hero {
+    grid-template-columns: 1fr;
+    padding: 22px 18px;
+  }
+
+  .plans-hero-copy h2 {
+    font-size: 1.8rem;
+  }
+
+  .plans-hero-side {
+    grid-template-columns: 1fr;
+  }
+
+  .billing-plan-badge {
+    position: static;
+    width: fit-content;
+    margin-bottom: 14px;
+  }
+
   .finance-page-filter {
     width: 100%;
     justify-content: space-between;
@@ -150,7 +369,6 @@
   }
 
   .finance-overview-grid,
-  .finance-indicators-grid,
   .finance-campaign-details-grid,
   .finance-page-body {
     grid-template-columns: 1fr;
@@ -258,7 +476,6 @@
   }
 
   .finance-overview-grid,
-  .finance-indicators-grid,
   .finance-campaign-details-grid {
     grid-template-columns: 1fr;
   }
@@ -275,11 +492,13 @@
     padding: 18px;
   }
 
-  .metrics-overview-grid,
   .metrics-funnel-grid,
-  .metrics-indicators-grid,
   .metrics-bottom-grid {
     grid-template-columns: 1fr;
+  }
+
+  .metrics-overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .metrics-status-list {
@@ -337,6 +556,78 @@
     gap: 16px;
   }
 
+  .theme-toggle {
+    top: 14px;
+    right: 14px;
+  }
+
+  .section-header {
+    padding-right: 74px;
+  }
+
+  .dashboard-priority-card {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 18px;
+  }
+
+  .dashboard-priority-tags {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .dashboard-priority-tags .dashboard-badge--priority {
+    align-self: flex-start;
+  }
+
+  .dashboard-priority-title {
+    font-size: 2.1rem;
+  }
+
+  .dashboard-priority-actions {
+    justify-content: stretch;
+  }
+
+  .dashboard-priority-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard-momentum-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .dashboard-momentum-card {
+    min-height: 0;
+  }
+
+  .dashboard-payment-card {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    min-height: 0;
+    padding: 18px;
+  }
+
+  .dashboard-payment-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-payment-card-actions {
+    justify-content: stretch;
+  }
+
+  .dashboard-payment-card-actions .btn {
+    width: 100%;
+  }
+
+  .dashboard-payment-card-body {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 12px;
+  }
+
   .dashboard-group-header,
   .dashboard-card-header,
   .dashboard-item,
@@ -370,6 +661,8 @@
 
   .dashboard-pipeline-step {
     gap: 10px;
+    min-height: 0;
+    padding: 16px;
   }
 
   .dashboard-pipeline-step-count {
@@ -381,6 +674,10 @@
 
   .dashboard-pipeline-step-label {
     font-size: 20px;
+  }
+
+  .dashboard-pipeline-step-preview {
+    font-size: 13px;
   }
 
   .dashboard-pipeline-panel-header,
@@ -571,7 +868,7 @@
 
   .campaign-table td[data-label="Prazo"],
   .campaign-table td[data-label="Preço"],
-  .campaign-table td[data-label="PreÃ§o"] {
+  .campaign-table td[data-label="Preço"] {
     grid-column: span 1;
   }
 
@@ -581,13 +878,13 @@
   }
 
   .campaign-table td[data-label="Avançar"],
-  .campaign-table td[data-label="AvanÃ§ar"] {
+  .campaign-table td[data-label="Avançar"] {
     margin-top: 4px;
     padding-top: 8px;
   }
 
   .campaign-table td[data-label="Ações"],
-  .campaign-table td[data-label="AÃ§Ãµes"] {
+  .campaign-table td[data-label="Ações"] {
     margin-top: 6px;
     padding-top: 8px;
   }
@@ -649,11 +946,121 @@
     grid-template-columns: 1fr;
   }
 
+  .campaign-assets-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-assets-item {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-assets-item-actions {
+    justify-content: stretch;
+  }
+
+  .campaign-assets-item-actions .btn {
+    width: 100%;
+  }
+
+  .campaign-draft-assets-actions .btn {
+    width: 100%;
+  }
+
 }
 
 @media (max-width: 520px) {
+  .modal {
+    padding: 12px;
+  }
+
   .finance-overview-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .finance-summary-grid,
+  .finance-operations-grid,
+  .metrics-analysis-grid,
+  .metrics-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .finance-flow-breakdown,
+  .finance-indicators-grid,
+  .metrics-indicators-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .finance-overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .finance-calendar-item {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .finance-calendar-meta {
+    justify-items: start;
+  }
+}
+
+@media (max-width: 768px) {
+  .finance-calendar-card,
+  .metrics-diagnostics-card {
+    padding: 18px;
+  }
+
+  .metrics-diagnostics-card {
+    display: none;
+  }
+
+  .finance-ledger-head {
+    display: none;
+  }
+
+  .finance-ledger-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .finance-ledger-cell {
+    gap: 6px;
+  }
+
+  .finance-ledger-cell::before {
+    content: attr(data-label);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .finance-ledger-cell--campaign,
+  .finance-ledger-cell--actions {
+    grid-column: 1 / -1;
+  }
+
+  .finance-ledger-cell--actions {
+    justify-content: flex-start;
+  }
+
+  .finance-ledger-cell--actions .btn {
+    width: 100%;
+  }
+
+  .finance-flow-breakdown,
+  .metrics-status-panel-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-funnel-step {
+    min-height: 0;
+  }
+
+  .metrics-status-pill {
+    justify-self: start;
   }
 }
 
@@ -667,20 +1074,83 @@
     width: 100%;
   }
 
-  .campaign-wizard-progress {
+  .billing-card-head,
+  .billing-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .settings-billing-card .billing-actions .btn,
+  .billing-actions .btn {
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 16px;
+    border-radius: 14px;
+    line-height: 1.2;
+  }
+
+  .billing-plan-grid,
+  .billing-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-wizard-progress,
+  .modal-wizard-progress {
     display: grid;
     grid-template-columns: 1fr;
   }
 
   .campaign-wizard-actions,
-  .campaign-submit-actions {
+  .campaign-submit-actions,
+  .modal-wizard-actions,
+  .modal-submit-actions {
     flex-direction: column;
     align-items: stretch;
   }
 
   .campaign-wizard-actions .btn,
-  .campaign-submit-actions .btn {
+  .campaign-submit-actions .btn,
+  .modal-wizard-actions .btn,
+  .modal-submit-actions .btn {
     width: 100%;
     min-width: 0;
+  }
+
+  .prospection-board-card {
+    padding: 18px;
+  }
+
+  .prospection-board-top {
+    align-items: stretch;
+  }
+
+  .prospection-tabs {
+    width: 100%;
+  }
+
+  .prospection-tab {
+    flex: 1;
+    text-align: center;
+  }
+
+  .prospection-search-row {
+    width: 100%;
+  }
+
+  .prospection-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .prospection-item-side {
+    grid-template-rows: auto auto auto;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 980px) {
+  .prospection-item {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
