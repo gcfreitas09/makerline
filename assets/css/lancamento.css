@@ -376,6 +376,9 @@ h1, h2, h3 {
   color: var(--muted);
   font-family: 'Space Grotesk', sans-serif;
 }
+/* O <picture> é só um invólucro pro mobile não baixar a imagem; como ele é
+   inline por padrão, viraria uma caixa de linha em volta do img block. */
+.product-frame picture { display: block; }
 .product-frame img {
   width: calc(100% - 32px);
   display: block;
@@ -788,6 +791,13 @@ h1, h2, h3 {
   .float-stat { right: 8px; bottom: 16px; padding: 11px 14px; }
   .float-stat .v { font-size: 21px; }
   .header-actions .login-link { display: none; }
+
+  /* No celular o print do produto fica pequeno demais pra ser lido e empurra
+     o resto da página pra muito longe da dobra. Sai o print; o hero termina
+     nos CTAs e emenda direto na próxima seção. As telas reais continuam
+     aparecendo em "O produto", onde cada uma tem a largura toda. */
+  .hero-stage { display: none; }
+  .hero { padding-bottom: clamp(38px, 9vw, 56px); }
 }
 @media (max-width: 480px) {
   body { font-size: 16px; }

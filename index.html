@@ -10,17 +10,112 @@
   <link rel="icon" type="image/png" href="assets/img/logo.png" />
   <link rel="apple-touch-icon" href="assets/img/logo.png" />
 
+  <link rel="canonical" href="https://makerline.com.br/" />
+
+  <!-- og:image e twitter:image precisam de URL absoluta: WhatsApp, Facebook,
+       LinkedIn e Telegram ignoram caminho relativo e o preview fica sem imagem. -->
   <meta property="og:site_name" content="Makerline" />
   <meta property="og:title" content="Makerline está no ar, o sistema operacional do creator UGC" />
   <meta property="og:description" content="Campanhas, prazos, prospecção e pagamentos num só lugar. Comece grátis por 15 dias, sem cartão." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="assets/img/share.png" />
+  <meta property="og:url" content="https://makerline.com.br/" />
+  <meta property="og:image" content="https://makerline.com.br/assets/img/share.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:image:alt" content="Makerline — o sistema operacional do creator UGC" />
   <meta property="og:locale" content="pt_BR" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Makerline está no ar, o sistema operacional do creator UGC" />
+  <meta name="twitter:description" content="Campanhas, prazos, prospecção e pagamentos num só lugar. Comece grátis por 15 dias, sem cartão." />
+  <meta name="twitter:image" content="https://makerline.com.br/assets/img/share.png" />
+  <meta name="twitter:image:alt" content="Makerline — o sistema operacional do creator UGC" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="assets/css/lancamento.css?v=20260712a" />
+  <link rel="stylesheet" href="assets/css/lancamento.css?v=20260731a" />
+
+  <!-- Dados estruturados. As respostas do FAQPage precisam bater com o texto
+       visível na página: se divergirem, o Google descarta o resultado rico. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Makerline",
+        "url": "https://makerline.com.br/",
+        "description": "O Makerline centraliza campanhas, prazos, propostas, prospecção, entregas e pagamentos para creators UGC.",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "pt-BR",
+        "image": "https://makerline.com.br/assets/img/share.png",
+        "offers": [
+          {
+            "@type": "Offer",
+            "name": "Mensal",
+            "price": "39.90",
+            "priceCurrency": "BRL",
+            "url": "https://makerline.com.br/#planos",
+            "availability": "https://schema.org/InStock"
+          },
+          {
+            "@type": "Offer",
+            "name": "Anual",
+            "price": "349.90",
+            "priceCurrency": "BRL",
+            "url": "https://makerline.com.br/#planos",
+            "availability": "https://schema.org/InStock"
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Preciso colocar cartão pra testar?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Não. São 15 dias com tudo liberado, sem cartão. Você só decide o plano se quiser continuar depois do teste."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Posso cancelar quando quiser?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sim, direto pelo painel. Sem ligação, sem burocracia. Você fica no controle da assinatura."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Serve pra quem está começando agora?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Serve. Se você já fecha, ou quer começar a fechar, campanha com marca, o Makerline organiza sua operação desde a primeira."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Substitui planilha e Notion?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sim. A ideia é centralizar toda a rotina comercial do creator num painel próprio: campanhas, marcas, prazos, valores e próximos passos."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Meus dados ficam salvos?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Ficam. Tudo é salvo na sua conta e sincroniza automaticamente. Você acessa de onde estiver, sempre atualizado."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -76,8 +171,15 @@
             <span class="dots"><i></i><i></i><i></i></span>
             <span class="label">Makerline · Campanhas</span>
           </div>
-          <img src="assets/img/landing-feature-campaigns-real.png?v=20260710c"
-               alt="Painel de campanhas do Makerline: marca, prazo, valor, status, etapa e ações em uma tabela clara." />
+          <picture>
+            <!-- Até 720px o .hero-stage é display:none. Só com o CSS, o navegador
+                 baixaria os 175KB assim mesmo — justo no celular, onde a banda
+                 pesa. Este source vazio faz o mobile não pedir a imagem. -->
+            <source media="(max-width: 720px)" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%3E%3C/svg%3E" />
+            <img src="assets/img/landing-feature-campaigns-real.jpg?v=20260731a"
+                 width="1600" height="815" fetchpriority="high" decoding="async"
+                 alt="Painel de campanhas do Makerline: marca, prazo, valor, status, etapa e ações em uma tabela clara." />
+          </picture>
         </div>
         <div class="float-stat" aria-hidden="true">
           <div class="k">A receber</div>
@@ -148,8 +250,9 @@
           <div class="feature-visual reveal" data-delay="1">
             <span class="feature-glow" aria-hidden="true"></span>
             <div class="shot">
-              <img src="assets/img/landing-feature-campaigns-real.png?v=20260710c"
-                   alt="Tela de campanhas do Makerline com filtros, prazos, valores e status." loading="lazy" />
+              <img src="assets/img/landing-feature-campaigns-real.jpg?v=20260731a"
+                   width="1600" height="815" loading="lazy" decoding="async"
+                   alt="Tela de campanhas do Makerline com filtros, prazos, valores e status." />
             </div>
           </div>
         </article>
@@ -169,8 +272,9 @@
           <div class="feature-visual reveal" data-delay="1">
             <span class="feature-glow" aria-hidden="true"></span>
             <div class="shot">
-              <img src="assets/img/landing-feature-prospeccao-real.png"
-                   alt="Central de prospecção do Makerline com cards de marcas, canal e estágio da conversa." loading="lazy" />
+              <img src="assets/img/landing-feature-prospeccao-real.jpg?v=20260731a"
+                   width="1600" height="1167" loading="lazy" decoding="async"
+                   alt="Central de prospecção do Makerline com cards de marcas, canal e estágio da conversa." />
             </div>
           </div>
         </article>
@@ -190,8 +294,9 @@
           <div class="feature-visual reveal" data-delay="1">
             <span class="feature-glow" aria-hidden="true"></span>
             <div class="shot">
-              <img src="assets/img/landing-feature-metrics-real.png"
-                   alt="Painel de métricas do Makerline com indicadores da operação e gráficos de desempenho." loading="lazy" />
+              <img src="assets/img/landing-feature-metrics-real.jpg?v=20260731a"
+                   width="1600" height="1167" loading="lazy" decoding="async"
+                   alt="Painel de métricas do Makerline com indicadores da operação e gráficos de desempenho." />
             </div>
           </div>
         </article>
@@ -426,5 +531,12 @@
   </script>
   <script>window.MAKERLINE_TRACKER_PAGE = 'lancamento';</script>
   <script src="assets/js/landing_tracker.js?v=20260712a"></script>
+
+  <!-- Mesmo módulo de Clarity que o app usa, então mantém o guard de localhost
+       (não suja a métrica com sessão de dev) e o sinal de consentimento. -->
+  <script type="module">
+    import { initClarity } from './assets/js2/core/clarity.js?v=20260731a';
+    initClarity();
+  </script>
 </body>
 </html>

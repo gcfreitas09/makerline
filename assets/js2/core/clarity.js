@@ -11,7 +11,7 @@
  * uma area especifica, use data-clarity-mask="true" no elemento correspondente.
  */
 
-const CLARITY_PROJECT_ID = 'xt9lj90oeb';
+const CLARITY_PROJECT_ID = 'xt9kha6vi6';
 
 const isTrackableEnvironment = () => {
   const host = String(window.location.hostname || '').toLowerCase();
