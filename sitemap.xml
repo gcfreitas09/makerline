@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Só a landing entra aqui. app.html, intelligence.html, verify.html e reset.html
+  são noindex de propósito: são telas de uso, não páginas de busca. Listá-las
+  faria elas competirem com a landing pelo termo "makerline".
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://makerline.com.br/</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
