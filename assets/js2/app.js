@@ -4,7 +4,7 @@ import { setActivePage, showToast } from './core/ui.js?v=20260711a';
 import { initActions } from './core/actions.js?v=20260728k';
 import { initOnboardingQuiz } from './features/onboarding/quiz.js?v=20260728k';
 import { initFeedbackWidget, initAdminFeedback } from './features/feedback/feedback.js?v=20260711c';
-import { initClarity, identifyClarityUser } from './core/clarity.js?v=20260727e';
+import { initClarity, identifyClarityUser } from './core/clarity.js?v=20260806a';
 import {
   initPushRuntime,
   enablePushNotifications,
