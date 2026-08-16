@@ -262,16 +262,16 @@
       <div class="container section-head reveal">
         <span class="eyebrow">Planos</span>
         <h2>Comece grátis. Assine quando fizer sentido.</h2>
-        <p>Teste tudo por 15 dias sem cartão. Se gostar, escolha o ciclo que cabe na sua operação.</p>
+        <p>Teste tudo por 15 dias sem cartão. Depois é só escolher o tamanho da sua operação.</p>
       </div>
-      <div class="container price-grid">
+      <div class="container price-grid price-grid-4">
         <!-- Free -->
         <article class="plan reveal">
           <h3>Teste grátis</h3>
           <p class="plan-sub">Pra sentir na prática antes de pagar qualquer coisa.</p>
           <div class="plan-price">
             <span class="amount">15</span>
-            <span class="per">dias liberados</span>
+            <span class="per">dias</span>
           </div>
           <p class="plan-note">Sem cartão</p>
           <div class="plan-sep"></div>
@@ -283,43 +283,68 @@
           <a class="btn btn-ghost" href="app.html" data-cta-id="plan_free_cta" data-track-cta="Começar grátis (plano teste)">Começar grátis</a>
         </article>
 
-        <!-- Annual (featured) -->
-        <article class="plan plan-featured reveal" data-delay="1">
-          <span class="plan-tag">Mais escolhido · economize 27%</span>
-          <h3>Anual</h3>
-          <p class="plan-sub">O melhor custo pra quem já vive de campanha.</p>
+        <!-- Starter -->
+        <article class="plan reveal" data-delay="1">
+          <h3>Essencial</h3>
+          <p class="plan-sub">Pra quem está começando e toca poucas marcas por vez.</p>
           <div class="plan-price">
-            <span class="amount">R$ 349,90</span>
-            <span class="per">/ ano</span>
-          </div>
-          <p class="plan-note">Equivale a R$ 29/mês</p>
-          <div class="plan-sep"></div>
-          <ul class="plan-feats">
-            <li><span class="check">✓</span> Tudo do plano mensal</li>
-            <li><span class="check">✓</span> 12 meses de operação organizada</li>
-            <li><span class="check">✓</span> Economia de R$ 128,90</li>
-            <li><span class="check">✓</span> Menos atrito, mais campanha fechada</li>
-          </ul>
-          <a class="btn btn-go" href="app.html" data-cta-id="plan_annual_cta" data-track-cta="Assinar anual">Assinar anual</a>
-        </article>
-
-        <!-- Monthly -->
-        <article class="plan reveal" data-delay="2">
-          <h3>Mensal</h3>
-          <p class="plan-sub">Flexível pra manter a operação organizada mês a mês.</p>
-          <div class="plan-price">
-            <span class="amount">R$ 39,90</span>
+            <span class="amount">R$ 9,90</span>
             <span class="per">/ mês</span>
           </div>
           <p class="plan-note">Cancele quando quiser</p>
           <div class="plan-sep"></div>
           <ul class="plan-feats">
-            <li><span class="check">✓</span> Campanhas e status ilimitados</li>
+            <li><span class="check">✓</span> Até 2 campanhas ativas</li>
+            <li><span class="check">✓</span> Até 2 marcas</li>
+            <li><span class="check">✓</span> Prazos, entregas e financeiro</li>
+          </ul>
+          <a class="btn btn-ghost" href="app.html" data-cta-id="plan_starter_cta" data-track-cta="Assinar Essencial">Assinar Essencial</a>
+        </article>
+
+        <!-- Pro -->
+        <article class="plan reveal" data-delay="2">
+          <h3>Profissional</h3>
+          <p class="plan-sub">Pra quem já fecha em paralelo e precisa de mais espaço.</p>
+          <div class="plan-price">
+            <span class="amount">R$ 19,90</span>
+            <span class="per">/ mês</span>
+          </div>
+          <p class="plan-note">Cancele quando quiser</p>
+          <div class="plan-sep"></div>
+          <ul class="plan-feats">
+            <li><span class="check">✓</span> Até 3 campanhas ativas</li>
+            <li><span class="check">✓</span> Até 3 marcas</li>
+            <li><span class="check">✓</span> Prospecção e follow-ups</li>
+          </ul>
+          <a class="btn btn-ghost" href="app.html" data-cta-id="plan_pro_cta" data-track-cta="Assinar Profissional">Assinar Profissional</a>
+        </article>
+
+        <!-- Unlimited (featured) -->
+        <article class="plan plan-featured reveal" data-delay="3">
+          <span class="plan-tag">Mais usado</span>
+          <h3>Ilimitado</h3>
+          <p class="plan-sub">Pra quem vive de campanha e não quer teto nenhum.</p>
+          <div class="plan-price">
+            <span class="amount">R$ 39,90</span>
+            <span class="per">/ mês</span>
+          </div>
+          <p class="plan-note">Campanhas e marcas ilimitadas</p>
+          <div class="plan-sep"></div>
+          <ul class="plan-feats">
+            <li><span class="check">✓</span> Campanhas e marcas sem limite</li>
             <li><span class="check">✓</span> Prospecção e financeiro completos</li>
             <li><span class="check">✓</span> Métricas de toda a operação</li>
           </ul>
-          <a class="btn btn-ghost" href="app.html" data-cta-id="plan_monthly_cta" data-track-cta="Assinar mensal">Assinar mensal</a>
+          <a class="btn btn-go" href="app.html" data-cta-id="plan_monthly_cta" data-track-cta="Assinar mensal">Assinar Ilimitado</a>
         </article>
+      </div>
+
+      <div class="container plan-annual reveal">
+        <div class="plan-annual-copy">
+          <span class="plan-annual-tag">Anual</span>
+          <p><strong>Ilimitado no ano por R$ 349,90</strong> — equivale a R$ 29/mês e economiza R$ 128,90 em relação ao mensal.</p>
+        </div>
+        <a class="btn btn-ghost" href="app.html" data-cta-id="plan_annual_cta" data-track-cta="Assinar anual">Assinar anual</a>
       </div>
     </section>
 
